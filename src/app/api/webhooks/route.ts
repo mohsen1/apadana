@@ -69,7 +69,12 @@ export async function POST(req: Request) {
  * @param userJson The user data from the webhook
  */
 async function createOrUpdateUser(userJson: UserJSON) {
-  const clerkId = parseInt(userJson.id, 10);
+  const clerkId = userJson.id;
+
+  if (!clerkId) {
+    throw new Error('No Clerk ID provided');
+  }
+
   const data = {
     clerkId,
     firstName: userJson.first_name,
