@@ -26,6 +26,13 @@ Add the following content to the `.env.local` file values from Vercel Storage:
 DATABASE_URL=...
 ```
 
+And add Clerk values:
+
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_******
+CLERK_SECRET_KEY=sk_test_***
+```
+
 ### 4. Run the development server
 
 You can start the server using this command:

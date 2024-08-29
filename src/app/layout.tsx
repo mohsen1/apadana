@@ -1,3 +1,4 @@
+import { ClerkProvider } from '@clerk/nextjs';
 import { Metadata } from 'next';
 import { Inter as FontSans } from 'next/font/google';
 import * as React from 'react';
@@ -5,6 +6,8 @@ import * as React from 'react';
 import '@/styles/globals.css';
 
 import { cn } from '@/lib/utils';
+
+import { Header } from '@/components/layout/header';
 
 import { siteConfig } from '@/constant/config';
 
@@ -53,15 +56,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html>
-      <body
-        className={cn(
-          'min-h-screen bg-background font-sans antialiased',
-          fontSans.variable
-        )}
-      >
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang='en'>
+        <body
+          className={cn(
+            'min-h-screen bg-background font-sans antialiased',
+            fontSans.variable
+          )}
+        >
+          <Header />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
