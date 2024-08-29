@@ -1,6 +1,8 @@
-import { WebhookEvent } from '@clerk/nextjs/server';
+import { UserJSON, WebhookEvent } from '@clerk/nextjs/server';
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
+
+import { prisma } from '@/lib/prisma/client';
 
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the endpoint
@@ -49,14 +51,61 @@ export async function POST(req: Request) {
     });
   }
 
-  // Do something with the payload
-  // For this guide, you simply log the payload to the console
-  const { id } = evt.data;
-  const eventType = evt.type;
-  // eslint-disable-next-line no-console
-  console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
-  // eslint-disable-next-line no-console
-  console.log('Webhook body:', body);
+  if (!evt.data.id) {
+    return new Response('No user id was provided', {
+      status: 400,
+    });
+  }
 
-  return new Response('', { status: 200 });
+  if (evt.type === 'user.created' || evt.type === 'user.updated') {
+    await createOrUpdateUser(evt.data as UserJSON);
+  }
+
+  return new Response('Webhook received', { status: 200 });
+}
+
+/**
+ * Create or update a user in the database
+ * @param userJson The user data from the webhook
+ */
+async function createOrUpdateUser(userJson: UserJSON) {
+  const clerkId = parseInt(userJson.id, 10);
+  const data = {
+    clerkId,
+    firstName: userJson.first_name,
+    lastName: userJson.last_name,
+    imageUrl: userJson.image_url,
+    externalAccounts: {
+      create: userJson.external_accounts.map((account) => ({
+        provider: account.provider,
+        externalId: account.provider_user_id,
+        userId: clerkId,
+      })),
+    },
+    emailAddresses: {
+      create: userJson.email_addresses.map((email) => ({
+        emailAddress: email.email_address,
+        userId: clerkId,
+        verificationStatus: email.verification?.status ?? 'unverified',
+        isPrimary: email.object === 'email_address',
+      })),
+    },
+  };
+
+  const user = await prisma.user.findFirst({
+    where: {
+      clerkId,
+    },
+  });
+
+  if (!user) {
+    return await prisma.user.create({ data });
+  }
+
+  return await prisma.user.update({
+    where: {
+      clerkId,
+    },
+    data,
+  });
 }

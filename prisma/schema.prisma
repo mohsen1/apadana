@@ -11,10 +11,35 @@ datasource db {
 }
 
 model User {
-  id    Int       @id @default(autoincrement())
-  email String    @unique
-  name  String?
-  posts Listing[]
+  id        String   @id
+  firstName String?
+  lastName  String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emailAddresses   EmailAddress[]
+  externalAccounts ExternalAccount[]
+  listings         Listing[]
+}
+
+model EmailAddress {
+  id           String  @id
+  emailAddress String  @unique
+  isPrimary    Boolean @default(false)
+  verification String?
+  userId       String
+  user         User    @relation(fields: [userId], references: [id])
+}
+
+model ExternalAccount {
+  id         String @id
+  provider   String
+  externalId String
+  userId     String
+  user       User   @relation(fields: [userId], references: [id])
+
+  @@unique([provider, externalId])
 }
 
 model Listing {
@@ -23,5 +48,5 @@ model Listing {
   content   String?
   published Boolean @default(false)
   owner     User    @relation(fields: [ownerId], references: [id])
-  ownerId   Int
+  ownerId   String
 }
