@@ -69,28 +69,30 @@ export async function POST(req: Request) {
  * @param userJson The user data from the webhook
  */
 async function createOrUpdateUser(userJson: UserJSON) {
-  const clerkId = userJson.id;
+  const userId = userJson.id;
 
-  if (!clerkId) {
+  if (!userId) {
     throw new Error('No Clerk ID provided');
   }
 
   const data = {
-    clerkId,
+    id: userId,
     firstName: userJson.first_name,
     lastName: userJson.last_name,
     imageUrl: userJson.image_url,
     externalAccounts: {
       create: userJson.external_accounts.map((account) => ({
+        id: account.id,
         provider: account.provider,
         externalId: account.provider_user_id,
-        userId: clerkId,
+        userId: userId,
       })),
     },
     emailAddresses: {
       create: userJson.email_addresses.map((email) => ({
+        id: email.id,
         emailAddress: email.email_address,
-        userId: clerkId,
+        userId: userId,
         verificationStatus: email.verification?.status ?? 'unverified',
         isPrimary: email.object === 'email_address',
       })),
@@ -99,7 +101,7 @@ async function createOrUpdateUser(userJson: UserJSON) {
 
   const user = await prisma.user.findFirst({
     where: {
-      clerkId,
+      id: userId,
     },
   });
 
@@ -109,7 +111,7 @@ async function createOrUpdateUser(userJson: UserJSON) {
 
   return await prisma.user.update({
     where: {
-      clerkId,
+      id: userId,
     },
     data,
   });
