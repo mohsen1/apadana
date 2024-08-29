@@ -1,9 +1,17 @@
 import { Metadata } from 'next';
+import { Inter as FontSans } from 'next/font/google';
 import * as React from 'react';
 
 import '@/styles/globals.css';
 
+import { cn } from '@/lib/utils';
+
 import { siteConfig } from '@/constant/config';
+
+const fontSans = FontSans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -46,7 +54,14 @@ export default function RootLayout({
 }) {
   return (
     <html>
-      <body>{children}</body>
+      <body
+        className={cn(
+          'min-h-screen bg-background font-sans antialiased',
+          fontSans.variable
+        )}
+      >
+        {children}
+      </body>
     </html>
   );
 }
