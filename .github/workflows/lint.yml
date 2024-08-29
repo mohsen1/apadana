@@ -31,6 +31,9 @@ jobs:
       - name: 📥 Download deps
         run: pnpm install --frozen-lockfile
 
+      - name: ⧗ Generate prisma client
+        run: pnpm prisma generate
+
       - name: 🔬 Lint
         run: pnpm run lint:strict
 
