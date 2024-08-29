@@ -14,7 +14,19 @@ It is encouraged to use **pnpm** so the husky hooks can work properly.
 pnpm install
 ```
 
-### 3. Run the development server
+### 3. Create a `.env.local` file
+
+```bash
+touch .env.local
+```
+
+Add the following content to the `.env.local` file values from Vercel Storage:
+
+```env
+DATABASE_URL=...
+```
+
+### 4. Run the development server
 
 You can start the server using this command:
 

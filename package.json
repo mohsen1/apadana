@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "dotenv -e .env.local pnpm next dev",
+    "migrate:dev": "dotenv -e .env.local prisma migrate dev",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint src --fix && pnpm format",
@@ -18,9 +19,13 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@prisma/client": "^5.19.0",
+    "@vercel/postgres": "^0.9.0",
     "clsx": "^2.0.0",
+    "dotenv-cli": "^7.4.2",
     "lucide-react": "^0.376.0",
     "next": "^14.0.4",
+    "prisma": "^5.19.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.12.0",
