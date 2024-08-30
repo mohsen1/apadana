@@ -35,7 +35,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className='space-x-4'>
-                  <Button>Get Started</Button>
+                  <Button href='/listing/create'>Get Started</Button>
                   <Button variant='outline'>Learn More</Button>
                 </div>
               </div>

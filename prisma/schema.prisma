@@ -104,10 +104,22 @@ model ExternalAccount {
 }
 
 model Listing {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  owner     User    @relation(fields: [ownerId], references: [id])
-  ownerId   String
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String
+  propertyType  String
+  address       String
+  city          String
+  state         String
+  zipCode       String
+  amenities     String[]
+  pricePerNight Float
+  minimumStay   Int
+  maximumGuests Int
+  houseRules    String
+  published     Boolean  @default(false)
+  owner         User     @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
