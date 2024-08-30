@@ -9,6 +9,7 @@ import '@/styles/globals.css';
 
 import { cn } from '@/lib/utils';
 
+import Footer from '@/components/footer';
 import { Header } from '@/components/layout/header';
 
 import { fileRouter } from '@/app/api/uploadthing/core';
@@ -70,6 +71,7 @@ export default function RootLayout({
           <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
           <Header />
           {children}
+          <Footer />
         </body>
       </html>
     </ClerkProvider>
