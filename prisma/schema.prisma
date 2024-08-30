@@ -10,6 +10,65 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
+enum Permission {
+  // org:listing:manage
+  MANAGE_LISTINGS
+
+  // Clerk standard permissions from here:
+  // https://clerk.com/docs/organizations/create-roles-permissions
+  // org:member:manage
+  READ_MEMBERS
+  // org:billing:manage
+  MANAGE_BILLING
+  // org:reports:view
+  VIEW_REPORTS
+  // org:settings:edit
+  EDIT_SETTINGS
+  // org:domains:manage
+  MANAGE_DOMAINS
+  // org:organization:manage
+  MANAGE_ORGANIZATION
+  // org:organization:delete
+  DELETE_ORGANIZATION
+  // org:members:manage
+  MANAGE_MEMBERS
+  // org:user:manage
+  MANAGE_USERS
+  // org:role:manage
+  MANAGE_ROLES
+  // org:permission:manage
+  MANAGE_PERMISSIONS
+}
+
+enum Role {
+  // org:adm
+  ADMIN
+  // org:host
+  HOST
+  // org:cohost
+  COHOST
+  // org:guest
+  GUEST
+}
+
+model UserRole {
+  id     Int    @id @default(autoincrement())
+  role   Role
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, role])
+}
+
+model UserPermission {
+  id         Int        @id @default(autoincrement())
+  permission Permission
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+
+  @@unique([userId, permission])
+}
+
 model User {
   id        String   @id // ID from Clerk
   firstName String?
@@ -21,6 +80,8 @@ model User {
   emailAddresses   EmailAddress[]
   externalAccounts ExternalAccount[]
   listings         Listing[]
+  roles            UserRole[]
+  permissions      UserPermission[]
 }
 
 model EmailAddress {

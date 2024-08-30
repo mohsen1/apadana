@@ -1,4 +1,5 @@
 import { UserJSON, WebhookEvent } from '@clerk/nextjs/server';
+import { Permission, Role } from '@prisma/client';
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 
@@ -88,6 +89,20 @@ async function createOrUpdateUser(userJson: UserJSON) {
         userId: userId,
       })),
     },
+    roles: {
+      create: userJson.organization_memberships?.map((membership) => ({
+        role: mapRole(membership.role),
+        userId: userId,
+      })),
+    },
+    permissions: {
+      create: userJson.organization_memberships?.flatMap((membership) =>
+        membership.permissions.map((permission) => ({
+          permission: mapPermission(permission),
+          userId: userId,
+        }))
+      ),
+    },
     emailAddresses: {
       create: userJson.email_addresses.map((email) => ({
         id: email.id,
@@ -115,4 +130,49 @@ async function createOrUpdateUser(userJson: UserJSON) {
     },
     data,
   });
+}
+function mapRole(role: string): Role {
+  switch (role) {
+    case 'org:adm':
+      return 'ADMIN';
+    case 'org:host':
+      return 'HOST';
+    case 'org:cohost':
+      return 'COHOST';
+    case 'org:guest':
+      return 'GUEST';
+    default:
+      throw new Error(`Unknown role: ${role}`);
+  }
+}
+
+function mapPermission(permission: string): Permission {
+  switch (permission) {
+    case 'org:listing:manage':
+      return 'MANAGE_LISTINGS';
+    case 'org:member:manage':
+      return 'READ_MEMBERS';
+    case 'org:billing:manage':
+      return 'MANAGE_BILLING';
+    case 'org:reports:view':
+      return 'VIEW_REPORTS';
+    case 'org:settings:edit':
+      return 'EDIT_SETTINGS';
+    case 'org:domains:manage':
+      return 'MANAGE_DOMAINS';
+    case 'org:organization:manage':
+      return 'MANAGE_ORGANIZATION';
+    case 'org:organization:delete':
+      return 'DELETE_ORGANIZATION';
+    case 'org:members:manage':
+      return 'MANAGE_MEMBERS';
+    case 'org:user:manage':
+      return 'MANAGE_USERS';
+    case 'org:role:manage':
+      return 'MANAGE_ROLES';
+    case 'org:permission:manage':
+      return 'MANAGE_PERMISSIONS';
+    default:
+      throw new Error(`Unknown permission: ${permission}`);
+  }
 }
