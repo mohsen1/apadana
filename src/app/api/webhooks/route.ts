@@ -45,9 +45,7 @@ export async function POST(req: Request) {
       'svix-signature': svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('Error verifying webhook:', err);
-    return new Response('Error occured', {
+    return new Response('Error occured verifying webhook', {
       status: 400,
     });
   }
@@ -59,13 +57,8 @@ export async function POST(req: Request) {
   }
 
   if (evt.type === 'user.created' || evt.type === 'user.updated') {
-    // eslint-disable-next-line no-console
-    console.log('Creating or updating user', JSON.stringify(evt.data, null, 2));
     await createOrUpdateUser(evt.data as UserJSON);
   }
-
-  // eslint-disable-next-line no-console
-  console.log('Webhook received, created or updated user with id', evt.data.id);
 
   return new Response('Webhook received', { status: 200 });
 }
@@ -74,7 +67,7 @@ export async function POST(req: Request) {
  * Create or update a user in the database
  * @param userJson The user data from the webhook
  */
-async function createOrUpdateUser(userJson: UserJSON) {
+export async function createOrUpdateUser(userJson: UserJSON) {
   const userId = userJson.id;
 
   if (!userId) {
