@@ -62,6 +62,9 @@ export async function POST(req: Request) {
     await createOrUpdateUser(evt.data as UserJSON);
   }
 
+  // eslint-disable-next-line no-console
+  console.log('Webhook received, created or updated user with id', evt.data.id);
+
   return new Response('Webhook received', { status: 200 });
 }
 
@@ -107,13 +110,11 @@ async function createOrUpdateUser(userJson: UserJSON) {
       create: userJson.email_addresses.map((email) => ({
         id: email.id,
         emailAddress: email.email_address,
-        userId: userId,
         verificationStatus: email.verification?.status ?? 'unverified',
         isPrimary: email.object === 'email_address',
       })),
     },
   };
-
   const user = await prisma.user.findFirst({
     where: {
       id: userId,
