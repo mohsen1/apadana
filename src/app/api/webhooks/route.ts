@@ -1,5 +1,5 @@
 import { UserJSON, WebhookEvent } from '@clerk/nextjs/server';
-import { Permission, Role } from '@prisma/client';
+import { Permission, Prisma, Role } from '@prisma/client';
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 
@@ -59,6 +59,8 @@ export async function POST(req: Request) {
   }
 
   if (evt.type === 'user.created' || evt.type === 'user.updated') {
+    // eslint-disable-next-line no-console
+    console.log('Creating or updating user', JSON.stringify(evt.data, null, 2));
     await createOrUpdateUser(evt.data as UserJSON);
   }
 
@@ -79,17 +81,24 @@ async function createOrUpdateUser(userJson: UserJSON) {
     throw new Error('No Clerk ID provided');
   }
 
-  const data = {
+  const data: Prisma.UserCreateArgs['data'] = {
     id: userId,
     firstName: userJson.first_name,
     lastName: userJson.last_name,
     imageUrl: userJson.image_url,
     externalAccounts: {
-      create: userJson.external_accounts.map((account) => ({
-        id: account.id,
-        provider: account.provider,
-        externalId: account.provider_user_id,
-      })),
+      create: userJson.external_accounts
+        .filter(
+          (externalAccount) =>
+            externalAccount.id &&
+            externalAccount.provider &&
+            externalAccount.provider_user_id
+        )
+        .map((account) => ({
+          id: account.id,
+          provider: account.provider,
+          externalId: account.provider_user_id,
+        })),
     },
     roles: {
       create: userJson.organization_memberships?.map((membership) => ({
@@ -97,21 +106,26 @@ async function createOrUpdateUser(userJson: UserJSON) {
       })),
     },
     permissions: {
-      create: userJson.organization_memberships?.flatMap((membership) =>
-        membership.permissions.map((permission) => ({
-          permission: mapPermission(permission),
-        }))
-      ),
+      create: userJson.organization_memberships
+        ?.filter((membership) => membership.permissions.length > 0)
+        .flatMap((membership) =>
+          membership.permissions
+            .filter((permission) => permission)
+            .map((permission) => ({
+              permission: mapPermission(permission),
+            }))
+        ),
     },
     emailAddresses: {
       create: userJson.email_addresses.map((email) => ({
         id: email.id,
         emailAddress: email.email_address,
-        verificationStatus: email.verification?.status ?? 'unverified',
         isPrimary: email.object === 'email_address',
+        verification: email.verification?.status ?? 'unverified',
       })),
     },
   };
+
   const user = await prisma.user.findFirst({
     where: {
       id: userId,
