@@ -89,20 +89,17 @@ async function createOrUpdateUser(userJson: UserJSON) {
         id: account.id,
         provider: account.provider,
         externalId: account.provider_user_id,
-        userId: userId,
       })),
     },
     roles: {
       create: userJson.organization_memberships?.map((membership) => ({
         role: mapRole(membership.role),
-        userId: userId,
       })),
     },
     permissions: {
       create: userJson.organization_memberships?.flatMap((membership) =>
         membership.permissions.map((permission) => ({
           permission: mapPermission(permission),
-          userId: userId,
         }))
       ),
     },
@@ -132,11 +129,12 @@ async function createOrUpdateUser(userJson: UserJSON) {
     data,
   });
 }
+
 function mapRole(role: string): Role {
   switch (role) {
-    case 'org:adm':
+    case 'org:admin':
       return 'ADMIN';
-    case 'org:host':
+    case 'org:user':
       return 'HOST';
     case 'org:cohost':
       return 'COHOST';

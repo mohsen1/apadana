@@ -41,9 +41,9 @@ enum Permission {
 }
 
 enum Role {
-  // org:adm
+  // org:admin
   ADMIN
-  // org:host
+  // org:user -- all users are hosts
   HOST
   // org:cohost
   COHOST
