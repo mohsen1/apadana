@@ -9,22 +9,25 @@ const f = createUploadthing();
 
 const auth = async (req: Request) => {
   // Get the Clerk user from the request
-  const { userId } = getAuth(req as NextRequest);
+  const auth = getAuth(req as NextRequest);
 
-  if (!userId) {
+  if (!auth.userId) {
     // eslint-disable-next-line no-console
-    console.log('User is not authenticated');
+    console.error('User is not authenticated');
     return null;
   }
 
   // Find the user in the database using Prisma
   const user = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: auth.userId },
   });
 
   if (!user) {
     // eslint-disable-next-line no-console
-    console.log('User not found in database');
+    console.error(
+      'User not found in database with auth response:',
+      JSON.stringify(auth)
+    );
     return null;
   }
 
