@@ -10,6 +10,11 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
+generator zod {
+  // https://github.com/chrishoermann/zod-prisma-types
+  provider = "zod-prisma-types"
+}
+
 enum Permission {
   // org:listing:manage
   MANAGE_LISTINGS
@@ -105,21 +110,25 @@ model ExternalAccount {
 
 model Listing {
   id            Int      @id @default(autoincrement())
-  title         String
-  description   String
-  propertyType  String
-  address       String
-  city          String
-  state         String
-  zipCode       String
+  title         String   @db.VarChar(255)
+  description   String   @db.Text
+  propertyType  String   @db.VarChar(100)
+  address       String   @db.VarChar(255)
+  city          String   @db.VarChar(100)
+  state         String   @db.VarChar(100)
+  zipCode       String   @db.Char(5)
   amenities     String[]
   pricePerNight Float
-  minimumStay   Int
-  maximumGuests Int
-  houseRules    String
+  minimumStay   Int      @default(1)
+  maximumGuests Int      @default(5)
+  houseRules    String   @db.Text
   published     Boolean  @default(false)
   owner         User     @relation(fields: [ownerId], references: [id])
   ownerId       String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([city, state])
+  @@index([pricePerNight])
 }

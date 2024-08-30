@@ -1,9 +1,15 @@
 /* eslint-disable no-console */
+
 'use client';
 
-import { Listing } from '@prisma/client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Listing,
+  ListingSchema as CompleteListingSchema,
+} from 'prisma/generated/zod';
 import { useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +30,13 @@ import { ServerResponse, submitForm } from '@/app/listing/create/submit';
 import { TypedFormData } from '@/utils/formData';
 import { UploadButton } from '@/utils/uploadthing';
 
-type Inputs = Omit<Listing, 'id'>;
+// Remove id, createdAt, updatedAt
+const ListingSchema = CompleteListingSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  ownerId: true,
+});
 
 const amenitiesList = [
   'Wi-Fi',
@@ -38,9 +50,19 @@ const amenitiesList = [
   'Pool',
   'Hot tub',
 ];
+enum FormStep {
+  LocationDetails,
+  BasicInfo,
+  Amenities,
+  Photos,
+  Pricing,
+  HouseRules,
+}
 
 export default function CreateListingForm() {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState<FormStep>(
+    FormStep.LocationDetails
+  );
 
   const [serverResponse, setServerResponse] = useState<ServerResponse | null>(
     null
@@ -48,21 +70,35 @@ export default function CreateListingForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
-  } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    console.log(data);
-    const formData = new FormData() as TypedFormData<Listing>;
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(
-        // @ts-expect-error todo
-        key,
-        String(value)
-      );
-    });
+  } = useForm<Listing>({
+    resolver: zodResolver(ListingSchema),
+    defaultValues: {
+      amenities: [],
+      published: false,
+    },
+  });
 
-    const result = await submitForm(formData);
-    setServerResponse(result);
+  const onSubmit: SubmitHandler<Listing> = async (data) => {
+    try {
+      const validatedData = ListingSchema.parse(data);
+      const formData = new FormData() as TypedFormData<Listing>;
+      Object.entries(validatedData).forEach(([key, value]) => {
+        formData.append(key as keyof Listing, String(value));
+      });
+
+      const result = await submitForm(formData);
+      setServerResponse(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Validation error:', error.errors);
+        // Handle validation errors (e.g., display them to the user)
+      } else {
+        console.error('Unexpected error:', error);
+        // Handle other types of errors
+      }
+    }
   };
 
   const steps = [
@@ -93,12 +129,27 @@ export default function CreateListingForm() {
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
+  if (errors) {
+    console.error('Form errors:', errors);
+  }
+
   if (serverResponse) {
     return (
-      <div>
-        {serverResponse.success ? 'Success!' : 'Error'}
-        &nbsp;
-        {serverResponse.error || ''}
+      <div className='max-w-md mx-auto mt-8 p-6 rounded-lg shadow-md bg-white dark:bg-gray-800'>
+        <div
+          className={`text-center text-lg font-semibold ${
+            serverResponse.success
+              ? 'text-green-600 dark:text-green-400'
+              : 'text-red-600 dark:text-red-400'
+          }`}
+        >
+          {serverResponse.success ? 'Success!' : 'Error'}
+        </div>
+        {serverResponse.error && (
+          <div className='mt-4 text-sm text-gray-600 dark:text-gray-300'>
+            {serverResponse.error}
+          </div>
+        )}
       </div>
     );
   }
@@ -131,7 +182,7 @@ export default function CreateListingForm() {
           <CardDescription>{steps[currentStep].description}</CardDescription>
         </CardHeader>
         <CardContent>
-          {currentStep === 0 && (
+          {currentStep === FormStep.LocationDetails && (
             <div className='space-y-4'>
               <div>
                 <Label htmlFor='address'>Street Address</Label>
@@ -169,7 +220,7 @@ export default function CreateListingForm() {
               </div>
             </div>
           )}
-          {currentStep === 1 && (
+          {currentStep === FormStep.BasicInfo && (
             <div className='space-y-4'>
               <div>
                 <Label htmlFor='title'>Listing Title</Label>
@@ -219,19 +270,34 @@ export default function CreateListingForm() {
               </div>
             </div>
           )}
-          {currentStep === 2 && (
+          {currentStep === FormStep.Amenities && (
             <div className='space-y-4'>
               <Label>Amenities</Label>
               {amenitiesList.map((amenity) => (
                 <div key={amenity} className='flex items-center space-x-2'>
-                  <Checkbox id={amenity} {...register('amenities')} />
+                  <Controller
+                    name='amenities'
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id={amenity}
+                        checked={field.value.includes(amenity)}
+                        onCheckedChange={(checked) => {
+                          const updatedAmenities = checked
+                            ? [...field.value, amenity]
+                            : field.value.filter((item) => item !== amenity);
+                          field.onChange(updatedAmenities);
+                        }}
+                      />
+                    )}
+                  />
                   <Label htmlFor={amenity}>{amenity}</Label>
                 </div>
               ))}
             </div>
           )}
 
-          {currentStep === 3 && (
+          {currentStep === FormStep.Photos && (
             <div className='space-y-4'>
               <Label htmlFor='photos'>Upload Photos</Label>
               <UploadButton
@@ -250,14 +316,20 @@ export default function CreateListingForm() {
             </div>
           )}
 
-          {currentStep === 4 && (
+          {currentStep === FormStep.Pricing && (
             <div className='space-y-4'>
               <div>
                 <Label htmlFor='pricePerNight'>Price per Night ($)</Label>
                 <Input
                   id='pricePerNight'
                   type='number'
-                  {...register('pricePerNight', { required: true, min: 0 })}
+                  {...register('pricePerNight', {
+                    required: true,
+                    min: 0,
+                    setValueAs(value) {
+                      return Number.parseInt(value, 10);
+                    },
+                  })}
                 />
                 {errors.pricePerNight && (
                   <span className='text-red-500'>
@@ -270,7 +342,13 @@ export default function CreateListingForm() {
                 <Input
                   id='minimumStay'
                   type='number'
-                  {...register('minimumStay', { required: true, min: 1 })}
+                  {...register('minimumStay', {
+                    required: true,
+                    min: 1,
+                    setValueAs(value) {
+                      return Number.parseInt(value, 10);
+                    },
+                  })}
                 />
                 {errors.minimumStay && (
                   <span className='text-red-500'>
@@ -283,7 +361,13 @@ export default function CreateListingForm() {
                 <Input
                   id='maximumGuests'
                   type='number'
-                  {...register('maximumGuests', { required: true, min: 1 })}
+                  {...register('maximumGuests', {
+                    required: true,
+                    min: 1,
+                    setValueAs(value) {
+                      return Number.parseInt(value, 10);
+                    },
+                  })}
                 />
                 {errors.maximumGuests && (
                   <span className='text-red-500'>
@@ -294,7 +378,7 @@ export default function CreateListingForm() {
             </div>
           )}
 
-          {currentStep === 5 && (
+          {currentStep === FormStep.HouseRules && (
             <div className='space-y-4'>
               <Label htmlFor='houseRules'>House Rules</Label>
               <Textarea id='houseRules' {...register('houseRules')} />
@@ -306,7 +390,7 @@ export default function CreateListingForm() {
             type='button'
             variant='outline'
             onClick={prevStep}
-            disabled={currentStep === 0}
+            disabled={currentStep === FormStep.BasicInfo}
           >
             Previous
           </Button>
