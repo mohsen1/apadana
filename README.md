@@ -20,17 +20,24 @@ pnpm install
 touch .env.local
 ```
 
-Add the following content to the `.env.local` file values from Vercel Storage:
+Add the following content to the `.env.local` file values from [Vercel Storage](https://vercel.com/docs/storage/vercel-postgres):
 
 ```env
 DATABASE_URL=...
 ```
 
-And add Clerk values:
+And add [Clerk](https://clerk.com/) values:
 
 ```env
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_******
 CLERK_SECRET_KEY=sk_test_***
+```
+
+Add [Uploadthing](https://uploadthing.com/) values:
+
+```env
+UPLOADTHING_SECRET=...
+UPLOADTHING_APP_ID=...
 ```
 
 ### 4. Run the development server

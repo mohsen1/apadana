@@ -1,7 +1,9 @@
 import { ClerkProvider } from '@clerk/nextjs';
+import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import { Metadata } from 'next';
 import { Inter as FontSans } from 'next/font/google';
 import * as React from 'react';
+import { extractRouterConfig } from 'uploadthing/server';
 
 import '@/styles/globals.css';
 
@@ -9,6 +11,7 @@ import { cn } from '@/lib/utils';
 
 import { Header } from '@/components/layout/header';
 
+import { fileRouter } from '@/app/api/uploadthing/core';
 import { siteConfig } from '@/constant/config';
 
 const fontSans = FontSans({
@@ -64,6 +67,7 @@ export default function RootLayout({
             fontSans.variable
           )}
         >
+          <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
           <Header />
           {children}
         </body>
