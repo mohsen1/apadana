@@ -13,6 +13,7 @@ datasource db {
 generator zod {
   // https://github.com/chrishoermann/zod-prisma-types
   provider = "zod-prisma-types"
+  output   = "../src/lib/prisma/generated/zod"
 }
 
 enum Permission {
