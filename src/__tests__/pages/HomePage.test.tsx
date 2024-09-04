@@ -1,6 +1,11 @@
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 
 import HomePage from '@/app/page';
+
+jest.mock('uvcanvas', () => ({
+  Novatrix: () => <div>Novatrix</div>,
+}));
 
 describe('Homepage', () => {
   it('renders the Components', () => {
