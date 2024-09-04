@@ -1,0 +1,68 @@
+type ErrorMessageProps = {
+  title: string;
+  content: string | object;
+};
+
+type ResultMessageProps = {
+  result: {
+    data?: unknown;
+    fetchError?: string;
+    serverError?: string;
+    validationErrors?: object;
+    bindArgsValidationErrors?: object;
+  };
+};
+
+const ErrorMessage: React.FC<ErrorMessageProps> = ({ title, content }) => (
+  <div className='mt-4 text-sm text-gray-600 dark:text-gray-300'>
+    <strong>{title}:</strong>{' '}
+    {typeof content === 'string' ? (
+      content
+    ) : (
+      <pre>{JSON.stringify(content, null, 2)}</pre>
+    )}
+  </div>
+);
+
+export const ResultMessage: React.FC<ResultMessageProps> = ({ result }) => {
+  if (
+    result.data ||
+    result.fetchError ||
+    result.serverError ||
+    result.validationErrors ||
+    result.bindArgsValidationErrors
+  ) {
+    return (
+      <div className='max-w-md mx-auto mt-8 p-6 rounded-lg shadow-md bg-white dark:bg-gray-800'>
+        <div
+          className={`text-center text-lg font-semibold ${
+            result.data
+              ? 'text-green-600 dark:text-green-400'
+              : 'text-red-600 dark:text-red-400'
+          }`}
+        >
+          {result.data ? 'Success!' : 'Error'}
+        </div>
+        {result.fetchError && (
+          <ErrorMessage title='Fetch Error' content={result.fetchError} />
+        )}
+        {result.bindArgsValidationErrors && (
+          <ErrorMessage
+            title='Bind Args Validation Errors'
+            content={result.bindArgsValidationErrors}
+          />
+        )}
+        {result.validationErrors && (
+          <ErrorMessage
+            title='Validation Errors'
+            content={result.validationErrors}
+          />
+        )}
+        {result.serverError && (
+          <ErrorMessage title='Server Error' content={result.serverError} />
+        )}
+      </div>
+    );
+  }
+  return null;
+};

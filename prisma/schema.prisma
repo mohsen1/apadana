@@ -10,11 +10,11 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
-generator zod {
-  // https://github.com/chrishoermann/zod-prisma-types
-  provider = "zod-prisma-types"
-  output   = "../src/lib/prisma/generated/zod"
-}
+// TODO
+// generator zod {
+//   provider = "prisma-zod-generator"
+//   output   = "../src/lib/prisma/generated"
+// }
 
 enum Permission {
   // org:listing:manage

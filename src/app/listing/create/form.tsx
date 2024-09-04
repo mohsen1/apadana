@@ -1,16 +1,11 @@
-/* eslint-disable no-console */
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Listing,
-  ListingSchema as CompleteListingSchema,
-} from 'prisma/generated/zod';
+import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { Controller, useForm } from 'react-hook-form';
 
+import { ResultMessage } from '@/components/form/ResultMessage';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -26,18 +21,14 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 
-import { ServerResponse, submitForm } from '@/app/listing/create/submit';
-import { TypedFormData } from '@/utils/formData';
+import { createListing } from '@/app/listing/create/action';
+import {
+  CreateListing,
+  CreateListingSchema,
+} from '@/app/listing/create/schema';
 import { UploadButton } from '@/utils/uploadthing';
 
-// Remove id, createdAt, updatedAt
-const ListingSchema = CompleteListingSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  ownerId: true,
-});
-
+// Remove id, createdAt, updatedAt;
 const amenitiesList = [
   'Wi-Fi',
   'Kitchen',
@@ -50,6 +41,21 @@ const amenitiesList = [
   'Pool',
   'Hot tub',
 ];
+
+const defaultValues: CreateListing = {
+  amenities: ['Wi-Fi'],
+  title: 'My listing',
+  description: 'This is a test listing',
+  propertyType: 'house',
+  address: '123 Main St',
+  city: 'San Francisco',
+  state: 'CA',
+  zipCode: '94105',
+  houseRules: 'No smoking allowed',
+  pricePerNight: 100,
+  minimumStay: 1,
+  maximumGuests: 5,
+};
 enum FormStep {
   LocationDetails,
   BasicInfo,
@@ -61,46 +67,15 @@ enum FormStep {
 
 export default function CreateListingForm() {
   const [currentStep, setCurrentStep] = useState<FormStep>(
-    FormStep.LocationDetails
+    FormStep.LocationDetails,
   );
-
-  const [serverResponse, setServerResponse] = useState<ServerResponse | null>(
-    null
-  );
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<Listing>({
-    resolver: zodResolver(ListingSchema),
-    defaultValues: {
-      amenities: [],
-      published: false,
-    },
-  });
-
-  const onSubmit: SubmitHandler<Listing> = async (data) => {
-    try {
-      const validatedData = ListingSchema.parse(data);
-      const formData = new FormData() as TypedFormData<Listing>;
-      Object.entries(validatedData).forEach(([key, value]) => {
-        formData.append(key as keyof Listing, String(value));
-      });
-
-      const result = await submitForm(formData);
-      setServerResponse(result);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.error('Validation error:', error.errors);
-        // Handle validation errors (e.g., display them to the user)
-      } else {
-        console.error('Unexpected error:', error);
-        // Handle other types of errors
-      }
-    }
-  };
-
+  const { execute, result } = useAction(createListing);
+  const { register, handleSubmit, control, formState, getValues } =
+    useForm<CreateListing>({
+      resolver: zodResolver(CreateListingSchema),
+      defaultValues,
+    });
+  const { errors, isSubmitting } = formState;
   const steps = [
     {
       title: 'Location Details',
@@ -125,40 +100,18 @@ export default function CreateListingForm() {
     },
   ];
 
-  const nextStep = () =>
+  const nextStep = (e: React.FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+  };
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
-
-  if (errors) {
-    console.error('Form errors:', errors);
-  }
-
-  if (serverResponse) {
-    return (
-      <div className='max-w-md mx-auto mt-8 p-6 rounded-lg shadow-md bg-white dark:bg-gray-800'>
-        <div
-          className={`text-center text-lg font-semibold ${
-            serverResponse.success
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
-          }`}
-        >
-          {serverResponse.success ? 'Success!' : 'Error'}
-        </div>
-        {serverResponse.error && (
-          <div className='mt-4 text-sm text-gray-600 dark:text-gray-300'>
-            {serverResponse.error}
-          </div>
-        )}
-      </div>
-    );
-  }
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(() => execute(getValues()))}
       className='max-w-4xl mx-auto p-6 space-y-8'
     >
+      <ResultMessage result={result} />
       <div className='flex justify-between mb-8'>
         {steps.map((step, index) => (
           <div key={index} className='flex flex-col items-center'>
@@ -275,23 +228,32 @@ export default function CreateListingForm() {
               <Label>Amenities</Label>
               {amenitiesList.map((amenity) => (
                 <div key={amenity} className='flex items-center space-x-2'>
-                  <Controller
+                  <Controller<CreateListing, 'amenities'>
                     name='amenities'
                     control={control}
-                    render={({ field }) => (
+                    render={({
+                      field,
+                    }: {
+                      field: {
+                        value: string[];
+                        onChange: (value: string[]) => void;
+                      };
+                    }) => (
                       <Checkbox
-                        id={amenity}
-                        checked={field.value.includes(amenity)}
+                        id={`amenities-${amenity}`}
+                        checked={field.value?.includes(amenity)}
                         onCheckedChange={(checked) => {
                           const updatedAmenities = checked
-                            ? [...field.value, amenity]
-                            : field.value.filter((item) => item !== amenity);
+                            ? [...(field.value || []), amenity]
+                            : (field.value || []).filter(
+                                (item: string) => item !== amenity,
+                              );
                           field.onChange(updatedAmenities);
                         }}
                       />
                     )}
                   />
-                  <Label htmlFor={amenity}>{amenity}</Label>
+                  <Label htmlFor={`amenities-${amenity}`}>{amenity}</Label>
                 </div>
               ))}
             </div>
@@ -399,7 +361,9 @@ export default function CreateListingForm() {
               Next
             </Button>
           ) : (
-            <Button type='submit'>Submit Listing</Button>
+            <Button type='submit' disabled={isSubmitting}>
+              Submit Listing
+            </Button>
           )}
         </CardFooter>
       </Card>
