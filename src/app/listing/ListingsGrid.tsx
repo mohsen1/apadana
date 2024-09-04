@@ -6,13 +6,13 @@ type ListingsGridProps = {
   listings: Array<Listing & { images?: UploadThingImage[] }>;
 };
 
-export default function ListingsGrid({ listings }: ListingsGridProps) {
+const ListingsGrid = ({ listings }: ListingsGridProps) => {
   return (
     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
       {listings.map((listing) => (
         <div
           key={listing.id}
-          className='bg-white shadow-lg rounded-lg overflow-hidden transition-transform duration-300'
+          className='bg-card shadow-lg rounded-lg overflow-hidden transition-transform duration-300'
         >
           <div className='relative h-48'>
             {listing.images && listing.images[0] && (
@@ -25,13 +25,13 @@ export default function ListingsGrid({ listings }: ListingsGridProps) {
             )}
           </div>
           <div className='p-6'>
-            <h2 className='text-2xl font-semibold mb-2 text-gray-800'>
+            <h2 className='text-2xl font-semibold mb-2 text-card-foreground'>
               {listing.title}
             </h2>
-            <p className='text-gray-600 mb-4 line-clamp-2'>
+            <p className='text-muted-foreground mb-4 line-clamp-2'>
               {listing.description}
             </p>
-            <div className='flex justify-between items-center text-sm text-gray-500'>
+            <div className='flex justify-between items-center text-sm text-muted-foreground'>
               <p className='font-medium'>${listing.pricePerNight} / night</p>
               <p>{listing.address}</p>
             </div>
@@ -40,4 +40,6 @@ export default function ListingsGrid({ listings }: ListingsGridProps) {
       ))}
     </div>
   );
-}
+};
+
+export default ListingsGrid;

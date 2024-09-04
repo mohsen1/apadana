@@ -64,7 +64,7 @@ const SortableImage = ({
       </div>
       <button
         onClick={() => onDelete(image.key)}
-        className='absolute -top-3 -right-3 bg-gray-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 focus:bg-red-600 focus:outline-none'
+        className='absolute -top-3 -right-3 bg-gray-500 text-foreground rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 focus:bg-red-600 focus:outline-none'
       >
         <XIcon className='w-4 h-4' />
       </button>

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <main>
-      <section className='bg-white'>
+      <section className='text-foreground'>
         <div className='layout flex min-h-screen flex-col items-center justify-center text-center text-black'>
           <RiAlarmWarningFill
             size={60}

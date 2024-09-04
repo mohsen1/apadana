@@ -1,18 +1,20 @@
 import Link from 'next/link';
 
+import { ThemeToggle } from '@/components/theme-toggle';
+
 const Footer = () => {
   return (
-    <footer className='py-8'>
+    <footer className='py-8 mx-auto max-w-6xl'>
       <div className='container mx-auto px-4'>
-        <div className='flex flex-wrap justify-between'>
-          <div className='w-full md:w-1/4 mb-6 md:mb-0'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+          <div className='w-full '>
             <h3 className='text-lg font-semibold mb-4'>About Us</h3>
             <p className='text-sm text-gray-600'>
               We provide a platform for hosts and guests to connect and share
               unique accommodations around the world.
             </p>
           </div>
-          <div className='w-full md:w-1/4 mb-6 md:mb-0'>
+          <div className='w-full '>
             <h3 className='text-lg font-semibold mb-4'>Quick Links</h3>
             <ul className='text-sm'>
               <li className='mb-2'>
@@ -45,16 +47,6 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-          </div>
-          <div className='w-full md:w-1/4 mb-6 md:mb-0'>
-            <h3 className='text-lg font-semibold mb-4'>Contact Us</h3>
-            <p className='text-sm text-gray-600 mb-2'>
-              Email: info@example.com
-            </p>
-            <p className='text-sm text-gray-600 mb-2'>Phone: (123) 456-7890</p>
-            <p className='text-sm text-gray-600'>
-              Address: 123 Main St, City, Country
-            </p>
           </div>
           <div className='w-full md:w-1/4'>
             <h3 className='text-lg font-semibold mb-4'>Follow Us</h3>
@@ -100,6 +92,9 @@ const Footer = () => {
                   />
                 </svg>
               </a>
+            </div>
+            <div className='mt-4'>
+              <ThemeToggle />
             </div>
           </div>
         </div>

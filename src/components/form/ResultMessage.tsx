@@ -36,7 +36,7 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ result }) => {
     result.bindArgsValidationErrors
   ) {
     return (
-      <div className='max-w-md mx-auto mt-8 p-6 rounded-lg shadow-md bg-white dark:bg-gray-800'>
+      <div className='max-w-md mx-auto mt-8 p-6 rounded-lg shadow-md bg-background'>
         <div
           className={`text-center text-lg font-semibold ${
             result.data?.success
