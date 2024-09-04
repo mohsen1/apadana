@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { ResultMessage } from '@/components/form/ResultMessage';
-import { ImageUploader } from '@/components/image-uploder';
+import { ImageUploader } from '@/components/image-uploader';
 import { Button } from '@/components/ui/button';
 import {
   Card,
