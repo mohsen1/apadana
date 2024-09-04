@@ -5,7 +5,10 @@ type ErrorMessageProps = {
 
 type ResultMessageProps = {
   result: {
-    data?: unknown;
+    data?: {
+      success: boolean;
+      error?: string;
+    };
     fetchError?: string;
     serverError?: string;
     validationErrors?: object;
@@ -36,12 +39,16 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ result }) => {
       <div className='max-w-md mx-auto mt-8 p-6 rounded-lg shadow-md bg-white dark:bg-gray-800'>
         <div
           className={`text-center text-lg font-semibold ${
-            result.data
+            result.data?.success
               ? 'text-green-600 dark:text-green-400'
               : 'text-red-600 dark:text-red-400'
           }`}
         >
-          {result.data ? 'Success!' : 'Error'}
+          {result.data?.success ? (
+            'Success!'
+          ) : (
+            <pre className='text-left'>{result.data?.error} </pre>
+          )}
         </div>
         {result.fetchError && (
           <ErrorMessage title='Fetch Error' content={result.fetchError} />

@@ -29,6 +29,15 @@ export const createListing = actionClient
               id: owner.id,
             },
           },
+          images: {
+            createMany: {
+              data: (parsedInput.images || []).map((image) => ({
+                url: image.url,
+                key: image.key,
+                name: image.name,
+              })),
+            },
+          },
         },
       });
 

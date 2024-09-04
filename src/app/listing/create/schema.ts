@@ -1,6 +1,15 @@
 import { z } from 'zod';
 
 // TODO: use code generators for this
+
+export const UploadImageSchema = z.object({
+  url: z.string(),
+  key: z.string(),
+  name: z.string().optional(),
+});
+
+export type UploadImage = z.infer<typeof UploadImageSchema>;
+
 export const CreateListingSchema = z.object({
   title: z.string(),
   description: z.string(),
@@ -15,6 +24,7 @@ export const CreateListingSchema = z.object({
   maximumGuests: z.number().optional(),
   houseRules: z.string(),
   published: z.boolean().optional(),
+  images: z.array(UploadImageSchema).optional(),
 });
 
 export type CreateListing = z.infer<typeof CreateListingSchema>;

@@ -109,25 +109,38 @@ model ExternalAccount {
   @@unique([provider, externalId])
 }
 
+model UploadThingImage {
+  id        String   @id @default(cuid())
+  url       String
+  key       String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listing   Listing @relation(fields: [listingId], references: [id])
+  listingId Int
+}
+
 model Listing {
-  id            Int      @id @default(autoincrement())
-  title         String   @db.VarChar(255)
-  description   String   @db.Text
-  propertyType  String   @db.VarChar(100)
-  address       String   @db.VarChar(255)
-  city          String   @db.VarChar(100)
-  state         String   @db.VarChar(100)
-  zipCode       String   @db.Char(5)
+  id            Int                @id @default(autoincrement())
+  title         String             @db.VarChar(255)
+  description   String             @db.Text
+  propertyType  String             @db.VarChar(100)
+  address       String             @db.VarChar(255)
+  city          String             @db.VarChar(100)
+  state         String             @db.VarChar(100)
+  zipCode       String             @db.Char(5)
   amenities     String[]
   pricePerNight Float
-  minimumStay   Int      @default(1)
-  maximumGuests Int      @default(5)
-  houseRules    String   @db.Text
-  published     Boolean  @default(false)
-  owner         User     @relation(fields: [ownerId], references: [id])
+  minimumStay   Int                @default(1)
+  maximumGuests Int                @default(5)
+  houseRules    String             @db.Text
+  published     Boolean            @default(false)
+  owner         User               @relation(fields: [ownerId], references: [id])
   ownerId       String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  images        UploadThingImage[]
 
   @@index([ownerId])
   @@index([city, state])

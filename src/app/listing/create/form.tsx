@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { ResultMessage } from '@/components/form/ResultMessage';
+import { ImageUploader } from '@/components/image-uploder';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -26,7 +27,6 @@ import {
   CreateListing,
   CreateListingSchema,
 } from '@/app/listing/create/schema';
-import { UploadButton } from '@/utils/uploadthing';
 
 // Remove id, createdAt, updatedAt;
 const amenitiesList = [
@@ -108,7 +108,9 @@ export default function CreateListingForm() {
 
   return (
     <form
-      onSubmit={handleSubmit(() => execute(getValues()))}
+      onSubmit={handleSubmit(() => {
+        execute(getValues());
+      })}
       className='max-w-4xl mx-auto p-6 space-y-8'
     >
       <ResultMessage result={result} />
@@ -261,19 +263,20 @@ export default function CreateListingForm() {
 
           {currentStep === FormStep.Photos && (
             <div className='space-y-4'>
-              <Label htmlFor='photos'>Upload Photos</Label>
-              <UploadButton
-                endpoint='imageUploader'
-                onClientUploadComplete={(res) => {
-                  // Do something with the response
-                  // eslint-disable-next-line no-console
-                  console.log('Files: ', res);
-                  alert('Upload Completed');
-                }}
-                onUploadError={(error: Error) => {
-                  // Do something with the error.
-                  alert(`ERROR! ${error.message}`);
-                }}
+              <Controller<CreateListing, 'images'>
+                name='images'
+                control={control}
+                render={({ field, fieldState }) => (
+                  <ImageUploader
+                    onChange={field.onChange}
+                    onError={(error) => {
+                      fieldState.error = {
+                        type: 'uploadError',
+                        message: error.message,
+                      };
+                    }}
+                  />
+                )}
               />
             </div>
           )}
