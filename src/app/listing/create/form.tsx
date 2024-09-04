@@ -70,7 +70,7 @@ export default function CreateListingForm() {
     FormStep.LocationDetails,
   );
   const { execute, result } = useAction(createListing);
-  const { register, handleSubmit, control, formState, getValues } =
+  const { register, handleSubmit, control, formState, getValues, setError } =
     useForm<CreateListing>({
       resolver: zodResolver(CreateListingSchema),
       defaultValues,
@@ -266,14 +266,14 @@ export default function CreateListingForm() {
               <Controller<CreateListing, 'images'>
                 name='images'
                 control={control}
-                render={({ field, fieldState }) => (
+                render={({ field }) => (
                   <ImageUploader
                     onChange={field.onChange}
                     onError={(error) => {
-                      fieldState.error = {
+                      setError('images', {
                         type: 'uploadError',
                         message: error.message,
-                      };
+                      });
                     }}
                   />
                 )}

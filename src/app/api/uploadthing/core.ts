@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 import { type FileRouter, createUploadthing } from 'uploadthing/next';
 import { UploadThingError } from 'uploadthing/server';
 
-import { prisma } from '@/lib/prisma/client';
+import prisma from '@/lib/prisma/client';
 
 const f = createUploadthing();
 
