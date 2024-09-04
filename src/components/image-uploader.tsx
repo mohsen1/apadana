@@ -26,9 +26,11 @@ import { UploadButton } from '@/utils/uploadthing';
 const SortableImage = ({
   image,
   onDelete,
+  isCover,
 }: {
   image: UploadedFileData;
   onDelete: (key: string) => void;
+  isCover: boolean;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: image.key });
@@ -54,6 +56,11 @@ const SortableImage = ({
           className='object-cover w-full h-full'
           height={100}
         />
+        {isCover && (
+          <div className='absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-1 text-sm'>
+            Cover Photo
+          </div>
+        )}
       </div>
       <button
         onClick={() => onDelete(image.key)}
@@ -114,11 +121,12 @@ export const ImageUploader = ({
           strategy={rectSwappingStrategy}
         >
           <div className='flex flex-wrap gap-4'>
-            {images.map((image) => (
+            {images.map((image, index) => (
               <SortableImage
                 key={image.key}
                 image={image}
                 onDelete={deleteImage}
+                isCover={index === 0}
               />
             ))}
           </div>
