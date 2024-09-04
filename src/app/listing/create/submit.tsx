@@ -11,7 +11,7 @@ export type ServerResponse = {
 };
 
 function validateFormData(
-  formData: TypedFormData<Listing>
+  formData: TypedFormData<Listing>,
 ): formData is TypedFormData<Required<Listing>> {
   const errors: Record<string, string> = {};
   const validatedData: Partial<Required<Listing>> = {};
@@ -81,7 +81,7 @@ function validateFormData(
 }
 
 export async function submitForm(
-  formData: TypedFormData<Listing>
+  formData: TypedFormData<Listing>,
 ): Promise<ServerResponse> {
   try {
     validateFormData(formData);

@@ -26,7 +26,7 @@ const auth = async (req: Request) => {
     // eslint-disable-next-line no-console
     console.error(
       'User not found in database with auth response:',
-      JSON.stringify(auth)
+      JSON.stringify(auth),
     );
     return null;
   }
