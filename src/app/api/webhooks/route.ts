@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
   if (!WEBHOOK_SECRET) {
     throw new Error(
-      'Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local'
+      'Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local',
     );
   }
 
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
  * Create or update a user in the database
  * @param userJson The user data from the webhook
  */
-export async function createOrUpdateUser(userJson: UserJSON) {
+async function createOrUpdateUser(userJson: UserJSON) {
   const userId = userJson.id;
 
   if (!userId) {
@@ -85,7 +85,7 @@ export async function createOrUpdateUser(userJson: UserJSON) {
           (externalAccount) =>
             externalAccount.id &&
             externalAccount.provider &&
-            externalAccount.provider_user_id
+            externalAccount.provider_user_id,
         )
         .map((account) => ({
           id: account.id,
@@ -106,7 +106,7 @@ export async function createOrUpdateUser(userJson: UserJSON) {
             .filter((permission) => permission)
             .map((permission) => ({
               permission: mapPermission(permission),
-            }))
+            })),
         ),
     },
     emailAddresses: {
