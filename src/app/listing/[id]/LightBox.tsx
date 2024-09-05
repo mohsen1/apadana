@@ -1,7 +1,6 @@
 'use client';
 
 import { UploadThingImage } from '@prisma/client';
-import Image from 'next/image';
 import { useState } from 'react';
 import Lightbox from 'yet-another-react-lightbox';
 
@@ -9,10 +8,12 @@ import 'yet-another-react-lightbox/styles.css';
 
 export function LightBox({
   images,
-  title,
+  children,
+  index,
 }: {
   images: UploadThingImage[];
-  title: string;
+  children: React.ReactNode;
+  index: number;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -20,23 +21,14 @@ export function LightBox({
 
   return (
     <>
-      <div
-        className='relative h-[50vh] w-full cursor-pointer'
-        onClick={() => setIsOpen(true)}
-      >
-        <Image
-          src={images[0].url}
-          alt={title}
-          layout='fill'
-          objectFit='cover'
-          priority
-        />
+      <div className='cursor-pointer' onClick={() => setIsOpen(true)}>
+        {children}
       </div>
       <Lightbox
         open={isOpen}
         close={() => setIsOpen(false)}
         slides={lightboxImages}
-        index={0}
+        index={index}
       />
     </>
   );
