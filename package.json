@@ -55,6 +55,7 @@
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^6.13.2",
     "uvcanvas": "^0.2.1",
+    "yet-another-react-lightbox": "^3.21.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {

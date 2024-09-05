@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+import { LightBox } from '@/app/listing/[id]/LightBox';
+
 export function ListingPage({
   listingData,
 }: {
@@ -13,15 +15,7 @@ export function ListingPage({
   return (
     <div className='min-h-screen bg-gray-100'>
       {/* Cover Photo */}
-      <div className='relative h-[50vh] w-full'>
-        <Image
-          src={listingData.images[0].url}
-          alt={listingData.title}
-          layout='fill'
-          objectFit='cover'
-          priority
-        />
-      </div>
+      <LightBox images={listingData.images} title={listingData.title} />
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
           {/* Listing Details */}
