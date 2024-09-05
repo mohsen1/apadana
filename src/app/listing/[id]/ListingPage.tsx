@@ -1,11 +1,11 @@
 import { Listing, UploadThingImage, User } from '@prisma/client';
-import { Calendar } from 'lucide-react';
 import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { Amenity } from '@/app/listing/[id]/Amenity';
+import { DatePicker } from '@/app/listing/[id]/DatePicker';
 import { LightBox } from '@/app/listing/[id]/LightBox';
 
 export function ListingPage({
@@ -94,11 +94,8 @@ export function ListingPage({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Calendar
-                  mode='range'
-                  className='rounded-md border mb-4 dark:border-gray-700'
-                />
-                <Button className='w-full'>Reserve</Button>
+                <DatePicker />
+                <Button className='w-full mt-4'>Reserve</Button>
               </CardContent>
             </Card>
 
