@@ -28,20 +28,7 @@ import {
   CreateListing,
   CreateListingSchema,
 } from '@/app/listing/create/schema';
-
-// Remove id, createdAt, updatedAt;
-const amenitiesList = [
-  'Wi-Fi',
-  'Kitchen',
-  'Free parking',
-  'Air conditioning',
-  'Heating',
-  'Washer',
-  'Dryer',
-  'TV',
-  'Pool',
-  'Hot tub',
-];
+import { amenitiesList } from '@/shared/ameneties';
 
 const defaultValues: CreateListing = {
   amenities: ['Wi-Fi'],

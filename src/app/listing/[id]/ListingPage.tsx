@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+import { Amenity } from '@/app/listing/[id]/Amenity';
 import { LightBox } from '@/app/listing/[id]/LightBox';
 
 export function ListingPage({
@@ -36,12 +37,9 @@ export function ListingPage({
             <p className='text-gray-600 dark:text-gray-300 mb-4'>
               {listingData.address}
             </p>
-            <div className='flex items-center mb-4'>
-              <span className='text-yellow-500 mr-1'>★</span>
-              {/* <span className="dark:text-gray-300">{listingData.rating}</span> */}
-              <span className='mx-2 dark:text-gray-300'>·</span>
-              {/* <span className="dark:text-gray-300">{listingData.reviews} reviews</span> */}
-            </div>
+            <h2 className='text-2xl font-semibold mb-4 dark:text-white'>
+              About this place
+            </h2>
             <p className='text-gray-700 dark:text-gray-300 mb-6'>
               {listingData.description}
             </p>
@@ -56,7 +54,7 @@ export function ListingPage({
                   key={amenity}
                   className='flex items-center dark:text-gray-300'
                 >
-                  <span className='mr-2'>✓</span> {amenity}
+                  <Amenity name={amenity} />
                 </li>
               ))}
             </ul>
