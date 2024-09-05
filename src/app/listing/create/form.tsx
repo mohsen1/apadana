@@ -70,11 +70,18 @@ export default function CreateListingForm() {
     FormStep.LocationDetails,
   );
   const { execute, result } = useAction(createListing);
-  const { register, handleSubmit, control, formState, getValues, setError } =
-    useForm<CreateListing>({
-      resolver: zodResolver(CreateListingSchema),
-      defaultValues,
-    });
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState,
+    getValues,
+    setError,
+    clearErrors,
+  } = useForm<CreateListing>({
+    resolver: zodResolver(CreateListingSchema),
+    defaultValues,
+  });
   const { errors, isSubmitting } = formState;
   const steps = [
     {
@@ -268,16 +275,28 @@ export default function CreateListingForm() {
                 control={control}
                 render={({ field }) => (
                   <ImageUploader
-                    onChange={field.onChange}
+                    onChange={(images) => {
+                      clearErrors('images');
+                      field.onChange(images);
+                    }}
                     onError={(error) => {
+                      if (!error) {
+                        clearErrors('images');
+                        return;
+                      }
                       setError('images', {
                         type: 'uploadError',
-                        message: error.message,
+                        message:
+                          error?.message ||
+                          'Something went wrong while uploading the images',
                       });
                     }}
                   />
                 )}
               />
+              {errors.images && (
+                <span className='text-red-500'>{errors.images.message}</span>
+              )}
             </div>
           )}
 

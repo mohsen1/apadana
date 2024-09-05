@@ -9,17 +9,19 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
+  arraySwap,
   rectSwappingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { XIcon } from 'lucide-react';
+import { Loader2, PlusIcon, XIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { UploadedFileData } from 'uploadthing/types';
+
+import { cn } from '@/lib/utils';
 
 import { UploadButton } from '@/utils/uploadthing';
 
@@ -35,6 +37,10 @@ const SortableImage = ({
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: image.key });
 
+  const onDeleteCb = useCallback(() => {
+    onDelete(image.key);
+  }, [onDelete, image.key]);
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -46,25 +52,34 @@ const SortableImage = ({
       style={style}
       {...attributes}
       {...listeners}
-      className='w-1/3 h-1/3 relative m-2'
+      className='aspect-square relative m-2'
     >
-      <div className='border rounded-lg shadow-md overflow-hidden'>
-        <Image
-          src={image.url}
-          alt={image.name}
-          width={100}
-          className='object-cover w-full h-full'
-          height={100}
-        />
-        {isCover && (
-          <div className='absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-1 text-sm'>
-            Cover Photo
-          </div>
-        )}
+      <div className='border rounded-lg shadow-md overflow-hidden w-full h-full'>
+        <div className='relative w-full h-full bg-slate-50'>
+          <Image
+            src={image.url}
+            alt={image.name}
+            fill
+            className='object-contain'
+          />
+          {isCover && (
+            <div className='absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-1'>
+              Cover Photo
+            </div>
+          )}
+        </div>
       </div>
       <button
-        onClick={() => onDelete(image.key)}
-        className='absolute -top-3 -right-3 bg-gray-500 text-foreground rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 focus:bg-red-600 focus:outline-none'
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onDeleteCb();
+        }}
+        onPointerDown={(e) => {
+          e.stopPropagation();
+        }}
+        type='button'
+        className='absolute -top-3 -right-3 bg-gray-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 focus:bg-red-600 focus:outline-none'
       >
         <XIcon className='w-4 h-4' />
       </button>
@@ -77,12 +92,16 @@ export const ImageUploader = ({
   onError,
 }: {
   onChange: (images: UploadedFileData[]) => void;
-  onError?: (error: Error) => void;
+  onError?: (error: Error | null) => void;
 }) => {
   const [images, setImages] = useState<UploadedFileData[]>([]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
@@ -102,7 +121,7 @@ export const ImageUploader = ({
         const oldIndex = items.findIndex((item) => item.key === active.id);
         const newIndex = items.findIndex((item) => item.key === over?.id);
 
-        const newOrder = arrayMove(items, oldIndex, newIndex);
+        const newOrder = arraySwap(items, oldIndex, newIndex);
         onChange(newOrder);
         return newOrder;
       });
@@ -115,12 +134,13 @@ export const ImageUploader = ({
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
+        autoScroll={false}
       >
         <SortableContext
           items={images.map((img) => img.key)}
           strategy={rectSwappingStrategy}
         >
-          <div className='flex flex-wrap gap-4'>
+          <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
             {images.map((image, index) => (
               <SortableImage
                 key={image.key}
@@ -129,21 +149,54 @@ export const ImageUploader = ({
                 isCover={index === 0}
               />
             ))}
+            <div className='aspect-square relative m-2'>
+              <UploadButton
+                endpoint='imageUploader'
+                onClientUploadComplete={(newImages) => {
+                  const updatedImages = [...images, ...newImages];
+                  setImages(updatedImages);
+                  onChange(updatedImages);
+                  onError?.(null);
+                }}
+                onUploadError={(error: Error) => {
+                  if (error?.message.includes('FileSizeMismatch')) {
+                    onError?.(new Error('Uploaded file size is too large'));
+                  } else if (error) {
+                    onError?.(error);
+                  }
+                }}
+                className={`
+                  aspect-square w-full flex items-center justify-center 
+                  ut-label:h-full ut-label:w-full ut-label:flex ut-label:items-center ut-label:justify-center
+                `}
+                content={{
+                  button({ ready, isUploading, uploadProgress }) {
+                    const buttonClasses = cn(
+                      'w-full h-full flex flex-col gap-2 items-center justify-center text-primary hover:bg-accent hover:text-accent-foreground',
+                      ready ? 'cursor-pointer' : 'cursor-not-allowed',
+                    );
+                    if (isUploading) {
+                      return (
+                        <div className={buttonClasses}>
+                          <Loader2 className='w-8 h-8 animate-spin text-xl min-h-8 min-w-8 text-primary' />
+                          <span>Uploading {uploadProgress}%</span>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className={buttonClasses}>
+                        <PlusIcon className='w-8 h-8 text-xl min-h-8 min-w-8 text-primary' />
+                        <span>Upload {images.length ? 'more' : ''} images</span>
+                      </div>
+                    );
+                  },
+                }}
+              />
+            </div>
           </div>
         </SortableContext>
       </DndContext>
-
-      <UploadButton
-        endpoint='imageUploader'
-        onClientUploadComplete={(newImages) => {
-          const updatedImages = [...images, ...newImages];
-          setImages(updatedImages);
-          onChange(updatedImages);
-        }}
-        onUploadError={(error: Error) => {
-          onError?.(error);
-        }}
-      />
     </div>
   );
 };
