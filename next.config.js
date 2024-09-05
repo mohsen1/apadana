@@ -8,7 +8,7 @@ const nextConfig = {
   swcMinify: true,
 
   images: {
-    domains: ['utfs.io'],
+    domains: ['utfs.io', 'img.clerk.com'],
   },
 
   webpack(config) {
