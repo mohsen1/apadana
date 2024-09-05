@@ -93,9 +93,6 @@ const Footer = () => {
                 </svg>
               </a>
             </div>
-            <div className='mt-4'>
-              <ThemeToggle />
-            </div>
           </div>
         </div>
         <div className='mt-8 border-t border-gray-200 pt-8 text-center'>
@@ -103,6 +100,7 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} Your Company Name. All rights
             reserved.
           </p>
+          <ThemeToggle />
         </div>
       </div>
     </footer>
