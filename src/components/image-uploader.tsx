@@ -16,12 +16,13 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Loader2, PlusIcon, XIcon } from 'lucide-react';
-import Image from 'next/image';
+import { PlusIcon, XIcon } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { UploadedFileData } from 'uploadthing/types';
 
 import { cn } from '@/lib/utils';
+
+import ImageLoader from '@/components/ImageLoader';
 
 import { UploadButton } from '@/utils/uploadthing';
 
@@ -29,10 +30,14 @@ const SortableImage = ({
   image,
   onDelete,
   isCover,
+  isUploading,
+  uploadingProgress,
 }: {
   image: UploadedFileData;
   onDelete: (key: string) => void;
   isCover: boolean;
+  isUploading: boolean;
+  uploadingProgress: number;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: image.key });
@@ -56,12 +61,25 @@ const SortableImage = ({
     >
       <div className='border rounded-lg shadow-md overflow-hidden w-full h-full'>
         <div className='relative w-full h-full bg-slate-50'>
-          <Image
+          <ImageLoader
             src={image.url}
             alt={image.name}
             fill
             className='object-contain'
           />
+          {isUploading && (
+            <div
+              className='absolute top-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-1'
+              style={{
+                backgroundRepeat: 'no-repeat',
+                backgroundImage:
+                  'linear-gradient(0deg, rgba(0,0,0,0.5), rgba(0,0,0,0.5))',
+                backgroundSize: `${uploadingProgress}% 100%`,
+              }}
+            >
+              Uploading...
+            </div>
+          )}
           {isCover && (
             <div className='absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-1'>
               Cover Photo
@@ -94,7 +112,10 @@ export const ImageUploader = ({
   onChange: (images: UploadedFileData[]) => void;
   onError?: (error: Error | null) => void;
 }) => {
-  const [images, setImages] = useState<UploadedFileData[]>([]);
+  type OptimisticUploadedFileData = UploadedFileData & { optimistic?: boolean };
+  const [images, setImages] = useState<OptimisticUploadedFileData[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingProgress, setUploadingProgress] = useState(0);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -143,20 +164,47 @@ export const ImageUploader = ({
           <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
             {images.map((image, index) => (
               <SortableImage
-                key={image.key}
+                key={image.name}
                 image={image}
                 onDelete={deleteImage}
                 isCover={index === 0}
+                isUploading={isUploading}
+                uploadingProgress={uploadingProgress}
+                // isUploading
+                // uploadingProgress={54}
               />
             ))}
             <div className='aspect-square relative m-2'>
               <UploadButton
                 endpoint='imageUploader'
-                onClientUploadComplete={(newImages) => {
-                  const updatedImages = [...images, ...newImages];
+                onBeforeUploadBegin={(files) => {
+                  setIsUploading(true);
+                  const newOptimisticImages = files.map((file) => ({
+                    key: `optimistic-${Date.now()}-${file.name}`,
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    customId: `optimistic-${Date.now()}-${file.name}`,
+                    url: URL.createObjectURL(file),
+                    optimistic: true,
+                  }));
+                  setImages((prev) => [...prev, ...newOptimisticImages]);
+                  onChange([...images, ...newOptimisticImages]);
+                  return files;
+                }}
+                onClientUploadComplete={(
+                  newImages: OptimisticUploadedFileData[],
+                ) => {
+                  const updatedImages = [...images, ...newImages].filter(
+                    (img) => !img.optimistic,
+                  );
                   setImages(updatedImages);
                   onChange(updatedImages);
                   onError?.(null);
+                  setIsUploading(false);
+                }}
+                onUploadProgress={(progress) => {
+                  setUploadingProgress(progress);
                 }}
                 onUploadError={(error: Error) => {
                   if (error?.message.includes('FileSizeMismatch')) {
@@ -164,25 +212,20 @@ export const ImageUploader = ({
                   } else if (error) {
                     onError?.(error);
                   }
+                  setIsUploading(false);
                 }}
+                disabled={isUploading}
                 className={`
                   aspect-square w-full flex items-center justify-center 
                   ut-label:h-full ut-label:w-full ut-label:flex ut-label:items-center ut-label:justify-center
                 `}
                 content={{
-                  button({ ready, isUploading, uploadProgress }) {
+                  button({ ready, isUploading }) {
                     const buttonClasses = cn(
                       'w-full h-full flex flex-col gap-2 items-center justify-center text-primary hover:bg-accent hover:text-accent-foreground',
                       ready ? 'cursor-pointer' : 'cursor-not-allowed',
+                      isUploading ? 'opacity-50' : '',
                     );
-                    if (isUploading) {
-                      return (
-                        <div className={buttonClasses}>
-                          <Loader2 className='w-8 h-8 animate-spin text-xl min-h-8 min-w-8 text-primary' />
-                          <span>Uploading {uploadProgress}%</span>
-                        </div>
-                      );
-                    }
 
                     return (
                       <div className={buttonClasses}>
