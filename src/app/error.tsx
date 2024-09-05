@@ -25,7 +25,7 @@ export default function Error({
       : 'bg-secondary text-secondary-foreground hover:bg-secondary/80';
 
   return (
-    <main>
+    <main className='flex-grow grid place-items-center'>
       <section className={`${bgColor} ${textColor}`}>
         <div className='layout flex min-h-screen flex-col items-center justify-center text-center'>
           <RiAlarmWarningFill

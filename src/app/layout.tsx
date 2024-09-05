@@ -54,7 +54,6 @@ export const metadata: Metadata = {
     // creator: '@th_clarence',
   },
 };
-
 export default function RootLayout({
   children,
 }: {
@@ -65,7 +64,7 @@ export default function RootLayout({
       <html lang='en' suppressHydrationWarning>
         <body
           className={cn(
-            'min-h-screen bg-background font-sans antialiased',
+            'min-h-screen bg-background font-sans antialiased flex flex-col',
             fontSans.variable,
           )}
         >
