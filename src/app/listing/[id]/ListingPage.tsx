@@ -86,7 +86,7 @@ export function ListingPage({
 
           {/* Booking Card */}
           <div>
-            <Card className='dark:bg-gray-800 dark:text-white'>
+            <Card className='bg-[#f8f8f8] dark:bg-[#1d1d1d] dark:text-white'>
               <CardHeader>
                 <CardTitle className='text-2xl font-bold'>
                   ${listingData.pricePerNight}{' '}
