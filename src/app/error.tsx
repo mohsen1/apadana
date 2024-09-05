@@ -17,8 +17,6 @@ export default function Error({
   }, [error]);
   const { theme } = useTheme();
 
-  const bgColor = theme === 'dark' ? 'bg-background' : 'bg-white';
-  const textColor = theme === 'dark' ? 'text-foreground' : 'text-black';
   const buttonColor =
     theme === 'dark'
       ? 'bg-primary text-primary-foreground hover:bg-primary/90'
@@ -26,11 +24,11 @@ export default function Error({
 
   return (
     <main className='flex-grow grid place-items-center'>
-      <section className={`${bgColor} ${textColor}`}>
+      <section className=''>
         <div className='layout flex min-h-screen flex-col items-center justify-center text-center'>
           <RiAlarmWarningFill
             size={60}
-            className={`drop-shadow-glow animate-flicker ${textColor}`}
+            className='drop-shadow-glow animate-flicker'
           />
           <h1 className='mt-8 text-4xl md:text-6xl'>
             Oops, something went wrong!
