@@ -1,7 +1,7 @@
 'use server';
 import { Listing } from '@prisma/client';
 
-import { prisma } from '@/lib/prisma/client';
+import prisma from '@/lib/prisma/client';
 
 import { TypedFormData } from '@/utils/formData';
 export type ServerResponse = {

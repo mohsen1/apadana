@@ -3,7 +3,7 @@ import { Permission, Prisma, Role } from '@prisma/client';
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 
-import { prisma } from '@/lib/prisma/client';
+import prisma from '@/lib/prisma/client';
 
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the endpoint
