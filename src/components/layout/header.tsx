@@ -16,8 +16,11 @@ export function Header() {
         </Link>
       </div>
       <div className='flex gap-4 sm:gap-6 ml-10 border-l border-slate-700 pl-4'>
-        <Button href='/listings' variant='link'>
+        <Button href='/listing' variant='link'>
           My Listings
+        </Button>
+        <Button href='/listing/create' variant='link'>
+          Create Listing
         </Button>
       </div>
       <nav className='ml-auto flex gap-4 sm:gap-6'>

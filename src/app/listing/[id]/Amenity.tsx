@@ -4,7 +4,9 @@ import {
   CheckIcon,
   CookingPot,
   Heater,
+  Tv2,
   WashingMachine,
+  Waves,
   WifiIcon,
 } from 'lucide-react';
 
@@ -21,6 +23,8 @@ const amenitiesToIcons: Record<
   Heating: Heater,
   Washer: WashingMachine,
   Dryer: WashingMachine,
+  TV: Tv2,
+  Pool: Waves,
 };
 export function Amenity({ name }: { name: string }) {
   const Icon = amenitiesToIcons[name] ?? CheckIcon;
