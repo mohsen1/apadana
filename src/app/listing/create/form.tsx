@@ -1,8 +1,9 @@
 'use client';
-
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
-import { useState } from 'react';
+import qs from 'qs';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { ResultMessage } from '@/components/form/ResultMessage';
@@ -57,18 +58,21 @@ const defaultValues: CreateListing = {
   maximumGuests: 5,
 };
 enum FormStep {
-  LocationDetails,
-  BasicInfo,
-  Amenities,
-  Photos,
-  Pricing,
-  HouseRules,
+  LocationDetails = 0,
+  BasicInfo = 1,
+  Amenities = 2,
+  Photos = 3,
+  Pricing = 4,
+  HouseRules = 5,
 }
 
 export default function CreateListingForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState<FormStep>(
     FormStep.LocationDetails,
   );
+
   const { execute, result } = useAction(createListing);
   const {
     register,
@@ -78,11 +82,78 @@ export default function CreateListingForm() {
     getValues,
     setError,
     clearErrors,
+    reset,
   } = useForm<CreateListing>({
     resolver: zodResolver(CreateListingSchema),
     defaultValues,
   });
   const { errors, isSubmitting } = formState;
+
+  useEffect(() => {
+    const step = parseInt(searchParams.get('step') || '1', 10) as FormStep;
+    if (step && Object.values(FormStep).includes(step)) {
+      setCurrentStep(step);
+    } else {
+      router.replace(`?step=${FormStep.LocationDetails}`);
+    }
+
+    const formData = qs.parse(
+      searchParams.get('form-data') || '{}',
+    ) as Partial<CreateListing>;
+    // convert string values to numbers
+    const numericFields = [
+      'pricePerNight',
+      'minimumStay',
+      'maximumGuests',
+    ] as const;
+    numericFields.forEach((field) => {
+      if (field in formData && typeof formData[field] === 'string') {
+        formData[field] = Number(formData[field]);
+      }
+    });
+    if (Object.keys(formData).length > 1) {
+      try {
+        const parsedData = CreateListingSchema.parse(formData);
+        reset(parsedData);
+      } catch {
+        router.replace(`?step=${FormStep.LocationDetails}`);
+        reset(defaultValues);
+      }
+    }
+  }, [searchParams, router, reset]);
+
+  const updateUrlParams = ({
+    formData,
+    step,
+  }: {
+    formData: Partial<CreateListing>;
+    step: number;
+  }) => {
+    const params = new URLSearchParams(searchParams);
+    const serialized = qs.stringify(formData);
+    params.set('form-data', serialized);
+    params.set('step', step.toString());
+    router.push(`?${params.toString()}`);
+  };
+
+  const nextStep = (e: React.FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const currentValues = getValues();
+    const nextStepValue = Math.min(
+      currentStep + 1,
+      Object.keys(FormStep).length / 2,
+    );
+    updateUrlParams({
+      formData: currentValues,
+      step: nextStepValue,
+    });
+  };
+
+  const prevStep = () => {
+    const prevStepValue = Math.max(currentStep - 1, 1);
+    router.push(`?step=${prevStepValue}`);
+  };
+
   const steps = [
     {
       title: 'Location Details',
@@ -107,16 +178,14 @@ export default function CreateListingForm() {
     },
   ];
 
-  const nextStep = (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-  };
-  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
-
   return (
     <form
-      onSubmit={handleSubmit(() => {
-        execute(getValues());
+      onSubmit={handleSubmit((data) => {
+        updateUrlParams({
+          formData: data,
+          step: currentStep,
+        });
+        execute(data);
       })}
       className='max-w-4xl mx-auto p-6 space-y-8'
     >
@@ -126,7 +195,7 @@ export default function CreateListingForm() {
           <div key={index} className='flex flex-col items-center'>
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                index <= currentStep
+                index < currentStep
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-muted-foreground'
               }`}
