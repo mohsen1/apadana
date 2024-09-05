@@ -184,7 +184,7 @@ export default function CreateListingForm() {
               className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center ${
                 index < currentStep
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-slate-100 text-muted-foreground'
+                  : 'bg-slate-600 text-slate-500'
               }`}
             >
               {index + 1}
@@ -194,12 +194,12 @@ export default function CreateListingForm() {
         ))}
       </div>
 
-      <Card>
+      <Card className='border-none'>
         <CardHeader>
           <CardTitle>{steps[currentStep].title}</CardTitle>
           <CardDescription>{steps[currentStep].description}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className='border-none shadow-none'>
           {currentStep === FormStep.LocationDetails && (
             <div className='space-y-4'>
               <div>
