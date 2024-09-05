@@ -190,19 +190,19 @@ export default function CreateListingForm() {
       className='max-w-4xl mx-auto p-6 space-y-8'
     >
       <ResultMessage result={result} />
-      <div className='flex justify-between mb-8'>
+      <div className='grid grid-cols-6 gap-4 mb-8'>
         {steps.map((step, index) => (
-          <div key={index} className='flex flex-col items-center'>
+          <div key={index} className='flex flex-col items-center justify-start'>
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center ${
                 index < currentStep
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground'
+                  : 'bg-slate-100 text-muted-foreground'
               }`}
             >
               {index + 1}
             </div>
-            <span className='text-xs mt-2'>{step.title}</span>
+            <span className='text-xs mt-4 text-center'>{step.title}</span>
           </div>
         ))}
       </div>
