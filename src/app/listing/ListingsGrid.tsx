@@ -43,11 +43,12 @@ const ListingsGrid = ({ listings }: ListingsGridProps) => {
               href={`/listing/${listing.id}/delete`}
               variant='softDestructive'
             >
-              Delete Listing
+              Delete
             </Button>
             <Button href={`/listing/${listing.id}`} variant='secondary'>
-              View Listing
+              View
             </Button>
+            <Button href={`/listing/${listing.id}/manage`}>Manage</Button>
           </div>
         </div>
       ))}

@@ -1,0 +1,189 @@
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Listing } from '@prisma/client';
+import { Clock, DollarSign, Loader2, SaveIcon, Users } from 'lucide-react';
+import { useAction } from 'next-safe-action/hooks';
+import { useForm } from 'react-hook-form';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+
+import { editListing } from '@/app/listing/[id]/manage/action';
+import { CreateListingSchema } from '@/app/listing/create/schema';
+
+const EditListingSchema = CreateListingSchema.partial();
+
+export default function UpdateListingForm({ listing }: { listing: Listing }) {
+  const { register, handleSubmit, formState } = useForm<Partial<Listing>>({
+    defaultValues: listing,
+    resolver: zodResolver(EditListingSchema),
+  });
+  const { execute, status } = useAction(editListing);
+  const { errors, isSubmitting } = formState;
+  return (
+    <form
+      className='space-y-4'
+      onSubmit={handleSubmit((data) => {
+        execute({ ...data, id: listing.id });
+      })}
+    >
+      <div className='grid grid-cols-2 gap-4'>
+        <div className='space-y-2'>
+          <Label htmlFor='title'>Title</Label>
+          <Input
+            {...register('title')}
+            id='title'
+            placeholder='Enter listing title'
+          />
+          {errors.title && (
+            <p className='text-destructive'>{errors.title.message}</p>
+          )}
+        </div>
+        <div className='space-y-2'>
+          <Label htmlFor='propertyType'>Property Type</Label>
+          <Input
+            {...register('propertyType')}
+            id='propertyType'
+            placeholder='e.g. Apartment, House'
+          />
+          {errors.propertyType && (
+            <p className='text-destructive'>{errors.propertyType.message}</p>
+          )}
+        </div>
+        <div className='space-y-2'>
+          <Label htmlFor='address'>Address</Label>
+          <Input
+            {...register('address')}
+            id='address'
+            placeholder='Enter address'
+          />
+          {errors.address && (
+            <p className='text-destructive'>{errors.address.message}</p>
+          )}
+        </div>
+        <div className='space-y-2'>
+          <Label htmlFor='city'>City</Label>
+          <Input {...register('city')} id='city' placeholder='Enter city' />
+          {errors.city && (
+            <p className='text-destructive'>{errors.city.message}</p>
+          )}
+        </div>
+        <div className='space-y-2'>
+          <Label htmlFor='state'>State</Label>
+          <Input {...register('state')} id='state' placeholder='Enter state' />
+          {errors.state && (
+            <p className='text-destructive'>{errors.state.message}</p>
+          )}
+        </div>
+        <div className='space-y-2'>
+          <Label htmlFor='zipCode'>Zip Code</Label>
+          <Input
+            {...register('zipCode')}
+            id='zipCode'
+            placeholder='Enter zip code'
+          />
+          {errors.zipCode && (
+            <p className='text-destructive'>{errors.zipCode.message}</p>
+          )}
+        </div>
+      </div>
+      <div className='space-y-2'>
+        <Label htmlFor='description'>Description</Label>
+        <Textarea
+          {...register('description')}
+          id='description'
+          placeholder='Describe your listing'
+        />
+        {errors.description && (
+          <p className='text-destructive'>{errors.description.message}</p>
+        )}
+      </div>
+      <div className='grid grid-cols-3 gap-4'>
+        <div className='space-y-2'>
+          <Label htmlFor='pricePerNight'>Price per Night</Label>
+          <div className='relative'>
+            <DollarSign className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+            <Input
+              {...register('pricePerNight', { valueAsNumber: true })}
+              id='pricePerNight'
+              type='number'
+              className='pl-8'
+              placeholder='0.00'
+            />
+          </div>
+          {errors.pricePerNight && (
+            <p className='text-destructive'>{errors.pricePerNight.message}</p>
+          )}
+        </div>
+        <div className='space-y-2'>
+          <Label htmlFor='minimumStay'>Minimum Stay (nights)</Label>
+          <div className='relative'>
+            <Clock className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+            <Input
+              {...register('minimumStay', { valueAsNumber: true })}
+              id='minimumStay'
+              type='number'
+              className='pl-8'
+              placeholder='1'
+            />
+          </div>
+          {errors.minimumStay && (
+            <p className='text-destructive'>{errors.minimumStay.message}</p>
+          )}
+        </div>
+        <div className='space-y-2'>
+          <Label htmlFor='maximumGuests'>Maximum Guests</Label>
+          <div className='relative'>
+            <Users className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+            <Input
+              {...register('maximumGuests', { valueAsNumber: true })}
+              id='maximumGuests'
+              type='number'
+              className='pl-8'
+              placeholder='1'
+            />
+          </div>
+          {errors.maximumGuests && (
+            <p className='text-destructive'>{errors.maximumGuests.message}</p>
+          )}
+        </div>
+      </div>
+      <div className='space-y-2'>
+        <Label htmlFor='houseRules'>House Rules</Label>
+        <Textarea
+          {...register('houseRules')}
+          id='houseRules'
+          placeholder='Enter house rules'
+        />
+        {errors.houseRules && (
+          <p className='text-destructive'>{errors.houseRules.message}</p>
+        )}
+      </div>
+      <div className='flex items-center space-x-2'>
+        <Switch {...register('published')} id='published' />
+        <Label htmlFor='published'>Published</Label>
+      </div>
+      <Button
+        disabled={isSubmitting}
+        type='submit'
+        className='flex items-center gap-2'
+      >
+        {status === 'executing' ? (
+          <>
+            <Loader2 />
+            <span>Saving...</span>
+          </>
+        ) : (
+          <>
+            <SaveIcon />
+            <span>Save Changes</span>
+          </>
+        )}
+      </Button>
+    </form>
+  );
+}

@@ -10,7 +10,7 @@ export const UploadImageSchema = z.object({
 
 export type UploadImage = z.infer<typeof UploadImageSchema>;
 
-export const CreateListingSchema = z.object({
+export const BaseListingSchema = z.object({
   title: z.string(),
   description: z.string(),
   propertyType: z.string(),
@@ -28,4 +28,32 @@ export const CreateListingSchema = z.object({
   images: z.array(UploadImageSchema).optional(),
 });
 
+export const GetListingSchema = z.object({
+  id: z.number(),
+});
+
+export type GetListing = z.infer<typeof GetListingSchema>;
+
+export const EditListingSchema = BaseListingSchema.omit({ images: true })
+  .partial()
+  .extend({
+    id: z.number(),
+  });
+
+export const CreateListingSchema = BaseListingSchema.extend({});
+
 export type CreateListing = z.infer<typeof CreateListingSchema>;
+
+export const EditInventorySchema = z.object({
+  listingId: z.number(),
+  inventory: z.array(
+    z.object({
+      date: z.coerce.date(),
+      isBooked: z.boolean().optional().default(false),
+      price: z.number(),
+      bookingId: z.number().nullable().optional(),
+    }),
+  ),
+});
+
+export type EditInventory = z.infer<typeof EditInventorySchema>;
