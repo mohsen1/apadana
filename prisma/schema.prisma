@@ -88,6 +88,7 @@ model User {
   listings         Listing[]
   roles            UserRole[]
   permissions      UserPermission[]
+  bookings         Booking[]
 }
 
 model EmailAddress {
@@ -122,27 +123,58 @@ model UploadThingImage {
 }
 
 model Listing {
-  id            Int                @id @default(autoincrement())
-  title         String             @db.VarChar(255)
-  description   String             @db.Text
-  propertyType  String             @db.VarChar(100)
-  address       String             @db.VarChar(255)
-  city          String             @db.VarChar(100)
-  state         String             @db.VarChar(100)
-  zipCode       String             @db.Char(5)
-  amenities     String[]
-  pricePerNight Float
-  minimumStay   Int                @default(1)
-  maximumGuests Int                @default(5)
-  houseRules    String             @db.Text
-  published     Boolean            @default(false)
-  owner         User               @relation(fields: [ownerId], references: [id])
-  ownerId       String
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  images        UploadThingImage[]
+  id               Int                @id @default(autoincrement())
+  title            String             @db.VarChar(255)
+  description      String             @db.Text
+  propertyType     String             @db.VarChar(100)
+  address          String             @db.VarChar(255)
+  city             String             @db.VarChar(100)
+  state            String             @db.VarChar(100)
+  zipCode          String             @db.Char(5)
+  timeZone         String             @db.VarChar(100)
+  amenities        String[]
+  pricePerNight    Float
+  minimumStay      Int                @default(1)
+  maximumGuests    Int                @default(5)
+  houseRules       String             @db.Text
+  published        Boolean            @default(false)
+  owner            User               @relation(fields: [ownerId], references: [id])
+  ownerId          String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  images           UploadThingImage[]
+  ListingInventory ListingInventory[]
 
   @@index([ownerId])
   @@index([city, state])
   @@index([pricePerNight])
+}
+
+model ListingInventory {
+  id        Int      @id @default(autoincrement())
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  listingId Int
+  date      DateTime
+  isBooked  Boolean  @default(false)
+  price     Float
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+  bookingId Int?
+
+  @@unique([listingId, date])
+  @@index([date])
+  @@index([bookingId])
+}
+
+model Booking {
+  id               Int                @id @default(autoincrement())
+  user             User               @relation(fields: [userId], references: [id])
+  userId           String
+  listingInventory ListingInventory[]
+  totalPrice       Float
+  checkIn          DateTime
+  checkOut         DateTime
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([checkIn, checkOut])
 }

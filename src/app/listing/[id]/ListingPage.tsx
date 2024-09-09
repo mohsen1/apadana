@@ -1,20 +1,56 @@
+'use client';
+
+import { CalendarDate } from '@internationalized/date';
 import { Listing, UploadThingImage, User } from '@prisma/client';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from 'react';
 
+import { DatePicker } from '@/components/DatePicker';
+import { LightBox } from '@/components/LightBox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { Amenity } from '@/app/listing/[id]/Amenity';
-import { DatePicker } from '@/app/listing/[id]/DatePicker';
-import { LightBox } from '@/app/listing/[id]/LightBox';
 
 export function ListingPage({
   listingData,
 }: {
   listingData: Listing & { images: UploadThingImage[]; owner: User };
 }) {
+  const router = useRouter();
+  const todayCalendarDate = new CalendarDate(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1,
+    new Date().getDate(),
+  );
+  const twoDaysFromToday = todayCalendarDate.add({ days: 2 });
+  const [checkIn, setCheckIn] = useState<CalendarDate>(todayCalendarDate);
+  const [checkOut, setCheckOut] = useState<CalendarDate>(twoDaysFromToday);
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (checkIn && checkOut) {
+      const searchParams = new URLSearchParams();
+      searchParams.set(
+        'checkIn',
+        checkIn?.toDate(listingData.timeZone).toISOString(),
+      );
+      searchParams.set(
+        'checkOut',
+        checkOut?.toDate(listingData.timeZone).toISOString(),
+      );
+      router.push(
+        `/listing/${listingData.id}/booking/create?${searchParams.toString()}`,
+      );
+    } else {
+      alert('Please select check-in and check-out dates');
+    }
+  };
   return (
-    <div className='min-h-screen bg-gray-100 dark:bg-gray-900'>
+    <form
+      className='min-h-screen bg-gray-100 dark:bg-gray-900'
+      onSubmit={onSubmit}
+    >
       {/* Cover Photo */}
       <LightBox images={listingData.images} index={0}>
         <div className='relative h-[50vh] w-full '>
@@ -94,8 +130,21 @@ export function ListingPage({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <DatePicker />
-                <Button className='w-full mt-4'>Reserve</Button>
+                <DatePicker
+                  selected={{
+                    start: checkIn,
+                    end: checkOut,
+                  }}
+                  onSelect={(range) => {
+                    if (range) {
+                      setCheckIn(range.start);
+                      setCheckOut(range.end);
+                    }
+                  }}
+                />
+                <Button type='submit' className='w-full mt-4'>
+                  Reserve
+                </Button>
               </CardContent>
             </Card>
 
@@ -125,6 +174,6 @@ export function ListingPage({
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }

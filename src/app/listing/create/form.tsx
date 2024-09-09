@@ -1,5 +1,6 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { getLocalTimeZone } from '@internationalized/date';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
@@ -43,6 +44,7 @@ const defaultValues: CreateListing = {
   pricePerNight: 100,
   minimumStay: 1,
   maximumGuests: 5,
+  timeZone: getLocalTimeZone(),
 };
 enum FormStep {
   LocationDetails = 0,

@@ -24,6 +24,7 @@ export const CreateListingSchema = z.object({
   maximumGuests: z.number().optional(),
   houseRules: z.string(),
   published: z.boolean().optional(),
+  timeZone: z.string(),
   images: z.array(UploadImageSchema).optional(),
 });
 

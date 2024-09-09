@@ -24,7 +24,7 @@ const Footer = () => {
               </li>
               <li className='mb-2'>
                 <Link
-                  href='/listings'
+                  href='/listing'
                   className='text-gray-600 hover:text-gray-900'
                 >
                   Listings
