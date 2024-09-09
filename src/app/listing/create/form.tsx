@@ -1,6 +1,7 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getLocalTimeZone } from '@internationalized/date';
+import { BuildingIcon, CableCar, HomeIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
@@ -176,32 +177,16 @@ export default function CreateListingForm() {
         });
         execute(data);
       })}
-      className='max-w-4xl mx-auto p-6 space-y-8'
+      className='max-w-4xl mx-auto p-6 space-y-8 flex-grow w-full'
     >
       <ResultMessage result={result} />
-      <div className='grid grid-cols-6 gap-4 mb-8'>
-        {steps.map((step, index) => (
-          <div key={index} className='flex flex-col items-center justify-start'>
-            <div
-              className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center ${
-                index < currentStep
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-slate-600 text-slate-500'
-              }`}
-            >
-              {index + 1}
-            </div>
-            <span className='text-xs mt-4 text-center'>{step.title}</span>
-          </div>
-        ))}
-      </div>
 
-      <Card className='border-none'>
+      <Card className='border-none shadow-none w-full'>
         <CardHeader>
           <CardTitle>{steps[currentStep].title}</CardTitle>
           <CardDescription>{steps[currentStep].description}</CardDescription>
         </CardHeader>
-        <CardContent className='border-none shadow-none'>
+        <CardContent className=''>
           {currentStep === FormStep.LocationDetails && (
             <div className='space-y-4'>
               <div>
@@ -261,8 +246,14 @@ export default function CreateListingForm() {
               </div>
               <div>
                 <Label>Property Type</Label>
-                <RadioGroup defaultValue='apartment'>
-                  <div className='flex items-center space-x-2'>
+                <RadioGroup
+                  defaultValue='apartment'
+                  className='grid grid-cols-3 gap-2 py-4'
+                >
+                  <div className='flex flex-col items-center gap-2 space-x-2'>
+                    <Label htmlFor='apartment' className='cursor-pointer'>
+                      <BuildingIcon size={48} />
+                    </Label>
                     <RadioGroupItem
                       value='apartment'
                       id='apartment'
@@ -270,7 +261,10 @@ export default function CreateListingForm() {
                     />
                     <Label htmlFor='apartment'>Apartment</Label>
                   </div>
-                  <div className='flex items-center space-x-2'>
+                  <div className='flex flex-col items-center gap-2 space-x-2'>
+                    <Label htmlFor='house' className='cursor-pointer'>
+                      <HomeIcon size={48} />
+                    </Label>
                     <RadioGroupItem
                       value='house'
                       id='house'
@@ -278,7 +272,10 @@ export default function CreateListingForm() {
                     />
                     <Label htmlFor='house'>House</Label>
                   </div>
-                  <div className='flex items-center space-x-2'>
+                  <div className='flex flex-col items-center gap-2 space-x-2'>
+                    <Label htmlFor='unique' className='cursor-pointer'>
+                      <CableCar className='' size={48} />
+                    </Label>
                     <RadioGroupItem
                       value='unique'
                       id='unique'
