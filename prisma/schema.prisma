@@ -131,7 +131,7 @@ model Listing {
   city             String             @db.VarChar(100)
   state            String             @db.VarChar(100)
   zipCode          String             @db.Char(5)
-  timeZone         String             @db.VarChar(100)
+  timeZone         String             @default("America/New_York") @db.VarChar(100)
   amenities        String[]
   pricePerNight    Float
   minimumStay      Int                @default(1)
