@@ -1,5 +1,6 @@
+import { auth } from '@clerk/nextjs/server';
 import { TrashIcon } from 'lucide-react';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 import prisma from '@/lib/prisma/client';
 
@@ -10,8 +11,23 @@ import NotFound from '@/app/not-found';
 async function deleteListing(formData: FormData) {
   'use server';
   const id = formData.get('id');
+  const { userId, redirectToSignIn } = await auth();
+  if (!userId) {
+    return redirectToSignIn();
+  }
+
   if (typeof id === 'string') {
     const listingId = parseInt(id);
+    const listing = await prisma.listing.findUnique({
+      where: {
+        id: listingId,
+        ownerId: userId,
+      },
+    });
+
+    if (!listing) {
+      return notFound();
+    }
 
     await prisma.$transaction(async (tx) => {
       // Delete associated images first
@@ -54,7 +70,7 @@ export default async function DeleteListingPage({
     >
       <h1 className='text-2xl font-bold flex items-center gap-2'>
         <TrashIcon className='text-destructive' size={48} />
-        Delete {listing.title}
+        Delete "{listing.title}"
       </h1>
 
       <div className='flex items-center gap-2'>
