@@ -8,6 +8,8 @@ import qs from 'qs';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { CreateListing, CreateListingSchema } from '@/lib/prisma/schema';
+
 import { ResultMessage } from '@/components/form/ResultMessage';
 import { ImageUploader } from '@/components/image-uploader';
 import { Button } from '@/components/ui/button';
@@ -26,10 +28,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 
 import { createListing } from '@/app/listing/create/action';
-import {
-  CreateListing,
-  CreateListingSchema,
-} from '@/app/listing/create/schema';
 import { amenitiesList } from '@/shared/ameneties';
 
 const defaultValues: CreateListing = {

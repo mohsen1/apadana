@@ -1,12 +1,12 @@
 'use server';
 import prisma from '@/lib/prisma/client';
-import { actionClient } from '@/lib/safe-action';
-
 import {
   EditInventorySchema,
   EditListingSchema,
   GetListingSchema,
-} from '@/app/listing/create/schema';
+} from '@/lib/prisma/schema';
+import { actionClient } from '@/lib/safe-action';
+
 import { assertError } from '@/utils';
 
 export const getListing = actionClient

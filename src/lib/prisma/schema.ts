@@ -10,6 +10,14 @@ export const UploadImageSchema = z.object({
 
 export type UploadImage = z.infer<typeof UploadImageSchema>;
 
+export const CreateBookingSchema = z.object({
+  listingId: z.number(),
+  checkIn: z.date(),
+  checkOut: z.date(),
+});
+
+export type CreateBooking = z.infer<typeof CreateBookingSchema>;
+
 export const BaseListingSchema = z.object({
   title: z.string(),
   description: z.string(),

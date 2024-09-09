@@ -6,6 +6,8 @@ import { Clock, DollarSign, Loader2, SaveIcon, Users } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { useForm } from 'react-hook-form';
 
+import { CreateListingSchema } from '@/lib/prisma/schema';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +15,6 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 
 import { editListing } from '@/app/listing/[id]/manage/action';
-import { CreateListingSchema } from '@/app/listing/create/schema';
 
 const EditListingSchema = CreateListingSchema.partial();
 

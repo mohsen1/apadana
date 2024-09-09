@@ -1,9 +1,9 @@
 'use server';
 
 import prisma from '@/lib/prisma/client';
+import { CreateBookingSchema } from '@/lib/prisma/schema';
 import { actionClient } from '@/lib/safe-action';
 
-import { CreateBookingSchema } from '@/app/listing/[id]/booking/create/schema';
 import { assertError } from '@/utils';
 
 function dateDiffInDays(checkIn: Date, checkOut: Date) {
