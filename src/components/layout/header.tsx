@@ -16,9 +16,11 @@ export function Header() {
         </Link>
       </div>
       <div className='flex gap-4 sm:gap-6 ml-10 border-l border-slate-700 pl-4'>
-        <Button href='/listing' variant='link'>
-          My Listings
-        </Button>
+        <SignedIn>
+          <Button href='/listing' variant='link'>
+            My Listings
+          </Button>
+        </SignedIn>
         <Button href='/listing/create' variant='link'>
           Create Listing
         </Button>
