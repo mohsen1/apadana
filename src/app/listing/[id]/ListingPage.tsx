@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
+import { formatCurrency } from '@/lib/utils';
+
 import { DatePicker } from '@/components/DatePicker';
 import { LightBox } from '@/components/LightBox';
 import { Button } from '@/components/ui/button';
@@ -125,7 +127,10 @@ export function ListingPage({
             <Card className='bg-[#f8f8f8] dark:bg-[#1d1d1d] dark:text-white'>
               <CardHeader>
                 <CardTitle className='text-2xl font-bold'>
-                  ${listingData.pricePerNight}{' '}
+                  {formatCurrency(
+                    listingData.pricePerNight,
+                    listingData.currency,
+                  )}
                   <span className='text-base font-normal'>/ night</span>
                 </CardTitle>
               </CardHeader>

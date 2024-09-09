@@ -2,6 +2,8 @@ import { Listing, UploadThingImage } from '@prisma/client';
 import Image from 'next/image';
 import React from 'react';
 
+import { formatCurrency } from '@/lib/utils';
+
 import { Button } from '@/components/ui/button';
 
 type ListingsGridProps = {
@@ -34,7 +36,9 @@ const ListingsGrid = ({ listings }: ListingsGridProps) => {
               {listing.description}
             </p>
             <div className='flex justify-between items-center text-sm text-muted-foreground'>
-              <p className='font-medium'>${listing.pricePerNight} / night</p>
+              <p className='font-medium'>
+                {formatCurrency(listing.pricePerNight, listing.currency)}
+              </p>
               <p>{listing.address}</p>
             </div>
           </div>

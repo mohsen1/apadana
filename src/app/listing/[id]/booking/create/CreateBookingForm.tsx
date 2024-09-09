@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
+import { formatCurrency } from '@/lib/utils';
+
 import { DatePicker } from '@/components/DatePicker';
 import { Button } from '@/components/ui/button';
 import {
@@ -72,8 +74,7 @@ export default function BookingPage({
     );
   };
 
-  // Mock price calculation - replace with actual logic based on your pricing model
-  const basePrice = 100; // per night
+  const basePrice = listing.pricePerNight;
   const nights =
     checkOut && checkIn
       ? Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24))
@@ -211,7 +212,8 @@ export default function BookingPage({
                 <div className='space-y-1'>
                   <div className='flex justify-between'>
                     <span>
-                      ${basePrice} x {nights} nights
+                      {formatCurrency(basePrice, listing.currency)} x {nights}{' '}
+                      nights
                     </span>
                     <span>${subtotal}</span>
                   </div>
