@@ -30,6 +30,7 @@ jobs:
       - name: Run Playwright tests
         run: pnpm exec playwright test
         env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_dmFsdWVkLWJhdC05OS5jbGVyay5hY2NvdW50cy5kZXYk
           POSTGRES_PRISMA_URL: postgresql://postgres:postgres@localhost:5432/postgres
           POSTGRES_URL_NO_SSL: postgresql://postgres:postgres@localhost:5432/postgres
           POSTGRES_URL_NON_POOLING: postgresql://postgres:postgres@localhost:5432/postgres
