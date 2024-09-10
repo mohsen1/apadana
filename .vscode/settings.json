@@ -14,7 +14,7 @@
     "containerClassName"
   ],
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "cSpell.words": ["Uploadthing"],
+  "cSpell.words": ["Uploadthing", "Vercel"],
   "search.exclude": {
     "**/.vscode": true,
     "**/node_modules": true,
