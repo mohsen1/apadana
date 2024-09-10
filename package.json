@@ -129,17 +129,5 @@
     "**/*.{json,css,scss,md,webmanifest}": [
       "prettier -w"
     ]
-  },
-  "concurrently": {
-    "names": {
-      "next": "next",
-      "prisma": "prisma",
-      "storybook": "storybook"
-    },
-    "prefixes": {
-      "next": "blue.bold",
-      "prisma": "magenta.bold",
-      "storybook": "green.bold"
-    }
   }
 }
