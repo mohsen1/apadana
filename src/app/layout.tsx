@@ -1,7 +1,11 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import { Metadata } from 'next';
-import { Inter as FontSans } from 'next/font/google';
+import {
+  Inter as FontSans,
+  Merriweather as FontHeading,
+  Noto_Sans as FontSubheading,
+} from 'next/font/google';
 import * as React from 'react';
 import { extractRouterConfig } from 'uploadthing/server';
 
@@ -21,6 +25,17 @@ const fontSans = FontSans({
   variable: '--font-sans',
 });
 
+const fontHeading = FontHeading({
+  subsets: ['latin'],
+  variable: '--font-heading',
+  weight: ['300', '400', '700', '900'],
+});
+
+const fontSubheading = FontSubheading({
+  subsets: ['latin'],
+  variable: '--font-subheading',
+  weight: ['400', '500', '600', '700'],
+});
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
@@ -66,6 +81,8 @@ export default function RootLayout({
           className={cn(
             'min-h-screen bg-background font-sans antialiased flex flex-col',
             fontSans.variable,
+            fontHeading.variable,
+            fontSubheading.variable,
           )}
         >
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem>

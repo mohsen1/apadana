@@ -1,7 +1,7 @@
 import path from 'path';
 import type { Config } from 'tailwindcss';
+import { fontFamily } from 'tailwindcss/defaultTheme';
 import { withUt } from 'uploadthing/tw';
-
 const config: Config = {
   content: [
     path.join(__dirname, 'src/**/*.{js,ts,jsx,tsx,mdx}'),
@@ -13,6 +13,11 @@ const config: Config = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-sans)', ...fontFamily.sans],
+        heading: ['var(--font-heading)', ...fontFamily.serif],
+        subheading: ['var(--font-subheading)', ...fontFamily.serif],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

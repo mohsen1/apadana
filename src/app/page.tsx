@@ -24,7 +24,7 @@ export default function HomePage() {
             <div className='container px-4 md:px-6 mx-auto max-w-6xl'>
               <div className='flex flex-col items-center space-y-4 text-center'>
                 <div className='space-y-2'>
-                  <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none'>
+                  <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none font-heading'>
                     Your Rental, Your Website, Your Way
                   </h1>
                   <p className='mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400'>
@@ -40,7 +40,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className='container px-4 md:px-6 mx-auto max-w-6xl mt-24'>
-              <h2 className='text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12'>
+              <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl text-center mb-12'>
                 Key Features
               </h2>
               <div className='grid gap-6 lg:grid-cols-3'>
@@ -119,7 +119,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className='container px-4 md:px-6 mt-24  mx-auto max-w-6xl  '>
-              <h2 className='text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12'>
+              <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl text-center mb-12'>
                 How It Works
               </h2>
               <div className='grid gap-6 lg:grid-cols-3'>
@@ -160,7 +160,7 @@ export default function HomePage() {
         <div className=' md:px-6 mx-auto max-w-6xl'>
           <section className='w-full'>
             <div className='container px-4 md:px-6'>
-              <h2 className='text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12'>
+              <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl text-center mb-12'>
                 What Our Hosts Say
               </h2>
               <div className='grid gap-6 lg:grid-cols-3'>
@@ -203,7 +203,7 @@ export default function HomePage() {
           </section>
           <section className='w-full py-12 md:py-24 lg:py-48'>
             <div className='container px-4 md:px-6'>
-              <h2 className='text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12'>
+              <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl text-center mb-12'>
                 Simple Pricing
               </h2>
               <div className='grid gap-6 lg:grid-cols-3'>
@@ -283,7 +283,7 @@ export default function HomePage() {
             <div className='container px-4 md:px-6'>
               <div className='flex flex-col items-center space-y-4 text-center'>
                 <div className='space-y-2'>
-                  <h2 className='text-3xl font-bold tracking-tighter sm:text-5xl'>
+                  <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl'>
                     Ready to Take Control of Your Rental?
                   </h2>
                   <p className='mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400'>

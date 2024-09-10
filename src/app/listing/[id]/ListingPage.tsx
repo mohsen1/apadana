@@ -69,13 +69,13 @@ export function ListingPage({
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
           {/* Listing Details */}
           <div className='md:col-span-2'>
-            <h1 className='text-3xl font-bold mb-2 dark:text-white'>
+            <h1 className='text-4xl font-bold mb-2 text-foreground font-heading'>
               {listingData.title}
             </h1>
             <p className='text-gray-600 dark:text-gray-300 mb-4'>
               {listingData.address}
             </p>
-            <h2 className='text-2xl font-semibold mb-4 dark:text-white'>
+            <h2 className='text-2xl font-semibold font-subheading mb-4 dark:text-white'>
               About this place
             </h2>
             <p className='text-gray-700 dark:text-gray-300 mb-6'>
@@ -83,7 +83,7 @@ export function ListingPage({
             </p>
 
             {/* Amenities */}
-            <h2 className='text-2xl font-semibold mb-4 dark:text-white'>
+            <h2 className='text-2xl font-semibold font-subheading mb-4 dark:text-white'>
               Amenities
             </h2>
             <ul className='grid grid-cols-2 gap-2 mb-6'>
@@ -98,7 +98,7 @@ export function ListingPage({
             </ul>
 
             {/* Image Gallery */}
-            <h2 className='text-2xl font-semibold mb-4 dark:text-white'>
+            <h2 className='text-2xl font-subheading font-semibold mb-4 dark:text-white'>
               Photo Gallery
             </h2>
             <div className='grid grid-cols-2 gap-4'>
@@ -120,6 +120,34 @@ export function ListingPage({
                 </LightBox>
               ))}
             </div>
+            {/* Host Information */}
+            <Card className='mt-6 bg-background'>
+              <CardHeader>
+                <CardTitle className='text-xl font-semibold'>
+                  Hosted by {listingData.owner.firstName}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='flex items-center'>
+                <Image
+                  src={listingData.owner.imageUrl ?? ''}
+                  alt={listingData.owner.firstName ?? ''}
+                  width={64}
+                  height={64}
+                  className='rounded-full mr-4'
+                />
+                <div>
+                  <Button
+                    variant='link'
+                    className='dark:text-gray-300 dark:border-gray-600 '
+                  >
+                    Contact Host
+                  </Button>
+                  <p className='ml-4'>
+                    {listingData.owner.firstName} has hosted for 100+ nights
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Booking Card */}
@@ -149,30 +177,6 @@ export function ListingPage({
                 />
                 <Button type='submit' className='w-full mt-4'>
                   Reserve
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Host Information */}
-            <Card className='mt-6 dark:bg-gray-800 dark:text-white'>
-              <CardHeader>
-                <CardTitle className='text-xl font-semibold'>
-                  Hosted by {listingData.owner.firstName}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='flex items-center'>
-                <Image
-                  src={listingData.owner.imageUrl ?? ''}
-                  alt={listingData.owner.firstName ?? ''}
-                  width={64}
-                  height={64}
-                  className='rounded-full mr-4'
-                />
-                <Button
-                  variant='outline'
-                  className='dark:text-gray-300 dark:border-gray-600'
-                >
-                  Contact Host
                 </Button>
               </CardContent>
             </Card>
