@@ -92,26 +92,24 @@ export const editInventory = actionClient
         throw new Error('Listing not found');
       }
       const { inventory } = parsedInput;
-      // ensure that dates are for the future
-      const today = new Date();
-      const futureDates = inventory.filter((item) => item.date > today);
-      if (futureDates.length !== inventory.length) {
-        throw new Error('Cannot book past dates');
-      }
-      await prisma.listing.update({
-        where: {
-          id: listing.id,
-        },
-        data: {
-          inventory: {
-            create: inventory.map((item) => ({
-              date: item.date,
-              isBooked: item.isBooked,
-              price: item.price,
-              bookingId: item.bookingId,
-            })),
+
+      await prisma.$transaction(async (tx) => {
+        // first remove inventories with the same date
+        await tx.listingInventory.deleteMany({
+          where: {
+            listingId: listing.id,
+            date: {
+              in: inventory.map((item) => new Date(item.date).toISOString()),
+            },
           },
-        },
+        });
+
+        await tx.listingInventory.createMany({
+          data: inventory.map((item) => ({
+            ...item,
+            listingId: listing.id,
+          })),
+        });
       });
       return {
         success: true,

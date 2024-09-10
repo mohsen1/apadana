@@ -51,7 +51,7 @@ export function Calendar({
   return (
     <div {...calendarProps} className='w-full'>
       <div className='flex items-center pb-4'>
-        <h2 className='flex-1 font-bold text-xl ml-2'>{title}</h2>
+        <h2 className='flex-1 font-bold text-5xl ml-2'>{title}</h2>
         <CalendarButton {...prevButtonProps}>
           <ChevronLeft size={36} />
         </CalendarButton>

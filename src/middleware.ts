@@ -5,7 +5,6 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 const isProtectedRoute = createRouteMatcher(['/listing/create']);
 
 export default clerkMiddleware((auth, req) => {
-  console.log('clerk middleware', req.url);
   if (isProtectedRoute(req)) auth().protect();
 });
 

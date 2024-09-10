@@ -1,11 +1,15 @@
-import { CalendarDate, getDayOfWeek, isSameDay } from '@internationalized/date';
+import {
+  CalendarDate,
+  getLocalTimeZone,
+  isSameDay,
+  today,
+} from '@internationalized/date';
 import { useRef } from 'react';
 import {
   AriaCalendarCellProps,
   mergeProps,
   useCalendarCell,
   useFocusRing,
-  useLocale,
 } from 'react-aria';
 import { RangeCalendarState } from 'react-stately';
 
@@ -30,33 +34,25 @@ export function CalendarCell({
     isOutsideVisibleRange,
     isDisabled,
     formattedDate,
-    isInvalid,
   } = useCalendarCell({ date }, state, ref);
 
-  // The start and end date of the selected range will have
-  // an emphasized appearance.
-
+  const isLastDayOfWeek = date.day === date.calendar.getDaysInMonth(date);
+  const isFirstDayOfWeek = date.day === 1;
   const isSelectionStart = state.highlightedRange
     ? isSameDay(date, state.highlightedRange.start)
     : isSelected;
-
   const isSelectionEnd = state.highlightedRange
     ? isSameDay(date, state.highlightedRange.end)
     : isSelected;
-
-  // We add rounded corners on the left for the first day of the month,
-  // the first day of each week, and the start date of the selection.
-  // We add rounded corners on the right for the last day of the month,
-  // the last day of each week, and the end date of the selection.
-  const { locale } = useLocale();
-  const dayOfWeek = getDayOfWeek(date, locale);
+  const isOnlyOneDaySelected = isSelectionStart && isSelectionEnd;
   const isRoundedLeft =
-    isSelected && (isSelectionStart || dayOfWeek === 0 || date.day === 1);
-  const isRoundedRight =
     isSelected &&
-    (isSelectionEnd ||
-      dayOfWeek === 6 ||
-      date.day === date.calendar.getDaysInMonth(date));
+    isSelectionStart &&
+    !isOnlyOneDaySelected &&
+    !isFirstDayOfWeek;
+  const isRoundedRight =
+    isSelected && isSelectionEnd && !isOnlyOneDaySelected && !isLastDayOfWeek;
+  const isToday = date.compare(today(getLocalTimeZone())) === 0;
 
   const { focusProps, isFocusVisible } = useFocusRing();
 
@@ -71,26 +67,29 @@ export function CalendarCell({
         hidden={isOutsideVisibleRange}
         className={cn(
           'w-full h-full min-h-24 outline-none group grid place-items-center border border-primary-600',
+          'hover:bg-accent/20',
           {
             'rounded-l-full': isRoundedLeft,
             'rounded-r-full': isRoundedRight,
-            'bg-foreground/50': isSelected,
-            'bg-destructive-300': isSelected && isInvalid,
-            'bg-primary-100': isSelected && !isInvalid,
+            'rounded-full': isOnlyOneDaySelected,
             'bg-accent/10': isSelected,
-            disabled: isDisabled,
+            'hover:rounded-full': !state.focusedDate,
+            'outline outline-2 outline-offset-2 outline-accent': isFocusVisible,
+            'opacity-50 cursor-not-allowed': isDisabled && !isSelected,
           },
         )}
       >
-        <div
-          className={cn({
-            'text-foreground': !isDisabled && !isInvalid && !isSelected,
-            'text-primary-600':
-              isSelected && (isSelectionStart || isSelectionEnd),
-            'text-error-600': isInvalid,
-          })}
-        >
-          <div className='text-center'>{formattedDate}</div>
+        <div className='flex flex-col items-center justify-center gap-2'>
+          <div
+            className={cn(
+              'text-center w-12 h-12 p-2 flex items-center justify-center text-2xl text-foreground/80',
+              {
+                'bg-ring/90 text-background rounded-full ': isToday,
+              },
+            )}
+          >
+            {formattedDate}
+          </div>
           {getCellContent?.(date)}
         </div>
       </div>

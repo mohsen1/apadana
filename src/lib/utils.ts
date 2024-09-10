@@ -7,9 +7,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number, currency: Currency) {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(getLocale(), {
     style: 'currency',
     currency: currency,
+    minimumFractionDigits: 0,
   }).format(amount);
 }
 
@@ -27,11 +28,28 @@ export function areEqualDates(date1: Date, date2: Date) {
   );
 }
 
+export function isDateInRange(date: Date, range: { start: Date; end: Date }) {
+  return date >= range.start && date <= range.end;
+}
+
 /**
  * Get the locale for the current user.
- * @todo: Implement this function.
  * @returns The locale for the current user.
  */
 export function getLocale() {
+  if (typeof window !== 'undefined') {
+    return navigator.language || 'en-US';
+  }
   return 'en-US';
+}
+
+export function formatCurrencySymbol(currency: Currency) {
+  return new Intl.NumberFormat(getLocale(), {
+    style: 'currency',
+    currency: currency,
+  })
+    .format(1)
+    .replace(/\d+/g, '')
+    .replace('.', '')
+    .trim();
 }

@@ -20,7 +20,7 @@ export function AvailabilityManagementCalendar({
   listing,
   onChange,
 }: {
-  value: Date;
+  value: RangeValue<DateValue> | null;
   listing: Listing & {
     inventory: ListingInventory[];
   };
@@ -29,13 +29,14 @@ export function AvailabilityManagementCalendar({
   return (
     <div className='w-full'>
       <NewCalendar
+        value={value}
         onChange={onChange}
         getCellContent={(calendarDate) => {
           let inventory = listing.inventory.find((inventory) =>
             isSameDay(
               new CalendarDate(
                 inventory.date.getFullYear(),
-                inventory.date.getMonth(),
+                inventory.date.getMonth() + 1,
                 inventory.date.getDate(),
               ),
               calendarDate,
@@ -56,39 +57,6 @@ export function AvailabilityManagementCalendar({
           );
         }}
       />
-      {/* <Calendar
-        showFixedNumberOfWeeks
-        tileContent={({ date }) => {
-          let inventory = listing.inventory.find((inventory) =>
-            areEqualDates(inventory.date, date),
-          );
-          if (!inventory) {
-            inventory = {
-              price: listing.pricePerNight,
-              isBooked: true,
-              id: 0,
-              listingId: listing.id,
-              date: date,
-              bookingId: null,
-            };
-          }
-          return (
-            <CalendarTileContent inventory={inventory} listing={listing} />
-          );
-        }}
-        nextLabel={<ChevronRight size={36} />}
-        prevLabel={<ChevronLeft size={36} />}
-        navigationLabel={({ date }) => {
-          return <span>{format(date, 'MMMM yyyy')}</span>;
-        }}
-        next2Label={null}
-        prev2Label={null}
-        view='month'
-        value={value}
-        onClickDay={(value) => {
-          onDateChange(value);
-        }}
-      /> */}
     </div>
   );
 }
