@@ -35,6 +35,10 @@ async function deleteListing(formData: FormData) {
         where: { listingId: listingId },
       });
 
+      await tx.listingInventory.deleteMany({
+        where: { listingId: listingId },
+      });
+
       // Then delete the listing
       await tx.listing.delete({
         where: { id: listingId },
