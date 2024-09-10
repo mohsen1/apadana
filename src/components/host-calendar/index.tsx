@@ -1,4 +1,8 @@
-import { CalendarDate, createCalendar } from '@internationalized/date';
+import {
+  createCalendar,
+  getLocalTimeZone,
+  today as getToday,
+} from '@internationalized/date';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
 import {
@@ -25,22 +29,16 @@ export function Calendar({
   ...props
 }: CalendarProps) {
   const { locale } = useLocale();
+  const today = getToday(getLocalTimeZone());
   const state = useRangeCalendarState({
     ...props,
     locale,
     createCalendar,
     onChange,
+    minValue: today,
     defaultValue: {
-      start: new CalendarDate(
-        new Date().getFullYear(),
-        new Date().getMonth(),
-        new Date().getDate(),
-      ),
-      end: new CalendarDate(
-        new Date().getFullYear(),
-        new Date().getMonth(),
-        new Date().getDate(),
-      ),
+      start: today.add({ days: 1 }),
+      end: today.add({ days: 2 }),
     },
   });
 

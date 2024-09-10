@@ -14,11 +14,10 @@ export function CalendarButton(props: AriaButtonProps<'button'>) {
     <button
       {...mergeProps(buttonProps, focusProps)}
       ref={ref}
-      // TODO: colors
-      className={`p-2 rounded-full ${props.isDisabled ? 'text-gray-400' : ''} ${
-        !props.isDisabled ? 'hover:bg-violet-100 active:bg-violet-200' : ''
+      className={`p-2 rounded-full ${props.isDisabled ? 'text-foreground/30' : ''} ${
+        !props.isDisabled ? 'hover:bg-accent/40 active:bg-accent/45' : ''
       } outline-none ${
-        isFocusVisible ? 'ring-2 ring-offset-2 ring-purple-600' : ''
+        isFocusVisible ? 'ring-2 ring-offset-2 ring-accent/50' : ''
       }`}
     >
       {props.children}

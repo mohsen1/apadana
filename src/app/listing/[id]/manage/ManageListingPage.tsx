@@ -1,5 +1,5 @@
 'use client';
-import { today } from '@internationalized/date';
+import { getLocalTimeZone, today as getToday } from '@internationalized/date';
 import {
   Listing,
   ListingInventory,
@@ -52,10 +52,10 @@ export function ManageListingPage({
   const [listingInventory, setListingInventory] = useState<ListingInventory[]>(
     listingData.inventory,
   );
-  const tomorrow = today(listingData.timeZone).add({ days: 1 });
+  const today = getToday(getLocalTimeZone());
   const [range, setRange] = useState<RangeValue<DateValue> | null>({
-    start: today(listingData.timeZone),
-    end: tomorrow,
+    start: today,
+    end: today,
   });
   const [rangePrice, setRangePrice] = useState<number>(
     listingData.pricePerNight,
@@ -107,6 +107,29 @@ export function ManageListingPage({
       return inventoryInRange[0].price;
     }
     return listingData.pricePerNight;
+  }
+
+  async function onSubmit(range: RangeValue<DateValue>) {
+    if (!range || !range.start || !range.end) {
+      return;
+    }
+
+    const rangeLength = range.end.compare(range.start) + 1;
+
+    const inventory = Array.from({ length: rangeLength }, (_, index) => {
+      const date = range.start.add({ days: index });
+      return {
+        date: date.toDate(listingData.timeZone),
+        price: rangePrice,
+        isBooked: !rangeAvailable,
+      };
+    });
+
+    await executeEditInventory({
+      listingId: listingData.id,
+      inventory,
+    });
+    refreshInventory();
   }
 
   return (
@@ -226,27 +249,7 @@ export function ManageListingPage({
                           if (!range) {
                             return;
                           }
-
-                          const rangeLength =
-                            range.end.compare(range.start) + 1;
-
-                          const inventory = Array.from(
-                            { length: rangeLength },
-                            (_, index) => {
-                              const date = range.start.add({ days: index });
-                              return {
-                                date: date.toDate(listingData.timeZone),
-                                price: rangePrice,
-                                isBooked: !rangeAvailable,
-                              };
-                            },
-                          );
-
-                          await executeEditInventory({
-                            listingId: listingData.id,
-                            inventory,
-                          });
-                          refreshInventory();
+                          onSubmit(range);
                         }}
                       >
                         {editInventoryStatus === 'executing' ? (
