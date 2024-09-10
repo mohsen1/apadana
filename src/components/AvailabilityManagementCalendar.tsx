@@ -1,25 +1,62 @@
 'use client';
 
+import {
+  CalendarDate,
+  DateValue,
+  getLocalTimeZone,
+  isSameDay,
+} from '@internationalized/date';
 import { Listing, ListingInventory } from '@prisma/client';
-import { ChevronLeft, ChevronRight, XIcon } from 'lucide-react';
-import Calendar from 'react-calendar';
+import { XIcon } from 'lucide-react';
 
-import { areEqualDates, cn, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
+
+import { RangeValue } from '@/utils/types';
+
+import { Calendar as NewCalendar } from './host-calendar';
 
 export function AvailabilityManagementCalendar({
   value,
   listing,
-  onDateChange,
+  onChange,
 }: {
   value: Date;
   listing: Listing & {
     inventory: ListingInventory[];
   };
-  onDateChange: (date: Date) => void;
+  onChange: (value: RangeValue<DateValue> | null) => void;
 }) {
   return (
     <div className='w-full'>
-      <Calendar
+      <NewCalendar
+        onChange={onChange}
+        getCellContent={(calendarDate) => {
+          let inventory = listing.inventory.find((inventory) =>
+            isSameDay(
+              new CalendarDate(
+                inventory.date.getFullYear(),
+                inventory.date.getMonth(),
+                inventory.date.getDate(),
+              ),
+              calendarDate,
+            ),
+          );
+          if (!inventory) {
+            inventory = {
+              price: listing.pricePerNight,
+              isBooked: true,
+              id: 0,
+              listingId: listing.id,
+              bookingId: null,
+              date: calendarDate.toDate(getLocalTimeZone()),
+            };
+          }
+          return (
+            <CalendarTileContent inventory={inventory} listing={listing} />
+          );
+        }}
+      />
+      {/* <Calendar
         showFixedNumberOfWeeks
         tileContent={({ date }) => {
           let inventory = listing.inventory.find((inventory) =>
@@ -39,8 +76,11 @@ export function AvailabilityManagementCalendar({
             <CalendarTileContent inventory={inventory} listing={listing} />
           );
         }}
-        nextLabel={<ChevronRight />}
-        prevLabel={<ChevronLeft />}
+        nextLabel={<ChevronRight size={36} />}
+        prevLabel={<ChevronLeft size={36} />}
+        navigationLabel={({ date }) => {
+          return <span>{format(date, 'MMMM yyyy')}</span>;
+        }}
         next2Label={null}
         prev2Label={null}
         view='month'
@@ -48,7 +88,7 @@ export function AvailabilityManagementCalendar({
         onClickDay={(value) => {
           onDateChange(value);
         }}
-      />
+      /> */}
     </div>
   );
 }

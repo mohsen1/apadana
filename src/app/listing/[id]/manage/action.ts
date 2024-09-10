@@ -92,6 +92,12 @@ export const editInventory = actionClient
         throw new Error('Listing not found');
       }
       const { inventory } = parsedInput;
+      // ensure that dates are for the future
+      const today = new Date();
+      const futureDates = inventory.filter((item) => item.date > today);
+      if (futureDates.length !== inventory.length) {
+        throw new Error('Cannot book past dates');
+      }
       await prisma.listing.update({
         where: {
           id: listing.id,

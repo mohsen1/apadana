@@ -5,10 +5,7 @@ import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date';
 
 import { SpectrumProvider } from '@/components/SpectrumProvider';
 
-interface RangeValue<T> {
-  start: T;
-  end: T;
-}
+import { RangeValue } from '@/utils/types';
 
 export function DatePicker({
   selected,

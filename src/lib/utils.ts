@@ -26,3 +26,12 @@ export function areEqualDates(date1: Date, date2: Date) {
     date1.getFullYear() === date2.getFullYear()
   );
 }
+
+/**
+ * Get the locale for the current user.
+ * @todo: Implement this function.
+ * @returns The locale for the current user.
+ */
+export function getLocale() {
+  return 'en-US';
+}

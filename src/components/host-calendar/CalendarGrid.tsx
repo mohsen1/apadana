@@ -1,0 +1,56 @@
+import { CalendarDate, getWeeksInMonth } from '@internationalized/date';
+import { AriaCalendarGridProps, useCalendarGrid, useLocale } from 'react-aria';
+import { RangeCalendarState } from 'react-stately';
+
+import { CalendarCell } from './CalendarCell';
+
+interface CalendarGridProps extends AriaCalendarGridProps {
+  state: RangeCalendarState;
+  getCellContent?: (date: CalendarDate) => React.ReactNode;
+}
+
+export function CalendarGrid({
+  state,
+  getCellContent,
+  ...props
+}: CalendarGridProps) {
+  const { locale } = useLocale();
+  const { gridProps, headerProps, weekDays } = useCalendarGrid(props, state);
+
+  // Get the number of weeks in the month so we can render the proper number of rows.
+  const weeksInMonth = getWeeksInMonth(state.visibleRange.start, locale);
+
+  return (
+    <table {...gridProps} cellPadding='0' className='flex-1 w-full'>
+      <thead {...headerProps} className='text-foreground/80'>
+        <tr className='grid grid-cols-7 w-full'>
+          {weekDays.map((day, index) => (
+            <th className='text-center' key={index}>
+              {day}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({ length: weeksInMonth }, (_, weekIndex) => (
+          <tr key={weekIndex} className='grid grid-cols-7 w-full'>
+            {state
+              .getDatesInWeek(weekIndex)
+              .map((date, i) =>
+                date ? (
+                  <CalendarCell
+                    key={i}
+                    state={state}
+                    date={date}
+                    getCellContent={getCellContent}
+                  />
+                ) : (
+                  <td key={i} />
+                ),
+              )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}

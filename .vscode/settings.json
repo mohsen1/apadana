@@ -14,5 +14,21 @@
     "containerClassName"
   ],
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "cSpell.words": ["Uploadthing"]
+  "cSpell.words": ["Uploadthing"],
+  "search.exclude": {
+    "**/.vscode": true,
+    "**/node_modules": true,
+    "**/tmp": true,
+    "**/dist": true,
+    "**/.next": true,
+    "storybook-static": true
+  },
+  "files.exclude": {
+    "**/.vscode": true,
+    "**/node_modules": true,
+    "**/tmp": true,
+    "**/dist": true,
+    "**/.next": true,
+    "storybook-static": true
+  }
 }

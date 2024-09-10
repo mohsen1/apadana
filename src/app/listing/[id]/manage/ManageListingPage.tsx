@@ -1,5 +1,4 @@
 'use client';
-
 import {
   Listing,
   ListingInventory,
@@ -10,8 +9,9 @@ import { DollarSign, Loader2, SaveIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useAction } from 'next-safe-action/hooks';
 import React, { useState } from 'react';
+import { DateValue } from 'react-aria';
 
-import { areEqualDates } from '@/lib/utils';
+import { getLocale } from '@/lib/utils';
 
 import { AvailabilityManagementCalendar } from '@/components/AvailabilityManagementCalendar';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { editInventory, getListing } from '@/app/listing/[id]/manage/action';
 import UpdateListingForm from '@/app/listing/[id]/manage/UpdateListingForm';
+import { RangeValue } from '@/utils/types';
 
 export function ManageListingPage({
   listingData,
@@ -50,11 +51,16 @@ export function ManageListingPage({
   const [listingInventory, setListingInventory] = useState<ListingInventory[]>(
     listingData.inventory,
   );
-  const [date, setDate] = useState<Date>(new Date());
-  const [datePrice, setDatePrice] = useState<number>(listingData.pricePerNight);
-  const [dateAvailable, setDateAvailable] = useState<boolean>(false);
-  const { execute: executeEditInventory, status: editInventoryStatus } =
-    useAction(editInventory);
+  const [range, setRange] = useState<RangeValue<DateValue> | null>(null);
+  const [rangePrice, setRangePrice] = useState<number>(
+    listingData.pricePerNight,
+  );
+  const [rangeAvailable, setRangeAvailable] = useState<boolean>(false);
+  const {
+    execute: executeEditInventory,
+    status: editInventoryStatus,
+    result: editInventoryResult,
+  } = useAction(editInventory);
 
   async function refreshInventory() {
     const res = await getListing({ id: listingData.id });
@@ -88,94 +94,141 @@ export function ManageListingPage({
               <CardDescription>Set availability and pricing</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className='grid lg:grid-cols-[1fr_auto] gap-4'>
+              <div className='grid lg:grid-cols-[1fr_auto] gap-8'>
                 <div className=''>
                   <AvailabilityManagementCalendar
-                    value={date}
+                    value={range?.start}
                     listing={{
                       ...listingData,
                       inventory: listingInventory,
                     }}
-                    onDateChange={(newDate) => {
-                      setDate(newDate);
-                      const inventory = listingInventory.find((inventory) =>
-                        areEqualDates(inventory.date, newDate),
-                      );
-                      if (!inventory) {
-                        setDatePrice(listingData.pricePerNight);
-                        setDateAvailable(false);
+                    onChange={(range) => {
+                      if (!range) {
                         return;
                       }
-                      setDateAvailable(inventory.isBooked);
-                      setDatePrice(inventory.price);
+                      setRange(range);
+
+                      // const inventory = listingInventory.find((inventory) =>
+                      //   areEqualDates(inventory.date, range.start),
+                      // );
+                      // if (!inventory) {
+                      //   setDatePrice(listingData.pricePerNight);
+                      //   setDateAvailable(false);
+                      //   return;
+                      // }
+                      // setDateAvailable(inventory.isBooked);
+                      // setDatePrice(inventory.price);
                     }}
                   />
                 </div>
                 <div className='min-w-[300px] space-y-4'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='datePrice'>
-                      Price for {date?.toDateString()}
-                    </Label>
-                    <div className='relative'>
-                      <DollarSign className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-                      <Input
+                  {range && (
+                    <>
+                      <div className='flex items-center space-x-2'>
+                        <Switch
+                          id='dateAvailable'
+                          checked={rangeAvailable}
+                          onCheckedChange={(checked) => {
+                            setRangeAvailable(checked);
+                          }}
+                        />
+                        <Label htmlFor='dateAvailable'>Available</Label>
+                      </div>
+                      <div className='space-y-2'>
+                        <Label htmlFor='datePrice' className='text-lg'>
+                          Set the price for{' '}
+                          <div>
+                            <span className='font-bold'>
+                              {range?.start
+                                ?.toDate(listingData.timeZone)
+                                .toLocaleDateString(getLocale(), {
+                                  month: 'long',
+                                  day: 'numeric',
+                                })}
+                            </span>
+                            {range?.end &&
+                            range?.end.compare(range.start) > 0 ? (
+                              <>
+                                {' to '}
+                                <span className='font-bold'>
+                                  {range?.end
+                                    ?.toDate(listingData.timeZone)
+                                    .toLocaleDateString(getLocale(), {
+                                      month: 'long',
+                                      day: 'numeric',
+                                    })}
+                                </span>
+                              </>
+                            ) : null}
+                          </div>
+                        </Label>
+                        <div className='relative'>
+                          <DollarSign className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+                          <Input
+                            disabled={
+                              editInventoryStatus === 'executing' ||
+                              !rangeAvailable
+                            }
+                            id='datePrice'
+                            type='number'
+                            className='pl-8'
+                            placeholder='0.00'
+                            value={rangePrice}
+                            onChange={(e) => {
+                              setRangePrice(parseFloat(e.target.value));
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <Button
                         disabled={editInventoryStatus === 'executing'}
-                        id='datePrice'
-                        type='number'
-                        className='pl-8'
-                        placeholder='0.00'
-                        value={datePrice}
-                        onChange={(e) => {
-                          setDatePrice(parseFloat(e.target.value));
+                        className='flex items-center space-x-2 gap-2'
+                        onClick={async (e) => {
+                          e.preventDefault();
+
+                          if (!range) {
+                            return;
+                          }
+
+                          const rangeLength = range.end.compare(range.start);
+                          console.log({ rangeLength });
+
+                          const inventory = Array.from(
+                            { length: rangeLength },
+                            (_, index) => {
+                              const date = range.start.add({ days: index });
+                              return {
+                                date: date.toDate(listingData.timeZone),
+                                price: rangePrice,
+                                isBooked: !rangeAvailable,
+                              };
+                            },
+                          );
+                          console.log({ inventory });
+
+                          await executeEditInventory({
+                            listingId: listingData.id,
+                            inventory,
+                          });
+                          console.log({ editInventoryResult });
+                          refreshInventory();
                         }}
-                      />
-                    </div>
-                  </div>
-                  <div className='flex items-center space-x-2'>
-                    <Switch
-                      id='dateAvailable'
-                      checked={dateAvailable}
-                      onCheckedChange={(checked) => {
-                        setDateAvailable(checked);
-                      }}
-                    />
-                    <Label htmlFor='dateAvailable'>Available</Label>
-                  </div>
-
-                  <Button
-                    disabled={editInventoryStatus === 'executing'}
-                    className='flex items-center space-x-2 gap-2'
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      if (!date || !datePrice) {
-                        return;
-                      }
-
-                      await executeEditInventory({
-                        listingId: listingData.id,
-                        inventory: [
-                          {
-                            date: date,
-                            price: datePrice,
-                            isBooked: !dateAvailable,
-                          },
-                        ],
-                      });
-                      refreshInventory();
-                    }}
-                  >
-                    {editInventoryStatus === 'executing' ? (
-                      <>
-                        <Loader2 className='animate-spin' />
-                        Updating...
-                      </>
-                    ) : (
-                      <>
-                        <SaveIcon />
-                        Update Date
-                      </>
-                    )}
-                  </Button>
+                      >
+                        {editInventoryStatus === 'executing' ? (
+                          <>
+                            <Loader2 className='animate-spin' />
+                            Updating...
+                          </>
+                        ) : (
+                          <>
+                            <SaveIcon />
+                            Update Date
+                          </>
+                        )}
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </CardContent>
