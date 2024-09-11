@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   title: 'Not Found',
 };
 
+/**
+ * NotFound component
+ */
+// TODO: Make sure this always returns a 404 response code
 export default function NotFound({
   message = 'The page you are looking for does not exist.',
   title = 'Page Not Found',

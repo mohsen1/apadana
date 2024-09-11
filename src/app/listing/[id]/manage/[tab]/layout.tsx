@@ -1,0 +1,54 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import React from 'react';
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import { getListing } from '@/app/listing/[id]/manage/action';
+import NotFound from '@/app/not-found';
+
+export default async function ManageListingPageLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: { id: string; tab: string };
+}) {
+  const { id, tab } = params;
+
+  const response = await getListing({ id: parseInt(id, 10) });
+  const listing = response?.data?.listing;
+
+  if (!listing) {
+    return <NotFound title='Listing not found' />;
+  }
+
+  return (
+    <div className='container mx-auto p-4 flex-grow'>
+      <h1 className='text-3xl font-bold mb-6'>
+        <Image
+          src={listing.images[0].url}
+          alt={listing.title}
+          width={96}
+          height={96}
+          className='inline object-cover mr-2'
+        />
+        <span>Manage "{listing.title}"</span>
+      </h1>
+      <Tabs defaultValue={tab} className='space-y-4'>
+        <TabsList>
+          <TabsTrigger value='calendar'>
+            <Link href={`/listing/${id}/manage/calendar`}>Calendar</Link>
+          </TabsTrigger>
+          <TabsTrigger value='details'>
+            <Link href={`/listing/${id}/manage/details`}>Details</Link>
+          </TabsTrigger>
+          <TabsTrigger value='bookings'>
+            <Link href={`/listing/${id}/manage/bookings`}>Bookings</Link>
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value={tab}>{children}</TabsContent>
+      </Tabs>
+    </div>
+  );
+}

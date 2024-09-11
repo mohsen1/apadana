@@ -1,12 +1,9 @@
 'use client';
-import {
-  Listing,
-  ListingInventory,
-  UploadThingImage,
-  User,
-} from '@prisma/client';
+
 import Image from 'next/image';
 import React from 'react';
+
+import { FullListing } from '@/lib/types';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -15,16 +12,12 @@ import { HostCalendar } from '@/app/listing/[id]/manage/HostCalendar';
 import UpdateListingForm from '@/app/listing/[id]/manage/UpdateListingForm';
 
 export type ManageListingPageProps = {
-  listingData: Listing & {
-    images: UploadThingImage[];
-    owner: User;
-    inventory: ListingInventory[];
-  };
+  listingData: FullListing;
 };
 
 export function ManageListingPage({ listingData }: ManageListingPageProps) {
   return (
-    <div className='container mx-auto p-4'>
+    <div className='container mx-auto p-4 flex-grow'>
       <h1 className='text-3xl font-bold mb-6'>
         <Image
           src={listingData.images[0].url}
