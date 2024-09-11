@@ -112,7 +112,9 @@ export default function BookingPage({
               </button>
             ))}
           </div>
-          <h2 className='text-2xl pt-6 pb-2 font-bold'>{listing.title}</h2>
+          <h2 className='text-2xl pt-6 pb-2 font-bold font-subheading'>
+            {listing.title}
+          </h2>
           <div className=''>{listing.description}</div>
         </div>
 

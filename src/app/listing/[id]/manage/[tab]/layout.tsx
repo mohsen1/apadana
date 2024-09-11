@@ -26,14 +26,16 @@ export default async function ManageListingPageLayout({
   return (
     <div className='container mx-auto p-4 flex-grow'>
       <h1 className='text-3xl font-bold mb-6'>
-        <Image
-          src={listing.images[0].url}
-          alt={listing.title}
-          width={96}
-          height={96}
-          className='inline object-cover mr-2'
-        />
-        <span>Manage "{listing.title}"</span>
+        <Link href={`/listing/${id}`}>
+          <Image
+            src={listing.images[0].url}
+            alt={listing.title}
+            width={96}
+            height={96}
+            className='inline object-cover mr-2'
+          />
+          <span>Manage "{listing.title.slice()}"</span>
+        </Link>
       </h1>
       <Tabs defaultValue={tab} className='space-y-4'>
         <TabsList>

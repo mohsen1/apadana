@@ -150,9 +150,12 @@ export function ListingPage({
 
           {/* Booking Card */}
           <div>
-            <Card className='bg-[#f8f8f8] dark:bg-[#1d1d1d] dark:text-white'>
+            <Card className='bg-[#f8f8f8] dark:bg-[#1d1d1d] dark:text-white lg:sticky lg:top-2'>
               <CardHeader>
                 <CardTitle className='text-2xl font-bold'>
+                  <div className='font-medium text-sm text-muted-foreground'>
+                    Average price
+                  </div>
                   {formatCurrency(
                     listingData.pricePerNight,
                     listingData.currency,
