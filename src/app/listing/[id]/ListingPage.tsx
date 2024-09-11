@@ -2,6 +2,7 @@
 
 import { CalendarDate } from '@internationalized/date';
 import { Listing, UploadThingImage, User } from '@prisma/client';
+import { Check } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
@@ -121,33 +122,30 @@ export function ListingPage({
               ))}
             </div>
             {/* Host Information */}
-            <Card className='mt-6 bg-background'>
-              <CardHeader>
-                <CardTitle className='text-xl font-semibold'>
+            <h2 className='text-2xl font-subheading font-semibold mb-4 text-foreground mt-8'>
+              Meet your host
+            </h2>
+            <div className='flex items-center mt-4'>
+              <Image
+                src={listingData.owner.imageUrl ?? ''}
+                alt={listingData.owner.firstName ?? ''}
+                width={128}
+                height={128}
+                className='rounded-md mr-4'
+              />
+              <div>
+                <p className='my-2 font-bold text-lg'>
                   Hosted by {listingData.owner.firstName}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='flex items-center'>
-                <Image
-                  src={listingData.owner.imageUrl ?? ''}
-                  alt={listingData.owner.firstName ?? ''}
-                  width={64}
-                  height={64}
-                  className='rounded-full mr-4'
-                />
-                <div>
-                  <Button
-                    variant='link'
-                    className='dark:text-gray-300 dark:border-gray-600 '
-                  >
-                    Contact Host
-                  </Button>
-                  <p className='ml-4'>
-                    {listingData.owner.firstName} has hosted for 100+ nights
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                </p>
+                <p className='my-2'>
+                  <Check className='inline-block mr-2' />
+                  {listingData.owner.firstName} has hosted more than 100 guests
+                </p>
+                <Button variant='outline' className='my-2'>
+                  Contact {listingData.owner.firstName}
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Booking Card */}
