@@ -122,6 +122,56 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
               <p className='text-destructive'>{errors.description.message}</p>
             )}
           </div>
+          <div>
+            {/* TODO: Handle localization here. 
+            It should be able to show 24 hour and 23 hour time formats */}
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='checkInTime'>Check-in Time</Label>
+                <div className='relative'>
+                  <Clock className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+                  <Input
+                    {...register('checkInTime', {
+                      pattern: {
+                        value: /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/,
+                        message: 'Please enter time in HH:MM format',
+                      },
+                    })}
+                    id='checkInTime'
+                    className='pl-8'
+                    placeholder='14:00'
+                  />
+                </div>
+                {errors.checkInTime && (
+                  <p className='text-destructive'>
+                    {errors.checkInTime.message}
+                  </p>
+                )}
+              </div>
+              <div className='space-y-2'>
+                <Label htmlFor='checkOutTime'>Check-out Time</Label>
+                <div className='relative'>
+                  <Clock className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+                  <Input
+                    {...register('checkOutTime', {
+                      pattern: {
+                        value: /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/,
+                        message: 'Please enter time in HH:MM format',
+                      },
+                    })}
+                    id='checkOutTime'
+                    className='pl-8'
+                    placeholder='11:00'
+                  />
+                </div>
+                {errors.checkOutTime && (
+                  <p className='text-destructive'>
+                    {errors.checkOutTime.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
           <div className='grid grid-cols-3 gap-4'>
             <div className='space-y-2'>
               <Label htmlFor='pricePerNight'>Price per Night</Label>

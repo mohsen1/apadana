@@ -1,14 +1,15 @@
 name: Create Branch from Issue
 
 on:
-  issues:
-    types: [assigned]
+  push:
+    branches:
+      - main
 
 jobs:
-  create_issue_branch_job:
+  create-todo-issues:
     runs-on: ubuntu-latest
     steps:
-      - name: Create Issue Branch
-        uses: robvanderleek/create-issue-branch@main
+      - name: TODO to Issue
+        uses: alstr/todo-to-issue-action@v4.13.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
