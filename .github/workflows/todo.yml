@@ -1,21 +1,21 @@
-name: "Run TODO to Issue"
+name: 'Run TODO to Issue'
 on:
   push:
   workflow_dispatch:
     inputs:
       MANUAL_COMMIT_REF:
-        description: "d00266c97e6c48682031a3064013d46fb1236e4e"
+        description: d00266c97e6c48682031a3064013d46fb1236e4e
         required: true
       MANUAL_BASE_REF:
-        description: "c2623cccd7f36907be7a18d0db93e6d9389fdd3b"
+        description: c2623cccd7f36907be7a18d0db93e6d9389fdd3b
         required: false
 jobs:
   build:
-    runs-on: "ubuntu-latest"
+    runs-on: 'ubuntu-latest'
     steps:
-      - uses: "actions/checkout@v3"
-      - name: "TODO to Issue"
-        uses: "alstr/todo-to-issue-action@master"
+      - uses: 'actions/checkout@v3'
+      - name: 'TODO to Issue'
+        uses: 'alstr/todo-to-issue-action@master'
         env:
           MANUAL_COMMIT_REF: ${{ inputs.MANUAL_COMMIT_REF }}
           MANUAL_BASE_REF: ${{ inputs.MANUAL_BASE_REF }}
