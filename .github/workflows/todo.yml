@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       MANUAL_COMMIT_REF:
-        description: d00266c97e6c48682031a3064013d46fb1236e4e
+        description: 'The commit ref to run the action on'
         required: true
       MANUAL_BASE_REF:
-        description: c2623cccd7f36907be7a18d0db93e6d9389fdd3b
+        description: 'The base commit ref to run the action on'
         required: false
 jobs:
   build:
