@@ -6,6 +6,7 @@ import {
   GetListingSchema,
 } from '@/lib/prisma/schema';
 import { actionClient } from '@/lib/safe-action';
+import { setToStartOfDayInTimeZone } from '@/lib/utils';
 
 import { assertError } from '@/utils';
 
@@ -27,6 +28,7 @@ export const getListing = actionClient
           images: true,
         },
       });
+
       return {
         success: true,
         listing,
@@ -91,7 +93,11 @@ export const editInventory = actionClient
       if (!listing) {
         throw new Error('Listing not found');
       }
-      const { inventory } = parsedInput;
+
+      const inventory = parsedInput.inventory.map((item) => ({
+        ...item,
+        date: setToStartOfDayInTimeZone(item.date, listing.timeZone),
+      }));
 
       await prisma.$transaction(async (tx) => {
         // first remove inventories with the same date
@@ -99,10 +105,11 @@ export const editInventory = actionClient
           where: {
             listingId: listing.id,
             date: {
-              in: inventory.map((item) => new Date(item.date).toISOString()),
+              in: inventory.map((item) => item.date),
             },
           },
         });
+        // make sure inventory for those dates are deleted
 
         await tx.listingInventory.createMany({
           data: inventory.map((item) => ({
@@ -110,6 +117,17 @@ export const editInventory = actionClient
             listingId: listing.id,
           })),
         });
+        const newInventoryCount = await tx.listingInventory.count({
+          where: {
+            listingId: listing.id,
+            date: {
+              in: inventory.map((item) => new Date(item.date)),
+            },
+          },
+        });
+        if (newInventoryCount !== inventory.length) {
+          throw new Error('Failed to update inventory');
+        }
       });
       return {
         success: true,

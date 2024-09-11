@@ -140,6 +140,10 @@ model Listing {
   state         String             @db.VarChar(100)
   zipCode       String             @db.Char(5)
   timeZone      String             @default("America/New_York") @db.VarChar(100)
+  /// HH:MM 24-hour format
+  checkInTime   String             @default("14:00") @db.VarChar(6)
+  /// HH:MM 24-hour format
+  checkOutTime  String             @default("11:00") @db.VarChar(6)
   amenities     String[]
   pricePerNight Float
   currency      Currency           @default(USD)
@@ -160,14 +164,16 @@ model Listing {
 }
 
 model ListingInventory {
-  id        Int      @id @default(autoincrement())
-  listing   Listing  @relation(fields: [listingId], references: [id])
-  listingId Int
-  date      DateTime
-  isBooked  Boolean  @default(false)
-  price     Float
-  booking   Booking? @relation(fields: [bookingId], references: [id])
-  bookingId Int?
+  id          Int      @id @default(autoincrement())
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  listingId   Int
+  date        DateTime
+  /// is this date available for booking
+  isAvailable Boolean  @default(true)
+  price       Float
+  /// related booking for this date
+  booking     Booking? @relation(fields: [bookingId], references: [id])
+  bookingId   Int?
 
   @@unique([listingId, date])
   @@index([date])

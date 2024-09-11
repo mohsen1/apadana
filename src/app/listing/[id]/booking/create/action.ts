@@ -30,7 +30,7 @@ export const createBooking = actionClient
               gte: checkIn,
               lt: checkOut,
             },
-            isBooked: false,
+            isAvailable: true,
           },
         });
 
@@ -65,7 +65,7 @@ export const createBooking = actionClient
             },
           },
           data: {
-            isBooked: true,
+            isAvailable: false,
             bookingId: booking.id,
           },
         });

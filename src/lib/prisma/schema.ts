@@ -57,7 +57,7 @@ export const EditInventorySchema = z.object({
   inventory: z.array(
     z.object({
       date: z.coerce.date(),
-      isBooked: z.boolean().optional().default(false),
+      isAvailable: z.boolean().optional().default(true),
       price: z.number(),
       bookingId: z.number().nullable().optional(),
     }),

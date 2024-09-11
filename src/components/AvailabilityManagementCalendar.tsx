@@ -13,7 +13,7 @@ import { cn, formatCurrency } from '@/lib/utils';
 
 import { RangeValue } from '@/utils/types';
 
-import { Calendar as NewCalendar } from './host-calendar';
+import { Calendar as NewCalendar } from './range-calendar';
 
 export function AvailabilityManagementCalendar({
   value,
@@ -45,7 +45,7 @@ export function AvailabilityManagementCalendar({
           if (!inventory) {
             inventory = {
               price: listing.pricePerNight,
-              isBooked: true,
+              isAvailable: false,
               id: 0,
               listingId: listing.id,
               bookingId: null,
@@ -68,7 +68,7 @@ function CalendarTileContent({
   inventory: ListingInventory;
   listing: Listing;
 }) {
-  const content = inventory.isBooked ? (
+  const content = !inventory.isAvailable ? (
     <XIcon className='inline text-foreground/50' />
   ) : (
     formatCurrency(inventory.price, listing.currency)
