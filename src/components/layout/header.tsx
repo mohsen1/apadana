@@ -11,7 +11,7 @@ export function Header() {
         <Link href='/' legacyBehavior>
           <a className='flex gap-2'>
             <HomeIcon className='h-6 w-6 ' />
-            <span className='font-bold'>Make Your Own Listing Site</span>
+            <span className='font-bold'>Apadana</span>
           </a>
         </Link>
       </div>

@@ -4,7 +4,7 @@ test('has title', async ({ page }) => {
   await page.goto('/');
 
   // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Make your own/);
+  await expect(page).toHaveTitle(/Apadana/);
 });
 
 // TODO: We need to handle auth in test

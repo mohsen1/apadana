@@ -1,4 +1,8 @@
-# Make your own listing website!
+# Apadana
+
+**𐎠𐎱𐎭𐎠𐎴** **आपादन**
+
+> Make your own short term rental website in minutes!
 
 ### 1. Clone the repository
 
