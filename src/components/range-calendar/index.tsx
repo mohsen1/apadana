@@ -40,6 +40,7 @@ export function Calendar({
     createCalendar,
     onChange,
     minValue: today,
+    isDateUnavailable: props.isDateUnavailable,
     defaultValue: {
       start: today.add({ days: 1 }),
       end: today.add({ days: 2 }),

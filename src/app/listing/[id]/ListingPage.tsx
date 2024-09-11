@@ -1,13 +1,13 @@
 'use client';
 
 import { CalendarDate } from '@internationalized/date';
-import { Listing, UploadThingImage, User } from '@prisma/client';
 import { Check } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
-import { formatCurrency, getLocale } from '@/lib/utils';
+import { FullListing } from '@/lib/types';
+import { areEqualDates, formatCurrency, getLocale } from '@/lib/utils';
 
 import { LightBox } from '@/components/LightBox';
 import { Calendar } from '@/components/range-calendar';
@@ -16,11 +16,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 import { Amenity } from '@/app/listing/[id]/Amenity';
 
-export function ListingPage({
-  listingData,
-}: {
-  listingData: Listing & { images: UploadThingImage[]; owner: User };
-}) {
+export function ListingPage({ listingData }: { listingData: FullListing }) {
   const router = useRouter();
   const todayCalendarDate = new CalendarDate(
     new Date().getFullYear(),
@@ -85,13 +81,11 @@ export function ListingPage({
             <h1 className='text-4xl font-bold mb-2 text-foreground font-heading'>
               {listingData.title}
             </h1>
-            <p className='text-gray-600 dark:text-gray-300 mb-4'>
-              {listingData.address}
-            </p>
+            <p className='text-muted-foreground mb-4'>{listingData.address}</p>
             <h2 className='text-2xl font-semibold font-subheading mb-4 dark:text-white'>
               About this place
             </h2>
-            <p className='text-gray-700 dark:text-gray-300 mb-6'>
+            <p className='text-muted-foreground mb-6'>
               {listingData.description}
             </p>
 
@@ -166,6 +160,18 @@ export function ListingPage({
               <CardContent>
                 <Calendar
                   border={false}
+                  isDateUnavailable={(date) => {
+                    const inventoryForDate = listingData.inventory.find(
+                      (inventory) => {
+                        const zonedDate = date.toDate(listingData.timeZone);
+                        return areEqualDates(zonedDate, inventory.date);
+                      },
+                    );
+                    if (!inventoryForDate) {
+                      return true;
+                    }
+                    return !inventoryForDate.isAvailable;
+                  }}
                   value={{
                     start: checkIn,
                     end: checkOut,

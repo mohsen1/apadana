@@ -11,6 +11,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     include: {
       images: true,
       owner: true,
+      inventory: true,
     },
   });
 

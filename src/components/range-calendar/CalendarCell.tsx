@@ -36,6 +36,7 @@ export function CalendarCell({
     isOutsideVisibleRange,
     isDisabled,
     formattedDate,
+    isUnavailable,
   } = useCalendarCell({ date }, state, ref);
 
   const isLastDayOfWeek = date.day === date.calendar.getDaysInMonth(date);
@@ -70,8 +71,9 @@ export function CalendarCell({
         className={cn(
           'w-full h-full outline-none group grid place-items-center',
           'transition-border-radius duration-300 ease-in-out',
-          'hover:bg-accent/20',
+
           {
+            'hover:bg-accent/20': !isUnavailable,
             'border border-primary-600': border,
             'rounded-l-full': isRoundedLeft,
             'rounded-r-full': isRoundedRight,
@@ -80,15 +82,24 @@ export function CalendarCell({
             'hover:rounded-full': !state.focusedDate,
             'outline outline-2 outline-offset-2 outline-accent': isFocusVisible,
             'opacity-50 cursor-not-allowed': isDisabled && !isSelected,
+            'after:content-[""] after:': isUnavailable,
           },
         )}
       >
-        <div className='flex flex-col items-center justify-center gap-2'>
+        <div
+          className={cn('flex flex-col items-center justify-center gap-2', {})}
+        >
           <div
             className={cn(
               'text-center w-[2rem] h-[2rem] text[1rem] p-2 flex items-center justify-center text-foreground/80',
               {
                 'bg-ring/90 text-background rounded-full ': isToday,
+                // Some crazy CSS magic to have a cross line over the cell date
+                [`after:absolute after:inset-0 after:scale-[0.4]
+                  after:from-transparent after:to-transparent 
+                  after:bg-no-repeat after:bg-[length:100%_100%] 
+                  after:bg-[linear-gradient(to_top_left,transparent_calc(50%-2px),gray_calc(50%-2px),gray_calc(50%+2px),transparent_calc(50%+2px))]
+                  `]: isUnavailable,
               },
             )}
           >
