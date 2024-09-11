@@ -19,12 +19,14 @@ interface CalendarCellProps extends AriaCalendarCellProps {
   state: RangeCalendarState;
   date: CalendarDate;
   getCellContent?: (date: CalendarDate) => React.ReactNode;
+  border?: boolean;
 }
 
 export function CalendarCell({
   state,
   date,
   getCellContent,
+  border = true,
 }: CalendarCellProps) {
   const ref = useRef<HTMLDivElement>(null);
   const {
@@ -66,9 +68,11 @@ export function CalendarCell({
         ref={ref}
         hidden={isOutsideVisibleRange}
         className={cn(
-          'w-full h-full min-h-24 outline-none group grid place-items-center border border-primary-600',
+          'w-full h-full outline-none group grid place-items-center',
+          'transition-border-radius duration-300 ease-in-out',
           'hover:bg-accent/20',
           {
+            'border border-primary-600': border,
             'rounded-l-full': isRoundedLeft,
             'rounded-r-full': isRoundedRight,
             'rounded-full': isOnlyOneDaySelected,
@@ -82,7 +86,7 @@ export function CalendarCell({
         <div className='flex flex-col items-center justify-center gap-2'>
           <div
             className={cn(
-              'text-center w-12 h-12 p-2 flex items-center justify-center text-2xl text-foreground/80',
+              'text-center w-[2rem] h-[2rem] text[1rem] p-2 flex items-center justify-center text-foreground/80',
               {
                 'bg-ring/90 text-background rounded-full ': isToday,
               },

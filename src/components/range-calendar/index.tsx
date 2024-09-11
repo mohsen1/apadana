@@ -20,12 +20,16 @@ import { CalendarGrid } from './CalendarGrid';
 
 interface CalendarProps extends AriaRangeCalendarProps<DateValue> {
   getCellContent?: (date: DateValue) => React.ReactNode;
+  getHeaderContent?: (title: string) => React.ReactNode;
   onChange?: (date: RangeValue<DateValue> | null) => void;
+  border?: boolean;
 }
 
 export function Calendar({
   getCellContent,
+  getHeaderContent,
   onChange,
+  border = true,
   ...props
 }: CalendarProps) {
   const { locale } = useLocale();
@@ -49,7 +53,11 @@ export function Calendar({
   return (
     <div {...calendarProps} className='w-full'>
       <div className='flex items-center pb-4'>
-        <h2 className='flex-1 font-bold text-5xl ml-2'>{title}</h2>
+        {getHeaderContent ? (
+          getHeaderContent(title)
+        ) : (
+          <h2 className='flex-1 text-xl ml-2 text-muted-foreground'>{title}</h2>
+        )}
         <CalendarButton {...prevButtonProps}>
           <ChevronLeft size={36} />
         </CalendarButton>
@@ -57,7 +65,11 @@ export function Calendar({
           <ChevronRight size={36} />
         </CalendarButton>
       </div>
-      <CalendarGrid state={state} getCellContent={getCellContent} />
+      <CalendarGrid
+        state={state}
+        getCellContent={getCellContent}
+        border={border}
+      />
     </div>
   );
 }

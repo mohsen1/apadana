@@ -13,7 +13,7 @@ import { cn, formatCurrency } from '@/lib/utils';
 
 import { RangeValue } from '@/utils/types';
 
-import { Calendar as NewCalendar } from './range-calendar';
+import { Calendar } from './range-calendar';
 
 export function AvailabilityManagementCalendar({
   value,
@@ -27,10 +27,13 @@ export function AvailabilityManagementCalendar({
   onChange: (value: RangeValue<DateValue> | null) => void;
 }) {
   return (
-    <div className='w-full'>
-      <NewCalendar
+    <div className='w-full text-2xl'>
+      <Calendar
         value={value}
         onChange={onChange}
+        getHeaderContent={(title) => (
+          <h2 className='font-bold text-5xl flex-1 font-bold'>{title}</h2>
+        )}
         getCellContent={(calendarDate) => {
           let inventory = listing.inventory.find((inventory) =>
             isSameDay(

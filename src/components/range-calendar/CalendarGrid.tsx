@@ -7,11 +7,13 @@ import { CalendarCell } from './CalendarCell';
 interface CalendarGridProps extends AriaCalendarGridProps {
   state: RangeCalendarState;
   getCellContent?: (date: CalendarDate) => React.ReactNode;
+  border?: boolean;
 }
 
 export function CalendarGrid({
   state,
   getCellContent,
+  border = true,
   ...props
 }: CalendarGridProps) {
   const { locale } = useLocale();
@@ -23,14 +25,9 @@ export function CalendarGrid({
   return (
     <table {...gridProps} cellPadding='0' className='flex-1 w-full'>
       <thead {...headerProps} className='text-foreground/80'>
-        <tr className='grid grid-cols-7 w-full'>
+        <tr className='grid grid-cols-7 w-full text-muted-foreground'>
           {weekDays.map((day, index) => (
-            <th
-              className='text-center text-2xl font-medium text-foreground/60'
-              key={index}
-            >
-              {day}
-            </th>
+            <th key={index}>{day}</th>
           ))}
         </tr>
       </thead>
@@ -45,6 +42,7 @@ export function CalendarGrid({
                     key={i}
                     state={state}
                     date={date}
+                    border={border}
                     getCellContent={getCellContent}
                   />
                 ) : (

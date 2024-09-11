@@ -7,12 +7,12 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getLocale } from '@/lib/utils';
 
-import { DatePicker } from '@/components/DatePicker';
 import { LightBox } from '@/components/LightBox';
+import { Calendar } from '@/components/range-calendar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 import { Amenity } from '@/app/listing/[id]/Amenity';
 
@@ -49,6 +49,18 @@ export function ListingPage({
       alert('Please select check-in and check-out dates');
     }
   };
+
+  // TODO: price calculation should be done on the server with a server action
+  /**
+   * Calculate the total price for the stay
+   * @returns the total price for the stay
+   */
+  function calculateTotalPrice() {
+    const totalPrice =
+      listingData.pricePerNight * (checkOut.compare(checkIn) + 1);
+    return totalPrice;
+  }
+
   return (
     <form
       className='min-h-screen bg-gray-100 dark:bg-gray-900'
@@ -150,32 +162,62 @@ export function ListingPage({
 
           {/* Booking Card */}
           <div>
-            <Card className='bg-[#f8f8f8] dark:bg-[#1d1d1d] dark:text-white lg:sticky lg:top-2'>
-              <CardHeader>
-                <CardTitle className='text-2xl font-bold'>
-                  <div className='font-medium text-sm text-muted-foreground'>
-                    Average price
-                  </div>
-                  {formatCurrency(
-                    listingData.pricePerNight,
-                    listingData.currency,
-                  )}
-                  <span className='text-base font-normal'>/ night</span>
-                </CardTitle>
-              </CardHeader>
+            <Card className='bg-[#f8f8f8] dark:bg-[#1d1d1d] dark:text-white lg:sticky lg:top-2 pt-4'>
               <CardContent>
-                <DatePicker
-                  selected={{
+                <Calendar
+                  border={false}
+                  value={{
                     start: checkIn,
                     end: checkOut,
                   }}
-                  onSelect={(range) => {
+                  onChange={(range) => {
                     if (range) {
-                      setCheckIn(range.start);
-                      setCheckOut(range.end);
+                      const startDate = range.start.toDate(
+                        listingData.timeZone,
+                      );
+                      const endDate = range.end.toDate(listingData.timeZone);
+                      const startCalendarDate = new CalendarDate(
+                        startDate.getFullYear(),
+                        startDate.getMonth() + 1,
+                        startDate.getDate(),
+                      );
+                      const endCalendarDate = new CalendarDate(
+                        endDate.getFullYear(),
+                        endDate.getMonth() + 1,
+                        endDate.getDate(),
+                      );
+                      setCheckIn(startCalendarDate);
+                      setCheckOut(endCalendarDate);
                     }
                   }}
                 />
+                <div className='grid grid-cols-[1fr_auto] gap-4 items-center my-4'>
+                  <div>
+                    <span className='text-sm font-medium pr-1'>
+                      {checkIn
+                        .toDate(listingData.timeZone)
+                        .toLocaleDateString(getLocale(), {
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      {' to '}
+                      {checkOut
+                        .toDate(listingData.timeZone)
+                        .toLocaleDateString(getLocale(), {
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                    </span>
+                    <div>{`${checkOut.compare(checkIn) + 1} nights`}</div>
+                  </div>
+                  <div className='text-xl font-bold font-lg w-full text-right'>
+                    {formatCurrency(
+                      calculateTotalPrice(),
+                      listingData.currency,
+                    )}
+                  </div>
+                </div>
+
                 <Button type='submit' className='w-full mt-4'>
                   Reserve
                 </Button>
