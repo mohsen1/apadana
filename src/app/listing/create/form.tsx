@@ -1,7 +1,9 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getLocalTimeZone } from '@internationalized/date';
-import { BuildingIcon, CableCar, HomeIcon } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group';
+import { useLoadScript } from '@react-google-maps/api';
+import { BuildingIcon, CableCar, HomeIcon, Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
@@ -24,11 +26,11 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 
 import { createListing } from '@/app/listing/create/action';
 import { amenitiesList } from '@/shared/ameneties';
+import { GOOGLE_MAPS_API_KEY } from '@/shared/public-api-keys';
 
 const defaultValues: CreateListing = {
   amenities: ['Wi-Fi'],
@@ -45,6 +47,29 @@ const defaultValues: CreateListing = {
   maximumGuests: 5,
   timeZone: getLocalTimeZone(),
 };
+const steps = [
+  {
+    title: 'Location Details',
+    description: 'Enter the address and location information',
+  },
+  {
+    title: 'Basic Information',
+    description: 'Provide general details about your listing',
+  },
+  {
+    title: 'Amenities',
+    description: 'Select the amenities available at your property',
+  },
+  { title: 'Photos', description: 'Upload photos of your property' },
+  {
+    title: 'Pricing and Availability',
+    description: 'Set your pricing and availability rules',
+  },
+  {
+    title: 'House Rules',
+    description: 'Establish house rules for your guests',
+  },
+];
 enum FormStep {
   LocationDetails = 0,
   BasicInfo = 1,
@@ -60,6 +85,15 @@ export default function CreateListingForm() {
   const [currentStep, setCurrentStep] = useState<FormStep>(
     FormStep.LocationDetails,
   );
+  const [addressInput, setAddressInput] = useState('');
+  const [predictions, setPredictions] = useState<
+    google.maps.places.AutocompletePrediction[]
+  >([]);
+
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries: ['places'],
+  });
 
   const { execute, result } = useAction(createListing);
   const {
@@ -68,6 +102,7 @@ export default function CreateListingForm() {
     control,
     formState,
     getValues,
+    setValue,
     setError,
     clearErrors,
     reset,
@@ -78,7 +113,7 @@ export default function CreateListingForm() {
   const { errors, isSubmitting } = formState;
 
   useEffect(() => {
-    const step = parseInt(searchParams.get('step') || '1', 10) as FormStep;
+    const step = parseInt(searchParams.get('step') || '0', 10) as FormStep;
     if (step && Object.values(FormStep).includes(step)) {
       setCurrentStep(step);
     } else {
@@ -109,6 +144,10 @@ export default function CreateListingForm() {
       }
     }
   }, [searchParams, router, reset]);
+
+  if (loadError) {
+    throw new Error(`Failed to load Google Maps API: ${loadError}`);
+  }
 
   const updateUrlParams = ({
     formData,
@@ -142,29 +181,76 @@ export default function CreateListingForm() {
     router.push(`?step=${prevStepValue}`);
   };
 
-  const steps = [
-    {
-      title: 'Location Details',
-      description: 'Enter the address and location information',
-    },
-    {
-      title: 'Basic Information',
-      description: 'Provide general details about your listing',
-    },
-    {
-      title: 'Amenities',
-      description: 'Select the amenities available at your property',
-    },
-    { title: 'Photos', description: 'Upload photos of your property' },
-    {
-      title: 'Pricing and Availability',
-      description: 'Set your pricing and availability rules',
-    },
-    {
-      title: 'House Rules',
-      description: 'Establish house rules for your guests',
-    },
-  ];
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setAddressInput(value);
+
+    if (!value) {
+      setPredictions([]);
+      return;
+    }
+
+    const service = new google.maps.places.AutocompleteService();
+    service.getPlacePredictions({ input: value }, (predictions, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+        setPredictions(predictions);
+      } else {
+        setPredictions([]);
+      }
+    });
+  };
+
+  const handleSelectPrediction = (
+    prediction: google.maps.places.AutocompletePrediction,
+  ) => {
+    setAddressInput(prediction.description);
+    setPredictions([]);
+
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ placeId: prediction.place_id }, (results, status) => {
+      if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+        const addressComponents = results[0].address_components;
+        let street = '';
+        let city = '';
+        let state = '';
+        let zipCode = '';
+
+        addressComponents.forEach((component) => {
+          const types = component.types;
+          if (types.includes('street_number')) {
+            street = `${component.long_name} ${street}`;
+          }
+          if (types.includes('route')) {
+            street += component.long_name;
+          }
+          if (types.includes('locality')) {
+            city = component.long_name;
+          }
+          if (types.includes('administrative_area_level_1')) {
+            state = component.short_name;
+          }
+          if (types.includes('postal_code')) {
+            zipCode = component.long_name;
+          }
+        });
+
+        // Update form fields
+        setValue('address', street);
+        setValue('city', city);
+        setValue('state', state);
+        setValue('zipCode', zipCode);
+
+        // Get latitude and longitude
+        const location = results[0].geometry?.location;
+        if (location) {
+          const lat = location.lat();
+          const lng = location.lng();
+          setValue('latitude', lat);
+          setValue('longitude', lng);
+        }
+      }
+    });
+  };
 
   return (
     <form
@@ -187,16 +273,36 @@ export default function CreateListingForm() {
         <CardContent className=''>
           {currentStep === FormStep.LocationDetails && (
             <div className='space-y-4'>
-              <div>
-                <Label htmlFor='address'>Street Address</Label>
-                <Input
-                  id='address'
-                  {...register('address', { required: true })}
-                />
-                {errors.address && (
-                  <span className='text-red-500'>This field is required</span>
-                )}
-              </div>
+              {!isLoaded ? (
+                <Loader2 className='animate-spin' />
+              ) : (
+                <div className='relative'>
+                  <Label htmlFor='address'>Street Address</Label>
+                  <Input
+                    id='address'
+                    value={addressInput}
+                    onChange={handleAddressChange}
+                    placeholder='Enter your address'
+                  />
+                  {errors.address && (
+                    <span className='text-red-500'>This field is required</span>
+                  )}
+                  {predictions.length > 0 && (
+                    <ul className='absolute z-10 w-full bg-white border rounded-md mt-1 shadow-lg'>
+                      {predictions.map((prediction) => (
+                        <li
+                          key={prediction.place_id}
+                          className='px-4 py-2 hover:bg-gray-100 cursor-pointer'
+                          onClick={() => handleSelectPrediction(prediction)}
+                        >
+                          {prediction.description}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+              {/* Other form fields */}
               <div>
                 <Label htmlFor='city'>City</Label>
                 <Input id='city' {...register('city', { required: true })} />

@@ -139,6 +139,8 @@ model Listing {
   address        String             @db.VarChar(255)
   city           String             @db.VarChar(100)
   state          String             @db.VarChar(100)
+  latitude       Float?
+  longitude      Float?
   zipCode        String             @db.Char(5)
   timeZone       String             @default("America/New_York") @db.VarChar(100)
   /// HH:MM 24-hour format

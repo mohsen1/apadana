@@ -27,6 +27,8 @@ export const BaseListingSchema = z.object({
   city: z.string(),
   state: z.string(),
   zipCode: z.string(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
   amenities: z.array(z.string()),
   pricePerNight: z.number(),
   minimumStay: z.number().optional(),
