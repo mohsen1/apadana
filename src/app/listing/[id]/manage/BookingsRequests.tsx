@@ -1,11 +1,12 @@
-import { BookingRequest } from '@prisma/client';
+import { BookingRequest, BookingRequestStatus, User } from '@prisma/client';
 import { AvatarImage } from '@radix-ui/react-avatar';
 import { differenceInDays } from 'date-fns';
 
 import { FullListing } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency, getLocale } from '@/lib/utils';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -15,6 +16,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
   Table,
   TableBody,
   TableCell,
@@ -22,6 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
 
 import { getBookingRequests } from '@/app/listing/[id]/booking/action';
 import NotFound from '@/app/not-found';
@@ -73,20 +83,22 @@ export async function BookingRequests({ listing }: { listing: FullListing }) {
             {bookingRequests.map((bookingRequest) => (
               <TableRow key={bookingRequest.id}>
                 <TableCell>
-                  <Avatar>
-                    <AvatarFallback>
+                  <div className='flex items-center gap-2'>
+                    <Avatar>
                       <AvatarImage
                         src={bookingRequest.user.imageUrl ?? ''}
                         alt={bookingRequest.user.firstName ?? ''}
                       />
-                      {bookingRequest.user.firstName?.charAt(0)}
-                      {bookingRequest.user.lastName?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>
-                    {bookingRequest.user.firstName}{' '}
-                    {bookingRequest.user.lastName}
-                  </span>
+                      <AvatarFallback>
+                        {bookingRequest.user.firstName?.charAt(0)}
+                        {bookingRequest.user.lastName?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span>
+                      {bookingRequest.user.firstName}{' '}
+                      {bookingRequest.user.lastName}
+                    </span>
+                  </div>
                 </TableCell>
                 <TableCell>
                   {bookingRequest.checkIn.toLocaleDateString()}
@@ -106,14 +118,29 @@ export async function BookingRequests({ listing }: { listing: FullListing }) {
                     listing.currency,
                   )}
                 </TableCell>
-                <TableCell>{bookingRequest.status}</TableCell>
                 <TableCell>
-                  <Button
-                    variant='link'
-                    href={`/listing/${listing.id}/booking/${bookingRequest.id}`}
-                  >
-                    View
-                  </Button>
+                  <BookingRequestStatus status={bookingRequest.status} />
+                </TableCell>
+                <TableCell>
+                  <Dialog>
+                    <DialogTrigger>
+                      <Button variant='link'>View</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Booking Request</DialogTitle>
+                        <BookingRequestCard
+                          bookingRequest={bookingRequest}
+                          listing={listing}
+                        />
+                        <DialogFooter className='flex justify-end gap-2 pt-4'>
+                          <Button variant='destructive'>Reject</Button>
+                          <Button>Accept</Button>
+                        </DialogFooter>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
+
                   <Button variant='link' size='sm' className='text-destructive'>
                     Reject
                   </Button>
@@ -124,5 +151,103 @@ export async function BookingRequests({ listing }: { listing: FullListing }) {
         </Table>
       </CardContent>
     </Card>
+  );
+}
+
+function BookingRequestCard({
+  bookingRequest,
+  listing,
+}: {
+  bookingRequest: BookingRequest & { user: User };
+  listing: FullListing;
+}) {
+  const Row = ({
+    label,
+    children,
+  }: {
+    label: string;
+    children: React.ReactNode;
+  }) => {
+    return (
+      <div className='grid grid-cols-[160px_1fr] gap-4 mt-2'>
+        <div>{label}</div>
+        <div>{children}</div>
+      </div>
+    );
+  };
+  return (
+    <div>
+      <header className='flex items-center gap-2 my-2 mb-4'>
+        <Avatar>
+          <AvatarImage
+            src={bookingRequest.user.imageUrl ?? ''}
+            alt={bookingRequest.user.firstName ?? ''}
+          />
+          <AvatarFallback>
+            {bookingRequest.user.firstName?.charAt(0)}
+            {bookingRequest.user.lastName?.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <h3>
+            {bookingRequest.user.firstName} {bookingRequest.user.lastName}
+          </h3>
+        </div>
+      </header>
+      <div>
+        <Row label='Sent on:'>
+          {bookingRequest.createdAt.toLocaleDateString(getLocale(), {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </Row>
+        <Row label='Property:'>
+          <Button
+            variant='link'
+            className='p-0 text-md'
+            href={`/listing/${listing.id}`}
+          >
+            {listing.title.trim().slice(0, 100)}
+          </Button>
+        </Row>
+        <Row label='Check In:'>
+          {bookingRequest.checkIn.toLocaleDateString()}
+        </Row>
+        <Row label='Check Out:'>
+          {bookingRequest.checkOut.toLocaleDateString()}
+        </Row>
+        <Row label='Number of Guests:'>
+          {bookingRequest.guests.toLocaleString()}
+        </Row>
+        <Row label='Status:'>
+          <BookingRequestStatus status={bookingRequest.status} />
+        </Row>
+        <Row label='Message:'>{null}</Row>
+        <Textarea
+          value={bookingRequest.message}
+          disabled
+          rows={5}
+          className='cursor-text'
+        />
+      </div>
+    </div>
+  );
+}
+
+function BookingRequestStatus({ status }: { status: BookingRequestStatus }) {
+  return (
+    <Badge
+      variant='outline'
+      className={cn('px-4 py-1', {
+        'bg-destructive': status === 'REJECTED',
+        'bg-green-500': status === 'ACCEPTED',
+        'bg-primary/60 text-primary-foreground': status === 'PENDING',
+      })}
+    >
+      {status}
+    </Badge>
   );
 }

@@ -52,7 +52,9 @@ export default function Error({
 function ErrorRender({ error }: { error: Error & { digest?: string } }) {
   return (
     <div>
-      <pre className='text-red-500 text-left py-8 '>{error.stack}</pre>
+      <pre className='text-red-500 text-left py-8 max-w-screen-lg overflow-x-auto'>
+        {error.stack}
+      </pre>
       {error.digest && (
         <pre className='text-red-500 text-left py-8 '>
           Digest: {error.digest}
