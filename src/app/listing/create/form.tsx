@@ -1,19 +1,17 @@
 'use client';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getLocalTimeZone } from '@internationalized/date';
-import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group';
 import { useLoadScript } from '@react-google-maps/api';
-import { BuildingIcon, CableCar, HomeIcon, Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 
 import { CreateListing, CreateListingSchema } from '@/lib/prisma/schema';
 
 import { ResultMessage } from '@/components/form/ResultMessage';
-import { ImageUploader } from '@/components/image-uploader';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,14 +21,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 
 import { createListing } from '@/app/listing/create/action';
-import { amenitiesList } from '@/shared/ameneties';
 import { GOOGLE_MAPS_API_KEY } from '@/shared/public-api-keys';
+
+import { AmenitiesStep } from './AmenitiesStep';
+import { BasicInfoStep } from './BasicInfoStep';
+import { HouseRulesStep } from './HouseRulesStep';
+import { LocationDetailsStep } from './LocationDetailsStep';
+import { PhotosStep } from './PhotosStep';
+import { PricingStep } from './PricingStep';
 
 const defaultValues: CreateListing = {
   amenities: ['Wi-Fi'],
@@ -47,6 +47,7 @@ const defaultValues: CreateListing = {
   maximumGuests: 5,
   timeZone: getLocalTimeZone(),
 };
+
 const steps = [
   {
     title: 'Location Details',
@@ -70,6 +71,7 @@ const steps = [
     description: 'Establish house rules for your guests',
   },
 ];
+
 enum FormStep {
   LocationDetails = 0,
   BasicInfo = 1,
@@ -85,10 +87,6 @@ export default function CreateListingForm() {
   const [currentStep, setCurrentStep] = useState<FormStep>(
     FormStep.LocationDetails,
   );
-  const [addressInput, setAddressInput] = useState('');
-  const [predictions, setPredictions] = useState<
-    google.maps.places.AutocompletePrediction[]
-  >([]);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
@@ -96,21 +94,14 @@ export default function CreateListingForm() {
   });
 
   const { execute, result } = useAction(createListing);
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState,
-    getValues,
-    setValue,
-    setError,
-    clearErrors,
-    reset,
-  } = useForm<CreateListing>({
+
+  const methods = useForm<CreateListing>({
     resolver: zodResolver(CreateListingSchema),
     defaultValues,
   });
-  const { errors, isSubmitting } = formState;
+
+  const { handleSubmit, formState, getValues, reset } = methods;
+  const { isSubmitting } = formState;
 
   useEffect(() => {
     const step = parseInt(searchParams.get('step') || '0', 10) as FormStep;
@@ -123,7 +114,8 @@ export default function CreateListingForm() {
     const formData = qs.parse(
       searchParams.get('form-data') || '{}',
     ) as Partial<CreateListing>;
-    // convert string values to numbers
+
+    // Convert string values to numbers
     const numericFields = [
       'pricePerNight',
       'minimumStay',
@@ -144,10 +136,6 @@ export default function CreateListingForm() {
       }
     }
   }, [searchParams, router, reset]);
-
-  if (loadError) {
-    throw new Error(`Failed to load Google Maps API: ${loadError}`);
-  }
 
   const updateUrlParams = ({
     formData,
@@ -181,373 +169,56 @@ export default function CreateListingForm() {
     router.push(`?step=${prevStepValue}`);
   };
 
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setAddressInput(value);
-
-    if (!value) {
-      setPredictions([]);
-      return;
-    }
-
-    const service = new google.maps.places.AutocompleteService();
-    service.getPlacePredictions({ input: value }, (predictions, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-        setPredictions(predictions);
-      } else {
-        setPredictions([]);
-      }
-    });
-  };
-
-  const handleSelectPrediction = (
-    prediction: google.maps.places.AutocompletePrediction,
-  ) => {
-    setAddressInput(prediction.description);
-    setPredictions([]);
-
-    const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ placeId: prediction.place_id }, (results, status) => {
-      if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-        const addressComponents = results[0].address_components;
-        let street = '';
-        let city = '';
-        let state = '';
-        let zipCode = '';
-
-        addressComponents.forEach((component) => {
-          const types = component.types;
-          if (types.includes('street_number')) {
-            street = `${component.long_name} ${street}`;
-          }
-          if (types.includes('route')) {
-            street += component.long_name;
-          }
-          if (types.includes('locality')) {
-            city = component.long_name;
-          }
-          if (types.includes('administrative_area_level_1')) {
-            state = component.short_name;
-          }
-          if (types.includes('postal_code')) {
-            zipCode = component.long_name;
-          }
-        });
-
-        // Update form fields
-        setValue('address', street);
-        setValue('city', city);
-        setValue('state', state);
-        setValue('zipCode', zipCode);
-
-        // Get latitude and longitude
-        const location = results[0].geometry?.location;
-        if (location) {
-          const lat = location.lat();
-          const lng = location.lng();
-          setValue('latitude', lat);
-          setValue('longitude', lng);
-        }
-      }
-    });
-  };
-
   return (
-    <form
-      onSubmit={handleSubmit((data) => {
-        updateUrlParams({
-          formData: data,
-          step: currentStep,
-        });
-        execute(data);
-      })}
-      className='max-w-4xl mx-auto p-6 space-y-8 flex-grow w-full'
-    >
-      <ResultMessage result={result} />
+    <FormProvider {...methods}>
+      <form
+        onSubmit={handleSubmit((data) => {
+          updateUrlParams({
+            formData: data,
+            step: currentStep,
+          });
+          execute(data);
+        })}
+        className='max-w-4xl mx-auto p-6 space-y-8 flex-grow w-full'
+      >
+        <ResultMessage result={result} />
 
-      <Card className='border-none shadow-none w-full'>
-        <CardHeader>
-          <CardTitle>{steps[currentStep].title}</CardTitle>
-          <CardDescription>{steps[currentStep].description}</CardDescription>
-        </CardHeader>
-        <CardContent className=''>
-          {currentStep === FormStep.LocationDetails && (
-            <div className='space-y-4'>
-              {!isLoaded ? (
-                <Loader2 className='animate-spin' />
-              ) : (
-                <div className='relative'>
-                  <Label htmlFor='address'>Street Address</Label>
-                  <Input
-                    id='address'
-                    value={addressInput}
-                    onChange={handleAddressChange}
-                    placeholder='Enter your address'
-                  />
-                  {errors.address && (
-                    <span className='text-red-500'>This field is required</span>
-                  )}
-                  {predictions.length > 0 && (
-                    <ul className='absolute z-10 w-full bg-white border rounded-md mt-1 shadow-lg'>
-                      {predictions.map((prediction) => (
-                        <li
-                          key={prediction.place_id}
-                          className='px-4 py-2 hover:bg-gray-100 cursor-pointer'
-                          onClick={() => handleSelectPrediction(prediction)}
-                        >
-                          {prediction.description}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-              {/* Other form fields */}
-              <div>
-                <Label htmlFor='city'>City</Label>
-                <Input id='city' {...register('city', { required: true })} />
-                {errors.city && (
-                  <span className='text-red-500'>This field is required</span>
-                )}
-              </div>
-              <div>
-                <Label htmlFor='state'>State</Label>
-                <Input id='state' {...register('state', { required: true })} />
-                {errors.state && (
-                  <span className='text-red-500'>This field is required</span>
-                )}
-              </div>
-              <div>
-                <Label htmlFor='zipCode'>Zip Code</Label>
-                <Input
-                  id='zipCode'
-                  {...register('zipCode', { required: true })}
-                />
-                {errors.zipCode && (
-                  <span className='text-red-500'>This field is required</span>
-                )}
-              </div>
-            </div>
-          )}
-          {currentStep === FormStep.BasicInfo && (
-            <div className='space-y-4'>
-              <div>
-                <Label htmlFor='title'>Listing Title</Label>
-                <Input id='title' {...register('title', { required: true })} />
-                {errors.title && (
-                  <span className='text-red-500'>This field is required</span>
-                )}
-              </div>
-              <div>
-                <Label htmlFor='description'>Description</Label>
-                <Textarea
-                  id='description'
-                  {...register('description', { required: true })}
-                />
-                {errors.description && (
-                  <span className='text-red-500'>This field is required</span>
-                )}
-              </div>
-              <div>
-                <Label>Property Type</Label>
-                <RadioGroup
-                  defaultValue='apartment'
-                  className='grid grid-cols-3 gap-2 py-4'
-                >
-                  <div className='flex flex-col items-center gap-2 space-x-2'>
-                    <Label htmlFor='apartment' className='cursor-pointer'>
-                      <BuildingIcon size={48} />
-                    </Label>
-                    <RadioGroupItem
-                      value='apartment'
-                      id='apartment'
-                      {...register('propertyType')}
-                    />
-                    <Label htmlFor='apartment'>Apartment</Label>
-                  </div>
-                  <div className='flex flex-col items-center gap-2 space-x-2'>
-                    <Label htmlFor='house' className='cursor-pointer'>
-                      <HomeIcon size={48} />
-                    </Label>
-                    <RadioGroupItem
-                      value='house'
-                      id='house'
-                      {...register('propertyType')}
-                    />
-                    <Label htmlFor='house'>House</Label>
-                  </div>
-                  <div className='flex flex-col items-center gap-2 space-x-2'>
-                    <Label htmlFor='unique' className='cursor-pointer'>
-                      <CableCar className='' size={48} />
-                    </Label>
-                    <RadioGroupItem
-                      value='unique'
-                      id='unique'
-                      {...register('propertyType')}
-                    />
-                    <Label htmlFor='unique'>Unique space</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-          )}
-          {currentStep === FormStep.Amenities && (
-            <div className='space-y-4'>
-              <Label>Amenities</Label>
-              {amenitiesList.map((amenity) => (
-                <div key={amenity} className='flex items-center space-x-2'>
-                  <Controller<CreateListing, 'amenities'>
-                    name='amenities'
-                    control={control}
-                    render={({
-                      field,
-                    }: {
-                      field: {
-                        value: string[];
-                        onChange: (value: string[]) => void;
-                      };
-                    }) => (
-                      <Checkbox
-                        id={`amenities-${amenity}`}
-                        checked={field.value?.includes(amenity)}
-                        onCheckedChange={(checked) => {
-                          const updatedAmenities = checked
-                            ? [...(field.value || []), amenity]
-                            : (field.value || []).filter(
-                                (item: string) => item !== amenity,
-                              );
-                          field.onChange(updatedAmenities);
-                        }}
-                      />
-                    )}
-                  />
-                  <Label htmlFor={`amenities-${amenity}`}>{amenity}</Label>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {currentStep === FormStep.Photos && (
-            <div className='space-y-4'>
-              <Controller<CreateListing, 'images'>
-                name='images'
-                control={control}
-                render={({ field }) => (
-                  <ImageUploader
-                    onChange={(images) => {
-                      clearErrors('images');
-                      field.onChange(images);
-                    }}
-                    onError={(error) => {
-                      if (!error) {
-                        clearErrors('images');
-                        return;
-                      }
-                      setError('images', {
-                        type: 'uploadError',
-                        message:
-                          error?.message ||
-                          'Something went wrong while uploading the images',
-                      });
-                    }}
-                  />
-                )}
-              />
-              {errors.images && (
-                <span className='text-red-500'>{errors.images.message}</span>
-              )}
-            </div>
-          )}
-
-          {currentStep === FormStep.Pricing && (
-            <div className='space-y-4'>
-              <div>
-                <Label htmlFor='pricePerNight'>Price per Night ($)</Label>
-                <Input
-                  id='pricePerNight'
-                  type='number'
-                  {...register('pricePerNight', {
-                    required: true,
-                    min: 0,
-                    setValueAs(value) {
-                      return Number.parseInt(value, 10);
-                    },
-                  })}
-                />
-                {errors.pricePerNight && (
-                  <span className='text-red-500'>
-                    Please enter a valid price
-                  </span>
-                )}
-              </div>
-              <div>
-                <Label htmlFor='minimumStay'>Minimum Stay (nights)</Label>
-                <Input
-                  id='minimumStay'
-                  type='number'
-                  {...register('minimumStay', {
-                    required: true,
-                    min: 1,
-                    setValueAs(value) {
-                      return Number.parseInt(value, 10);
-                    },
-                  })}
-                />
-                {errors.minimumStay && (
-                  <span className='text-red-500'>
-                    Please enter a valid number of nights
-                  </span>
-                )}
-              </div>
-              <div>
-                <Label htmlFor='maximumGuests'>Maximum Guests</Label>
-                <Input
-                  id='maximumGuests'
-                  type='number'
-                  {...register('maximumGuests', {
-                    required: true,
-                    min: 1,
-                    setValueAs(value) {
-                      return Number.parseInt(value, 10);
-                    },
-                  })}
-                />
-                {errors.maximumGuests && (
-                  <span className='text-red-500'>
-                    Please enter a valid number of guests
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {currentStep === FormStep.HouseRules && (
-            <div className='space-y-4'>
-              <Label htmlFor='houseRules'>House Rules</Label>
-              <Textarea id='houseRules' {...register('houseRules')} />
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className='flex justify-between'>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={prevStep}
-            disabled={currentStep === FormStep.BasicInfo}
-          >
-            Previous
-          </Button>
-          {currentStep < steps.length - 1 ? (
-            <Button type='button' onClick={nextStep}>
-              Next
+        <Card className='border-none shadow-none w-full'>
+          <CardHeader>
+            <CardTitle>{steps[currentStep].title}</CardTitle>
+            <CardDescription>{steps[currentStep].description}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {currentStep === FormStep.LocationDetails && (
+              <LocationDetailsStep isLoaded={isLoaded} loadError={loadError} />
+            )}
+            {currentStep === FormStep.BasicInfo && <BasicInfoStep />}
+            {currentStep === FormStep.Amenities && <AmenitiesStep />}
+            {currentStep === FormStep.Photos && <PhotosStep />}
+            {currentStep === FormStep.Pricing && <PricingStep />}
+            {currentStep === FormStep.HouseRules && <HouseRulesStep />}
+          </CardContent>
+          <CardFooter className='flex justify-between'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={prevStep}
+              disabled={currentStep === FormStep.BasicInfo}
+            >
+              Previous
             </Button>
-          ) : (
-            <Button type='submit' disabled={isSubmitting}>
-              Submit Listing
-            </Button>
-          )}
-        </CardFooter>
-      </Card>
-    </form>
+            {currentStep < steps.length - 1 ? (
+              <Button type='button' onClick={nextStep}>
+                Next
+              </Button>
+            ) : (
+              <Button type='submit' disabled={isSubmitting}>
+                Submit Listing
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
+      </form>
+    </FormProvider>
   );
 }
