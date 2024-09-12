@@ -51,6 +51,11 @@ export default async function ManageListingPageLayout({
           <TabsTrigger value='bookings'>
             <Link href={`/listing/${id}/manage/bookings`}>Bookings</Link>
           </TabsTrigger>
+          <TabsTrigger value='booking-requests'>
+            <Link href={`/listing/${id}/manage/booking-requests`}>
+              Booking Requests
+            </Link>
+          </TabsTrigger>
         </TabsList>
         <TabsContent value={tab}>{children}</TabsContent>
       </Tabs>

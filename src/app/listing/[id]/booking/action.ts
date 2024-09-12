@@ -85,10 +85,13 @@ export const getBookingRequests = actionClient
   .schema(GetBookingRequestsSchema)
   .action(async ({ parsedInput, ctx }) => {
     try {
-      const { take, skip, status } = parsedInput;
+      const { take, skip, status, include } = parsedInput;
       const bookingRequests = await prisma.bookingRequest.findMany({
         take,
         skip,
+        include: include || {
+          user: true,
+        },
         where: {
           status,
           listing: {

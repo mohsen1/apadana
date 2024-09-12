@@ -1,4 +1,5 @@
 import { Bookings } from '@/app/listing/[id]/manage/Bookings';
+import { BookingRequests } from '@/app/listing/[id]/manage/BookingsRequests';
 import { HostCalendar } from '@/app/listing/[id]/manage/HostCalendar';
 import UpdateListingForm from '@/app/listing/[id]/manage/UpdateListingForm';
 import { getListing } from '@/app/listing/action';
@@ -12,7 +13,9 @@ export default async function ManageListingPage({
     tab: string;
   };
 }) {
-  const res = await getListing({ id: Number.parseInt(params.id, 10) });
+  const res = await getListing({
+    id: Number.parseInt(params.id, 10),
+  });
   if (!res?.data?.success) {
     throw res?.data?.error || new Error('Failed to get listing');
   }
@@ -27,7 +30,9 @@ export default async function ManageListingPage({
     case 'calendar':
       return <HostCalendar listingData={listing} />;
     case 'bookings':
-      return <Bookings />;
+      return <Bookings params={{ id: params.id }} />;
+    case 'booking-requests':
+      return <BookingRequests listing={listing} />;
     case 'details':
       return <UpdateListingForm listing={listing} />;
   }

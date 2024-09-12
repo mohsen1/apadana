@@ -106,6 +106,12 @@ export type GetBookingRequest = z.infer<typeof GetBookingRequestSchema>;
 
 export const GetBookingRequestsSchema = z.object({
   listingId: z.number(),
+  include: z
+    .object({
+      user: z.boolean().optional(),
+      listing: z.boolean().optional(),
+    })
+    .optional(),
   take: z
     .number()
     .optional()
