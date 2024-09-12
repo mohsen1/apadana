@@ -164,14 +164,12 @@ export const ImageUploader = ({
           <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
             {images.map((image, index) => (
               <SortableImage
-                key={image.name}
+                key={image.key}
                 image={image}
                 onDelete={deleteImage}
                 isCover={index === 0}
                 isUploading={isUploading}
                 uploadingProgress={uploadingProgress}
-                // isUploading
-                // uploadingProgress={54}
               />
             ))}
             <div className='aspect-square relative m-2'>
@@ -207,6 +205,11 @@ export const ImageUploader = ({
                   setUploadingProgress(progress);
                 }}
                 onUploadError={(error: Error) => {
+                  // Remove optimistic images
+                  const updatedImages = images.filter((img) => !img.optimistic);
+                  setImages(updatedImages);
+                  onChange(updatedImages);
+
                   if (error?.message.includes('FileSizeMismatch')) {
                     onError?.(new Error('Uploaded file size is too large'));
                   } else if (error) {
