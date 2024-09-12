@@ -232,7 +232,7 @@ export default function BookingPage({
             </CardContent>
             <CardFooter>
               <Button type='submit' className='w-full'>
-                Proceed to Payment
+                Send your booking request
               </Button>
             </CardFooter>
           </Card>

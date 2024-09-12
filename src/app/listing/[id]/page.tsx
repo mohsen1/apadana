@@ -1,19 +1,15 @@
-import prisma from '@/lib/prisma/client';
-
 import { ListingPage } from '@/app/listing/[id]/ListingPage';
+import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const listing = await prisma.listing.findFirst({
-    where: {
-      id: parseInt(params?.id, 10),
-    },
-    include: {
-      images: true,
-      owner: true,
-      inventory: true,
-    },
-  });
+  const res = await getListing({ id: parseInt(params?.id, 10) });
+
+  if (!res?.data?.success) {
+    throw new Error(res?.data?.error);
+  }
+
+  const listing = res?.data?.listing;
 
   if (!listing) {
     return (

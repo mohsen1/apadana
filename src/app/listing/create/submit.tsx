@@ -1,8 +1,10 @@
 'use server';
+
+import { auth } from '@clerk/nextjs/server';
+import { getLocalTimeZone } from '@internationalized/date';
 import { Listing } from '@prisma/client';
 
-import prisma from '@/lib/prisma/client';
-
+import { createListing } from '@/app/listing/create/action';
 import { TypedFormData } from '@/utils/formData';
 export type ServerResponse = {
   success: boolean;
@@ -85,29 +87,38 @@ export async function submitForm(
 ): Promise<ServerResponse> {
   try {
     validateFormData(formData);
-    const listing = await prisma.listing.create({
+
+    const { userId, redirectToSignIn } = await auth();
+    if (!userId) {
+      return redirectToSignIn();
+    }
+
+    const res = await createListing({
+      title: formData.get('title'),
+      description: formData.get('description'),
+      propertyType: formData.get('propertyType'),
+      address: formData.get('address'),
+      city: formData.get('city'),
+      state: formData.get('state'),
+      zipCode: formData.get('zipCode'),
+      amenities: formData.getAll('amenities'),
       // @ts-expect-error todo
-      data: {
-        title: formData.get('title'),
-        description: formData.get('description'),
-        propertyType: formData.get('propertyType'),
-        address: formData.get('address'),
-        city: formData.get('city'),
-        state: formData.get('state'),
-        zipCode: formData.get('zipCode'),
-        amenities: formData.getAll('amenities'),
-        // @ts-expect-error todo
-        pricePerNight: parseFloat(formData.get('pricePerNight') || '0'),
-        // @ts-expect-error todo
-        minimumStay: parseInt(formData.get('minimumStay'), 10),
-        // @ts-expect-error todo
-        maximumGuests: parseInt(formData.get('maximumGuests')),
-        houseRules: formData.get('houseRules'),
-        // Note: Photos handling might need a separate process
-      },
+      pricePerNight: parseFloat(formData.get('pricePerNight') || '0'),
+      // @ts-expect-error todo
+      minimumStay: parseInt(formData.get('minimumStay'), 10),
+      // @ts-expect-error todo
+      maximumGuests: parseInt(formData.get('maximumGuests')),
+      houseRules: formData.get('houseRules'),
+      // TODO: get the time zone from the user's browser when creating the listing
+      timeZone: getLocalTimeZone(),
+      // Note: Photos handling might need a separate process
     });
 
-    return { success: true, listing };
+    if (!res?.data?.success) {
+      return { success: false, error: res?.data?.error };
+    }
+
+    return { success: true, listing: res.data.listing };
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error creating listing:', error);

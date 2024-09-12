@@ -1,3 +1,4 @@
+import { BookingRequestStatus } from '@prisma/client';
 import { z } from 'zod';
 
 // TODO: use code generators for this
@@ -85,3 +86,37 @@ export const EditInventorySchema = z.object({
 });
 
 export type EditInventory = z.infer<typeof EditInventorySchema>;
+
+export const CreateBookingRequestSchema = z.object({
+  listingId: z.number(),
+  checkIn: z.date(),
+  checkOut: z.date(),
+  guests: z.number(),
+  pets: z.boolean(),
+  message: z.string(),
+});
+
+export type CreateBookingRequest = z.infer<typeof CreateBookingRequestSchema>;
+
+export const GetBookingRequestSchema = z.object({
+  id: z.number(),
+});
+
+export type GetBookingRequest = z.infer<typeof GetBookingRequestSchema>;
+
+export const GetBookingRequestsSchema = z.object({
+  listingId: z.number(),
+  take: z
+    .number()
+    .optional()
+    .default(10)
+    .describe('Limit of how many booking requests to return'),
+  skip: z
+    .number()
+    .optional()
+    .default(0)
+    .describe('Offset of how many booking requests to skip'),
+  status: z.nativeEnum(BookingRequestStatus).optional(),
+});
+
+export type GetBookingRequests = z.infer<typeof GetBookingRequestsSchema>;

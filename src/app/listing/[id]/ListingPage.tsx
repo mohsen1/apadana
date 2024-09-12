@@ -7,7 +7,12 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
 import { FullListing } from '@/lib/types';
-import { formatCurrency, getLocale, isDateUnavailable } from '@/lib/utils';
+import {
+  areAllDatesAvailable,
+  formatCurrency,
+  getLocale,
+  isDateUnavailable,
+} from '@/lib/utils';
 
 import { LightBox } from '@/components/LightBox';
 import { Calendar } from '@/components/range-calendar';
@@ -26,6 +31,11 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
   const twoDaysFromToday = todayCalendarDate.add({ days: 2 });
   const [checkIn, setCheckIn] = useState<CalendarDate>(todayCalendarDate);
   const [checkOut, setCheckOut] = useState<CalendarDate>(twoDaysFromToday);
+  const isRangeAvailable = areAllDatesAvailable(
+    { start: checkIn, end: checkOut },
+    listingData.inventory,
+    listingData.timeZone,
+  );
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (checkIn && checkOut) {
@@ -212,15 +222,21 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
                     <div>{`${checkOut.compare(checkIn) + 1} nights`}</div>
                   </div>
                   <div className='text-xl font-bold font-lg w-full text-right'>
-                    {formatCurrency(
-                      calculateTotalPrice(),
-                      listingData.currency,
-                    )}
+                    {isRangeAvailable
+                      ? formatCurrency(
+                          calculateTotalPrice(),
+                          listingData.currency,
+                        )
+                      : '–'}
                   </div>
                 </div>
 
-                <Button type='submit' className='w-full mt-4'>
-                  Reserve
+                <Button
+                  type='submit'
+                  className='w-full mt-4'
+                  disabled={!checkIn || !checkOut || !isRangeAvailable}
+                >
+                  {isRangeAvailable ? 'Reserve' : 'Unavailable'}
                 </Button>
               </CardContent>
             </Card>

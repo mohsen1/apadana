@@ -23,8 +23,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 
-import { editInventory, getListing } from '@/app/listing/[id]/manage/action';
+import { editInventory } from '@/app/listing/[id]/manage/action';
 import { ManageListingPageProps } from '@/app/listing/[id]/manage/ManageListingPage';
+import { getListing } from '@/app/listing/action';
 import { RangeValue } from '@/utils/types';
 
 export function HostCalendar({

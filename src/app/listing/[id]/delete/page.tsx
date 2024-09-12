@@ -1,11 +1,12 @@
 import { auth } from '@clerk/nextjs/server';
 import { TrashIcon } from 'lucide-react';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 import prisma from '@/lib/prisma/client';
 
 import { Button } from '@/components/ui/button';
 
+import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
 async function deleteListing(formData: FormData) {
@@ -18,15 +19,20 @@ async function deleteListing(formData: FormData) {
 
   if (typeof id === 'string') {
     const listingId = parseInt(id);
-    const listing = await prisma.listing.findUnique({
-      where: {
-        id: listingId,
-        ownerId: userId,
-      },
-    });
+    const res = await getListing({ id: listingId });
+
+    if (!res?.data?.success) {
+      throw new Error(res?.data?.error);
+    }
+
+    const listing = res?.data?.listing;
 
     if (!listing) {
-      return notFound();
+      return <NotFound />;
+    }
+
+    if (listing.ownerId !== userId) {
+      return <NotFound />;
     }
 
     await prisma.$transaction(async (tx) => {

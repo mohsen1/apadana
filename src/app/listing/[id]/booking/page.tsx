@@ -1,19 +1,21 @@
-import { notFound } from 'next/navigation';
-
-import prisma from '@/lib/prisma/client';
+import { getListing } from '@/app/listing/action';
+import NotFound from '@/app/not-found';
 
 export default async function BookingPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const listing = await prisma.listing.findUnique({
-    where: {
-      id: Number(params.id),
-    },
-  });
+  const res = await getListing({ id: Number(params.id) });
+
+  if (!res?.data?.success) {
+    throw new Error(res?.data?.error);
+  }
+
+  const listing = res?.data?.listing;
+
   if (!listing) {
-    return notFound();
+    return <NotFound />;
   }
   return (
     <div>

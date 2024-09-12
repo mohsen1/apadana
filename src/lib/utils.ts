@@ -181,3 +181,27 @@ export function isDateUnavailable(
   }
   return !inventoryForDate.isAvailable;
 }
+
+/**
+ * Check if all dates in the range are available in the inventory.
+ * @param range - The range to check.
+ * @param inventory - The inventory to check the dates in.
+ * @param listingTimeZone - The time zone of the listing.
+ * @returns True if all dates in the range are available, false otherwise.
+ */
+export function areAllDatesAvailable(
+  range: { start: DateValue; end: DateValue },
+  inventory: ListingInventory[],
+  listingTimeZone: string,
+) {
+  // clone the date values to avoid mutating the original values
+  let start = range.start.add({ days: 0 });
+  const end = range.end.add({ days: 0 });
+  while (start <= end) {
+    if (isDateUnavailable(start, inventory, listingTimeZone)) {
+      return false;
+    }
+    start = start.add({ days: 1 });
+  }
+  return true;
+}
