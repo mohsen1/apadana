@@ -1,3 +1,7 @@
+import { CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+
 import { FullBookingRequest } from '@/lib/types';
 
 import { getBookingRequest } from '@/app/listing/[id]/booking/action';
@@ -6,10 +10,10 @@ import NotFound from '@/app/not-found';
 export default async function BookingRequestPage({
   params,
 }: {
-  params: { id: string };
+  params: { id: string; bookingRequestId: string };
 }) {
   const res = await getBookingRequest({
-    id: Number(params.id),
+    id: Number(params.bookingRequestId),
   });
 
   if (!res?.data?.success) {
@@ -29,18 +33,57 @@ function BookingRequestSent({
   bookingRequest: FullBookingRequest;
 }) {
   return (
-    <main className='flex-grow'>
-      <h1 className='text-2xl font-bold'>Request sent</h1>
-      <p>
-        Your booking request has been sent to{' '}
-        {bookingRequest.listing.owner.firstName}. Your host will review your
-        request and get back to you soon.
-      </p>
-      <p>
-        You will be notified when the host has accepted or rejected your
-        request. We will send you an email to {bookingRequest.user.email} when
-        the host has accepted or rejected your request.
-      </p>
+    <main className='flex-grow container mx-auto p-4 max-w-6xl grid grid-cols-1  lg:grid-cols-2 gap-8'>
+      <div>
+        <div className='flex items-center mt-8'>
+          <CheckCircle2
+            className='w-20 h-20 text-green-500'
+            strokeWidth={1.5}
+          />
+        </div>
+        <h1 className='text-2xl mt-8 font-bold mb-4 flex items-center'>
+          Your booking request has been sent
+        </h1>
+        <p className='mb-4'>
+          Your booking request has been sent to{' '}
+          {bookingRequest.listing.owner.firstName}. Your host will review your
+          request and get back to you soon.
+        </p>
+        <p className='mb-4'>
+          A confirmation email will be sent to you and your host.
+        </p>
+        <h2 className='text-lg font-bold my-2'>What happens next?</h2>
+        <p>
+          You will be notified when the host has accepted or rejected your
+          request. We will send you an email to{' '}
+          <span className='font-bold'>
+            {bookingRequest.user?.emailAddresses?.[0]?.emailAddress}
+          </span>{' '}
+          when the host has accepted or rejected your request.
+        </p>
+      </div>
+      <div>
+        <div>
+          <div>
+            <Link href={`/listing/${bookingRequest.listing.id}`}>
+              <h3 className='text-md font-bold font-heading mb-2'>
+                {bookingRequest.listing.title}
+              </h3>
+            </Link>
+          </div>
+          <div>
+            <Link href={`/listing/${bookingRequest.listing.id}`}>
+              <Image
+                src={bookingRequest.listing.images[0].url}
+                alt={bookingRequest.listing.title}
+                className='w-full h-auto rounded-md'
+                width={400}
+                height={300}
+              />
+            </Link>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

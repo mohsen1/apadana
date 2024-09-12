@@ -1,10 +1,18 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { CalendarDate } from '@internationalized/date';
+import { differenceInDays } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useAction } from 'next-safe-action/hooks';
+import { Controller, useForm } from 'react-hook-form';
 
+import {
+  CreateBookingRequest,
+  CreateBookingRequestSchema,
+} from '@/lib/prisma/schema';
 import { FullListing } from '@/lib/types';
 import { formatCurrency, isDateUnavailable } from '@/lib/utils';
 
@@ -27,46 +35,61 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
+import { createBookingRequest } from '@/app/listing/[id]/booking/action';
+import { ImageGallery } from '@/app/listing/[id]/booking/create/ImageGallery';
+
 export default function BookingPage({
   listing,
+  checkIn: initialCheckIn,
+  checkOut: initialCheckOut,
 }: {
   listing: FullListing;
   checkIn: Date;
   checkOut: Date;
 }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [checkIn, setCheckIn] = useState<Date | undefined>(
-    new Date(searchParams.get('checkin') || Date.now()),
-  );
-  const [checkOut, setCheckOut] = useState<Date | undefined>(
-    new Date(searchParams.get('checkout') || Date.now()),
-  );
-  const [guests, setGuests] = useState('1');
-  const [pets, setPets] = useState('0');
-  const [message, setMessage] = useState('');
-  const [mainImage, setMainImage] = useState(0);
+  const { register, handleSubmit, getValues, control } =
+    useForm<CreateBookingRequest>({
+      defaultValues: {
+        listingId: listing.id,
+        checkIn: initialCheckIn,
+        checkOut: initialCheckOut,
+        guests: 1,
+        message: '',
+        pets: false,
+      },
+      resolver: zodResolver(CreateBookingRequestSchema),
+    });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const searchParams = new URLSearchParams();
-    searchParams.set('checkin', checkIn?.toISOString() ?? '');
-    searchParams.set('checkout', checkOut?.toISOString() ?? '');
-    searchParams.set('guests', guests);
-    searchParams.set('pets', pets);
-    searchParams.set('message', message);
+  const { execute, status } = useAction(createBookingRequest, {
+    onSuccess: (res) => {
+      if (res?.data?.success) {
+        router.push(
+          `/listing/${listing.id}/booking/request/${res.data?.data?.id}`,
+        );
+      }
+    },
+  });
 
-    router.push(
-      `/listing/${listing.id}/booking/payment?${searchParams.toString()}`,
-    );
+  const onSubmit = async (data: CreateBookingRequest) => {
+    execute({
+      listingId: listing.id,
+      checkIn: data.checkIn,
+      checkOut: data.checkOut,
+      guests: data.guests,
+      message: data.message,
+      pets: false,
+    });
   };
 
+  const checkin = getValues('checkIn');
+  const checkout = getValues('checkOut');
   const basePrice = listing.pricePerNight;
-  const nights =
-    checkOut && checkIn
-      ? Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24))
-      : 0;
-  const subtotal = basePrice * nights;
+  const nights = differenceInDays(
+    toZonedTime(checkout, listing.timeZone),
+    toZonedTime(checkin, listing.timeZone),
+  );
+  const subtotal = basePrice * 1;
   const serviceFee = subtotal * 0.1;
   const total = subtotal + serviceFee;
 
@@ -74,39 +97,9 @@ export default function BookingPage({
     <div className='container mx-auto p-4 flex-grow max-w-6xl grid grid-cols-[1fr_auto]'>
       <div className='flex flex-col lg:flex-row gap-8'>
         {/* Image Gallery Column */}
-        <div className='lg:w-3/4'>
-          <div className='relative aspect-video mb-4'>
-            <Image
-              src={listing.images[0].url}
-              alt={`Listing image ${listing.images[0].name}`}
-              fill
-              className='object-cover rounded-lg'
-            />
-          </div>
-          <div className='grid grid-cols-4 gap-2'>
-            {listing.images.map((img, index) => (
-              <button
-                key={index}
-                onClick={() => setMainImage(index)}
-                className={`relative aspect-video ${index === mainImage ? 'ring-2 ring-primary' : ''}`}
-              >
-                <Image
-                  src={img.url}
-                  alt={img.name ?? ''}
-                  fill
-                  className='object-cover rounded-md'
-                />
-              </button>
-            ))}
-          </div>
-          <h2 className='text-2xl pt-6 pb-2 font-bold font-subheading'>
-            {listing.title}
-          </h2>
-          <div className=''>{listing.description}</div>
-        </div>
-
+        <ImageGallery listing={listing} />
         {/* Booking Form Column */}
-        <form onSubmit={handleSubmit} className='space-y-6 lg:w-1/2'>
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6 lg:w-1/2'>
           <Card className=''>
             <CardHeader>
               <CardTitle>Book your stay</CardTitle>
@@ -117,36 +110,50 @@ export default function BookingPage({
             <CardContent>
               <div className='space-y-2'>
                 <label className='text-sm font-medium'>Select dates</label>
-                {checkIn && checkOut && (
-                  <Calendar
-                    border={false}
-                    isDateUnavailable={(date) =>
-                      isDateUnavailable(
-                        date,
-                        listing.inventory,
-                        listing.timeZone,
-                      )
-                    }
-                    value={{
-                      start: new CalendarDate(
-                        checkIn.getFullYear(),
-                        checkIn.getMonth() + 1,
-                        checkIn.getDate(),
-                      ),
-                      end: new CalendarDate(
-                        checkOut.getFullYear(),
-                        checkOut.getMonth() + 1,
-                        checkOut.getDate(),
-                      ),
-                    }}
-                    onChange={(range) => {
-                      if (range) {
-                        setCheckIn(range.start.toDate(listing.timeZone));
-                        setCheckOut(range.end.toDate(listing.timeZone));
-                      }
-                    }}
-                  />
-                )}
+                <Controller<CreateBookingRequest, 'checkIn'>
+                  name='checkIn'
+                  control={control}
+                  render={({ field: checkInField }) => (
+                    <Controller<CreateBookingRequest, 'checkOut'>
+                      name='checkOut'
+                      control={control}
+                      render={({ field: checkOutField }) => (
+                        <Calendar
+                          border={false}
+                          isDateUnavailable={(date) =>
+                            isDateUnavailable(
+                              date,
+                              listing.inventory,
+                              listing.timeZone,
+                            )
+                          }
+                          value={{
+                            start: new CalendarDate(
+                              checkInField.value.getFullYear(),
+                              checkInField.value.getMonth() + 1,
+                              checkInField.value.getDate(),
+                            ),
+                            end: new CalendarDate(
+                              checkOutField.value.getFullYear(),
+                              checkOutField.value.getMonth() + 1,
+                              checkOutField.value.getDate(),
+                            ),
+                          }}
+                          onChange={(range) => {
+                            if (range) {
+                              checkInField.onChange(
+                                range.start.toDate(listing.timeZone),
+                              );
+                              checkOutField.onChange(
+                                range.end.toDate(listing.timeZone),
+                              );
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                  )}
+                />
               </div>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -154,7 +161,7 @@ export default function BookingPage({
                   <label htmlFor='guests' className='text-sm font-medium'>
                     Number of guests
                   </label>
-                  <Select value={guests} onValueChange={setGuests}>
+                  <Select {...register('guests')}>
                     <SelectTrigger id='guests'>
                       <SelectValue placeholder='Select guests' />
                     </SelectTrigger>
@@ -162,24 +169,6 @@ export default function BookingPage({
                       {[1, 2, 3, 4, 5, 6].map((num) => (
                         <SelectItem key={num} value={num.toString()}>
                           {num} guest{num > 1 ? 's' : ''}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className='space-y-2'>
-                  <label htmlFor='pets' className='text-sm font-medium'>
-                    Number of pets
-                  </label>
-                  <Select value={pets} onValueChange={setPets}>
-                    <SelectTrigger id='pets'>
-                      <SelectValue placeholder='Select pets' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[0, 1, 2].map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num} pet{num > 1 ? 's' : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -204,8 +193,7 @@ export default function BookingPage({
                 <Textarea
                   id='message'
                   placeholder='Enter any special requests or questions for the host'
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  {...register('message')}
                 />
               </div>
 
@@ -232,7 +220,9 @@ export default function BookingPage({
             </CardContent>
             <CardFooter>
               <Button type='submit' className='w-full'>
-                Send your booking request
+                {status === 'executing'
+                  ? 'Sending...'
+                  : 'Send your booking request'}
               </Button>
             </CardFooter>
           </Card>

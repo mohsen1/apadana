@@ -1,3 +1,5 @@
+'use server';
+
 import prisma from '@/lib/prisma/client';
 import {
   CreateBookingRequestSchema,
@@ -21,10 +23,19 @@ export const getBookingRequest = actionClient
         include: {
           listing: {
             include: {
-              owner: true,
+              images: true,
+              owner: {
+                select: {
+                  firstName: true,
+                },
+              },
             },
           },
-          user: true,
+          user: {
+            include: {
+              emailAddresses: true,
+            },
+          },
         },
       });
       return {
