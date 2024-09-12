@@ -150,7 +150,7 @@ export function formatTimezone(timeZone: string) {
  */
 export function formatHHMMDate(hhmm: string) {
   const [hh, mm] = hhmm.split(':').map(Number);
-  const hours = hh % 12 || 12;
+  const hours = Number.parseInt(hh.toString());
   const minutes = Number.parseInt(mm.toString());
 
   const formatter = new Intl.DateTimeFormat(getLocale(), {
