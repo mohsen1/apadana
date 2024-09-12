@@ -4,7 +4,7 @@ import React from 'react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { getListing } from '@/app/listing/[id]/manage/action';
+import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
 export default async function ManageListingPageLayout({
@@ -16,8 +16,11 @@ export default async function ManageListingPageLayout({
 }) {
   const { id, tab } = params;
 
-  const response = await getListing({ id: parseInt(id, 10) });
-  const listing = response?.data?.listing;
+  const res = await getListing({ id: parseInt(id, 10) });
+  if (!res?.data?.success) {
+    throw res?.data?.error || new Error('Failed to get listing');
+  }
+  const listing = res.data.listing;
 
   if (!listing) {
     return <NotFound title='Listing not found' />;

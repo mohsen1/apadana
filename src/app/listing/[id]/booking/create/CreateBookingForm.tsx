@@ -1,14 +1,14 @@
 'use client';
 
 import { CalendarDate } from '@internationalized/date';
-import { Listing, UploadThingImage, User } from '@prisma/client';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
-import { formatCurrency } from '@/lib/utils';
+import { FullListing } from '@/lib/types';
+import { formatCurrency, isDateUnavailable } from '@/lib/utils';
 
-import { DatePicker } from '@/components/DatePicker';
+import { Calendar } from '@/components/range-calendar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,7 +30,7 @@ import { Textarea } from '@/components/ui/textarea';
 export default function BookingPage({
   listing,
 }: {
-  listing: Listing & { images: UploadThingImage[] } & { owner: User };
+  listing: FullListing;
   checkIn: Date;
   checkOut: Date;
 }) {
@@ -46,19 +46,6 @@ export default function BookingPage({
   const [pets, setPets] = useState('0');
   const [message, setMessage] = useState('');
   const [mainImage, setMainImage] = useState(0);
-
-  const handleDateSelect = (
-    dates: {
-      start: CalendarDate;
-      end: CalendarDate;
-    } | null,
-  ) => {
-    if (!dates) return;
-    const timeZone =
-      listing.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-    setCheckIn(dates.start.toDate(timeZone));
-    setCheckOut(dates.end.toDate(timeZone));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,8 +118,16 @@ export default function BookingPage({
               <div className='space-y-2'>
                 <label className='text-sm font-medium'>Select dates</label>
                 {checkIn && checkOut && (
-                  <DatePicker
-                    selected={{
+                  <Calendar
+                    border={false}
+                    isDateUnavailable={(date) =>
+                      isDateUnavailable(
+                        date,
+                        listing.inventory,
+                        listing.timeZone,
+                      )
+                    }
+                    value={{
                       start: new CalendarDate(
                         checkIn.getFullYear(),
                         checkIn.getMonth() + 1,
@@ -144,7 +139,12 @@ export default function BookingPage({
                         checkOut.getDate(),
                       ),
                     }}
-                    onSelect={handleDateSelect}
+                    onChange={(range) => {
+                      if (range) {
+                        setCheckIn(range.start.toDate(listing.timeZone));
+                        setCheckOut(range.end.toDate(listing.timeZone));
+                      }
+                    }}
                   />
                 )}
               </div>

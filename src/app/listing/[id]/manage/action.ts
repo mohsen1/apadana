@@ -3,44 +3,12 @@ import prisma from '@/lib/prisma/client';
 import {
   EditInventorySchema,
   EditListingSchema,
-  GetListingSchema,
+  GetListingsSchema,
 } from '@/lib/prisma/schema';
 import { actionClient } from '@/lib/safe-action';
 import { setToStartOfDayInTimeZone } from '@/lib/utils';
 
 import { assertError } from '@/utils';
-
-export const getListing = actionClient
-  .schema(GetListingSchema)
-  .action(async ({ parsedInput, ctx: { userId } }) => {
-    try {
-      if (!userId) {
-        throw new Error('User not found');
-      }
-      const listing = await prisma.listing.findUnique({
-        where: {
-          id: parsedInput.id,
-          ownerId: userId,
-        },
-        include: {
-          inventory: true,
-          owner: true,
-          images: true,
-        },
-      });
-
-      return {
-        success: true,
-        listing,
-      };
-    } catch (error) {
-      assertError(error);
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
-  });
 
 export const editListing = actionClient
   .schema(EditListingSchema)
@@ -131,6 +99,38 @@ export const editInventory = actionClient
       });
       return {
         success: true,
+      };
+    } catch (error) {
+      assertError(error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  });
+
+/**
+ * Get all listings for the user
+ */
+export const getListings = actionClient
+  .schema(GetListingsSchema)
+  .action(async ({ parsedInput: { take, skip }, ctx: { userId } }) => {
+    try {
+      const listings = await prisma.listing.findMany({
+        where: {
+          ownerId: String(userId),
+        },
+        take: take,
+        skip: skip,
+        include: {
+          images: true,
+        },
+      });
+      const totalCount = await prisma.listing.count();
+      return {
+        success: true,
+        listings,
+        totalCount,
       };
     } catch (error) {
       assertError(error);

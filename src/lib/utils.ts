@@ -1,7 +1,8 @@
-import { Currency } from '@prisma/client';
+import { Currency, ListingInventory } from '@prisma/client';
 import { type ClassValue, clsx } from 'clsx';
 import { startOfDay } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { DateValue } from 'react-aria';
 import { twMerge } from 'tailwind-merge';
 
 /**
@@ -149,9 +150,7 @@ export function formatTimezone(timeZone: string) {
  *     formatHHMMDate("12:30") // "12:30 PM"
  */
 export function formatHHMMDate(hhmm: string) {
-  const [hh, mm] = hhmm.split(':').map(Number);
-  const hours = Number.parseInt(hh.toString());
-  const minutes = Number.parseInt(mm.toString());
+  const [hours, minutes] = hhmm.split(':').map((part) => Number.parseInt(part));
 
   const formatter = new Intl.DateTimeFormat(getLocale(), {
     hour: '2-digit',
@@ -159,4 +158,26 @@ export function formatHHMMDate(hhmm: string) {
   });
 
   return formatter.format(new Date(0, 0, 0, hours, minutes));
+}
+
+/**
+ * Check if the date is unavailable in the inventory.
+ * @param date - The date to check.
+ * @param inventory - The inventory to check the date in.
+ * @param listingTimeZone - The time zone of the listing.
+ * @returns True if the date is unavailable, false otherwise.
+ */
+export function isDateUnavailable(
+  date: DateValue,
+  inventory: ListingInventory[],
+  listingTimeZone: string,
+) {
+  const inventoryForDate = inventory.find((inventory) => {
+    const zonedDate = date.toDate(listingTimeZone);
+    return areEqualDates(zonedDate, inventory.date);
+  });
+  if (!inventoryForDate) {
+    return true;
+  }
+  return !inventoryForDate.isAvailable;
 }

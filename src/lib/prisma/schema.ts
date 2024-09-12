@@ -38,9 +38,29 @@ export const BaseListingSchema = z.object({
 
 export const GetListingSchema = z.object({
   id: z.number(),
+  include: z
+    .object({
+      inventory: z.boolean().optional(),
+      owner: z.boolean().optional(),
+      images: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export type GetListing = z.infer<typeof GetListingSchema>;
+
+export const GetListingsSchema = z.object({
+  take: z
+    .number()
+    .optional()
+    .default(10)
+    .describe('Limit of how many listings to return'),
+  skip: z
+    .number()
+    .optional()
+    .default(0)
+    .describe('Offset of how many listings to skip'),
+});
 
 export const EditListingSchema = BaseListingSchema.omit({ images: true })
   .partial()

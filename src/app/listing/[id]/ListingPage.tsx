@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
 import { FullListing } from '@/lib/types';
-import { areEqualDates, formatCurrency, getLocale } from '@/lib/utils';
+import { formatCurrency, getLocale, isDateUnavailable } from '@/lib/utils';
 
 import { LightBox } from '@/components/LightBox';
 import { Calendar } from '@/components/range-calendar';
@@ -160,18 +160,13 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
               <CardContent>
                 <Calendar
                   border={false}
-                  isDateUnavailable={(date) => {
-                    const inventoryForDate = listingData.inventory.find(
-                      (inventory) => {
-                        const zonedDate = date.toDate(listingData.timeZone);
-                        return areEqualDates(zonedDate, inventory.date);
-                      },
-                    );
-                    if (!inventoryForDate) {
-                      return true;
-                    }
-                    return !inventoryForDate.isAvailable;
-                  }}
+                  isDateUnavailable={(date) =>
+                    isDateUnavailable(
+                      date,
+                      listingData.inventory,
+                      listingData.timeZone,
+                    )
+                  }
                   value={{
                     start: checkIn,
                     end: checkOut,

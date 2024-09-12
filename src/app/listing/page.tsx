@@ -1,20 +1,18 @@
-import { PrismaClient } from '@prisma/client';
+import { getListings } from '@/app/listing/[id]/manage/action';
+import NotFound from '@/app/not-found';
 
 import ListingsGrid from './ListingsGrid';
 
-const prisma = new PrismaClient();
-
-async function getListings() {
-  const listings = await prisma.listing.findMany({
-    include: {
-      images: true,
-    },
-  });
-  return listings;
-}
-
 export default async function ListingsPage() {
-  const listings = await getListings();
+  const res = await getListings({});
+  if (!res?.data?.success) {
+    throw res?.data?.error || new Error('Failed to get listings');
+  }
+  const { listings } = res.data;
+
+  if (!listings) {
+    return <NotFound title='No listings found' />;
+  }
 
   return (
     <div className='bg-background min-h-screen'>

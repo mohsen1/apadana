@@ -1,8 +1,7 @@
 import { redirect } from 'next/navigation';
 
-import prisma from '@/lib/prisma/client';
-
 import CreateBookingForm from '@/app/listing/[id]/booking/create/CreateBookingForm';
+import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
 export default async function CreateBookingPage({
@@ -12,15 +11,14 @@ export default async function CreateBookingPage({
   params: { id: string };
   searchParams: { checkIn: string; checkOut: string };
 }) {
-  const listing = await prisma.listing.findUnique({
-    where: {
-      id: Number(params.id),
-    },
-    include: {
-      images: true,
-      owner: true,
-    },
+  const res = await getListing({
+    id: Number(params.id),
+    include: { inventory: true, owner: true, images: true },
   });
+  if (!res?.data?.success) {
+    throw res?.data?.error || new Error('Failed to get listing');
+  }
+  const listing = res.data.listing;
   if (!listing) {
     return <NotFound title='Listing not found' />;
   }

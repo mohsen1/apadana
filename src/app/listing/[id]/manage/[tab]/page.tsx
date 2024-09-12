@@ -1,7 +1,7 @@
-import { getListing } from '@/app/listing/[id]/manage/action';
 import { Bookings } from '@/app/listing/[id]/manage/Bookings';
 import { HostCalendar } from '@/app/listing/[id]/manage/HostCalendar';
 import UpdateListingForm from '@/app/listing/[id]/manage/UpdateListingForm';
+import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
 export default async function ManageListingPage({
@@ -13,7 +13,10 @@ export default async function ManageListingPage({
   };
 }) {
   const res = await getListing({ id: Number.parseInt(params.id, 10) });
-  const listing = res?.data?.listing;
+  if (!res?.data?.success) {
+    throw res?.data?.error || new Error('Failed to get listing');
+  }
+  const listing = res.data.listing;
 
   if (!listing) {
     return <NotFound />;
