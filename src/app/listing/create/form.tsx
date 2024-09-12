@@ -31,7 +31,6 @@ import { createListing } from '@/app/listing/create/action';
 import { amenitiesList } from '@/shared/ameneties';
 
 const defaultValues: CreateListing = {
-  userId: '',
   amenities: ['Wi-Fi'],
   title: 'My listing',
   description: 'This is a test listing',

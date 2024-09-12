@@ -5,7 +5,7 @@ import { CalendarDate } from '@internationalized/date';
 import { differenceInDays } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -13,7 +13,7 @@ import {
   CreateBookingRequest,
   CreateBookingRequestSchema,
 } from '@/lib/prisma/schema';
-import { FullListing } from '@/lib/types';
+import { PublicListing } from '@/lib/types';
 import { formatCurrency, isDateUnavailable } from '@/lib/utils';
 
 import { Calendar } from '@/components/range-calendar';
@@ -43,7 +43,7 @@ export default function BookingPage({
   checkIn: initialCheckIn,
   checkOut: initialCheckOut,
 }: {
-  listing: FullListing;
+  listing: PublicListing;
   checkIn: Date;
   checkOut: Date;
 }) {

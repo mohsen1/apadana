@@ -8,7 +8,7 @@ test('has title', async ({ page }) => {
 });
 
 // TODO: We need to handle auth in test
-test.skip('get started link', async ({ page }) => {
+test('get started link', async ({ page }) => {
   await page.goto('/');
 
   // Click the get started link.

@@ -2,7 +2,7 @@ import { CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { FullBookingRequest } from '@/lib/types';
+import { PublicBookingRequest } from '@/lib/types';
 
 import { getBookingRequest } from '@/app/listing/[id]/booking/action';
 import NotFound from '@/app/not-found';
@@ -30,7 +30,7 @@ export default async function BookingRequestPage({
 function BookingRequestSent({
   bookingRequest,
 }: {
-  bookingRequest: FullBookingRequest;
+  bookingRequest: PublicBookingRequest;
 }) {
   return (
     <main className='flex-grow container mx-auto p-4 max-w-6xl grid grid-cols-1  lg:grid-cols-2 gap-8'>

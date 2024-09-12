@@ -2,9 +2,9 @@
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { FullListing } from '@/lib/types';
+import { PublicListing } from '@/lib/types';
 
-export function ImageGallery({ listing }: { listing: FullListing }) {
+export function ImageGallery({ listing }: { listing: PublicListing }) {
   const [mainImage, setMainImage] = useState(0);
   return (
     <div className='lg:w-3/4'>

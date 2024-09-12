@@ -24,11 +24,8 @@ export const getBookingRequest = actionClient
           listing: {
             include: {
               images: true,
-              owner: {
-                select: {
-                  firstName: true,
-                },
-              },
+              owner: true,
+              inventory: true,
             },
           },
           user: {

@@ -30,7 +30,7 @@ export default async function ManageListingPage({
     case 'calendar':
       return <HostCalendar listingData={listing} />;
     case 'bookings':
-      return <Bookings params={{ id: params.id }} />;
+      return <Bookings />;
     case 'booking-requests':
       return <BookingRequests listing={listing} />;
     case 'details':

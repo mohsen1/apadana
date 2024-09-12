@@ -1,12 +1,11 @@
-import { BookingRequest, BookingRequestStatus, User } from '@prisma/client';
+import { BookingRequest, User } from '@prisma/client';
 import { AvatarImage } from '@radix-ui/react-avatar';
 import { differenceInDays } from 'date-fns';
 
 import { FullListing } from '@/lib/types';
-import { cn, formatCurrency, getLocale } from '@/lib/utils';
+import { formatCurrency, getLocale } from '@/lib/utils';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -34,6 +33,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 
 import { getBookingRequests } from '@/app/listing/[id]/booking/action';
+import { BookingRequestActions } from '@/app/listing/[id]/manage/BookingRequestActions';
+import { BookingRequestStatusBadge } from '@/app/listing/[id]/manage/BookingRequestStatusBadge';
 import NotFound from '@/app/not-found';
 
 export async function BookingRequests({ listing }: { listing: FullListing }) {
@@ -119,7 +120,7 @@ export async function BookingRequests({ listing }: { listing: FullListing }) {
                   )}
                 </TableCell>
                 <TableCell>
-                  <BookingRequestStatus status={bookingRequest.status} />
+                  <BookingRequestStatusBadge status={bookingRequest.status} />
                 </TableCell>
                 <TableCell>
                   <Dialog>
@@ -134,16 +135,13 @@ export async function BookingRequests({ listing }: { listing: FullListing }) {
                           listing={listing}
                         />
                         <DialogFooter className='flex justify-end gap-2 pt-4'>
-                          <Button variant='destructive'>Reject</Button>
-                          <Button>Accept</Button>
+                          <BookingRequestActions
+                            bookingRequest={bookingRequest}
+                          />
                         </DialogFooter>
                       </DialogHeader>
                     </DialogContent>
                   </Dialog>
-
-                  <Button variant='link' size='sm' className='text-destructive'>
-                    Reject
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -223,7 +221,7 @@ function BookingRequestCard({
           {bookingRequest.guests.toLocaleString()}
         </Row>
         <Row label='Status:'>
-          <BookingRequestStatus status={bookingRequest.status} />
+          <BookingRequestStatusBadge status={bookingRequest.status} />
         </Row>
         <Row label='Message:'>{null}</Row>
         <Textarea
@@ -234,20 +232,5 @@ function BookingRequestCard({
         />
       </div>
     </div>
-  );
-}
-
-function BookingRequestStatus({ status }: { status: BookingRequestStatus }) {
-  return (
-    <Badge
-      variant='outline'
-      className={cn('px-4 py-1', {
-        'bg-destructive': status === 'REJECTED',
-        'bg-green-500': status === 'ACCEPTED',
-        'bg-primary/60 text-primary-foreground': status === 'PENDING',
-      })}
-    >
-      {status}
-    </Badge>
   );
 }

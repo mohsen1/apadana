@@ -7,6 +7,7 @@ import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { DateValue } from 'react-aria';
 
+import { FullListing } from '@/lib/types';
 import {
   formatCurrencySymbol,
   formatHHMMDate,
@@ -24,15 +25,10 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 
 import { editInventory } from '@/app/listing/[id]/manage/action';
-import { ManageListingPageProps } from '@/app/listing/[id]/manage/ManageListingPage';
 import { getListing } from '@/app/listing/action';
 import { RangeValue } from '@/utils/types';
 
-export function HostCalendar({
-  listingData,
-}: {
-  listingData: ManageListingPageProps['listingData'];
-}) {
+export function HostCalendar({ listingData }: { listingData: FullListing }) {
   const [listingInventory, setListingInventory] = useState<ListingInventory[]>(
     listingData.inventory,
   );

@@ -1,6 +1,8 @@
 'use server';
+
 import prisma from '@/lib/prisma/client';
 import {
+  ChangeBookingRequestStatusSchema,
   EditInventorySchema,
   EditListingSchema,
   GetListingsSchema,
@@ -140,3 +142,46 @@ export const getListings = actionClient
       };
     }
   });
+
+/**
+ * Used in the management dashboard to accept or reject booking requests
+ */
+export const changeBookingRequestStatus = actionClient
+  .schema(ChangeBookingRequestStatusSchema)
+  .action(
+    async ({ parsedInput: { bookingRequestId, status }, ctx: { userId } }) => {
+      try {
+        if (!userId) {
+          throw new Error('User not found');
+        }
+        const bookingRequest = await prisma.bookingRequest.findUnique({
+          where: {
+            id: Number(bookingRequestId),
+            listing: {
+              ownerId: userId,
+            },
+          },
+        });
+        if (!bookingRequest) {
+          throw new Error('Booking request not found');
+        }
+        await prisma.bookingRequest.update({
+          where: {
+            id: Number(bookingRequestId),
+          },
+          data: {
+            status,
+          },
+        });
+        return {
+          success: true,
+        };
+      } catch (error) {
+        assertError(error);
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+    },
+  );

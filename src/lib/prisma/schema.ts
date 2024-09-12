@@ -126,3 +126,12 @@ export const GetBookingRequestsSchema = z.object({
 });
 
 export type GetBookingRequests = z.infer<typeof GetBookingRequestsSchema>;
+
+export const ChangeBookingRequestStatusSchema = z.object({
+  bookingRequestId: z.string(),
+  status: z.nativeEnum(BookingRequestStatus),
+});
+
+export type ChangeBookingRequestStatus = z.infer<
+  typeof ChangeBookingRequestStatusSchema
+>;
