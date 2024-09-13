@@ -1,5 +1,6 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Metadata } from 'next';
 import {
   Inter as FontSans,
@@ -77,6 +78,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang='en' suppressHydrationWarning>
+        <SpeedInsights />
         <body
           className={cn(
             'min-h-screen bg-background font-sans antialiased flex flex-col',
