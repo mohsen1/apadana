@@ -14,5 +14,18 @@
     "containerClassName"
   ],
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "cSpell.words": ["Apadana"]
+  "cSpell.words": ["Apadana"],
+  "files.exclude": {
+    "build": true,
+    "out": true,
+    ".next": true,
+    ".vscode": true
+  },
+  "search.exclude": {
+    "build": true,
+    "out": true,
+    ".next": true,
+    ".vscode": true,
+    "pnpm-lock.yaml": true
+  }
 }

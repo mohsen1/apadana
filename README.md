@@ -20,28 +20,11 @@ pnpm install
 
 ### 3. Create a `.env.local` file
 
+Download the Vercel CLI and run this command to get the database url:
+
 ```bash
-touch .env.local
-```
-
-Add the following content to the `.env.local` file values from [Vercel Storage](https://vercel.com/docs/storage/vercel-postgres):
-
-```env
-DATABASE_URL=...
-```
-
-And add [Clerk](https://clerk.com/) values:
-
-```env
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_******
-CLERK_SECRET_KEY=sk_test_***
-```
-
-Add [Uploadthing](https://uploadthing.com/) values:
-
-```env
-UPLOADTHING_SECRET=...
-UPLOADTHING_APP_ID=...
+npm install -g vercel
+vercel env pull
 ```
 
 ### 4. Run the development server
