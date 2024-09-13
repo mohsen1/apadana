@@ -10,7 +10,6 @@ const f = createUploadthing();
 const auth = async (req: Request) => {
   // Get the Clerk user from the request
   const auth = getAuth(req as NextRequest);
-
   if (!auth.userId) {
     // eslint-disable-next-line no-console
     console.error('User is not authenticated');

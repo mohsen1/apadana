@@ -195,8 +195,11 @@ model Booking {
   checkOut         DateTime
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
+  bookingRequest   BookingRequest?    @relation(fields: [bookingRequestId], references: [id])
+  bookingRequestId Int?
 
-  @@index([checkIn, checkOut])
+  @@index([userId])
+  @@index([bookingRequestId])
 }
 
 enum BookingRequestStatus {
@@ -220,4 +223,8 @@ model BookingRequest {
   pets      Boolean              @default(false)
   createdAt DateTime             @default(now())
   updatedAt DateTime             @updatedAt
+  Booking   Booking[]
+
+  @@index([listingId])
+  @@index([userId])
 }

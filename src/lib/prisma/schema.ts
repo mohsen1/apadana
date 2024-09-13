@@ -46,6 +46,7 @@ export const GetListingSchema = z.object({
       inventory: z.boolean().optional(),
       owner: z.boolean().optional(),
       images: z.boolean().optional(),
+      bookings: z.boolean().optional(),
     })
     .optional(),
 });

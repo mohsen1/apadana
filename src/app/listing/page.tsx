@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 import { getListings } from '@/app/listing/[id]/manage/action';
 import NotFound from '@/app/not-found';
 
@@ -21,7 +23,16 @@ export default async function ListingsPage() {
           <h1 className='text-5xl font-extrabold mb-8 text-foreground'>
             All Listings
           </h1>
-          <ListingsGrid listings={listings} />
+          {listings.length === 0 ? (
+            <div className='text-center py-6'>
+              <p className='text-lg text-muted-foreground pb-4'>
+                No listings were found
+              </p>
+              <Button href='/listing/create'>Create a listing</Button>
+            </div>
+          ) : (
+            <ListingsGrid listings={listings} />
+          )}
         </main>
       </div>
     </div>

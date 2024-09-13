@@ -114,6 +114,7 @@ export function LocationDetailsStep({
             value={addressInput}
             onChange={handleAddressChange}
             placeholder='Enter your address'
+            autoComplete='off'
           />
           {errors.address && (
             <span className='text-red-500'>This field is required</span>

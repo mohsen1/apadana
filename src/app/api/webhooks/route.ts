@@ -1,5 +1,12 @@
-import { UserJSON, WebhookEvent } from '@clerk/nextjs/server';
-import { Permission, Prisma, Role } from '@prisma/client';
+import { clerkClient, UserJSON, WebhookEvent } from '@clerk/nextjs/server';
+import {
+  EmailAddress as ClerkEmailAddress,
+  ExternalAccount as ClerkExternalAccount,
+  Permission,
+  Prisma,
+  Role,
+  User as ClerkUser,
+} from '@prisma/client';
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 
@@ -56,11 +63,81 @@ export async function POST(req: Request) {
     });
   }
 
+  // In development, we need to create the user in the database when an
+  // existing user is logging in. They have a row in the production database
+  // but not in the development database. We use the session.created webhook
+  // to detect this and create the user in the development database.
+  if (
+    evt.type === 'session.created' &&
+    process.env.NODE_ENV === 'development'
+  ) {
+    // Somehow Clerk types is not accurate. User does have those extra properties
+    const clerkUser = (await clerkClient().users.getUser(
+      evt.data.user_id,
+    )) as unknown as ClerkUserComplete;
+    const createArg = await clerkUserToUserCreateArgsData(clerkUser);
+    await prisma.user.upsert({
+      where: { id: clerkUser.id },
+      update: createArg,
+      create: createArg,
+    });
+    return new Response('Webhook received', { status: 200 });
+  }
+
   if (evt.type === 'user.created' || evt.type === 'user.updated') {
     await createOrUpdateUser(evt.data as UserJSON);
   }
 
   return new Response('Webhook received', { status: 200 });
+}
+
+interface ClerkUserComplete extends ClerkUser {
+  primaryEmailAddressId: string;
+  emailAddresses: Omit<ClerkEmailAddress, 'isPrimary'>[];
+  externalAccounts: ClerkExternalAccount[];
+}
+
+async function clerkUserToUserCreateArgsData(
+  clerkUser: ClerkUserComplete,
+): Promise<Prisma.UserCreateArgs['data']> {
+  const orgMemberships =
+    await clerkClient().users.getOrganizationMembershipList({
+      userId: clerkUser.id,
+    });
+
+  return {
+    id: clerkUser.id,
+    firstName: clerkUser.firstName,
+    lastName: clerkUser.lastName,
+    imageUrl: clerkUser.imageUrl,
+    emailAddresses: {
+      create: clerkUser.emailAddresses.map((email) => ({
+        id: email.id,
+        emailAddress: email.emailAddress,
+        isPrimary: email.id === clerkUser.primaryEmailAddressId,
+        verification: email.verification?.[0],
+      })),
+    },
+    externalAccounts: {
+      create: clerkUser.externalAccounts
+        .filter(
+          (externalAccount) => externalAccount.id && externalAccount.provider,
+        )
+        .map((account) => ({
+          id: account.id,
+          provider: account.provider,
+          externalId: account.externalId,
+        })),
+    },
+    roles: {
+      create: orgMemberships.data.map((membership) => ({
+        role: mapRole(membership.role),
+      })),
+    },
+    // TODO: update permissions when creating a user object from clerk user
+    //  in webhooks in development
+    // permissions:
+  };
 }
 
 /**

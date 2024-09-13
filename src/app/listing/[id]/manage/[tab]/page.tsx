@@ -15,6 +15,12 @@ export default async function ManageListingPage({
 }) {
   const res = await getListing({
     id: Number.parseInt(params.id, 10),
+    include: {
+      bookings: true,
+      owner: true,
+      images: true,
+      inventory: true,
+    },
   });
   if (!res?.data?.success) {
     throw res?.data?.error || new Error('Failed to get listing');
@@ -30,7 +36,7 @@ export default async function ManageListingPage({
     case 'calendar':
       return <HostCalendar listingData={listing} />;
     case 'bookings':
-      return <Bookings />;
+      return <Bookings bookings={listing.bookings} />;
     case 'booking-requests':
       return <BookingRequests listing={listing} />;
     case 'details':
