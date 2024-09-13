@@ -46,7 +46,6 @@ export const GetListingSchema = z.object({
       inventory: z.boolean().optional(),
       owner: z.boolean().optional(),
       images: z.boolean().optional(),
-      bookings: z.boolean().optional(),
     })
     .optional(),
 });
@@ -138,3 +137,9 @@ export const ChangeBookingRequestStatusSchema = z.object({
 export type ChangeBookingRequestStatus = z.infer<
   typeof ChangeBookingRequestStatusSchema
 >;
+
+export const GetBookingsSchema = z.object({
+  listingId: z.number(),
+});
+
+export type GetBookings = z.infer<typeof GetBookingsSchema>;

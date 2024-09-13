@@ -5,12 +5,62 @@ import {
   ChangeBookingRequestStatusSchema,
   EditInventorySchema,
   EditListingSchema,
+  GetBookingsSchema,
   GetListingsSchema,
 } from '@/lib/prisma/schema';
 import { actionClient } from '@/lib/safe-action';
 import { setToStartOfDayInTimeZone } from '@/lib/utils';
 
 import { assertError } from '@/utils';
+
+export const getBookings = actionClient
+  .schema(GetBookingsSchema)
+  .action(async ({ parsedInput, ctx: { userId } }) => {
+    try {
+      if (!userId) {
+        throw new Error('User not found');
+      }
+
+      // Verify that the listing exists and is owned by the user
+      const listing = await prisma.listing.findUnique({
+        where: {
+          id: parsedInput.listingId,
+          ownerId: userId,
+        },
+      });
+
+      if (!listing) {
+        throw new Error('Listing not found or you do not have access to it');
+      }
+
+      // Fetch all bookings associated with the listing
+      const bookings = await prisma.booking.findMany({
+        where: {
+          listingInventory: {
+            some: {
+              listingId: parsedInput.listingId,
+            },
+          },
+        },
+        include: {
+          listingInventory: true,
+          user: true,
+          bookingRequest: true,
+        },
+      });
+
+      return {
+        success: true,
+        bookings,
+      };
+    } catch (error) {
+      assertError(error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  });
 
 export const editListing = actionClient
   .schema(EditListingSchema)

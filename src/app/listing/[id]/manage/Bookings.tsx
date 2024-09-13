@@ -1,4 +1,4 @@
-import { Booking } from '@prisma/client';
+import { format } from 'date-fns';
 
 import {
   Card,
@@ -16,7 +16,21 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export function Bookings({ bookings }: { bookings: Booking[] }) {
+import { getBookings } from '@/app/listing/[id]/manage/action';
+
+export async function Bookings({ listingId }: { listingId: number }) {
+  const res = await getBookings({ listingId });
+  const result = res?.data;
+
+  if (!result?.success) {
+    throw new Error(result?.error);
+  }
+
+  const bookings = result.bookings;
+
+  if (!bookings?.length) {
+    return <div>No bookings found</div>;
+  }
   return (
     <Card className='box-shadow-none border-none'>
       <CardHeader>
@@ -46,11 +60,15 @@ export function Bookings({ bookings }: { bookings: Booking[] }) {
               bookings.map((booking) => (
                 <TableRow key={booking.id}>
                   <TableCell>{booking.id}</TableCell>
-                  <TableCell>{booking.checkIn}</TableCell>
-                  <TableCell>{booking.checkOut}</TableCell>
+                  <TableCell>
+                    {format(booking.checkIn, 'MMM dd, yyyy')}
+                  </TableCell>
+                  <TableCell>
+                    {format(booking.checkOut, 'MMM dd, yyyy')}
+                  </TableCell>
                   <TableCell>{booking.userId}</TableCell>
                   <TableCell>{booking.totalPrice}</TableCell>
-                  <TableCell>{booking.status}</TableCell>
+                  <TableCell>{booking.bookingRequestId}</TableCell>
                 </TableRow>
               ))
             )}
