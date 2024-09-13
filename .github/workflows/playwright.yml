@@ -34,7 +34,6 @@ jobs:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_dmFsdWVkLWJhdC05OS5jbGVyay5hY2NvdW50cy5kZXYk
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
-          POSTGRES_PRISMA_URL: postgresql://postgres:postgres@localhost:5432/postgres
           POSTGRES_URL_NO_SSL: postgresql://postgres:postgres@localhost:5432/postgres
           POSTGRES_URL_NON_POOLING: postgresql://postgres:postgres@localhost:5432/postgres
           POSTGRES_USER: postgres
