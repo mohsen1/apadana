@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "src/scripts/start-local-db.sh && pnpm run migrate:dev",
     "dev": "dotenv -e .env.local -- concurrently --prefix-colors \"blue.bold,magenta.bold,green.bold\" npm:dev:*",
     "dev:next": "next dev",
     "dev:prisma": "prisma generate --watch",
