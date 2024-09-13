@@ -1,5 +1,5 @@
 'use client';
-import { BookingRequest } from '@prisma/client';
+import { BookingRequest, BookingRequestStatus } from '@prisma/client';
 import { Check, Loader2, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
@@ -8,17 +8,20 @@ import { Button } from '@/components/ui/button';
 
 import { changeBookingRequestStatus } from '@/app/listing/[id]/manage/action';
 
-type BookingRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
-
 export function BookingRequestActions({
   bookingRequest,
+  onStatusChange,
 }: {
   bookingRequest: BookingRequest;
+  onStatusChange: (status: BookingRequestStatus) => void;
 }) {
   const router = useRouter();
   const { execute, status, input } = useAction(changeBookingRequestStatus, {
-    onSuccess: () => {
+    onSuccess: (result) => {
       router.refresh();
+      if (result.data?.success && result.data?.status) {
+        onStatusChange(result?.data?.status);
+      }
     },
   });
 
@@ -32,9 +35,10 @@ export function BookingRequestActions({
       <Button
         variant='link'
         className='text-destructive'
-        onClick={getHandler('REJECTED')}
+        onClick={getHandler(BookingRequestStatus.REJECTED)}
       >
-        {status === 'executing' && input?.status === 'REJECTED' ? (
+        {status === 'executing' &&
+        input?.status === BookingRequestStatus.REJECTED ? (
           <>
             <Loader2 className='mr-2' />
             <span>Saving</span>
@@ -46,8 +50,12 @@ export function BookingRequestActions({
           </>
         )}
       </Button>
-      <Button variant='link' onClick={getHandler('ACCEPTED')}>
-        {status === 'executing' && input?.status === 'ACCEPTED' ? (
+      <Button
+        variant='link'
+        onClick={getHandler(BookingRequestStatus.ACCEPTED)}
+      >
+        {status === 'executing' &&
+        input?.status === BookingRequestStatus.ACCEPTED ? (
           <>
             <Loader2 className='mr-2' />
             <span>Saving</span>

@@ -337,6 +337,7 @@ export const changeBookingRequestStatus = actionClient
 
         return {
           success: true,
+          status,
         };
       } catch (error) {
         assertError(error);

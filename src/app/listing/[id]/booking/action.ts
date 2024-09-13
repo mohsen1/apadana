@@ -54,6 +54,20 @@ export const createBookingRequest = actionClient
     try {
       const { listingId, checkIn, checkOut, guests, pets, message } =
         parsedInput;
+
+      const inventoryForDates = await prisma.listingInventory.findMany({
+        where: {
+          date: {
+            gte: checkIn,
+            lte: checkOut,
+          },
+        },
+      });
+
+      const totalPrice = inventoryForDates.reduce((acc, inventory) => {
+        return acc + inventory.price;
+      }, 0);
+
       const bookingRequest = await prisma.bookingRequest.create({
         data: {
           listingId,
@@ -62,6 +76,7 @@ export const createBookingRequest = actionClient
           guests,
           pets,
           message,
+          totalPrice,
           userId: String(ctx.userId),
         },
       });

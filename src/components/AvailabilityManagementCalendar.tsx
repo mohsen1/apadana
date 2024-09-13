@@ -7,7 +7,6 @@ import {
   isSameDay,
 } from '@internationalized/date';
 import { Listing, ListingInventory } from '@prisma/client';
-import { XIcon } from 'lucide-react';
 
 import { cn, formatCurrency } from '@/lib/utils';
 
@@ -29,10 +28,11 @@ export function AvailabilityManagementCalendar({
   return (
     <div className='w-full text-2xl'>
       <Calendar
+        border={false}
         value={value}
         onChange={onChange}
         getHeaderContent={(title) => (
-          <h2 className='font-bold text-5xl flex-1 font-bold'>{title}</h2>
+          <h2 className='font-bold text-5xl flex-1'>{title}</h2>
         )}
         getCellContent={(calendarDate) => {
           let inventory = listing.inventory.find((inventory) =>
@@ -72,7 +72,7 @@ function CalendarTileContent({
   listing: Listing;
 }) {
   const content = !inventory.isAvailable ? (
-    <XIcon className='inline text-foreground/50' />
+    <div className='border-2 border-b  border-foreground/10 w-6 h-0 my-4' />
   ) : (
     formatCurrency(inventory.price, listing.currency)
   );

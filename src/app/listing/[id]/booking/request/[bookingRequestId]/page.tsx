@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { PublicBookingRequest } from '@/lib/types';
+import { formatCurrency, formatHHMMDate, getLocale } from '@/lib/utils';
 
 import { getBookingRequest } from '@/app/listing/[id]/booking/action';
 import NotFound from '@/app/not-found';
@@ -49,7 +50,38 @@ function BookingRequestSent({
           {bookingRequest.listing.owner.firstName}. Your host will review your
           request and get back to you soon.
         </p>
-        <p className='mb-4'>
+        <p>
+          Check-in date:{' '}
+          <span className='font-bold'>
+            {bookingRequest.checkIn.toLocaleDateString(getLocale(), {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })}{' '}
+            {formatHHMMDate(bookingRequest.listing.checkInTime)}
+          </span>
+        </p>
+        <p>
+          Check-out date:{' '}
+          <span className='font-bold'>
+            {bookingRequest.checkOut.toLocaleDateString(getLocale(), {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })}{' '}
+            {formatHHMMDate(bookingRequest.listing.checkOutTime)}
+          </span>
+        </p>
+        <p>
+          Total price:{' '}
+          <span className='font-bold'>
+            {formatCurrency(
+              bookingRequest.totalPrice,
+              bookingRequest.listing.currency,
+            )}
+          </span>
+        </p>
+        <p className='my-4'>
           A confirmation email will be sent to you and your host.
         </p>
         <h2 className='text-lg font-bold my-2'>What happens next?</h2>

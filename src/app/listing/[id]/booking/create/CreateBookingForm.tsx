@@ -1,22 +1,20 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarDate } from '@internationalized/date';
-import { differenceInDays } from 'date-fns';
+import { differenceInDays, format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import {
   CreateBookingRequest,
   CreateBookingRequestSchema,
 } from '@/lib/prisma/schema';
 import { PublicListing } from '@/lib/types';
-import { formatCurrency, isDateUnavailable } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 
-import { Calendar } from '@/components/range-calendar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -48,7 +46,7 @@ export default function BookingPage({
   checkOut: Date;
 }) {
   const router = useRouter();
-  const { register, handleSubmit, getValues, control } =
+  const { register, handleSubmit, getValues, formState } =
     useForm<CreateBookingRequest>({
       defaultValues: {
         listingId: listing.id,
@@ -61,7 +59,7 @@ export default function BookingPage({
       resolver: zodResolver(CreateBookingRequestSchema),
     });
 
-  const { execute, status } = useAction(createBookingRequest, {
+  const { execute, status, result } = useAction(createBookingRequest, {
     onSuccess: (res) => {
       if (res?.data?.success) {
         router.push(
@@ -109,59 +107,28 @@ export default function BookingPage({
             </CardHeader>
             <CardContent>
               <div className='space-y-2'>
-                <label className='text-sm font-medium'>Select dates</label>
-                <Controller<CreateBookingRequest, 'checkIn'>
-                  name='checkIn'
-                  control={control}
-                  render={({ field: checkInField }) => (
-                    <Controller<CreateBookingRequest, 'checkOut'>
-                      name='checkOut'
-                      control={control}
-                      render={({ field: checkOutField }) => (
-                        <Calendar
-                          border={false}
-                          isDateUnavailable={(date) =>
-                            isDateUnavailable(
-                              date,
-                              listing.inventory,
-                              listing.timeZone,
-                            )
-                          }
-                          value={{
-                            start: new CalendarDate(
-                              checkInField.value.getFullYear(),
-                              checkInField.value.getMonth() + 1,
-                              checkInField.value.getDate(),
-                            ),
-                            end: new CalendarDate(
-                              checkOutField.value.getFullYear(),
-                              checkOutField.value.getMonth() + 1,
-                              checkOutField.value.getDate(),
-                            ),
-                          }}
-                          onChange={(range) => {
-                            if (range) {
-                              checkInField.onChange(
-                                range.start.toDate(listing.timeZone),
-                              );
-                              checkOutField.onChange(
-                                range.end.toDate(listing.timeZone),
-                              );
-                            }
-                          }}
-                        />
-                      )}
-                    />
-                  )}
-                />
+                <label className='text-sm font-medium'>Selected dates</label>
+                <div>
+                  From{' '}
+                  <span className='font-semibold'>
+                    {format(checkin, 'MMM d, yyyy')}
+                  </span>{' '}
+                  to{' '}
+                  <span className='font-semibold'>
+                    {format(checkout, 'MMM d, yyyy')}
+                  </span>
+                </div>
               </div>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <div className='space-y-2'>
+                <div className='space-y-2 pt-4'>
                   <label htmlFor='guests' className='text-sm font-medium'>
                     Number of guests
                   </label>
-                  <Select {...register('guests')}>
+                  <Select
+                    {...register('guests')}
+                    defaultValue={formState.defaultValues?.guests?.toString()}
+                  >
                     <SelectTrigger id='guests'>
                       <SelectValue placeholder='Select guests' />
                     </SelectTrigger>
@@ -176,7 +143,7 @@ export default function BookingPage({
                 </div>
               </div>
 
-              <div className='space-y-2'>
+              <div className='space-y-2 py-4'>
                 <div className='grid grid-cols-[auto_1fr] items-center py-2'>
                   <Image
                     src={listing.owner.imageUrl ?? ''}
@@ -218,12 +185,15 @@ export default function BookingPage({
                 </div>
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className='flex flex-col gap-2'>
               <Button type='submit' className='w-full'>
                 {status === 'executing'
                   ? 'Sending...'
                   : 'Send your booking request'}
               </Button>
+              {result.data?.error ? (
+                <div className='text-red-500 w-full'>{result.data?.error}</div>
+              ) : null}
             </CardFooter>
           </Card>
         </form>
