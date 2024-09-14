@@ -1,5 +1,6 @@
 'use server';
 
+import { getTimeZone } from '@/lib/google-maps-api';
 import prisma from '@/lib/prisma/client';
 import { CreateListingSchema } from '@/lib/prisma/schema';
 import { actionClient } from '@/lib/safe-action';
@@ -21,9 +22,14 @@ export const createListing = actionClient
       if (!owner) {
         throw new Error('Owner not found');
       }
+      const timeZone = await getTimeZone(
+        parsedInput.latitude,
+        parsedInput.longitude,
+      );
       const listing = await prisma.listing.create({
         data: {
           ...parsedInput,
+          timeZone,
           owner: {
             connect: {
               id: owner.id,

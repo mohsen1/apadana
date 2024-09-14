@@ -32,14 +32,11 @@ const ListingsGrid = ({ listings }: ListingsGridProps) => {
             <h2 className='text-2xl font-semibold mb-2 text-card-foreground'>
               {listing.title}
             </h2>
-            <p className='text-muted-foreground mb-4 line-clamp-2'>
-              {listing.description}
-            </p>
-            <div className='flex justify-between items-center text-sm text-muted-foreground'>
-              <p className='font-medium'>
-                {formatCurrency(listing.pricePerNight, listing.currency)}
-              </p>
+            <div className='text-sm text-muted-foreground'>
               <p>{listing.address}</p>
+              <p className='font-medium mt-2'>
+                {formatCurrency(listing.pricePerNight, listing.currency)}/night
+              </p>
             </div>
           </div>
           <div className='p-6 min-h-10 flex justify-end align-end gap-4'>

@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 
 import { CreateListingSchema } from '@/lib/prisma/schema';
 
+import { LocationPicker } from '@/components/LocationPicker';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -26,7 +27,9 @@ import { editListing } from '@/app/listing/[id]/manage/action';
 const EditListingSchema = CreateListingSchema.partial();
 
 export default function UpdateListingForm({ listing }: { listing: Listing }) {
-  const { register, handleSubmit, formState } = useForm<Partial<Listing>>({
+  const { register, handleSubmit, formState, setValue } = useForm<
+    Partial<Listing>
+  >({
     defaultValues: listing,
     resolver: zodResolver(EditListingSchema),
   });
@@ -42,7 +45,13 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
         <form
           className='space-y-4'
           onSubmit={handleSubmit((data) => {
-            execute({ ...data, id: listing.id });
+            execute({
+              ...data,
+              id: listing.id,
+              latitude: data.latitude ?? undefined,
+              longitude: data.longitude ?? undefined,
+              showExactLocation: data.showExactLocation ?? undefined,
+            });
           })}
         >
           <div className='grid grid-cols-2 gap-4'>
@@ -70,45 +79,25 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
                 </p>
               )}
             </div>
-            <div className='space-y-2'>
-              <Label htmlFor='address'>Address</Label>
-              <Input
-                {...register('address')}
-                id='address'
-                placeholder='Enter address'
+            <div className='space-y-2 col-span-2'>
+              <LocationPicker
+                onAddressChange={(address) => {
+                  setValue('address', address);
+                }}
+                onLocationChange={(lat, lng) => {
+                  setValue('latitude', lat);
+                  setValue('longitude', lng);
+                }}
+                onShowExactLocationChange={(showExactLocation) => {
+                  setValue('showExactLocation', showExactLocation);
+                }}
+                initialAddress={listing.address}
+                initialLatitude={listing.latitude ?? undefined}
+                initialLongitude={listing.longitude ?? undefined}
+                initialShowExactLocation={
+                  listing.showExactLocation ?? undefined
+                }
               />
-              {errors.address && (
-                <p className='text-destructive'>{errors.address.message}</p>
-              )}
-            </div>
-            <div className='space-y-2'>
-              <Label htmlFor='city'>City</Label>
-              <Input {...register('city')} id='city' placeholder='Enter city' />
-              {errors.city && (
-                <p className='text-destructive'>{errors.city.message}</p>
-              )}
-            </div>
-            <div className='space-y-2'>
-              <Label htmlFor='state'>State</Label>
-              <Input
-                {...register('state')}
-                id='state'
-                placeholder='Enter state'
-              />
-              {errors.state && (
-                <p className='text-destructive'>{errors.state.message}</p>
-              )}
-            </div>
-            <div className='space-y-2'>
-              <Label htmlFor='zipCode'>Zip Code</Label>
-              <Input
-                {...register('zipCode')}
-                id='zipCode'
-                placeholder='Enter zip code'
-              />
-              {errors.zipCode && (
-                <p className='text-destructive'>{errors.zipCode.message}</p>
-              )}
             </div>
           </div>
           <div className='space-y-2'>
@@ -212,7 +201,9 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
               <div className='relative'>
                 <Users className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
                 <Input
-                  {...register('maximumGuests', { valueAsNumber: true })}
+                  {...register('maximumGuests', {
+                    valueAsNumber: true,
+                  })}
                   id='maximumGuests'
                   type='number'
                   className='pl-8'
@@ -242,7 +233,7 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
             <Label htmlFor='published'>Published</Label>
           </div>
           <Button
-            disabled={isSubmitting}
+            disabled={isSubmitting || !formState.isValid}
             type='submit'
             className='flex items-center gap-2'
           >

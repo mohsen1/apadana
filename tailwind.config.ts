@@ -22,11 +22,24 @@ const config: Config = {
         'fade-in-300': 'fadeIn 300ms ease-in-out',
       },
       colors: {
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        border: {
+          DEFAULT: 'hsl(var(--border))',
+          foreground: 'hsl(var(--border-foreground))',
+        },
+        input: {
+          DEFAULT: 'hsl(var(--input))',
+          foreground: 'hsl(var(--input-foreground))',
+        },
+        ring: {
+          DEFAULT: 'hsl(var(--ring))',
+          foreground: 'hsl(var(--ring-foreground))',
+        },
+        background: {
+          DEFAULT: 'hsl(var(--background))',
+        },
+        foreground: {
+          DEFAULT: 'hsl(var(--foreground))',
+        },
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',

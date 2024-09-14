@@ -20,8 +20,8 @@ export default async function ListingsPage() {
     <div className='bg-background min-h-screen'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <main className='py-12'>
-          <h1 className='text-5xl font-extrabold mb-8 text-foreground'>
-            All Listings
+          <h1 className='text-3xl font-extrabold mb-8 text-foreground'>
+            My Listings
           </h1>
           {listings.length === 0 ? (
             <div className='text-center py-6'>

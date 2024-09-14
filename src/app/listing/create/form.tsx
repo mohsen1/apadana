@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getLocalTimeZone } from '@internationalized/date';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
@@ -30,21 +29,17 @@ import { LocationDetailsStep } from './LocationDetailsStep';
 import { PhotosStep } from './PhotosStep';
 import { PricingStep } from './PricingStep';
 
-const defaultValues: CreateListing = {
-  amenities: ['Wi-Fi'],
-  title: 'My listing',
-  description: 'This is a test listing',
-  propertyType: 'house',
-  address: '123 Main St',
-  city: 'San Francisco',
-  state: 'CA',
-  zipCode: '94105',
-  houseRules: 'No smoking allowed',
-  pricePerNight: 100,
-  minimumStay: 1,
-  maximumGuests: 5,
-  timeZone: getLocalTimeZone(),
-};
+const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> =
+  {
+    amenities: ['Wi-Fi'],
+    title: 'My listing',
+    description: 'This is a test listing',
+    propertyType: 'house',
+    houseRules: 'No smoking allowed',
+    pricePerNight: 100,
+    minimumStay: 1,
+    maximumGuests: 5,
+  };
 
 const steps = [
   {
@@ -113,6 +108,8 @@ export default function CreateListingForm() {
       'pricePerNight',
       'minimumStay',
       'maximumGuests',
+      'latitude',
+      'longitude',
     ] as const;
     numericFields.forEach((field) => {
       if (field in formData && typeof formData[field] === 'string') {
@@ -121,9 +118,9 @@ export default function CreateListingForm() {
     });
     if (Object.keys(formData).length > 1) {
       try {
-        const parsedData = CreateListingSchema.parse(formData);
+        const parsedData = CreateListingSchema.partial().parse(formData);
         reset(parsedData);
-      } catch {
+      } catch (error) {
         router.replace(`?step=${FormStep.LocationDetails}`);
         reset(defaultValues);
       }
@@ -149,7 +146,7 @@ export default function CreateListingForm() {
     const currentValues = getValues();
     const nextStepValue = Math.min(
       currentStep + 1,
-      Object.keys(FormStep).length / 2,
+      Object.keys(FormStep).length,
     );
     updateUrlParams({
       formData: currentValues,
@@ -196,7 +193,7 @@ export default function CreateListingForm() {
               type='button'
               variant='outline'
               onClick={prevStep}
-              disabled={currentStep === FormStep.BasicInfo}
+              disabled={currentStep === FormStep.LocationDetails}
             >
               Previous
             </Button>

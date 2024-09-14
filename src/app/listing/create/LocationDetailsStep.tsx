@@ -1,344 +1,46 @@
-import {
-  Circle,
-  GoogleMap,
-  Marker,
-  useLoadScript,
-} from '@react-google-maps/api';
-import { Loader2 } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import React, { useEffect, useRef, useState } from 'react';
+// LocationDetailsStep.tsx
+
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import { CreateListing } from '@/lib/prisma/schema';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-
-import {
-  googleMapsDarkStyles,
-  googleMapsLightStyles,
-} from '@/shared/google-maps-styles';
-import { GOOGLE_MAPS_API_KEY } from '@/shared/public-api-keys';
+import { LocationPicker } from '@/components/LocationPicker';
 
 export function LocationDetailsStep() {
   const {
     formState: { errors },
     setValue,
+    getValues,
   } = useFormContext<CreateListing>();
 
-  const [addressInput, setAddressInput] = useState('');
-  const [predictions, setPredictions] = useState<
-    google.maps.places.AutocompletePrediction[]
-  >([]);
-  const [selectedLocation, setSelectedLocation] =
-    useState<google.maps.LatLngLiteral | null>(null);
-  const [showExactLocation, setShowExactLocation] = useState(true);
-  const mapRef = useRef<google.maps.Map | null>(null);
-
-  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral | null>(
-    null,
-  );
-  const [mapZoom, setMapZoom] = useState<number>(14);
-  const [customPin, setCustomPin] = useState<google.maps.Icon | null>(null);
-  const [activePredictionIndex, setActivePredictionIndex] =
-    useState<number>(-1);
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-    libraries: ['places', 'geometry'],
-  });
-  const { theme } = useTheme();
-
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setAddressInput(value);
-
-    if (!value) {
-      setPredictions([]);
-      setActivePredictionIndex(-1);
-      return;
-    }
-
-    const service = new google.maps.places.AutocompleteService();
-    service.getPlacePredictions({ input: value }, (predictions, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-        setPredictions(predictions);
-        setActivePredictionIndex(-1);
-      } else {
-        setPredictions([]);
-        setActivePredictionIndex(-1);
-      }
-    });
+  const handleAddressChange = (address: string) => {
+    setValue('address', address);
   };
 
-  const handleSelectPrediction = (
-    prediction: google.maps.places.AutocompletePrediction,
-  ) => {
-    setAddressInput(prediction.description);
-    setPredictions([]);
-    setActivePredictionIndex(-1);
-
-    const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ placeId: prediction.place_id }, (results, status) => {
-      if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-        // Get latitude and longitude
-        const location = results[0].geometry?.location;
-        if (location) {
-          const lat = location.lat();
-          const lng = location.lng();
-          setValue('latitude', lat);
-          setValue('longitude', lng);
-          setSelectedLocation({ lat, lng });
-          setMapCenter({ lat, lng });
-          setMapZoom(14); // Default zoom level
-        }
-
-        // Store the full formatted address
-        const formattedAddress = results[0].formatted_address;
-        setValue('address', formattedAddress);
-      }
-    });
+  const handleLocationChange = (lat: number, lng: number) => {
+    setValue('latitude', lat);
+    setValue('longitude', lng);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (predictions.length > 0) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setActivePredictionIndex((prevIndex) =>
-          prevIndex + 1 >= predictions.length ? 0 : prevIndex + 1,
-        );
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setActivePredictionIndex((prevIndex) =>
-          prevIndex <= 0 ? predictions.length - 1 : prevIndex - 1,
-        );
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (
-          activePredictionIndex >= 0 &&
-          activePredictionIndex < predictions.length
-        ) {
-          handleSelectPrediction(predictions[activePredictionIndex]);
-        }
-      } else if (e.key === 'Escape') {
-        setPredictions([]);
-        setActivePredictionIndex(-1);
-      }
-    }
+  const handleShowExactLocationChange = (showExactLocation: boolean) => {
+    setValue('showExactLocation', showExactLocation);
   };
 
-  useEffect(() => {
-    if (selectedLocation && google.maps.geometry) {
-      if (showExactLocation) {
-        // Center the map on the selected location with default zoom
-        setMapCenter(selectedLocation);
-        setMapZoom(14);
-      } else {
-        // Adjust the map to fit the circle with 20% padding
-        const { lat, lng } = selectedLocation;
-        const radiusInMeters = 1000; // 1km radius
-
-        // Compute bounds of the circle
-        const bounds = new google.maps.LatLngBounds();
-
-        const center = new google.maps.LatLng(lat, lng);
-
-        // Points at the cardinal directions
-        const north = google.maps.geometry.spherical.computeOffset(
-          center,
-          radiusInMeters,
-          0,
-        );
-        const east = google.maps.geometry.spherical.computeOffset(
-          center,
-          radiusInMeters,
-          90,
-        );
-        const south = google.maps.geometry.spherical.computeOffset(
-          center,
-          radiusInMeters,
-          180,
-        );
-        const west = google.maps.geometry.spherical.computeOffset(
-          center,
-          radiusInMeters,
-          270,
-        );
-
-        bounds.extend(north);
-        bounds.extend(east);
-        bounds.extend(south);
-        bounds.extend(west);
-
-        // Apply padding (20% larger)
-        const paddingMultiplier = 1.2;
-        const paddedBounds = expandBounds(bounds, paddingMultiplier);
-
-        // Compute the center and zoom level that fits the bounds
-        if (mapRef.current) {
-          mapRef.current.fitBounds(paddedBounds);
-
-          // Get the center and zoom after fitting bounds
-          const newCenter = mapRef.current.getCenter()?.toJSON();
-          const newZoom = mapRef.current.getZoom();
-
-          if (newCenter) {
-            setMapCenter(newCenter);
-          }
-          if (newZoom !== undefined) {
-            setMapZoom(newZoom);
-          }
-        }
-      }
-    }
-  }, [selectedLocation, showExactLocation]);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    const image = new Image();
-    image.src = '/images/map-pin.png';
-    image.onload = () => {
-      setCustomPin({
-        url: image.src,
-        scaledSize: new google.maps.Size(40, 40),
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(20, 40),
-      });
-    };
-  }, [isLoaded]);
-
-  // Helper function to expand bounds
-  const expandBounds = (
-    bounds: google.maps.LatLngBounds,
-    multiplier: number,
-  ): google.maps.LatLngBounds => {
-    const sw = bounds.getSouthWest();
-    const ne = bounds.getNorthEast();
-
-    const latDiff = ne.lat() - sw.lat();
-    const lngDiff = ne.lng() - sw.lng();
-
-    const newSw = new google.maps.LatLng(
-      sw.lat() - (latDiff * (multiplier - 1)) / 2,
-      sw.lng() - (lngDiff * (multiplier - 1)) / 2,
-    );
-    const newNe = new google.maps.LatLng(
-      ne.lat() + (latDiff * (multiplier - 1)) / 2,
-      ne.lng() + (lngDiff * (multiplier - 1)) / 2,
-    );
-
-    const newBounds = new google.maps.LatLngBounds(newSw, newNe);
-    return newBounds;
-  };
-
-  if (loadError) {
-    return <div>Error loading maps</div>;
-  }
+  const values = getValues();
 
   return (
-    <div className='space-y-4 min-h-64'>
-      {!isLoaded ? (
-        <div className='flex justify-center items-center h-64'>
-          <Loader2 className='animate-spin motion-reduce:animate-none' />
-        </div>
-      ) : (
-        <>
-          <div className='relative'>
-            <Label htmlFor='address'>Address</Label>
-            <Input
-              id='address'
-              value={addressInput}
-              onChange={handleAddressChange}
-              onKeyDown={handleKeyDown}
-              placeholder='Enter your address'
-              autoComplete='off'
-            />
-            {errors.address && (
-              <span className='text-red-500'>This field is required</span>
-            )}
-            {predictions.length > 0 && (
-              <ul className='absolute z-10 w-full bg-background border rounded-md mt-1 shadow-lg'>
-                {predictions.map((prediction, index) => (
-                  <li
-                    key={prediction.place_id}
-                    className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
-                      index === activePredictionIndex ? 'bg-muted' : ''
-                    }`}
-                    onClick={() => handleSelectPrediction(prediction)}
-                  >
-                    {prediction.description}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {mapCenter && (
-            <>
-              <div className='flex items-center mt-4'>
-                <Switch
-                  id='showExactLocation'
-                  checked={showExactLocation}
-                  onCheckedChange={(checked) => {
-                    setShowExactLocation(checked);
-                    setValue('showExactLocation', checked);
-                  }}
-                />
-                <Label htmlFor='showExactLocation' className='ml-2'>
-                  Show exact location
-                </Label>
-              </div>
-              <div className='h-64 w-full mt-4'>
-                <GoogleMap
-                  onLoad={async (map) => {
-                    mapRef.current = map;
-                    return;
-                  }}
-                  center={mapCenter}
-                  zoom={mapZoom}
-                  mapContainerStyle={{ height: '100%', width: '100%' }}
-                  options={{
-                    styles:
-                      theme === 'dark'
-                        ? googleMapsDarkStyles
-                        : googleMapsLightStyles,
-                    streetViewControl: false,
-                    mapTypeControl: false,
-                    fullscreenControl: false,
-                  }}
-                >
-                  {selectedLocation && (
-                    <Marker
-                      title='Your property location'
-                      position={selectedLocation}
-                      visible={showExactLocation}
-                      icon={customPin || undefined}
-                      options={{
-                        optimized: false,
-                      }}
-                    />
-                  )}
-
-                  {selectedLocation && (
-                    <Circle
-                      center={selectedLocation}
-                      radius={1000} // 1km radius
-                      options={{
-                        strokeColor: '#4285F4',
-                        strokeOpacity: 0.8,
-                        strokeWeight: 2,
-                        fillColor: '#4285F4',
-                        fillOpacity: 0.35,
-                      }}
-                      visible={!showExactLocation}
-                    />
-                  )}
-                </GoogleMap>
-              </div>
-            </>
-          )}
-        </>
-      )}
-    </div>
+    <LocationPicker
+      initialAddress={values.address || ''}
+      initialLatitude={values.latitude}
+      initialLongitude={values.longitude}
+      initialShowExactLocation={values.showExactLocation}
+      onAddressChange={handleAddressChange}
+      onLocationChange={handleLocationChange}
+      onShowExactLocationChange={handleShowExactLocationChange}
+      errors={{
+        address: errors.address ? 'This field is required' : undefined,
+      }}
+    />
   );
 }
