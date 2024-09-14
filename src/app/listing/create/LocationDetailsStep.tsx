@@ -5,6 +5,7 @@ import {
   useLoadScript,
 } from '@react-google-maps/api';
 import { Loader2 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import React, { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -14,6 +15,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 
+import {
+  googleMapsDarkStyles,
+  googleMapsLightStyles,
+} from '@/shared/google-maps-styles';
 import { GOOGLE_MAPS_API_KEY } from '@/shared/public-api-keys';
 
 export function LocationDetailsStep() {
@@ -35,16 +40,14 @@ export function LocationDetailsStep() {
     null,
   );
   const [mapZoom, setMapZoom] = useState<number>(14);
-
   const [customPin, setCustomPin] = useState<google.maps.Icon | null>(null);
-
   const [activePredictionIndex, setActivePredictionIndex] =
     useState<number>(-1);
-
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries: ['places', 'geometry'],
   });
+  const { theme } = useTheme();
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -254,12 +257,12 @@ export function LocationDetailsStep() {
               <span className='text-red-500'>This field is required</span>
             )}
             {predictions.length > 0 && (
-              <ul className='absolute z-10 w-full bg-white border rounded-md mt-1 shadow-lg'>
+              <ul className='absolute z-10 w-full bg-background border rounded-md mt-1 shadow-lg'>
                 {predictions.map((prediction, index) => (
                   <li
                     key={prediction.place_id}
                     className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
-                      index === activePredictionIndex ? 'bg-gray-200' : ''
+                      index === activePredictionIndex ? 'bg-muted' : ''
                     }`}
                     onClick={() => handleSelectPrediction(prediction)}
                   >
@@ -295,6 +298,10 @@ export function LocationDetailsStep() {
                   zoom={mapZoom}
                   mapContainerStyle={{ height: '100%', width: '100%' }}
                   options={{
+                    styles:
+                      theme === 'dark'
+                        ? googleMapsDarkStyles
+                        : googleMapsLightStyles,
                     streetViewControl: false,
                     mapTypeControl: false,
                     fullscreenControl: false,
