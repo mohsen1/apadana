@@ -88,7 +88,15 @@ export default function CreateListingForm() {
     FormStep.LocationDetails,
   );
 
-  const { execute, result } = useAction(createListing);
+  const { execute, result } = useAction(createListing, {
+    onSuccess: (result) => {
+      if (result.data?.success && result.data.listing) {
+        router.push(
+          `/listing/${result.data.listing.id}/manage?newListing=true`,
+        );
+      }
+    },
+  });
 
   const methods = useForm<CreateListing>({
     resolver: zodResolver(CreateListingSchema),

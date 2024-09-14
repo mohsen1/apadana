@@ -2,15 +2,20 @@ import { Bookings } from '@/app/listing/[id]/manage/Bookings';
 import { BookingRequests } from '@/app/listing/[id]/manage/BookingsRequests';
 import { HostCalendar } from '@/app/listing/[id]/manage/HostCalendar';
 import UpdateListingForm from '@/app/listing/[id]/manage/UpdateListingForm';
+import { WelcomeToNewListing } from '@/app/listing/[id]/manage/WelcomeToNewListing';
 import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
 export default async function ManageListingPage({
   params,
+  searchParams,
 }: {
   params: {
     id: string;
     tab: string;
+  };
+  searchParams: {
+    newListing?: string;
   };
 }) {
   const res = await getListing({
@@ -33,7 +38,12 @@ export default async function ManageListingPage({
   switch (params.tab) {
     default:
     case 'calendar':
-      return <HostCalendar listingData={listing} />;
+      return (
+        <>
+          {searchParams.newListing && <WelcomeToNewListing />}
+          <HostCalendar listingData={listing} />
+        </>
+      );
     case 'bookings':
       return <Bookings listingId={listing.id} />;
     case 'booking-requests':

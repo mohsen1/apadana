@@ -35,6 +35,9 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ result }) => {
     result.validationErrors ||
     result.bindArgsValidationErrors
   ) {
+    if (process.env.NODE_ENV !== 'development') {
+      return null;
+    }
     return (
       <div className='max-w-md mx-auto mt-8 p-6 rounded-lg shadow-md bg-background'>
         <div
