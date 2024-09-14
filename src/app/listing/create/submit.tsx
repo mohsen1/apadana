@@ -1,7 +1,6 @@
 'use server';
 
 import { auth } from '@clerk/nextjs/server';
-import { getLocalTimeZone } from '@internationalized/date';
 import { Listing } from '@prisma/client';
 
 import { createListing } from '@/app/listing/create/action';
@@ -24,9 +23,6 @@ function validateFormData(
     'description',
     'propertyType',
     'address',
-    'city',
-    'state',
-    'zipCode',
     'pricePerNight',
     'minimumStay',
     'maximumGuests',
@@ -98,9 +94,6 @@ export async function submitForm(
       description: formData.get('description'),
       propertyType: formData.get('propertyType'),
       address: formData.get('address'),
-      city: formData.get('city'),
-      state: formData.get('state'),
-      zipCode: formData.get('zipCode'),
       amenities: formData.getAll('amenities'),
       // @ts-expect-error todo
       pricePerNight: parseFloat(formData.get('pricePerNight') || '0'),
@@ -109,9 +102,8 @@ export async function submitForm(
       // @ts-expect-error todo
       maximumGuests: parseInt(formData.get('maximumGuests')),
       houseRules: formData.get('houseRules'),
-      // TODO: get the time zone from the user's browser when creating the listing
-      timeZone: getLocalTimeZone(),
-      // Note: Photos handling might need a separate process
+      latitude: formData.get('latitude') ?? 0,
+      longitude: formData.get('longitude') ?? 0,
     });
 
     if (!res?.data?.success) {

@@ -19,9 +19,10 @@ You will need access to the following services to run the development environmen
 ### 2. Prepare your machine
 
 <details>
-  <summary>Install <a href="https://nodejs.org/en">Node.js</a>, <a href="https://pnpm.io/">pnpm</a>, <a href="https://vercel.com/docs/cli">Vercel CLI</a>, <a href="https://www.postgresql.org/download/">PostgreSQL</a>, and <a href="https://git-scm.com/downloads">Git</a></summary>
+  <summary style="cursor: pointer;">Install <a href="https://nodejs.org/en">Node.js</a>, <a href="https://pnpm.io/">pnpm</a>, <a href="https://vercel.com/docs/cli">Vercel CLI</a>, <a href="https://www.postgresql.org/download/">PostgreSQL</a>, and <a href="https://git-scm.com/downloads">Git</a></summary>
 
-#### on MacOS
+<details>
+<summary><b style="cursor: pointer;">on MacOS</b></summary>
 
 1. Install [Homebrew](https://brew.sh/)
    ```bash
@@ -47,7 +48,10 @@ You will need access to the following services to run the development environmen
    brew install git
    ```
 
-#### on Linux
+</details>
+
+<details>
+<summary><b style="cursor: pointer;"   >on Linux</b></summary>
 
 1. Install [Node.js](https://nodejs.org/en) (v20.12.2 or higher)
    ```bash
@@ -72,9 +76,14 @@ You will need access to the following services to run the development environmen
    sudo apt-get install -y git
    ```
 
-#### on Windows
+</details>
 
-We recommend using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) to run the development environment on Windows.
+<details>
+<summary><b style="cursor: pointer;">on Windows</b></summary>
+
+We recommend using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) to run the development environment on Windows. With WSL, you can install Ubuntu and use the same commands as the Linux section.
+
+</details>
 
 </details>
 
