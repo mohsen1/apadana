@@ -195,6 +195,10 @@ export const getListings = actionClient
 
 /**
  * Used in the management dashboard to accept or reject booking requests
+ * Once booking request is accepted, we create a booking and remove the days
+ * from the inventory.
+ * If booking request is rejected, we remove the booking and release the days
+ * from the inventory in case booking request was accepted before.
  */
 export const changeBookingRequestStatus = actionClient
   .schema(ChangeBookingRequestStatusSchema)
