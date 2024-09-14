@@ -18,6 +18,9 @@ const config: Config = {
         heading: ['var(--font-heading)', ...fontFamily.serif],
         subheading: ['var(--font-subheading)', ...fontFamily.serif],
       },
+      animation: {
+        'fade-in-300': 'fadeIn 300ms ease-in-out',
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getLocalTimeZone } from '@internationalized/date';
-import { useLoadScript } from '@react-google-maps/api';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
@@ -23,7 +22,6 @@ import {
 } from '@/components/ui/card';
 
 import { createListing } from '@/app/listing/create/action';
-import { GOOGLE_MAPS_API_KEY } from '@/shared/public-api-keys';
 
 import { AmenitiesStep } from './AmenitiesStep';
 import { BasicInfoStep } from './BasicInfoStep';
@@ -87,11 +85,6 @@ export default function CreateListingForm() {
   const [currentStep, setCurrentStep] = useState<FormStep>(
     FormStep.LocationDetails,
   );
-
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-    libraries: ['places'],
-  });
 
   const { execute, result } = useAction(createListing);
 
@@ -190,7 +183,7 @@ export default function CreateListingForm() {
           </CardHeader>
           <CardContent>
             {currentStep === FormStep.LocationDetails && (
-              <LocationDetailsStep isLoaded={isLoaded} loadError={loadError} />
+              <LocationDetailsStep />
             )}
             {currentStep === FormStep.BasicInfo && <BasicInfoStep />}
             {currentStep === FormStep.Amenities && <AmenitiesStep />}

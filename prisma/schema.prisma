@@ -132,39 +132,37 @@ enum Currency {
 }
 
 model Listing {
-  id             Int                @id @default(autoincrement())
-  title          String             @db.VarChar(255)
-  description    String             @db.Text
-  propertyType   String             @db.VarChar(100)
-  address        String             @db.VarChar(255)
-  city           String             @db.VarChar(100)
-  state          String             @db.VarChar(100)
-  latitude       Float?
-  longitude      Float?
-  zipCode        String             @db.Char(5)
-  timeZone       String             @default("America/New_York") @db.VarChar(100)
+  id                Int                @id @default(autoincrement())
+  title             String             @db.VarChar(255)
+  description       String             @db.Text
+  propertyType      String             @db.VarChar(100)
+  address           String             @db.VarChar(255)
+  latitude          Float?
+  longitude         Float?
+  timeZone          String             @default("America/New_York") @db.VarChar(100)
   /// HH:MM 24-hour format
-  checkInTime    String             @default("14:00") @db.VarChar(6)
+  checkInTime       String             @default("14:00") @db.VarChar(6)
   /// HH:MM 24-hour format
-  checkOutTime   String             @default("11:00") @db.VarChar(6)
-  amenities      String[]
-  pricePerNight  Float
-  currency       Currency           @default(USD)
-  minimumStay    Int                @default(1)
-  maximumGuests  Int                @default(5)
-  houseRules     String             @db.Text
-  allowPets      Boolean            @default(false)
-  published      Boolean            @default(false)
-  owner          User               @relation(fields: [ownerId], references: [id])
-  ownerId        String
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  images         UploadThingImage[]
-  inventory      ListingInventory[]
-  BookingRequest BookingRequest[]
+  checkOutTime      String             @default("11:00") @db.VarChar(6)
+  amenities         String[]
+  pricePerNight     Float
+  currency          Currency           @default(USD)
+  minimumStay       Int                @default(1)
+  maximumGuests     Int                @default(5)
+  houseRules        String             @db.Text
+  allowPets         Boolean            @default(false)
+  published         Boolean            @default(false)
+  showExactLocation Boolean            @default(true)
+  locationRadius    Float              @default(1) // in kilometers
+  owner             User               @relation(fields: [ownerId], references: [id])
+  ownerId           String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  images            UploadThingImage[]
+  inventory         ListingInventory[]
+  BookingRequest    BookingRequest[]
 
   @@index([ownerId])
-  @@index([city, state])
   @@index([pricePerNight])
 }
 
