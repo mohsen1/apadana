@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { CreateListing, CreateListingSchema } from '@/lib/prisma/schema';
@@ -28,7 +28,14 @@ import { HouseRulesStep } from './HouseRulesStep';
 import { LocationDetailsStep } from './LocationDetailsStep';
 import { PhotosStep } from './PhotosStep';
 import { PricingStep } from './PricingStep';
-
+enum FormStep {
+  LocationDetails = 0,
+  BasicInfo = 1,
+  Amenities = 2,
+  Photos = 3,
+  Pricing = 4,
+  HouseRules = 5,
+}
 const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> =
   {
     amenities: ['Wi-Fi'],
@@ -40,6 +47,15 @@ const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> =
     minimumStay: 1,
     maximumGuests: 5,
   };
+
+const stepRequiredFields = {
+  [FormStep.LocationDetails]: ['address'],
+  [FormStep.BasicInfo]: ['title', 'description', 'propertyType'],
+  [FormStep.Amenities]: ['amenities'],
+  [FormStep.Photos]: ['images'],
+  [FormStep.Pricing]: ['pricePerNight', 'minimumStay', 'maximumGuests'],
+  [FormStep.HouseRules]: ['houseRules'],
+};
 
 const steps = [
   {
@@ -65,15 +81,6 @@ const steps = [
   },
 ];
 
-enum FormStep {
-  LocationDetails = 0,
-  BasicInfo = 1,
-  Amenities = 2,
-  Photos = 3,
-  Pricing = 4,
-  HouseRules = 5,
-}
-
 export default function CreateListingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -91,12 +98,32 @@ export default function CreateListingForm() {
   const { handleSubmit, formState, getValues, reset } = methods;
   const { isSubmitting } = formState;
 
+  const updateUrlParams = useCallback(
+    ({
+      formData,
+      step,
+    }: {
+      formData: Partial<CreateListing>;
+      step: number;
+    }) => {
+      const params = new URLSearchParams(searchParams);
+      const serialized = qs.stringify(formData);
+      params.set('form-data', serialized);
+      params.set('step', step.toString());
+      router.push(`?${params.toString()}`);
+    },
+    [searchParams, router],
+  );
+
   useEffect(() => {
-    const step = parseInt(searchParams.get('step') || '0', 10) as FormStep;
-    if (step && Object.values(FormStep).includes(step)) {
-      setCurrentStep(step);
+    const step = searchParams.get('step') || '0';
+    if (step && Object.keys(FormStep).includes(step)) {
+      setCurrentStep(parseInt(step, 10) as FormStep);
     } else {
-      router.replace(`?step=${FormStep.LocationDetails}`);
+      updateUrlParams({
+        formData: defaultValues,
+        step: FormStep.LocationDetails,
+      });
     }
 
     const formData = qs.parse(
@@ -111,9 +138,15 @@ export default function CreateListingForm() {
       'latitude',
       'longitude',
     ] as const;
+    const booleanFields = ['showExactLocation'] as const;
     numericFields.forEach((field) => {
       if (field in formData && typeof formData[field] === 'string') {
         formData[field] = Number(formData[field]);
+      }
+    });
+    booleanFields.forEach((field) => {
+      if (field in formData && typeof formData[field] === 'string') {
+        formData[field] = formData[field] === 'true';
       }
     });
     if (Object.keys(formData).length > 1) {
@@ -125,21 +158,7 @@ export default function CreateListingForm() {
         reset(defaultValues);
       }
     }
-  }, [searchParams, router, reset]);
-
-  const updateUrlParams = ({
-    formData,
-    step,
-  }: {
-    formData: Partial<CreateListing>;
-    step: number;
-  }) => {
-    const params = new URLSearchParams(searchParams);
-    const serialized = qs.stringify(formData);
-    params.set('form-data', serialized);
-    params.set('step', step.toString());
-    router.push(`?${params.toString()}`);
-  };
+  }, [searchParams, router, reset, updateUrlParams]);
 
   const nextStep = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -155,8 +174,17 @@ export default function CreateListingForm() {
   };
 
   const prevStep = () => {
-    const prevStepValue = Math.max(currentStep - 1, 1);
-    router.push(`?step=${prevStepValue}`);
+    const prevStepValue = Math.max(currentStep - 1, 0);
+    updateUrlParams({
+      formData: getValues(),
+      step: prevStepValue,
+    });
+  };
+
+  const canGoToNextStep = () => {
+    const requiredFields = stepRequiredFields[currentStep];
+    const values = getValues();
+    return requiredFields.every((field) => field in values);
   };
 
   return (
@@ -198,7 +226,11 @@ export default function CreateListingForm() {
               Previous
             </Button>
             {currentStep < steps.length - 1 ? (
-              <Button type='button' onClick={nextStep}>
+              <Button
+                type='button'
+                onClick={nextStep}
+                disabled={!canGoToNextStep()}
+              >
                 Next
               </Button>
             ) : (

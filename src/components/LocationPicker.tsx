@@ -6,13 +6,19 @@ import {
   Marker,
   useLoadScript,
 } from '@react-google-maps/api';
-import { Loader2 } from 'lucide-react';
+import { Loader2, LocateFixed } from 'lucide-react'; // Import the LocateFixed icon
 import { useTheme } from 'next-themes';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 import {
   googleMapsDarkStyles,
@@ -145,6 +151,43 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     }
   };
 
+  // New function to handle fetching user's current location
+  const handleFetchCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setSelectedLocation({ lat: latitude, lng: longitude });
+          setMapCenter({ lat: latitude, lng: longitude });
+          setMapZoom(14);
+          onLocationChange?.(latitude, longitude);
+
+          // Reverse geocode to get address
+          const geocoder = new google.maps.Geocoder();
+          geocoder.geocode(
+            { location: { lat: latitude, lng: longitude } },
+            (results, status) => {
+              if (
+                status === google.maps.GeocoderStatus.OK &&
+                results &&
+                results[0]
+              ) {
+                const address = results[0].formatted_address;
+                setAddressInput(address);
+                onAddressChange?.(address);
+              }
+            },
+          );
+        },
+        (error) => {
+          alert(`Unable to retrieve your location: ${error.message}`);
+        },
+      );
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
+  };
+
   useEffect(() => {
     if (!isLoaded) return;
     if (selectedLocation && google.maps.geometry) {
@@ -256,14 +299,30 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         <>
           <div className='relative'>
             <Label htmlFor='address'>Address</Label>
-            <Input
-              id='address'
-              value={addressInput}
-              onChange={handleAddressChange}
-              onKeyDown={handleKeyDown}
-              placeholder='Enter your address'
-              autoComplete='off'
-            />
+            <div className='relative'>
+              <Input
+                id='address'
+                value={addressInput}
+                onChange={handleAddressChange}
+                onKeyDown={handleKeyDown}
+                placeholder='Enter your address'
+                autoComplete='off'
+                className='pr-10' // Add padding to the right
+              />
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger className='absolute right-2 top-1/2 transform -translate-y-1/2'>
+                    <LocateFixed
+                      className='cursor-pointer text-muted-foreground hover:text-foreground'
+                      onClick={handleFetchCurrentLocation}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent className='bg-foreground text-background'>
+                    <span className=''>Use current location</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             {errors.address && (
               <span className='text-red-500'>{errors.address}</span>
             )}

@@ -47,6 +47,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-tooltip": "^1.1.2",
     "@react-google-maps/api": "^2.19.3",
     "@storybook/addon-themes": "^8.2.9",
     "@types/lodash": "^4.17.7",

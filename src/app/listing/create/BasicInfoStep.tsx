@@ -4,16 +4,15 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import { CreateListing } from '@/lib/prisma/schema';
+import { cn } from '@/lib/utils';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 export function BasicInfoStep() {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext<CreateListing>();
+  const { register, formState } = useFormContext<CreateListing>();
+  const { errors } = formState;
 
   return (
     <div className='space-y-4'>
@@ -38,43 +37,64 @@ export function BasicInfoStep() {
         <Label>Property Type</Label>
         <RadioGroup
           defaultValue='apartment'
-          className='grid grid-cols-3 gap-2 py-4'
+          className='flex py-4 justify-between gap-4'
         >
-          <div className='flex flex-col items-center gap-2 space-x-2'>
-            <Label htmlFor='apartment' className='cursor-pointer'>
-              <BuildingIcon size={48} />
-            </Label>
-            <RadioGroupItem
-              value='apartment'
-              id='apartment'
-              {...register('propertyType')}
-            />
-            <Label htmlFor='apartment'>Apartment</Label>
-          </div>
-          <div className='flex flex-col items-center gap-2 space-x-2'>
-            <Label htmlFor='house' className='cursor-pointer'>
-              <HomeIcon size={48} />
-            </Label>
-            <RadioGroupItem
-              value='house'
-              id='house'
-              {...register('propertyType')}
-            />
-            <Label htmlFor='house'>House</Label>
-          </div>
-          <div className='flex flex-col items-center gap-2 space-x-2'>
-            <Label htmlFor='unique' className='cursor-pointer'>
-              <CableCar size={48} />
-            </Label>
-            <RadioGroupItem
-              value='unique'
-              id='unique'
-              {...register('propertyType')}
-            />
-            <Label htmlFor='unique'>Unique space</Label>
-          </div>
+          <PropertyTypeRadioButton
+            value='apartment'
+            Icon={BuildingIcon}
+            label='Apartment'
+          />
+          <PropertyTypeRadioButton
+            value='house'
+            Icon={HomeIcon}
+            label='House'
+          />
+          <PropertyTypeRadioButton
+            value='unique'
+            Icon={CableCar}
+            label='Unique space'
+          />
         </RadioGroup>
       </div>
+    </div>
+  );
+}
+
+function PropertyTypeRadioButton({
+  value,
+  Icon,
+  label,
+}: {
+  value: string;
+  Icon: React.ElementType;
+  label: string;
+}) {
+  const { register, setValue, getValues } = useFormContext<CreateListing>();
+
+  return (
+    <div
+      role='button'
+      tabIndex={0}
+      key={value}
+      onClick={(e) => {
+        e.preventDefault();
+        setValue('propertyType', value, { shouldValidate: true });
+      }}
+      className={cn(
+        'flex flex-col items-center justify-center gap-2 space-x-2 p-4 rounded-md border-2 border-transparent cursor-pointer',
+        'min-w-36',
+        {
+          'border-foreground': getValues('propertyType') === value,
+        },
+      )}
+    >
+      <Label htmlFor={value} className='cursor-pointer'>
+        <Icon size={48} />
+      </Label>
+      <RadioGroupItem value={value} id={value} {...register('propertyType')} />
+      <Label htmlFor={value} className='text-sm text-center'>
+        {label}
+      </Label>
     </div>
   );
 }
