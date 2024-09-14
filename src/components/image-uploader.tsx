@@ -115,13 +115,20 @@ interface UploadedFileDataWithServerData extends UploadedFileData {
 }
 
 interface ImageUploaderProps {
+  initialImages?: UploadedFileDataWithServerData[];
   onChange: (images: UploadedFileDataWithServerData[]) => void;
   onError?: (error: Error | null) => void;
 }
 
-export const ImageUploader = ({ onChange, onError }: ImageUploaderProps) => {
+export const ImageUploader = ({
+  initialImages,
+  onChange,
+  onError,
+}: ImageUploaderProps) => {
   type OptimisticUploadedFileData = UploadedFileData & { optimistic?: boolean };
-  const [images, setImages] = useState<OptimisticUploadedFileData[]>([]);
+  const [images, setImages] = useState<OptimisticUploadedFileData[]>(
+    initialImages || [],
+  );
   const [isUploading, setIsUploading] = useState(false);
   const [uploadingProgress, setUploadingProgress] = useState(0);
 

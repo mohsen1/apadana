@@ -6,7 +6,10 @@ import { z } from 'zod';
 export const UploadImageSchema = z.object({
   url: z.string(),
   key: z.string(),
-  name: z.string().optional(),
+  name: z.string(),
+  type: z.string(),
+  size: z.string(),
+  customId: z.string(),
   serverData: z
     .object({
       uploadedBy: z.string(),
