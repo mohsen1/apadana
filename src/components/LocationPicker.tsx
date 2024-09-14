@@ -47,7 +47,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   onAddressChange,
   onLocationChange,
   onShowExactLocationChange,
-  errors = {},
+  errors = { address: undefined },
 }) => {
   const [addressInput, setAddressInput] = useState(initialAddress);
   const [predictions, setPredictions] = useState<
@@ -89,15 +89,30 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     }
 
     const service = new google.maps.places.AutocompleteService();
-    service.getPlacePredictions({ input: value }, (predictions, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-        setPredictions(predictions);
-        setActivePredictionIndex(-1);
-      } else {
-        setPredictions([]);
-        setActivePredictionIndex(-1);
-      }
-    });
+    service.getPlacePredictions(
+      {
+        input: value,
+        types: ['address'],
+      },
+      (predictions, status) => {
+        if (
+          status === google.maps.places.PlacesServiceStatus.OK &&
+          predictions
+        ) {
+          // Filter predictions to only include residential addresses
+          const residentialPredictions = predictions.filter(
+            (prediction) =>
+              prediction.types.includes('street_address') ||
+              prediction.types.includes('premise'),
+          );
+          setPredictions(residentialPredictions);
+          setActivePredictionIndex(-1);
+        } else {
+          setPredictions([]);
+          setActivePredictionIndex(-1);
+        }
+      },
+    );
   };
 
   const handleSelectPrediction = (
