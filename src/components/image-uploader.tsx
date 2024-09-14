@@ -105,13 +105,21 @@ const SortableImage = ({
   );
 };
 
-export const ImageUploader = ({
-  onChange,
-  onError,
-}: {
-  onChange: (images: UploadedFileData[]) => void;
+interface UploadedFileDataWithServerData extends UploadedFileData {
+  /**
+   * This is available after the file has been uploaded
+   */
+  serverData?: {
+    uploadedBy: string;
+  };
+}
+
+interface ImageUploaderProps {
+  onChange: (images: UploadedFileDataWithServerData[]) => void;
   onError?: (error: Error | null) => void;
-}) => {
+}
+
+export const ImageUploader = ({ onChange, onError }: ImageUploaderProps) => {
   type OptimisticUploadedFileData = UploadedFileData & { optimistic?: boolean };
   const [images, setImages] = useState<OptimisticUploadedFileData[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -225,7 +233,7 @@ export const ImageUploader = ({
                 content={{
                   button({ ready, isUploading }) {
                     const buttonClasses = cn(
-                      'w-full h-full flex flex-col gap-2 items-center justify-center text-primary hover:bg-accent hover:text-accent-foreground',
+                      'w-full h-full flex flex-col gap-2 items-center justify-center text-primary hover:bg-muted hover:text-accent-foreground',
                       ready ? 'cursor-pointer' : 'cursor-not-allowed',
                       isUploading ? 'opacity-50' : '',
                     );

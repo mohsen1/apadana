@@ -92,7 +92,7 @@ export default function CreateListingForm() {
     onSuccess: (result) => {
       if (result.data?.success && result.data.listing) {
         router.push(
-          `/listing/${result.data.listing.id}/manage?newListing=true`,
+          `/listing/${result.data.listing.id}/manage/calendar?newListing=true`,
         );
       }
     },
@@ -190,6 +190,11 @@ export default function CreateListingForm() {
   };
 
   const canGoToNextStep = () => {
+    if (currentStep === FormStep.Photos) {
+      const { images } = getValues();
+      // Check if all images have a key, meaning they are uploaded
+      return images?.every((image) => image.serverData);
+    }
     const requiredFields = stepRequiredFields[currentStep];
     const values = getValues();
     return requiredFields.every((field) => field in values);
