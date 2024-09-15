@@ -70,8 +70,7 @@ export function CalendarCell({
         hidden={isOutsideVisibleRange}
         className={cn(
           'w-full h-full outline-none group grid place-items-center',
-          'transition-border-radius duration-300 ease-in-out',
-
+          'py-[0.75rem]',
           {
             'hover:bg-accent/20': !isUnavailable,
             'border border-primary-600': border,
