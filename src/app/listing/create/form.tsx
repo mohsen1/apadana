@@ -230,14 +230,13 @@ export default function CreateListingForm() {
             {currentStep === FormStep.HouseRules && <HouseRulesStep />}
           </CardContent>
           <CardFooter className='flex justify-between'>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={prevStep}
-              disabled={currentStep === FormStep.LocationDetails}
-            >
-              Previous
-            </Button>
+            {currentStep !== FormStep.LocationDetails ? (
+              <Button type='button' variant='outline' onClick={prevStep}>
+                Previous
+              </Button>
+            ) : (
+              <div className='w-4 opacity-0' />
+            )}
             {currentStep < steps.length - 1 ? (
               <Button
                 type='button'

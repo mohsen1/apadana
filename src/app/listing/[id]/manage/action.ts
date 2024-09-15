@@ -1,5 +1,8 @@
 'use server';
 
+import { format, parse } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
+
 import prisma from '@/lib/prisma/client';
 import {
   ChangeBookingRequestStatusSchema,
@@ -9,7 +12,6 @@ import {
   GetListingsSchema,
 } from '@/lib/prisma/schema';
 import { actionClient } from '@/lib/safe-action';
-import { setToStartOfDayInTimeZone } from '@/lib/utils';
 
 import { assertError } from '@/utils';
 
@@ -104,23 +106,40 @@ export const editInventory = actionClient
       if (!userId) {
         throw new Error('User not found');
       }
+
       const listing = await prisma.listing.findUnique({
         where: {
           id: parsedInput.listingId,
           ownerId: userId,
         },
       });
+
       if (!listing) {
         throw new Error('Listing not found');
       }
 
-      const inventory = parsedInput.inventory.map((item) => ({
-        ...item,
-        date: setToStartOfDayInTimeZone(item.date, listing.timeZone),
-      }));
+      const inventory = parsedInput.inventory.map((item) => {
+        // Combine the inventory date with the listing's check-in time
+        const dateStr = `${format(item.date, 'yyyy-MM-dd')} ${listing.checkInTime}`;
+        const dateWithCheckInTime = parse(
+          dateStr,
+          'yyyy-MM-dd HH:mm',
+          toZonedTime(new Date(), listing.timeZone),
+        );
+        // Convert the datetime to ISO string
+        const dateInUTC = toZonedTime(
+          dateWithCheckInTime,
+          listing.timeZone,
+        ).toISOString();
+
+        return {
+          ...item,
+          date: dateInUTC,
+        };
+      });
 
       await prisma.$transaction(async (tx) => {
-        // first remove inventories with the same date
+        // Remove existing inventories with the same check-in datetime
         await tx.listingInventory.deleteMany({
           where: {
             listingId: listing.id,
@@ -129,26 +148,30 @@ export const editInventory = actionClient
             },
           },
         });
-        // make sure inventory for those dates are deleted
 
+        // Insert the new inventory entries
         await tx.listingInventory.createMany({
           data: inventory.map((item) => ({
             ...item,
             listingId: listing.id,
           })),
         });
+
+        // Verify that all inventory entries were created
         const newInventoryCount = await tx.listingInventory.count({
           where: {
             listingId: listing.id,
             date: {
-              in: inventory.map((item) => new Date(item.date)),
+              in: inventory.map((item) => item.date),
             },
           },
         });
+
         if (newInventoryCount !== inventory.length) {
           throw new Error('Failed to update inventory');
         }
       });
+
       return {
         success: true,
       };

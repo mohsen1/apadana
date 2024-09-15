@@ -346,7 +346,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                 {predictions.map((prediction, index) => (
                   <li
                     key={prediction.place_id}
-                    className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                    className={`px-4 py-2 hover:bg-muted-foreground/50 cursor-pointer ${
                       index === activePredictionIndex ? 'bg-muted' : ''
                     }`}
                     onClick={() => handleSelectPrediction(prediction)}

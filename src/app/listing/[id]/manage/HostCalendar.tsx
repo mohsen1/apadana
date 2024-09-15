@@ -32,7 +32,7 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
   const [listingInventory, setListingInventory] = useState<ListingInventory[]>(
     listingData.inventory,
   );
-  const today = getToday(getLocalTimeZone());
+  const today = getToday(listingData.timeZone);
   const [range, setRange] = useState<RangeValue<DateValue> | null>({
     start: today,
     end: today,
@@ -44,7 +44,16 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
     isRangeAvailable(range),
   );
   const { execute: executeEditInventory, status: editInventoryStatus } =
-    useAction(editInventory);
+    useAction(editInventory, {
+      onSuccess: (result) => {
+        if (result.data?.success) {
+          refreshInventory();
+        }
+      },
+      onError: (error) => {
+        throw error;
+      },
+    });
 
   /**
    * Refresh the inventory.
@@ -125,11 +134,10 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
       };
     });
 
-    await executeEditInventory({
+    executeEditInventory({
       listingId: listingData.id,
       inventory,
     });
-    refreshInventory();
   }
   return (
     <Card className='box-shadow-none border-none mt-6'>
