@@ -51,7 +51,7 @@
     "@react-google-maps/api": "^2.19.3",
     "@storybook/addon-themes": "^8.2.9",
     "@types/lodash": "^4.17.7",
-    "@uploadthing/react": "^6.7.2",
+    "@uploadthing/react": "^7.0.2",
     "@vercel/postgres": "^0.10.0",
     "@vercel/speed-insights": "^1.0.12",
     "add": "^2.0.6",
@@ -78,7 +78,7 @@
     "svix": "^1.31.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "uploadthing": "^6.13.2",
+    "uploadthing": "^7.0.2",
     "uvcanvas": "^0.2.1",
     "yet-another-react-lightbox": "^3.21.4",
     "zod": "^3.23.8"
