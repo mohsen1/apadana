@@ -9,7 +9,7 @@ export const UploadImageSchema = z.object({
   name: z.string(),
   type: z.string(),
   size: z.number(),
-  customId: z.string(),
+  customId: z.string().nullable(),
   serverData: z
     .object({
       uploadedBy: z.string(),
@@ -93,6 +93,13 @@ export const EditInventorySchema = z.object({
 });
 
 export type EditInventory = z.infer<typeof EditInventorySchema>;
+
+export const EditListingImagesSchema = z.object({
+  listingId: z.number(),
+  images: z.array(UploadImageSchema),
+});
+
+export type EditListingImages = z.infer<typeof EditListingImagesSchema>;
 
 export const CreateBookingRequestSchema = z.object({
   listingId: z.number(),

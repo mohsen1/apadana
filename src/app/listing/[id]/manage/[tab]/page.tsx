@@ -1,5 +1,6 @@
 import { Bookings } from '@/app/listing/[id]/manage/Bookings';
 import { BookingRequests } from '@/app/listing/[id]/manage/BookingsRequests';
+import { EditPhotos } from '@/app/listing/[id]/manage/EditPhotos';
 import { HostCalendar } from '@/app/listing/[id]/manage/HostCalendar';
 import UpdateListingForm from '@/app/listing/[id]/manage/UpdateListingForm';
 import { WelcomeToNewListing } from '@/app/listing/[id]/manage/WelcomeToNewListing';
@@ -44,11 +45,13 @@ export default async function ManageListingPage({
           <HostCalendar listingData={listing} />
         </>
       );
+    case 'details':
+      return <UpdateListingForm listing={listing} />;
+    case 'photos':
+      return <EditPhotos listing={listing} />;
     case 'bookings':
       return <Bookings listingId={listing.id} />;
     case 'booking-requests':
       return <BookingRequests listing={listing} />;
-    case 'details':
-      return <UpdateListingForm listing={listing} />;
   }
 }

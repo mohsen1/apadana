@@ -38,11 +38,7 @@ export const createListing = actionClient
           images: {
             connectOrCreate: (parsedInput.images || []).map((image) => ({
               where: { key: image.key },
-              create: {
-                url: image.url,
-                key: image.key,
-                name: image.name,
-              },
+              create: image,
             })),
           },
         },

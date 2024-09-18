@@ -7,6 +7,7 @@ import prisma from '@/lib/prisma/client';
 import {
   ChangeBookingRequestStatusSchema,
   EditInventorySchema,
+  EditListingImagesSchema,
   EditListingSchema,
   GetBookingsSchema,
   GetListingsSchema,
@@ -85,6 +86,77 @@ export const editListing = actionClient
           id: listing.id,
         },
         data: parsedInput,
+      });
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      assertError(error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  });
+
+export const editListingImages = actionClient
+  .schema(EditListingImagesSchema)
+  .action(async ({ parsedInput, ctx: { userId } }) => {
+    try {
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
+      const listing = await prisma.listing.findUnique({
+        where: {
+          id: parsedInput.listingId,
+          ownerId: userId,
+        },
+        include: {
+          images: true,
+        },
+      });
+
+      if (!listing) {
+        throw new Error('Listing not found');
+      }
+
+      // Delete images that are no longer in the new set
+      const imagesToDelete = listing.images.filter(
+        (existingImage) =>
+          !parsedInput.images.some(
+            (newImage) => newImage.key === existingImage.key,
+          ),
+      );
+
+      await prisma.$transaction(async (tx) => {
+        // Delete removed images
+        for (const imageToDelete of imagesToDelete) {
+          await tx.uploadThingImage.delete({
+            where: { id: imageToDelete.id },
+          });
+        }
+
+        // Update or create new images
+        for (const image of parsedInput.images) {
+          await tx.uploadThingImage.upsert({
+            where: { key: image.key },
+            update: {
+              url: image.url,
+              name: image.name,
+            },
+            create: {
+              listingId: listing.id,
+              key: image.key,
+              url: image.url,
+              name: image.name,
+              type: image.type,
+              size: image.size,
+              customId: image.customId,
+            },
+          });
+        }
       });
 
       return {

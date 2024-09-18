@@ -30,14 +30,10 @@ const SortableImage = ({
   image,
   onDelete,
   isCover,
-  isUploading,
-  uploadingProgress,
 }: {
   image: UploadedFileData;
   onDelete: (key: string) => void;
   isCover: boolean;
-  isUploading: boolean;
-  uploadingProgress: number;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: image.key });
@@ -67,19 +63,6 @@ const SortableImage = ({
             fill
             className='object-contain'
           />
-          {isUploading && (
-            <div
-              className='absolute top-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-1'
-              style={{
-                backgroundRepeat: 'no-repeat',
-                backgroundImage:
-                  'linear-gradient(0deg, rgba(0,0,0,0.5), rgba(0,0,0,0.5))',
-                backgroundSize: `${uploadingProgress}% 100%`,
-              }}
-            >
-              Uploading...
-            </div>
-          )}
           {isCover && (
             <div className='absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-1'>
               Cover Photo
@@ -166,6 +149,19 @@ export const ImageUploader = ({
 
   return (
     <div className='space-y-4'>
+      <div
+        className=' text-center py-1'
+        style={{
+          opacity: isUploading ? 1 : 0,
+          backgroundRepeat: 'no-repeat',
+          backgroundImage:
+            // HSL value is the the --bg-accent color
+            'linear-gradient(0deg, hsl(192 100% 50%), hsl(192 100% 50%))',
+          backgroundSize: `${uploadingProgress}% 100%`,
+        }}
+      >
+        Uploading...
+      </div>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -183,8 +179,6 @@ export const ImageUploader = ({
                 image={image}
                 onDelete={deleteImage}
                 isCover={index === 0}
-                isUploading={isUploading}
-                uploadingProgress={uploadingProgress}
               />
             ))}
             <div className='aspect-square relative m-2'>
