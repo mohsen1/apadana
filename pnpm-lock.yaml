@@ -168,6 +168,9 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
+      '@actions/core':
+        specifier: ^1.10.1
+        version: 1.10.1
       '@chromatic-com/storybook':
         specifier: ^1.9.0
         version: 1.9.0(react@18.3.1)
@@ -311,6 +314,12 @@ importers:
         version: 5.5.4
 
 packages:
+
+  '@actions/core@1.10.1':
+    resolution: {integrity: sha512-3lBR9EDAY+iYIpTnTIXmWcNbX3T2kCkAEQGIQx4NVQ0575nk2k3GRZDTPQG+vVtS2izSLmINlxXf0uLtnrTP+g==}
+
+  '@actions/http-client@2.2.3':
+    resolution: {integrity: sha512-mx8hyJi/hjFvbPokCg4uRd4ZX78t+YyRPtnKWwIl+RzNaVuFpQHfmlGVfsKEJN8LwTCvL+DfVgAM04XaHkm6bA==}
 
   '@adobe/css-tools@4.4.0':
     resolution: {integrity: sha512-Ff9+ksdQQB3rMncgqDK78uLznstjyfIf2Arnh22pW8kBpLs6rpKDwgnZT46hin5Hl1WzazzK64DOrhSwYpS7bQ==}
@@ -1328,6 +1337,10 @@ packages:
   '@eslint/js@8.57.0':
     resolution: {integrity: sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@fastify/busboy@2.1.1':
+    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
+    engines: {node: '>=14'}
 
   '@floating-ui/core@1.6.7':
     resolution: {integrity: sha512-yDzVT/Lm101nQ5TCVeK65LtdN7Tj4Qpr9RTXJ2vPFLqtLxwOrpoxAHAJI8J3yYWUc40J0BDBheaitK5SJmno2g==}
@@ -7523,6 +7536,10 @@ packages:
   tty-browserify@0.0.1:
     resolution: {integrity: sha512-C3TaO7K81YvjCgQH9Q1S3R3P3BtN3RIM8n+OvX4il1K1zgE8ZhI0op7kClgkxtutIE8hQrcrHBXvIheqKUUCxw==}
 
+  tunnel@0.0.6:
+    resolution: {integrity: sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==}
+    engines: {node: '>=0.6.11 <=0.7.0 || >=0.7.3'}
+
   tween-functions@1.2.0:
     resolution: {integrity: sha512-PZBtLYcCLtEcjL14Fzb1gSxPBeL7nWvGhO5ZFPGqziCcr8uvHp0NDmdjBchp6KHL+tExcg0m3NISmKxhU394dA==}
 
@@ -7607,6 +7624,10 @@ packages:
 
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
+
+  undici@5.28.4:
+    resolution: {integrity: sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==}
+    engines: {node: '>=14.0'}
 
   unicode-canonical-property-names-ecmascript@2.0.0:
     resolution: {integrity: sha512-yY5PpDlfVIU5+y/BSCxAJRBIS1Zc2dDG3Ujq+sR0U+JjUevW2JhocOF+soROYDSaAezOzOKuyyixhD6mBknSmQ==}
@@ -7743,6 +7764,10 @@ packages:
   utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
+
+  uuid@8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
@@ -7984,6 +8009,16 @@ packages:
         optional: true
 
 snapshots:
+
+  '@actions/core@1.10.1':
+    dependencies:
+      '@actions/http-client': 2.2.3
+      uuid: 8.3.2
+
+  '@actions/http-client@2.2.3':
+    dependencies:
+      tunnel: 0.0.6
+      undici: 5.28.4
 
   '@adobe/css-tools@4.4.0': {}
 
@@ -9218,6 +9253,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.0': {}
+
+  '@fastify/busboy@2.1.1': {}
 
   '@floating-ui/core@1.6.7':
     dependencies:
@@ -16867,6 +16904,8 @@ snapshots:
 
   tty-browserify@0.0.1: {}
 
+  tunnel@0.0.6: {}
+
   tween-functions@1.2.0: {}
 
   type-check@0.4.0:
@@ -16944,6 +16983,10 @@ snapshots:
   undici-types@5.26.5: {}
 
   undici-types@6.19.8: {}
+
+  undici@5.28.4:
+    dependencies:
+      '@fastify/busboy': 2.1.1
 
   unicode-canonical-property-names-ecmascript@2.0.0: {}
 
@@ -17060,6 +17103,8 @@ snapshots:
   utila@0.4.0: {}
 
   utils-merge@1.0.1: {}
+
+  uuid@8.3.2: {}
 
   uuid@9.0.1: {}
 

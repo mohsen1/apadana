@@ -4,6 +4,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const core = require('@actions/core');
 
 (async () => {
   if (!process.env.UPLOADTHING_SECRET) {
@@ -95,6 +96,10 @@ const path = require('path');
   );
   if (indexFile) {
     console.log(`\nPublic URL to 'index.html': ${indexFile.url}`);
+    // Set the output variable 'url' in GitHub Actions context
+    if (process.env.GITHUB_ACTIONS === 'true') {
+      core.setOutput('url', indexFile.url);
+    }
   } else {
     console.error(`\n'index.html' not found in uploaded files.`);
   }
