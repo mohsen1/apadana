@@ -57,7 +57,8 @@ jobs:
 
       # Step to upload test results to UploadThing
       - name: Upload test results to UploadThing
-        id: upload-results # Added ID to reference outputs
+        id: upload-results
+        if: always()
         env:
           UPLOADTHING_API_KEY: ${{ secrets.UPLOADTHING_API_KEY }}
         run: |
@@ -134,9 +135,8 @@ jobs:
             echo "url=" >> $GITHUB_OUTPUT
           fi
 
-      # Step to add a custom check to the PR with the link
-      - name: Add custom check with link
-        if: ${{ github.event_name == 'pull_request' }}
+      - name: Add a link to Playwright Test Report
+        if: always()
         uses: actions/github-script@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
