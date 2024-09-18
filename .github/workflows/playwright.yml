@@ -1,9 +1,11 @@
 name: Playwright Tests
+
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
 jobs:
   test:
     name: Run Playwright tests
@@ -19,15 +21,20 @@ jobs:
           - 5432:5432
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+
       - name: Install dependencies
         run: npm install -g pnpm && pnpm install
+
       - name: Build
         run: pnpm run build
+
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
+
       - name: Run Playwright tests
         run: pnpm exec playwright test
         env:
@@ -47,8 +54,10 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
       # Step to upload test results to UploadThing
       - name: Upload test results to UploadThing
+        id: upload-results # Added ID to reference outputs
         env:
           UPLOADTHING_API_KEY: ${{ secrets.UPLOADTHING_API_KEY }}
         run: |
@@ -117,6 +126,50 @@ jobs:
           # Output the link to index.html
           if [ -n "$INDEX_FILE_URL" ]; then
             echo "Index.html is available at: $INDEX_FILE_URL"
+            # Set the URL as a step output
+            echo "url=$INDEX_FILE_URL" >> $GITHUB_OUTPUT
           else
             echo "index.html not found or failed to upload."
+            # Set an empty URL as a step output
+            echo "url=" >> $GITHUB_OUTPUT
           fi
+
+      # Step to add a custom check to the PR with the link
+      - name: Add custom check with link
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const url = `${{ steps.upload-results.outputs.url }}`;
+            const { owner, repo } = context.repo;
+            const head_sha = context.payload.pull_request.head.sha;
+
+            if (url) {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                name: 'Playwright Test Report',
+                head_sha,
+                status: 'completed',
+                conclusion: 'success',
+                output: {
+                  title: 'Playwright Test Report',
+                  summary: `✅ [View the Playwright test report](${url})`,
+                },
+              });
+            } else {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                name: 'Playwright Test Report',
+                head_sha,
+                status: 'completed',
+                conclusion: 'failure',
+                output: {
+                  title: 'Playwright Test Report',
+                  summary: `❌ Playwright test report not available.`,
+                },
+              });
+            }
