@@ -5,6 +5,8 @@ import NotFound from '@/app/not-found';
 
 import ListingsGrid from './ListingsGrid';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ListingsPage() {
   const res = await getListings({});
   if (!res?.data?.success) {
