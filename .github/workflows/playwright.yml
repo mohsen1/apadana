@@ -60,8 +60,8 @@ jobs:
       - name: Upload test results to UploadThing
         if: always()
         env:
-          UPLOADTHING_TOKEN: ${{ secrets.UPLOADTHING_TOKEN }}
-        run: node src/scripts/upload-directory.js test-results
+          UPLOADTHING_SECRET: ${{ secrets.UPLOADTHING_SECRET }}
+        run: node src/scripts/upload-directory.js .next/__e2e__reports__
 
       - name: Add a link to Playwright Test Report
         if: always()

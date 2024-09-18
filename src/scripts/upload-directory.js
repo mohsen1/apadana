@@ -4,14 +4,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const dotenv = require('dotenv');
-
-dotenv.load();
 
 (async () => {
-  // Check for UPLOADTHING_TOKEN environment variable
-  if (!process.env.UPLOADTHING_TOKEN) {
-    console.error('Please set the UPLOADTHING_TOKEN environment variable.');
+  if (!process.env.UPLOADTHING_SECRET) {
+    console.error('Please set the UPLOADTHING_SECRET environment variable.');
     process.exit(1);
   }
 
@@ -47,7 +43,9 @@ dotenv.load();
 
   // Initialize UTApi after dotenv configuration
   const { UTApi } = require('uploadthing/server');
-  const utapi = new UTApi();
+  const utapi = new UTApi({
+    apiKey: process.env.UPLOADTHING_SECRET,
+  });
 
   console.log(`Starting upload of ${filePaths.length} file(s)...\n`);
 

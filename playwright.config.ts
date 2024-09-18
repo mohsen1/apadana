@@ -31,7 +31,9 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [['html', { open: 'never', outputDir: '.next/__e2e__reports__' }]],
+  reporter: [
+    ['html', { open: 'never', outputFolder: '.next/__e2e__reports__' }],
+  ],
 
   globalSetup: require.resolve('./e2e/global-setup.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
