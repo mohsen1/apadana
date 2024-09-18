@@ -10,6 +10,8 @@ permissions:
   actions: read
   pages: write
   id-token: write
+  checks: write # Add this line
+  pull-requests: write # Add this line
 
 jobs:
   test:
@@ -58,6 +60,7 @@ jobs:
       - name: Upload Playwright Test Report
         id: upload-results
         uses: shallwefootball/s3-upload-action@master
+        if: always()
         with:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
@@ -67,15 +70,14 @@ jobs:
       - name: Add a link to Playwright Test Report
         if: always()
         uses: actions/github-script@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             console.log('Uploaded Playwright Test Report to S3');
             console.log(`URL: ${{ steps.upload-results.outputs.object_locations }}`);
             const url = `${{ steps.upload-results.outputs.url }}`;
             const { owner, repo } = context.repo;
-            const head_sha = context.payload.pull_request.head.sha;
+            const head_sha = context.payload.pull_request ? context.payload.pull_request.head.sha : context.sha;
 
             if (url) {
               await github.rest.checks.create({
