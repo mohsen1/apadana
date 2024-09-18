@@ -28,7 +28,7 @@ import { editListingImages } from '@/app/listing/[id]/manage/action';
 export function EditPhotos({
   listing,
 }: {
-  listing: Listing & { images: UploadedFileData[] };
+  listing: Listing & { images: Omit<UploadedFileData, 'appUrl'>[] };
 }) {
   const { status, execute } = useAction(editListingImages);
   const { handleSubmit, formState, control } = useForm<EditListingImages>({

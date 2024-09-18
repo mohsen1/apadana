@@ -152,6 +152,17 @@ export default function CreateListingForm() {
         formData[field] = Number(formData[field]);
       }
     });
+    if (formData.images) {
+      formData.images = formData.images?.map((image) => {
+        if (image.serverData) {
+          delete image.serverData;
+        }
+        return {
+          ...image,
+          size: Number.parseInt(String(image.size), 10),
+        };
+      });
+    }
     booleanFields.forEach((field) => {
       if (field in formData && typeof formData[field] === 'string') {
         formData[field] = formData[field] === 'true';

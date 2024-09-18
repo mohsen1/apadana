@@ -8,14 +8,25 @@ interface ExtendedPage extends Page {
   signIn: () => Promise<void>;
 }
 
+interface CurrentListing {
+  id: string | undefined;
+}
+
 interface TestExtensions {
   /**
    * The page object that is extended with the signIn method
    */
   page: ExtendedPage;
+
+  /**
+   * The current listing that is being tested
+   */
+  currentListing: CurrentListing;
 }
 
 export const test = baseTest.extend<TestExtensions>({
+  currentListing: { id: undefined },
+
   page: async (
     { page }: { page: ExtendedPage },
     use: (page: ExtendedPage) => void,
@@ -35,3 +46,5 @@ export const test = baseTest.extend<TestExtensions>({
     await use(page);
   },
 });
+
+export const expect = test.expect;
