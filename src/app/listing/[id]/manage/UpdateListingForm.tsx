@@ -4,10 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Listing } from '@prisma/client';
 import { Clock, DollarSign, Loader2, SaveIcon, Users } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import { CreateListingSchema } from '@/lib/prisma/schema';
 
+import { DisappearingComponent } from '@/components/DisappearingComponent';
 import { LocationPicker } from '@/components/LocationPicker';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,16 +25,18 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { editListing } from '@/app/listing/[id]/manage/action';
 
-const EditListingSchema = CreateListingSchema.partial();
+const EditListingSchema = CreateListingSchema.omit({
+  images: true,
+}).partial();
 
 export default function UpdateListingForm({ listing }: { listing: Listing }) {
-  const { register, handleSubmit, formState, setValue } = useForm<
+  const { register, handleSubmit, formState, setValue, control } = useForm<
     Partial<Listing>
   >({
     defaultValues: listing,
     resolver: zodResolver(EditListingSchema),
   });
-  const { execute, status } = useAction(editListing);
+  const { execute, status } = useAction(editListing, {});
   const { errors, isSubmitting } = formState;
   return (
     <Card className='box-shadow-none border-none'>
@@ -228,28 +231,55 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
               <p className='text-destructive'>{errors.houseRules.message}</p>
             )}
           </div>
-          <div className='flex items-center space-x-2'>
-            <Switch {...register('published')} id='published' />
-            <Label htmlFor='published'>Published</Label>
-          </div>
-          <Button
-            disabled={isSubmitting || !formState.isValid}
-            type='submit'
-            className='flex items-center gap-2'
-          >
-            {status === 'executing' ? (
-              <>
-                <Loader2 />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <SaveIcon />
-                <span>Save Changes</span>
-              </>
+          <Controller
+            name='published'
+            control={control}
+            render={({ field }) => (
+              <div className='flex items-center space-x-2'>
+                <Switch
+                  checked={field.value || false}
+                  onCheckedChange={(checked) => {
+                    field.onChange(checked);
+                  }}
+                  id='published'
+                />
+                <Label htmlFor='published'>Published</Label>
+              </div>
             )}
-          </Button>
-        </form>{' '}
+          />
+          {errors.published && (
+            <p className='text-destructive'>{errors.published.message}</p>
+          )}
+          <div className='flex justify-start items-center'>
+            <Button
+              disabled={
+                isSubmitting || !formState.isValid || !formState.isDirty
+              }
+              type='submit'
+              className='flex items-center gap-2'
+            >
+              {status === 'executing' ? (
+                <>
+                  <Loader2 />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <SaveIcon />
+                  <span>Save Changes</span>
+                </>
+              )}
+            </Button>
+            {formState.isSubmitSuccessful && !formState.isSubmitting && (
+              <DisappearingComponent
+                disappearIn={3}
+                className='mx-2 text-green-600 dark:text-green-400'
+              >
+                Your changes have been saved
+              </DisappearingComponent>
+            )}
+          </div>
+        </form>
       </CardContent>
     </Card>
   );
