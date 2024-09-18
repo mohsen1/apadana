@@ -98,6 +98,9 @@ importers:
       dotenv-cli:
         specifier: ^7.4.2
         version: 7.4.2
+      fetch-blob:
+        specifier: ^4.0.0
+        version: 4.0.0
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -4753,6 +4756,10 @@ packages:
   fd-package-json@1.2.0:
     resolution: {integrity: sha512-45LSPmWf+gC5tdCQMNH4s9Sr00bIkiD9aN7dc5hqkrEw1geRYyDQS1v1oMHAW3ysfxfndqGsrDREHHjNNbKUfA==}
 
+  fetch-blob@4.0.0:
+    resolution: {integrity: sha512-nPmnhRmpNMjYWnp9EBMGs6z5lq9RXed5W1vuZcECrsDVQInM8AMQSooVb3X183Aole60adzjWbH9qlRFWzDDTA==}
+    engines: {node: '>=16.7'}
+
   file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
     engines: {node: ^10.12.0 || >=12.0.0}
@@ -6039,6 +6046,10 @@ packages:
   node-dir@0.1.17:
     resolution: {integrity: sha512-tmPX422rYgofd4epzrNoOXiE8XFZYOcCq1vD7MAXCDO+O+zndlA2ztdKKMa+EeuBG5tHETpr4ml4RGgpqDCCAg==}
     engines: {node: '>= 0.10.5'}
+
+  node-domexception@1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
 
   node-fetch-native@1.6.4:
     resolution: {integrity: sha512-IhOigYzAKHd244OC0JIMIUrjzctirCmPkaIfhDeGcEETWof5zKYUW7e7MYvChGWh/4CJeXEgsRyGzuF334rOOQ==}
@@ -13677,6 +13688,10 @@ snapshots:
     dependencies:
       walk-up-path: 3.0.1
 
+  fetch-blob@4.0.0:
+    dependencies:
+      node-domexception: 1.0.0
+
   file-entry-cache@6.0.1:
     dependencies:
       flat-cache: 3.2.0
@@ -15187,6 +15202,8 @@ snapshots:
   node-dir@0.1.17:
     dependencies:
       minimatch: 3.1.2
+
+  node-domexception@1.0.0: {}
 
   node-fetch-native@1.6.4: {}
 

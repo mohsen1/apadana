@@ -57,85 +57,11 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      # Step to upload test results to UploadThing
       - name: Upload test results to UploadThing
-        id: upload-results
         if: always()
         env:
-          UPLOADTHING_API_KEY: ${{ secrets.UPLOADTHING_API_KEY }}
-        run: |
-          # Install necessary tools
-          sudo apt-get update
-          sudo apt-get install -y jq
-
-          # Change directory to test-results
-          cd test-results
-
-          # Find all files to upload
-          mapfile -t FILES < <(find . -type f)
-
-          # Prepare the files array for the API request
-          FILES_JSON="[]"
-          for FILE in "${FILES[@]}"; do
-            SIZE=$(stat -c%s "$FILE")
-            NAME=$(echo "$FILE" | sed 's|^\./||') # Remove leading ./
-            FILE_ENTRY=$(jq -n --arg name "$NAME" --argjson size "$SIZE" '{name: $name, size: $size}')
-            FILES_JSON=$(echo "$FILES_JSON" | jq --argjson file "$FILE_ENTRY" '. + [$file]')
-          done
-
-          # Call the prepareUpload endpoint to get presigned URLs
-          RESPONSE=$(curl -s -X POST https://api.uploadthing.com/v6/prepareUpload \
-            -H "x-uploadthing-api-key: $UPLOADTHING_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "callbackUrl": null,
-              "callbackSlug": null,
-              "files": '"$FILES_JSON"',
-              "routeConfig": ["blob"]
-            }')
-
-          # Check if the response is valid
-          if [ -z "$RESPONSE" ]; then
-            echo "Failed to get presigned URLs"
-            exit 1
-          fi
-
-          # Upload each file using the presigned URLs
-          INDEX_FILE_URL=""
-
-          echo "$RESPONSE" | jq -c '.[]' | while read -r FILE_INFO; do
-            FILE_NAME=$(echo "$FILE_INFO" | jq -r '.fileName')
-            UPLOAD_URL=$(echo "$FILE_INFO" | jq -r '.url')
-            FIELDS=$(echo "$FILE_INFO" | jq -c '.fields')
-            FILE_PATH="./$FILE_NAME"
-
-            # Prepare form data for the upload
-            FORM_DATA=""
-            for FIELD_KEY in $(echo "$FIELDS" | jq -r 'keys[]'); do
-              FIELD_VALUE=$(echo "$FIELDS" | jq -r --arg key "$FIELD_KEY" '.[$key]')
-              FORM_DATA="$FORM_DATA -F \"$FIELD_KEY=$FIELD_VALUE\""
-            done
-            FORM_DATA="$FORM_DATA -F \"file=@$FILE_PATH\""
-
-            # Evaluate the FORM_DATA string into actual parameters
-            eval curl -s -X POST "$UPLOAD_URL" $FORM_DATA
-
-            # Check if the file is index.html to generate the link later
-            if [ "$FILE_NAME" = "index.html" ]; then
-              INDEX_FILE_URL=$(echo "$FILE_INFO" | jq -r '.fileUrl')
-            fi
-          done
-
-          # Output the link to index.html
-          if [ -n "$INDEX_FILE_URL" ]; then
-            echo "Index.html is available at: $INDEX_FILE_URL"
-            # Set the URL as a step output
-            echo "url=$INDEX_FILE_URL" >> $GITHUB_OUTPUT
-          else
-            echo "index.html not found or failed to upload."
-            # Set an empty URL as a step output
-            echo "url=" >> $GITHUB_OUTPUT
-          fi
+          UPLOADTHING_TOKEN: ${{ secrets.UPLOADTHING_TOKEN }}
+        run: node src/scripts/upload-directory.js test-results
 
       - name: Add a link to Playwright Test Report
         if: always()
