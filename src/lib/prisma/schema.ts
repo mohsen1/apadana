@@ -8,7 +8,7 @@ export const UploadImageSchema = z.object({
   key: z.string(),
   name: z.string(),
   type: z.string(),
-  size: z.string(),
+  size: z.number(),
   customId: z.string(),
   serverData: z
     .object({

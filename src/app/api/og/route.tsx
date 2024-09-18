@@ -23,7 +23,7 @@ export async function GET() {
             backgroundImage:
               'linear-gradient(90deg, rgb(0, 223, 216), rgb(200, 124, 240), rgb(0, 223, 216))',
             backgroundClip: 'text',
-            '-webkit-background-clip': 'text',
+            ['-webkit-background-clip' as PropertyKey]: 'text',
             color: 'transparent',
           }}
         >
