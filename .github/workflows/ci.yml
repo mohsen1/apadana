@@ -14,6 +14,9 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Setup
         uses: ./.github/actions/setup
 
@@ -33,6 +36,8 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
       - name: Setup
         uses: ./.github/actions/setup
       - run: pnpm run lint:strict
@@ -41,6 +46,8 @@ jobs:
     name: Type check
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
       - name: Setup
         uses: ./.github/actions/setup
       - run: pnpm run typecheck
@@ -49,6 +56,8 @@ jobs:
     name: Prettier check
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
       - name: Setup
         uses: ./.github/actions/setup
       - run: pnpm run format:check
@@ -57,6 +66,8 @@ jobs:
     name: Run jest
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
       - name: Setup
         uses: ./.github/actions/setup
       - run: pnpm run test
@@ -74,6 +85,9 @@ jobs:
         ports:
           - 5432:5432
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Setup
         uses: ./.github/actions/setup
 
