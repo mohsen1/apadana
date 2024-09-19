@@ -8,14 +8,14 @@ dotenv.config();
 
 /**
  * Playwright by default will launch the server in production mode.
- * When writing and debugging e2e tests locally, it's useful to have the dev server running instead.
+ * When writing and debugging e2e tests locally, it's useful to have the dev server or any other server
+ * that is already running instead.
  * This variable is used to determine whether to run the dev server or not.
  *
  * This variable is used in the e2e:debug package.json script
  */
-const debugDevServer = process.env.PLAYWRIGHT_DEBUG_DEV_SERVER === 'true';
-const port = debugDevServer ? '3000' : process.env.PORT || '3030';
-process.env.DEVHOST = `http://127.0.0.1:${port}`;
+const startServer = process.env.PLAYWRIGHT_START_SERVER === 'true';
+const port = process.env.PORT || '3030';
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -38,8 +38,7 @@ export default defineConfig({
   globalSetup: require.resolve('./e2e/global-setup.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://127.0.0.1:3000',
+    baseURL: process.env.BASE_URL || `http://127.0.0.1:${port}`,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: {
@@ -48,7 +47,6 @@ export default defineConfig({
       screenshots: true,
       sources: true,
     },
-    baseURL: process.env.BASE_URL || `http://127.0.0.1:${port}`,
   },
 
   /* Configure projects for major browsers */
@@ -91,14 +89,14 @@ export default defineConfig({
   ],
 
   /* Run your local server in production mode before starting the tests if not debugging the tests */
-  webServer: debugDevServer
-    ? undefined
-    : {
+  webServer: startServer
+    ? {
         command: 'if [ ! -d ".next" ]; then pnpm run build; fi; pnpm run start',
         env: {
           PORT: port,
         },
         url: `http://127.0.0.1:${port}`,
         reuseExistingServer: !process.env.CI,
-      },
+      }
+    : undefined,
 });
