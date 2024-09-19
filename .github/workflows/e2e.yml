@@ -54,6 +54,7 @@ jobs:
         if: always()
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
           body: |
             ## Playwright Test Report
             ✅ [View the Playwright test report](https://apadana-e2e.s3.amazonaws.com/${{ github.event.pull_request.head.sha || github.sha }}/index.html)
