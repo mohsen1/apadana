@@ -36,25 +36,39 @@ if [ -z "$POSTGRES_HOST" ] || [ -z "$POSTGRES_USER" ] || [ -z "$POSTGRES_PASSWOR
   exit 1
 fi
 
-# Function to create a database
-create_database() {
-  echo "Creating database '${DB_NAME}'..."
-
+# Function to check if a database exists
+database_exists() {
   PGPASSWORD="$POSTGRES_PASSWORD" psql \
     -h "$POSTGRES_HOST" \
     -U "$POSTGRES_USER" \
     -p "$POSTGRES_PORT" \
-    -d "$POSTGRES_DATABASE" \
-    -c "CREATE DATABASE \"$DB_NAME\";"
+    -d "postgres" \
+    -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME';" | grep -q 1
+}
 
-  echo "Database '${DB_NAME}' created successfully."
+# Function to create a database
+create_database() {
+  if database_exists; then
+    echo "Database '${DB_NAME}' already exists. Skipping creation."
+  else
+    echo "Creating database '${DB_NAME}'..."
 
-  # URL-encode the password
-  ENCODED_PASSWORD=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$POSTGRES_PASSWORD'''))")
+    PGPASSWORD="$POSTGRES_PASSWORD" psql \
+      -h "$POSTGRES_HOST" \
+      -U "$POSTGRES_USER" \
+      -p "$POSTGRES_PORT" \
+      -d "postgres" \
+      -c "CREATE DATABASE \"$DB_NAME\";"
 
-  # Construct DATABASE_URL
-  DATABASE_URL="postgres://${POSTGRES_USER}:${ENCODED_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}"
-  echo "DATABASE_URL=${DATABASE_URL}"
+    echo "Database '${DB_NAME}' created successfully."
+
+    # URL-encode the password
+    ENCODED_PASSWORD=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$POSTGRES_PASSWORD'''))")
+
+    # Construct DATABASE_URL
+    DATABASE_URL="postgres://${POSTGRES_USER}:${ENCODED_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}"
+    echo "DATABASE_URL=${DATABASE_URL}"
+  fi
 }
 
 # Function to delete a database
@@ -65,7 +79,7 @@ delete_database() {
     -h "$POSTGRES_HOST" \
     -U "$POSTGRES_USER" \
     -p "$POSTGRES_PORT" \
-    -d "$POSTGRES_DATABASE" \
+    -d "postgres" \
     -c "DROP DATABASE IF EXISTS \"$DB_NAME\";"
 
   echo "Database '${DB_NAME}' deleted successfully."
