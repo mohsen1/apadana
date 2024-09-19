@@ -2,7 +2,6 @@
 
 import { format, parse } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
-import { z } from 'zod';
 
 import prisma from '@/lib/prisma/client';
 import {
@@ -245,35 +244,6 @@ export const editInventory = actionClient
         }
       });
 
-      return {
-        success: true,
-      };
-    } catch (error) {
-      assertError(error);
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
-  });
-
-export const registerView = actionClient
-  .schema(
-    z.object({
-      listingId: z.number(),
-    }),
-  )
-  .action(async ({ parsedInput: { listingId }, ctx: { userId } }) => {
-    try {
-      if (!userId) {
-        throw new Error('User not found');
-      }
-      await prisma.listingView.create({
-        data: {
-          listingId,
-          userId,
-        },
-      });
       return {
         success: true,
       };
