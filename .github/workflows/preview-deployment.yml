@@ -9,13 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.action == 'closed'
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Python and PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3 postgresql-client
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Delete Preview Database
         env:

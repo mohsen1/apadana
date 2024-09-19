@@ -143,6 +143,9 @@ importers:
       react-stately:
         specifier: ^3.32.2
         version: 3.32.2(react@18.3.1)
+      slugify:
+        specifier: ^1.6.6
+        version: 1.6.6
       smee-client:
         specifier: ^2.0.3
         version: 2.0.3
@@ -7142,6 +7145,10 @@ packages:
   slice-ansi@5.0.0:
     resolution: {integrity: sha512-FC+lgizVPfie0kkhqUScwRu1O/lF6NOgJmlCgK+/LYxDCTk8sGelYaHDhFcDN+Sn3Cv+3VSa4Byeo+IMCzpMgQ==}
     engines: {node: '>=12'}
+
+  slugify@1.6.6:
+    resolution: {integrity: sha512-h+z7HKHYXj6wJU+AnS/+IH8Uh9fdcX1Lrhg1/VMdf9PwoBQXFcXiAdsy2tSK0P6gKwJLXp02r90ahUCqHk9rrw==}
+    engines: {node: '>=8.0.0'}
 
   smee-client@2.0.3:
     resolution: {integrity: sha512-W5tQKHzZFe+IMBlaAJ8Ho32Y2wbUbzriHAA2DAFXpITId+0dYHJJbAX36a/HMrGjW7yFjhcKCNPwRBAiIrlZGQ==}
@@ -16468,6 +16475,8 @@ snapshots:
     dependencies:
       ansi-styles: 6.2.1
       is-fullwidth-code-point: 4.0.0
+
+  slugify@1.6.6: {}
 
   smee-client@2.0.3:
     dependencies:

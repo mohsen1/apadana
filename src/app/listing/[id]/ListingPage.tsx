@@ -89,7 +89,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
           {/* Listing Details */}
           <div className='md:col-span-2'>
             <h1 className='text-4xl font-bold mb-2 text-foreground font-heading'>
-              {listingData.title}
+              {listingData.title} - slug {listingData.slug}
             </h1>
             <p className='text-muted-foreground mb-4'>{listingData.address}</p>
             <h2 className='text-2xl font-semibold font-subheading mb-4 dark:text-white'>
