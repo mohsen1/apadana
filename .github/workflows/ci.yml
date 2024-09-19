@@ -1,0 +1,118 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+concurrency:
+  group: ${{ github.job }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.9.0
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Download dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm prisma generate
+
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: ${{ runner.os }}-setup-${{ github.sha }}
+
+  build:
+    needs: setup
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: ${{ runner.os }}-setup-${{ github.sha }}
+
+      - name: Build
+        run: pnpm run build
+        env:
+          NEXT_E2E_BUILD: 'true'
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: .next
+          retention-days: 1
+
+  lint:
+    needs: setup
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: ${{ runner.os }}-setup-${{ github.sha }}
+      - run: pnpm run lint:strict
+
+  typecheck:
+    needs: setup
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: ${{ runner.os }}-setup-${{ github.sha }}
+      - run: pnpm run typecheck
+
+  prettier:
+    needs: setup
+    name: Prettier check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: ${{ runner.os }}-setup-${{ github.sha }}
+      - run: pnpm run format:check
+
+  test:
+    needs: setup
+    name: Run jest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: ${{ runner.os }}-setup-${{ github.sha }}
+      - run: pnpm run test
