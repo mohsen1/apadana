@@ -50,6 +50,8 @@ database_exists() {
 create_database() {
   if database_exists; then
     echo "Database '${DB_NAME}' already exists. Skipping creation."
+    export DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}"
+    exit 0
   else
     echo "Creating database '${DB_NAME}'..."
 
@@ -66,8 +68,7 @@ create_database() {
     ENCODED_PASSWORD=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$POSTGRES_PASSWORD'''))")
 
     # Construct DATABASE_URL
-    DATABASE_URL="postgres://${POSTGRES_USER}:${ENCODED_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}"
-    echo "DATABASE_URL=${DATABASE_URL}"
+    export DATABASE_URL="postgres://${POSTGRES_USER}:${ENCODED_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}"
   fi
 }
 

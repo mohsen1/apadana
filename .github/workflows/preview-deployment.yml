@@ -2,50 +2,10 @@ name: Preview Deployment
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [closed]
 
 jobs:
-  deploy-preview:
-    name: Deploy Preview
-    runs-on: ubuntu-latest
-    if: github.event.action != 'closed'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python and PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3 postgresql-client
-
-      - name: Create Preview Database
-        env:
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-          PR_NUMBER: ${{ github.event.number }}
-          POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
-        run: |
-          ./src/scripts/manage-db.sh create "preview_db_${PR_NUMBER}" > db_output.txt
-
-      - name: Extract DATABASE_URL
-        run: |
-          DATABASE_URL=$(grep 'DATABASE_URL=' db_output.txt | cut -d'=' -f2-)
-          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
-
-      - name: Vercel Deploy
-        uses: snaplet/vercel-action@v3
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-          VERCEL_PROJECT_ID: apadana
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-  delete-preview:
-    name: Delete Preview
+  delete-preview-db:
     runs-on: ubuntu-latest
     if: github.event.action == 'closed'
     steps:
