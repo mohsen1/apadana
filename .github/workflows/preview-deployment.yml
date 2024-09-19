@@ -25,6 +25,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
           PR_NUMBER: ${{ github.event.number }}
+          POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
         run: |
           ./src/scripts/manage-db.sh create "preview_db_${PR_NUMBER}" > db_output.txt
 
@@ -58,5 +59,6 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
           PR_NUMBER: ${{ github.event.number }}
+          POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
         run: |
           ./src/scripts/manage-db.sh delete "preview_db_${PR_NUMBER}"

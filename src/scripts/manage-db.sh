@@ -40,7 +40,13 @@ fi
 create_database() {
   echo "Creating database '${DB_NAME}'..."
 
-  PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -c "CREATE DATABASE \"$DB_NAME\";"
+  PGPASSWORD="$POSTGRES_PASSWORD" psql \
+    -h "$POSTGRES_HOST" \
+    -U "$POSTGRES_USER" \
+    -p "$POSTGRES_PORT" \
+    -d "$POSTGRES_DATABASE" \
+    -c "CREATE DATABASE \"$DB_NAME\";"
+
   echo "Database '${DB_NAME}' created successfully."
 
   # URL-encode the password
@@ -55,7 +61,13 @@ create_database() {
 delete_database() {
   echo "Deleting database '${DB_NAME}'..."
 
-  PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -c "DROP DATABASE IF EXISTS \"$DB_NAME\";"
+  PGPASSWORD="$POSTGRES_PASSWORD" psql \
+    -h "$POSTGRES_HOST" \
+    -U "$POSTGRES_USER" \
+    -p "$POSTGRES_PORT" \
+    -d "$POSTGRES_DATABASE" \
+    -c "DROP DATABASE IF EXISTS \"$DB_NAME\";"
+
   echo "Database '${DB_NAME}' deleted successfully."
 }
 
