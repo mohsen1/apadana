@@ -45,35 +45,21 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { issue_number } = context.payload.deployment.environment;
-            const title = '## Playwright Test Report <!--e2e-report-->'
-            const testRunOutcome = ${{ steps.test-run.outcome }}
-            const emoji = testRunOutcome === 'success' ? '✅' : '❌'
-            const commentBody = [
-              title, 
-              `${emoji} [View the Playwright test report](https://apadana-e2e.s3.amazonaws.com/${{ github.event.pull_request.head.sha || github.sha }}/index.html)`
-            ].join('\n');
+            const { sha } = context.payload.deployment;
+            const testRunOutcome = '${{ steps.test-run.outcome }}';
+            const conclusion = testRunOutcome === 'success' ? 'success' : 'failure';
+            const reportUrl = `https://apadana-e2e.s3.amazonaws.com/${sha}/index.html`;
 
-            const issueComment = await github.rest.issues.listComments({
-              issue_number,
+            await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-            })
-
-            const comment = issueComment.data.find(comment => comment.body.includes(title))
-            if (comment) {
-              await github.rest.issues.updateComment({
-                issue_number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: comment.id,
-                body: commentBody
-              })
-            } else {
-              await github.rest.issues.createComment({
-                issue_number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: commentBody
-              })
-            }
+              name: 'Playwright Test Report',
+              head_sha: sha,
+              status: 'completed',
+              conclusion: conclusion,
+              output: {
+                title: 'Playwright Test Report',
+                summary: `[View the Playwright test report](${reportUrl})`,
+                text: `The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}. Click the link above to view the detailed report.`
+              }
+            });
