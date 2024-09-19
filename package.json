@@ -15,7 +15,7 @@
     "prisma:generate": "prisma generate",
     "prisma:watch": "prisma generate --watch",
     "build": "prisma generate && next build",
-    "build:vercel": "src/scripts/build-vercel.js",
+    "build:vercel": "src/scripts/build-vercel.sh",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint src --fix && pnpm format",
