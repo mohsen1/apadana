@@ -23,6 +23,7 @@ jobs:
         env:
           BASE_URL: ${{ github.event.deployment_status.environment_url }}
           PLAYWRIGHT_START_SERVER: 'false'
+          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
 
       - name: Upload Playwright Test Report
         id: upload-results
