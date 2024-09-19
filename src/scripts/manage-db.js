@@ -73,10 +73,10 @@ async function createDatabase() {
     await secureClient.end();
 
     const databaseUrl = `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}?sslmode=require`;
-    // Write the DATABASE_URL to the .env file
+    // Write the POSTGRES_URL to the .env file
     const envPath = path.resolve(process.cwd(), '.env');
-    fs.writeFileSync(envPath, `DATABASE_URL=${databaseUrl}`);
-    console.log(`Updated DATABASE_URL in .env file for '${DB_NAME}'.`);
+    fs.writeFileSync(envPath, `POSTGRES_URL=${databaseUrl}`);
+    console.log(`Updated POSTGRES_URL in .env file for '${DB_NAME}'.`);
   } catch (error) {
     if (error.code === '42P04') {
       console.log(`Database '${DB_NAME}' already exists. Skipping creation.`);
