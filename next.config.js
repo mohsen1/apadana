@@ -60,7 +60,4 @@ const nextConfig = {
   },
 };
 
-// eslint-disable-next-line no-console
-console.log('POSTGRES_URL', process.env.POSTGRES_URL);
-
 module.exports = nextConfig;

@@ -76,7 +76,8 @@ async function createDatabase() {
     // Write the POSTGRES_URL to the .env file
     const envPath = path.resolve(process.cwd(), '.env');
     fs.writeFileSync(envPath, `POSTGRES_URL=${databaseUrl}`);
-    console.log(`Updated POSTGRES_URL in .env file for '${DB_NAME}'.`);
+    process.env.POSTGRES_URL = databaseUrl;
+    console.log(`Updated POSTGRES_URL in ${envPath} file for '${DB_NAME}'.`);
   } catch (error) {
     if (error.code === '42P04') {
       console.log(`Database '${DB_NAME}' already exists. Skipping creation.`);
