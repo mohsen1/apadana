@@ -49,14 +49,27 @@ async function createDatabase() {
       user: POSTGRES_USER,
       password: POSTGRES_PASSWORD,
       port: POSTGRES_PORT,
-      database: DB_NAME,
+      database: POSTGRES_DATABASE, // Use the default database to check and create
       ssl: {
         rejectUnauthorized: false, // Set to true in production
       },
     });
+    console.log('Connecting to database using SSL...');
     await secureClient.connect();
-    console.log(`Connected to '${DB_NAME}' using SSL.`);
-    await secureClient.query(`CREATE DATABASE "${DB_NAME}"`);
+    console.log(`Connected to '${POSTGRES_DATABASE}' using SSL.`);
+
+    // Check if the database exists
+    const checkDbQuery = `SELECT 1 FROM pg_database WHERE datname = $1`;
+    const result = await secureClient.query(checkDbQuery, [DB_NAME]);
+
+    if (result.rows.length === 0) {
+      // Database doesn't exist, create it
+      await secureClient.query(`CREATE DATABASE "${DB_NAME}"`);
+      console.log(`Database '${DB_NAME}' created successfully.`);
+    } else {
+      console.log(`Database '${DB_NAME}' already exists. Skipping creation.`);
+    }
+
     await secureClient.end();
 
     console.log(`Database '${DB_NAME}' created successfully.`);
