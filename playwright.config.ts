@@ -48,7 +48,7 @@ export default defineConfig({
       screenshots: true,
       sources: true,
     },
-    baseURL: `http://127.0.0.1:${port}`,
+    baseURL: process.env.BASE_URL || `http://127.0.0.1:${port}`,
   },
 
   /* Configure projects for major browsers */

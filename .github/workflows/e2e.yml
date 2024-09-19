@@ -1,0 +1,67 @@
+name: Playwright Tests
+
+on:
+  deployment_status:
+jobs:
+  run-e2es:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Run tests
+        run: pnpm run e2e
+        env:
+          BASE_URL: ${{ github.event.deployment_status.environment_url }}
+
+      - name: Upload Playwright Test Report
+        id: upload-results
+        uses: shallwefootball/s3-upload-action@master
+        if: always()
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: apadana-e2e
+          source_dir: .next/__e2e__reports__
+          destination_dir: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Add a link to Playwright Test Report
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log('Uploaded Playwright Test Report to S3');
+            console.log(`URL: ${{ steps.upload-results.outputs.object_locations }}`);
+            const url = `${{ steps.upload-results.outputs.url }}`;
+            const { owner, repo } = context.repo;
+            const head_sha = context.payload.pull_request ? context.payload.pull_request.head.sha : context.sha;
+
+            if (url) {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                name: 'Playwright Test Report',
+                head_sha,
+                status: 'completed',
+                conclusion: 'success',
+                output: {
+                  title: 'Playwright Test Report',
+                  summary: `✅ [View the Playwright test report](${url})`,
+                },
+              });
+            } else {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                name: 'Playwright Test Report',
+                head_sha,
+                status: 'completed',
+                conclusion: 'failure',
+                output: {
+                  title: 'Playwright Test Report',
+                  summary: `❌ Playwright test report not available.`,
+                },
+              });
+            }
