@@ -155,6 +155,7 @@ model Listing {
   maximumGuests     Int                @default(5)
   houseRules        String             @db.Text
   allowPets         Boolean            @default(false)
+  petPolicy         String             @default("") @db.Text
   published         Boolean            @default(false)
   showExactLocation Boolean            @default(true)
   locationRadius    Float              @default(1) // in kilometers
