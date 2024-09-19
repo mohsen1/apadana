@@ -73,20 +73,10 @@ async function createDatabase() {
     await secureClient.end();
 
     console.log(`Database '${DB_NAME}' created successfully.`);
-    // Export DATABASE_URL to environment
     const databaseUrl = `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}?sslmode=require`;
-    process.env.DATABASE_URL = databaseUrl;
-
     // Write the DATABASE_URL to the .env file
     const envPath = path.resolve(process.cwd(), '.env');
-    const envContent = fs.readFileSync(envPath, 'utf8');
-
-    const updatedEnvContent = envContent.replace(
-      /^DATABASE_URL=.*$/m,
-      `DATABASE_URL=${databaseUrl}`,
-    );
-
-    fs.writeFileSync(envPath, updatedEnvContent);
+    fs.writeFileSync(envPath, `DATABASE_URL=${databaseUrl}`);
     console.log(`Updated DATABASE_URL in .env file for '${DB_NAME}'.`);
     console.log(`DATABASE_URL has been set for '${DB_NAME}'.`);
   } catch (error) {
