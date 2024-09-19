@@ -53,7 +53,6 @@ jobs:
         uses: peter-evans/create-or-update-comment@v4
         if: always()
         with:
-          issue-number: ${{ github.event.pull_request.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           body: |
             ## Playwright Test Report
