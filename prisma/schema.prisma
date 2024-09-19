@@ -90,7 +90,6 @@ model User {
   permissions      UserPermission[]
   bookings         Booking[]
   BookingRequest   BookingRequest[]
-  ListingView      ListingView[]
 }
 
 model EmailAddress {
@@ -165,7 +164,6 @@ model Listing {
   images            UploadThingImage[]
   inventory         ListingInventory[]
   BookingRequest    BookingRequest[]
-  ListingView       ListingView[]
 
   @@index([ownerId])
   @@index([pricePerNight])
@@ -232,13 +230,4 @@ model BookingRequest {
 
   @@index([listingId])
   @@index([userId])
-}
-
-model ListingView {
-  id        Int      @id @default(autoincrement())
-  listing   Listing  @relation(fields: [listingId], references: [id])
-  listingId Int
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  createdAt DateTime @default(now())
 }

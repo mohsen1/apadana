@@ -1,5 +1,4 @@
 import { ListingPage } from '@/app/listing/[id]/ListingPage';
-import { registerView } from '@/app/listing/[id]/manage/action';
 import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
@@ -20,8 +19,6 @@ export default async function Page({ params }: { params: { id: string } }) {
       />
     );
   }
-
-  await registerView({ listingId: listing.id });
 
   return <ListingPage listingData={listing} />;
 }

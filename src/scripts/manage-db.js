@@ -78,7 +78,6 @@ async function createDatabase() {
     const envPath = path.resolve(process.cwd(), '.env');
     fs.writeFileSync(envPath, `DATABASE_URL=${databaseUrl}`);
     console.log(`Updated DATABASE_URL in .env file for '${DB_NAME}'.`);
-    console.log(`DATABASE_URL has been set for '${DB_NAME}'.`);
   } catch (error) {
     if (error.code === '42P04') {
       console.log(`Database '${DB_NAME}' already exists. Skipping creation.`);
