@@ -10,6 +10,7 @@
     "dev:storybook": "storybook dev -p 6006 --no-open --quiet",
     "dev:smee": "node src/scripts/smee-client.js",
     "migrate:dev": "dotenv -e .env.local prisma migrate dev",
+    "migrate:prod": "dotenv -e .env prisma migrate deploy",
     "drop-local-db": "src/scripts/delete-local-db-data.sh",
     "prisma:generate": "prisma generate",
     "prisma:watch": "prisma generate --watch",
