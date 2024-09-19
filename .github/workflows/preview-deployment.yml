@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.action == 'closed'
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Python and PostgreSQL client
         run: |
           sudo apt-get update
