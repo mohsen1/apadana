@@ -1,7 +1,4 @@
 /** @type {import('next').NextConfig} */
-
-// eslint-disable-next-line no-console
-console.log('process.env.DATABASE_URL', process.env.DATABASE_URL);
 const nextConfig = {
   productionBrowserSourceMaps: process.env.NEXT_E2E_BUILD === 'true',
 
