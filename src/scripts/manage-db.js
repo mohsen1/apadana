@@ -48,7 +48,7 @@ async function createDatabase() {
     await client.query(`CREATE DATABASE "${DB_NAME}"`);
     console.log(`Database '${DB_NAME}' created successfully.`);
     // Export DATABASE_URL to environment
-    const databaseUrl = `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}`;
+    const databaseUrl = `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}?sslmode=require`;
     process.env.DATABASE_URL = databaseUrl;
 
     // Write the DATABASE_URL to the .env file
