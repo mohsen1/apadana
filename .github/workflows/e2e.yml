@@ -42,6 +42,7 @@ jobs:
       - name: Find Comment
         if: always()
         uses: peter-evans/find-comment@v3
+        continue-on-error: true
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
