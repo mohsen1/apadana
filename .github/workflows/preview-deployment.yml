@@ -26,4 +26,4 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
           POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
         run: |
-          ./src/scripts/manage-db.sh delete "preview_db_${PR_NUMBER}"
+          ./src/scripts/manage-db.js delete "preview_db_${PR_NUMBER}"
