@@ -10,62 +10,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  setup:
-    name: Setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9.9.0
-
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Download dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Generate Prisma client
-        run: pnpm prisma generate
-
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./*
-            ~/.local/share/pnpm
-            ~/.nvm/versions/node
-          key: ${{ runner.os }}-setup-${{ github.sha }}
-
   build:
-    needs: setup
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Restore dependencies cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./*
-          key: ${{ runner.os }}-setup-${{ github.sha }}
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Build
         run: pnpm run build
         env:
           NEXT_E2E_BUILD: 'true'
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-output
-          path: .next
-          retention-days: 1
 
       - name: Cache build
         uses: actions/cache@v3
@@ -75,56 +30,37 @@ jobs:
           key: ${{ runner.os }}-build-${{ github.sha }}
 
   lint:
-    needs: setup
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Restore dependencies cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./*
-          key: ${{ runner.os }}-setup-${{ github.sha }}
+      - name: Setup
+        uses: ./.github/actions/setup
       - run: pnpm run lint:strict
 
   typecheck:
-    needs: setup
     name: Type check
     runs-on: ubuntu-latest
     steps:
-      - name: Restore dependencies cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./*
-          key: ${{ runner.os }}-setup-${{ github.sha }}
+      - name: Setup
+        uses: ./.github/actions/setup
       - run: pnpm run typecheck
 
   prettier:
-    needs: setup
     name: Prettier check
     runs-on: ubuntu-latest
     steps:
-      - name: Restore dependencies cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./*
-          key: ${{ runner.os }}-setup-${{ github.sha }}
+      - name: Setup
+        uses: ./.github/actions/setup
       - run: pnpm run format:check
 
   test:
-    needs: setup
     name: Run jest
     runs-on: ubuntu-latest
     steps:
-      - name: Restore dependencies cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./.next
-          key: ${{ runner.os }}-setup-${{ github.sha }}
+      - name: Setup
+        uses: ./.github/actions/setup
       - run: pnpm run test
+
   e2e:
     needs: build
     name: E2E
@@ -138,12 +74,8 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - name: Restore dependencies cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./*
-          key: ${{ runner.os }}-setup-${{ github.sha }}
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Restore build cache
         uses: actions/cache@v3

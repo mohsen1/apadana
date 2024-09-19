@@ -1,0 +1,26 @@
+name: 'Setup Node and PNPM'
+description: 'Sets up Node.js and PNPM, and installs dependencies.'
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9.9.0
+
+    - name: Setup node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      shell: bash
+
+    - name: Generate Prisma client
+      run: pnpm prisma generate
+      shell: bash
