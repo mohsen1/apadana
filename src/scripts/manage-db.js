@@ -44,8 +44,21 @@ async function createDatabase() {
   });
 
   try {
-    await client.connect();
-    await client.query(`CREATE DATABASE "${DB_NAME}"`);
+    const secureClient = new Client({
+      host: POSTGRES_HOST,
+      user: POSTGRES_USER,
+      password: POSTGRES_PASSWORD,
+      port: POSTGRES_PORT,
+      database: DB_NAME,
+      ssl: {
+        rejectUnauthorized: false, // Set to true in production
+      },
+    });
+    await secureClient.connect();
+    console.log(`Connected to '${DB_NAME}' using SSL.`);
+    await secureClient.query(`CREATE DATABASE "${DB_NAME}"`);
+    await secureClient.end();
+
     console.log(`Database '${DB_NAME}' created successfully.`);
     // Export DATABASE_URL to environment
     const databaseUrl = `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}?sslmode=require`;
