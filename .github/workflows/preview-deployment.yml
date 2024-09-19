@@ -39,8 +39,10 @@ jobs:
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          env: |
-            DATABASE_URL=${{ env.DATABASE_URL }}
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+          VERCEL_PROJECT_ID: apadana
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
   delete-preview:
     name: Delete Preview
