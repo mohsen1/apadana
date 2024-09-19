@@ -72,7 +72,6 @@ async function createDatabase() {
 
     await secureClient.end();
 
-    console.log(`Database '${DB_NAME}' created successfully.`);
     const databaseUrl = `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}?sslmode=require`;
     // Write the DATABASE_URL to the .env file
     const envPath = path.resolve(process.cwd(), '.env');

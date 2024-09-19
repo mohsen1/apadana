@@ -60,4 +60,7 @@ const nextConfig = {
   },
 };
 
+// eslint-disable-next-line no-console
+console.log('DATABASE_URL', process.env.DATABASE_URL);
+
 module.exports = nextConfig;
