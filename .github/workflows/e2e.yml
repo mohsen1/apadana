@@ -7,7 +7,6 @@ permissions:
   contents: read
   pull-requests: write
   actions: read
-  checks: write
 
 jobs:
   run-e2es:
@@ -40,40 +39,20 @@ jobs:
           source_dir: .next/__e2e__reports__
           destination_dir: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Add a link to Playwright Test Report
-        if: always()
-        uses: actions/github-script@v6
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: fc
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const url = `https://apadana-e2e.s3.amazonaws.com/${{ github.event.pull_request.head.sha || github.sha }}/index.html`;
-            const { owner, repo } = context.repo;
-            const head_sha = context.payload.pull_request ? context.payload.pull_request.head.sha : context.sha;
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Playwright Test Report
 
-            if (url) {
-              await github.rest.checks.create({
-                owner,
-                repo,
-                name: 'Playwright Test Report',
-                head_sha,
-                status: 'completed',
-                conclusion: 'success',
-                output: {
-                  title: 'Playwright Test Report',
-                  summary: `✅ [View the Playwright test report](${url})`,
-                },
-              });
-            } else {
-              await github.rest.checks.create({
-                owner,
-                repo,
-                name: 'Playwright Test Report',
-                head_sha,
-                status: 'completed',
-                conclusion: 'failure',
-                output: {
-                  title: 'Playwright Test Report',
-                  summary: `❌ Playwright test report not available.`,
-                },
-              });
-            }
+      - name: Create or Update Comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          body: |
+            ## Playwright Test Report
+            ✅ [View the Playwright test report](https://apadana-e2e.s3.amazonaws.com/${{ github.event.pull_request.head.sha || github.sha }}/index.html)
+          edit-mode: replace
