@@ -17,10 +17,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup
         uses: ./.github/actions/setup
+
       - name: Run tests
         run: pnpm run e2e
         env:
           BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          PLAYWRIGHT_START_SERVER: 'false'
 
       - name: Upload Playwright Test Report
         id: upload-results

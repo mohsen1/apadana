@@ -17,6 +17,13 @@ dotenv.config();
 const startServer = process.env.PLAYWRIGHT_START_SERVER === 'true';
 const port = process.env.PORT || '3030';
 
+// eslint-disable-next-line no-console
+console.log({
+  port,
+  startServer,
+  PLAYWRIGHT_START_SERVER: process.env.PLAYWRIGHT_START_SERVER,
+});
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
