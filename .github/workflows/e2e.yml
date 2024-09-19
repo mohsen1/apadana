@@ -39,33 +39,39 @@ jobs:
           source_dir: .next/__e2e__reports__
           destination_dir: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Find Comment
+      - name: Write Comment
         if: always()
-        uses: peter-evans/find-comment@v3
-        continue-on-error: true
-        id: fc
+        uses: actions/github-script@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: Playwright Test Report
+          script: |
+            const { context } = require('@actions/github');
+            const { issue_number } = context.payload.deployment.environment;
+            const title = '## Playwright Test Report <!--e2e-report-->'
+            const commentBody = [
+              title, 
+              '✅ [View the Playwright test report](https://apadana-e2e.s3.amazonaws.com/${{ github.event.pull_request.head.sha || github.sha }}/index.html)'
+            ].join('\n');
 
-      - name: Create comment
-        if: steps.fc.outputs.comment-id == ''
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ## Playwright Test Report
+            const issueComment = await github.rest.issues.listComments({
+              issue_number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
 
-      - name: Update comment
-        if: steps.fc.outputs.comment-id != ''
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          body: |
-            ## Playwright Test Report
-            ✅ [View the Playwright test report](https://apadana-e2e.s3.amazonaws.com/${{ github.event.pull_request.head.sha || github.sha }}/index.html)
+            const comment = issueComment.data.find(comment => comment.body.includes(title))
+            if (comment) {
+              await github.rest.issues.updateComment({
+                issue_number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+                body: commentBody
+              })
+            } else {
+              await github.rest.issues.createComment({
+                issue_number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentBody
+              })
+            }
