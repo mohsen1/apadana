@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  productionBrowserSourceMaps: process.env.NEXT_E2E_BUILD === 'true',
   eslint: {
     dirs: ['src'],
   },

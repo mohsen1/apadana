@@ -1,0 +1,152 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+concurrency:
+  group: ${{ github.job }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Build
+        run: pnpm run build
+        env:
+          NEXT_E2E_BUILD: 'true'
+
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: ${{ runner.os }}-build-${{ github.sha }}
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        uses: ./.github/actions/setup
+      - run: pnpm run lint:strict
+
+  typecheck:
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        uses: ./.github/actions/setup
+      - run: pnpm run typecheck
+
+  prettier:
+    name: Prettier check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        uses: ./.github/actions/setup
+      - run: pnpm run format:check
+
+  test:
+    name: Run jest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        uses: ./.github/actions/setup
+      - run: pnpm run test
+
+  e2e:
+    needs: build
+    name: E2E
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+    steps:
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Restore build cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./.next
+          key: ${{ runner.os }}-build-${{ github.sha }}
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: pnpm exec playwright test
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_dmFsdWVkLWJhdC05OS5jbGVyay5hY2NvdW50cy5kZXYk
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          POSTGRES_URL_NO_SSL: postgresql://postgres:postgres@localhost:5432/postgres
+          POSTGRES_URL_NON_POOLING: postgresql://postgres:postgres@localhost:5432/postgres
+          POSTGRES_USER: postgres
+          POSTGRES_HOST: localhost
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DATABASE: postgres
+
+      - name: Upload Playwright Test Report
+        id: upload-results
+        uses: shallwefootball/s3-upload-action@master
+        if: always()
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: apadana-e2e
+          source_dir: .next/__e2e__reports__
+          destination_dir: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Add a link to Playwright Test Report
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log('Uploaded Playwright Test Report to S3');
+            console.log(`URL: ${{ steps.upload-results.outputs.object_locations }}`);
+            const url = `${{ steps.upload-results.outputs.url }}`;
+            const { owner, repo } = context.repo;
+            const head_sha = context.payload.pull_request ? context.payload.pull_request.head.sha : context.sha;
+
+            if (url) {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                name: 'Playwright Test Report',
+                head_sha,
+                status: 'completed',
+                conclusion: 'success',
+                output: {
+                  title: 'Playwright Test Report',
+                  summary: `✅ [View the Playwright test report](${url})`,
+                },
+              });
+            } else {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                name: 'Playwright Test Report',
+                head_sha,
+                status: 'completed',
+                conclusion: 'failure',
+                output: {
+                  title: 'Playwright Test Report',
+                  summary: `❌ Playwright test report not available.`,
+                },
+              });
+            }

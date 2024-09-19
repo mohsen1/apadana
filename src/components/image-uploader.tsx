@@ -26,12 +26,28 @@ import ImageLoader from '@/components/ImageLoader';
 
 import { UploadButton } from '@/utils/uploadthing';
 
+interface UploadedFileDataWithServerData
+  extends Omit<UploadedFileData, 'appUrl'> {
+  /**
+   * This is available after the file has been uploaded
+   */
+  serverData?: {
+    uploadedBy: string;
+  };
+}
+
+interface ImageUploaderProps {
+  initialImages?: UploadedFileDataWithServerData[];
+  onChange: (images: UploadedFileDataWithServerData[]) => void;
+  onError?: (error: Error | null) => void;
+}
+
 const SortableImage = ({
   image,
   onDelete,
   isCover,
 }: {
-  image: UploadedFileData;
+  image: UploadedFileDataWithServerData;
   onDelete: (key: string) => void;
   isCover: boolean;
 }) => {
@@ -88,27 +104,14 @@ const SortableImage = ({
   );
 };
 
-interface UploadedFileDataWithServerData extends UploadedFileData {
-  /**
-   * This is available after the file has been uploaded
-   */
-  serverData?: {
-    uploadedBy: string;
-  };
-}
-
-interface ImageUploaderProps {
-  initialImages?: UploadedFileDataWithServerData[];
-  onChange: (images: UploadedFileDataWithServerData[]) => void;
-  onError?: (error: Error | null) => void;
-}
-
 export const ImageUploader = ({
   initialImages,
   onChange,
   onError,
 }: ImageUploaderProps) => {
-  type OptimisticUploadedFileData = UploadedFileData & { optimistic?: boolean };
+  type OptimisticUploadedFileData = UploadedFileDataWithServerData & {
+    optimistic?: boolean;
+  };
   const [images, setImages] = useState<OptimisticUploadedFileData[]>(
     initialImages || [],
   );
