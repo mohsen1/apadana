@@ -44,6 +44,8 @@ jobs:
         uses: peter-evans/find-comment@v3
         continue-on-error: true
         id: fc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
@@ -52,15 +54,18 @@ jobs:
       - name: Create comment
         if: steps.fc.outputs.comment-id == ''
         uses: peter-evans/create-or-update-comment@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             ## Playwright Test Report
-            ✅ [View the Playwright test report](https://apadana-e2e.s3.amazonaws.com/${{ github.event.pull_request.head.sha || github.sha }}/index.html)
 
       - name: Update comment
         if: steps.fc.outputs.comment-id != ''
         uses: peter-evans/create-or-update-comment@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           body: |
