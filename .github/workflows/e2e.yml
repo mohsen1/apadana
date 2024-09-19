@@ -41,6 +41,7 @@ jobs:
 
       - name: Find Comment
         uses: peter-evans/find-comment@v2
+        if: always()
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -49,6 +50,7 @@ jobs:
 
       - name: Create or Update Comment
         uses: peter-evans/create-or-update-comment@v3
+        if: always()
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
