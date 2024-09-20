@@ -5,6 +5,8 @@
 const { Client } = require('pg');
 const dotenv = require('dotenv');
 const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 const envPath = process.env.NODE_ENV === 'production' ? '.env' : '.env.local';
 dotenv.config({ path: envPath });
@@ -175,6 +177,15 @@ async function createAndCloneDatabase(destDbName) {
     console.log(
       `Database '${destDbName}' created (if not exists) and cloned from '${DEFAULT_DATABASE_NAME}' successfully.`,
     );
+    const newDatabaseUrl = `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${destDbName}?schema=public`;
+    fs.appendFileSync(
+      path.join(process.cwd(), '.env'),
+      `DATABASE_URL=${newDatabaseUrl}\n`,
+    );
+    console.log(
+      `DATABASE_URL=${newDatabaseUrl} added to .env.\n content of .env:`,
+    );
+    console.log(fs.readFileSync(path.join(process.cwd(), '.env'), 'utf8'));
   } catch (error) {
     console.error('Error creating and cloning database:', error.message);
     process.exit(1);

@@ -15,7 +15,6 @@
     "prisma:generate": "prisma generate",
     "prisma:watch": "prisma generate --watch",
     "build": "dotenv -e .env prisma generate && dotenv -e .env next build",
-    "build:vercel": "src/scripts/build-vercel.sh",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint src --fix && pnpm format",
