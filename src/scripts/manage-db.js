@@ -69,25 +69,35 @@ if (!POSTGRES_HOST || !databaseUserName || !databasePassword) {
   process.exit(1);
 }
 
-// Function to create a new PostgreSQL client with appropriate SSL settings
+// Function to create a new PostgreSQL client, using POSTGRES_URL if available
 function createClient(
   dbName,
   user = databaseUserName,
   password = databasePassword,
 ) {
-  const isProduction = process.env.NODE_ENV === 'production';
-  const ssl = isProduction
-    ? { rejectUnauthorized: false } // Adjust as needed for your production environment
-    : false;
+  let clientConfig = {};
 
-  return new Client({
-    host: POSTGRES_HOST,
-    user,
-    password,
-    port: POSTGRES_PORT,
-    database: dbName,
-    ssl,
-  });
+  if (process.env.POSTGRES_URL && process.env.VERCEL_ENV === 'preview') {
+    // Use the connection string if POSTGRES_URL is available
+    clientConfig.connectionString = process.env.POSTGRES_URL.replace(
+      /\/[^/]+(\?.*)?$/,
+      `/${dbName}$1`,
+    );
+  } else {
+    // Build the client configuration from individual parameters
+    clientConfig = {
+      host: POSTGRES_HOST,
+      user,
+      password,
+      port: POSTGRES_PORT,
+      database: dbName,
+      ssl: {
+        rejectUnauthorized: false, // Adjust as needed
+      },
+    };
+  }
+
+  return new Client(clientConfig);
 }
 
 // Function to create a database
@@ -111,7 +121,9 @@ async function createDatabase() {
       console.log(`Database '${dbName}' already exists. Skipping creation.`);
     }
 
-    const databaseUrl = `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${dbName}?sslmode=require`;
+    const databaseUrl = process.env.POSTGRES_URL
+      ? process.env.POSTGRES_URL.replace(/\/[^/]+(\?.*)?$/, `/${dbName}$1`)
+      : `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${dbName}?sslmode=require`;
 
     // Write the POSTGRES_URL to the .env file
     const envPath = path.resolve(process.cwd(), '.env');

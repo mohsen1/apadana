@@ -1,4 +1,4 @@
-#!/bin/bash
+e#!/bin/bash
 
 if ! brew services list | grep -q "postgresql"; then
   echo "[start-local-db.sh] Starting local db..."
