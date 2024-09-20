@@ -1,9 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
 import dotenv from 'dotenv';
+
+import { VercelLogsReporterOptions } from './e2e/reporters/vercel-logs-reporter';
+
 dotenv.config();
 
 /**
@@ -33,6 +32,17 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html', { open: 'never', outputFolder: '.next/__e2e__reports__' }],
+    [
+      require.resolve('./e2e/reporters/vercel-logs-reporter'),
+      {
+        config: {
+          reporterOptions: {
+            outputDir: '.next/__e2e__reports__',
+            maxLogs: 10_000,
+          },
+        },
+      } as VercelLogsReporterOptions,
+    ],
   ],
 
   globalSetup: require.resolve('./e2e/global-setup.ts'),
