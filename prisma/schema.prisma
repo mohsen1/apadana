@@ -137,7 +137,7 @@ enum Currency {
 model Listing {
   id                Int                @id @default(autoincrement())
   title             String             @db.VarChar(255)
-  slug              String             @unique @default("") @db.VarChar(255)
+  slug              String             @default("") @db.VarChar(255)
   description       String             @db.Text
   propertyType      String             @db.VarChar(100)
   address           String             @db.VarChar(255)
