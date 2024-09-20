@@ -2,8 +2,12 @@
 
 # check if this is a preview deployment
 if [ "$VERCEL_ENV" == "preview" ]; then
+  echo "Production database name: $DATABASE_NAME"
   echo "Creating preview database for PR #$VERCEL_GIT_PULL_REQUEST_ID"
   pnpm run manage-db create "preview_db_$VERCEL_GIT_PULL_REQUEST_ID"
+  # in case db already exists, purge it
+  pnpm run manage-db purge "preview_db_$VERCEL_GIT_PULL_REQUEST_ID"
+  pnpm run manage-db clone "$DATABASE_NAME" "preview_db_$VERCEL_GIT_PULL_REQUEST_ID"
 
   # Migrate the database
   pnpm run migrate:prod
