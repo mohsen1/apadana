@@ -174,33 +174,16 @@ async function createAndCloneDatabase(destDbName) {
     `;
 
     await client.query(createAndCloneQuery);
-    console.log(
-      `Database '${destDbName}' created (if not exists) and cloned from '${DEFAULT_DATABASE_NAME}' successfully.`,
-    );
 
     const newDatabaseUrl = `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${destDbName}?schema=public`;
     fs.appendFileSync(
       path.join(process.cwd(), '.env'),
 
-      [
-        `POSTGRES_URL=${newDatabaseUrl}`,
-        `POSTGRES_URL_NON_POOLING=${newDatabaseUrl}`,
-        `POSTGRES_URL_NO_SSL=${newDatabaseUrl}`,
-        `POSTGRES_PRISMA_URL=not-needed`,
-        `POSTGRES_PORT=${POSTGRES_PORT}`,
-        `POSTGRES_HOST=${POSTGRES_HOST}`,
-        `POSTGRES_DATABASE=${destDbName}`,
-        `POSTGRES_USER=${databaseUserName}`,
-        `POSTGRES_PASSWORD=${databasePassword}`,
-      ].join('\n'),
+      [`POSTGRES_DATABASE_URL=${newDatabaseUrl}`].join('\n'),
     );
     console.log(
-      `POSTGRES_URL=${newDatabaseUrl} added to .env.\n content of .env:`,
+      `Database '${destDbName}' created (if not exists) and cloned from '${DEFAULT_DATABASE_NAME}' successfully.`,
     );
-    console.log(fs.readFileSync(path.join(process.cwd(), '.env'), 'utf8'));
-    // list all files in process.cwd()
-    const files = fs.readdirSync(process.cwd());
-    console.log('Files in current directory:', JSON.stringify(files, null, 2));
   } catch (error) {
     console.error('Error creating and cloning database:', error.message);
     process.exit(1);
