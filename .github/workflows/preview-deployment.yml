@@ -9,13 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.action == 'closed'
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Python and PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3 postgresql-client
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Delete Preview Database
         env:
@@ -25,5 +23,4 @@ jobs:
           POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
           PR_NUMBER: ${{ github.event.number }}
           POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
-        run: |
-          ./src/scripts/manage-db.js delete "preview_db_${PR_NUMBER}"
+        run: pnpm run manage-db delete "preview_db_${PR_NUMBER}"

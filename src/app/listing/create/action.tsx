@@ -1,5 +1,7 @@
 'use server';
 
+import slugify from 'slugify';
+
 import { getTimeZone } from '@/lib/google-maps-api';
 import prisma from '@/lib/prisma/client';
 import { CreateListingSchema } from '@/lib/prisma/schema';
@@ -29,6 +31,7 @@ export const createListing = actionClient
       const listing = await prisma.listing.create({
         data: {
           ...parsedInput,
+          slug: slugify(parsedInput.title),
           timeZone,
           owner: {
             connect: {

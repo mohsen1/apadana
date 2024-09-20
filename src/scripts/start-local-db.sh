@@ -55,7 +55,7 @@ update_env_var() {
 # Update .env.local with local db credentials
 update_env_var "POSTGRES_HOST" "localhost"
 update_env_var "POSTGRES_DATABASE" "apadana"
-update_env_var "POSTGRES_URL" "postgresql://admin:admin@localhost:5432/apadana?schema=public"
+update_env_var "POSTGRES_DATABASE_URL" "postgresql://admin:admin@localhost:5432/apadana?schema=public"
 update_env_var "POSTGRES_URL_NON_POOLING" "postgresql://admin:admin@localhost:5432/apadana?schema=public"
 update_env_var "POSTGRES_URL_NO_SSL" "postgresql://admin:admin@localhost:5432/apadana?schema=public"
 update_env_var "POSTGRES_USER" "admin"
