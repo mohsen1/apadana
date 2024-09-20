@@ -11,7 +11,7 @@
     "dev:smee": "node src/scripts/smee-client.js",
     "migrate:dev": "dotenv -e .env.local prisma migrate dev",
     "migrate:prod": "dotenv -e .env prisma migrate deploy",
-    "drop-local-db": "src/scripts/delete-local-db-data.sh",
+    "manage-db": "src/scripts/manage-db.js",
     "prisma:generate": "prisma generate",
     "prisma:watch": "prisma generate --watch",
     "build": "dotenv -e .env prisma generate && dotenv -e .env next build",

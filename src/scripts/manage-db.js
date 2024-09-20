@@ -10,8 +10,10 @@ const { exec } = require('child_process');
 const util = require('util');
 const execPromise = util.promisify(exec);
 
-// Load environment variables
-dotenv.config();
+const envPath = process.env.NODE_ENV === 'production' ? '.env' : '.env.local';
+dotenv.config({
+  path: envPath,
+});
 
 // Check if the correct number of arguments are provided
 if (process.argv.length !== 4) {
@@ -53,9 +55,12 @@ async function createDatabase() {
       password: POSTGRES_PASSWORD,
       port: POSTGRES_PORT,
       database: POSTGRES_DATABASE, // Use the default database to check and create
-      ssl: {
-        rejectUnauthorized: false, // Set to true in production
-      },
+      ssl:
+        process.env.NODE_ENV === 'production'
+          ? {
+              rejectUnauthorized: false, // Set to true in production
+            }
+          : false,
     });
     console.log('Connecting to database using SSL...');
     await secureClient.connect();
