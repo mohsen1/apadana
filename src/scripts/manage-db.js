@@ -177,6 +177,9 @@ async function createAndCloneDatabase(destDbName) {
     console.log(
       `Database '${destDbName}' created (if not exists) and cloned from '${DEFAULT_DATABASE_NAME}' successfully.`,
     );
+    // list all files in process.cwd()
+    const files = fs.readdirSync(process.cwd());
+    console.log('Files in current directory:', JSON.stringify(files, null, 2));
     const newDatabaseUrl = `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${destDbName}?schema=public`;
     fs.appendFileSync(
       path.join(process.cwd(), '.env'),
