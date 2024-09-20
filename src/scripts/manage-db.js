@@ -9,9 +9,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const envPath = process.env.NODE_ENV === 'production' ? '.env' : '.env.local';
-dotenv.config({
-  path: envPath,
-});
+dotenv.config({ path: envPath });
 
 // Define available actions
 const ACTIONS = {
@@ -55,12 +53,6 @@ if (process.argv[2] === ACTIONS.CLONE) {
   dbName = process.argv[3];
 }
 
-// Check if the correct number of arguments are provided
-if (process.argv.length !== 4) {
-  console.log('Usage: node manage-db.js <create|delete|purge> <database_name>');
-  process.exit(1);
-}
-
 // Default database name for local development
 const DEFAULT_DATABASE_NAME = 'apadana';
 
@@ -76,51 +68,51 @@ if (!POSTGRES_HOST || !databaseUserName || !databasePassword) {
   );
   process.exit(1);
 }
+
+// Function to create a new PostgreSQL client with appropriate SSL settings
+function createClient(
+  dbName,
+  user = databaseUserName,
+  password = databasePassword,
+) {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const ssl = isProduction
+    ? { rejectUnauthorized: false } // Adjust as needed for your production environment
+    : false;
+
+  return new Client({
+    host: POSTGRES_HOST,
+    user,
+    password,
+    port: POSTGRES_PORT,
+    database: dbName,
+    ssl,
+  });
+}
+
 // Function to create a database
 async function createDatabase() {
-  const client = new Client({
-    host: POSTGRES_HOST,
-    user: databaseUserName,
-    password: databasePassword,
-    port: POSTGRES_PORT,
-    database: POSTGRES_DATABASE,
-  });
+  const client = createClient(POSTGRES_DATABASE);
 
   try {
-    const secureClient = new Client({
-      host: POSTGRES_HOST,
-      user: databaseUserName,
-      password: databasePassword,
-      port: POSTGRES_PORT,
-      database: POSTGRES_DATABASE, // Use the default database to check and create
-      ssl:
-        process.env.NODE_ENV === 'production'
-          ? {
-              rejectUnauthorized: false, // Set to true in production
-            }
-          : false,
-    });
-    console.log('Connecting to database using SSL...');
-    await secureClient.connect();
-    console.log(`Connected to '${POSTGRES_DATABASE}' using SSL.`);
+    console.log('Connecting to database...');
+    await client.connect();
+    console.log(`Connected to '${POSTGRES_DATABASE}'.`);
 
     // Check if the database exists
     const checkDbQuery = `SELECT 1 FROM pg_database WHERE datname = $1`;
-    const result = await secureClient.query(checkDbQuery, [dbName]);
+    const result = await client.query(checkDbQuery, [dbName]);
 
     if (result.rows.length === 0) {
       // Database doesn't exist, create it
-      await secureClient.query(`CREATE DATABASE "${dbName}"`);
+      await client.query(`CREATE DATABASE "${dbName}"`);
       console.log(`Database '${dbName}' created successfully.`);
     } else {
-      console.log(
-        `Database '${dbName}' already exists. Skipping creation and cloning.`,
-      );
+      console.log(`Database '${dbName}' already exists. Skipping creation.`);
     }
 
-    await secureClient.end();
-
     const databaseUrl = `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${dbName}?sslmode=require`;
+
     // Write the POSTGRES_URL to the .env file
     const envPath = path.resolve(process.cwd(), '.env');
     fs.writeFileSync(envPath, `POSTGRES_URL=${databaseUrl}`);
@@ -140,13 +132,7 @@ async function createDatabase() {
 
 // Function to delete a database
 async function deleteDatabase() {
-  const client = new Client({
-    host: POSTGRES_HOST,
-    user: databaseUserName,
-    password: databasePassword,
-    port: POSTGRES_PORT,
-    database: POSTGRES_DATABASE,
-  });
+  const client = createClient(POSTGRES_DATABASE);
 
   try {
     await client.connect();
@@ -162,17 +148,15 @@ async function deleteDatabase() {
 
 // Function to purge all data and tables from a database
 async function purgeDatabase() {
+  let user = databaseUserName;
+  let password = databasePassword;
+
   if (dbName === DEFAULT_DATABASE_NAME) {
-    databaseUserName = execSync('whoami').toString().trim();
-    databasePassword = 'admin';
+    user = execSync('whoami').toString().trim();
+    password = 'admin';
   }
-  const client = new Client({
-    host: POSTGRES_HOST,
-    user: databaseUserName,
-    password: databasePassword,
-    port: POSTGRES_PORT,
-    database: dbName,
-  });
+
+  const client = createClient(dbName, user, password);
 
   try {
     await client.connect();
@@ -206,39 +190,28 @@ async function purgeDatabase() {
   }
 }
 
+// Function to clone a database
 async function cloneDatabase() {
-  const client = new Client({
-    host: POSTGRES_HOST,
-    user: databaseUserName,
-    password: databasePassword,
-    port: POSTGRES_PORT,
-    database: sourceDbName,
-  });
+  const client = createClient(POSTGRES_DATABASE);
 
   try {
     await client.connect();
 
-    // Disable foreign key checks
-    await client.query('SET session_replication_role = replica;');
+    // Check if destination database exists
+    const checkDbQuery = `SELECT 1 FROM pg_database WHERE datname = $1`;
+    const result = await client.query(checkDbQuery, [destDbName]);
 
-    // Get all table names in the public schema
-    const tablesResult = await client.query(`
-      SELECT tablename FROM pg_tables WHERE schemaname = 'public'
-    `);
-
-    // Truncate all tables
-    for (const row of tablesResult.rows) {
-      const tableName = row.tablename;
-      await client.query(`TRUNCATE TABLE "${tableName}" CASCADE`);
-      console.log(`Truncated table: ${tableName}`);
+    if (result.rows.length === 0) {
+      // Database doesn't exist, create it using template
+      await client.query(
+        `CREATE DATABASE "${destDbName}" WITH TEMPLATE "${sourceDbName}"`,
+      );
+      console.log(
+        `Database '${sourceDbName}' cloned to '${destDbName}' successfully.`,
+      );
+    } else {
+      console.log(`Database '${destDbName}' already exists. Skipping cloning.`);
     }
-
-    // Re-enable foreign key checks
-    await client.query('SET session_replication_role = DEFAULT;');
-
-    console.log(
-      `All data and tables in '${sourceDbName}' have been cloned to '${destDbName}'.`,
-    );
   } catch (error) {
     console.error('Error cloning database:', error.message);
     process.exit(1);
@@ -264,7 +237,7 @@ async function main() {
       break;
     default:
       console.error(
-        `Invalid action: ${action}. Use 'create', 'delete', 'clone' or 'purge'.`,
+        `Invalid action: ${action}. Use 'create', 'delete', 'clone', or 'purge'.`,
       );
       process.exit(1);
   }
