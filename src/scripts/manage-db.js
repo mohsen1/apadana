@@ -69,35 +69,25 @@ if (!POSTGRES_HOST || !databaseUserName || !databasePassword) {
   process.exit(1);
 }
 
-// Function to create a new PostgreSQL client, using POSTGRES_URL if available
+// Function to create a new PostgreSQL client with appropriate SSL settings
 function createClient(
   dbName,
   user = databaseUserName,
   password = databasePassword,
 ) {
-  let clientConfig = {};
+  const isProduction = process.env.NODE_ENV === 'production';
+  const ssl = isProduction
+    ? { rejectUnauthorized: false } // Adjust as needed for your production environment
+    : false;
 
-  if (process.env.POSTGRES_URL && process.env.VERCEL_ENV === 'preview') {
-    // Use the connection string if POSTGRES_URL is available
-    clientConfig.connectionString = process.env.POSTGRES_URL.replace(
-      /\/[^/]+(\?.*)?$/,
-      `/${dbName}$1`,
-    );
-  } else {
-    // Build the client configuration from individual parameters
-    clientConfig = {
-      host: POSTGRES_HOST,
-      user,
-      password,
-      port: POSTGRES_PORT,
-      database: dbName,
-      ssl: {
-        rejectUnauthorized: false, // Adjust as needed
-      },
-    };
-  }
-
-  return new Client(clientConfig);
+  return new Client({
+    host: POSTGRES_HOST,
+    user,
+    password,
+    port: POSTGRES_PORT,
+    database: dbName,
+    ssl,
+  });
 }
 
 // Function to create a database
@@ -121,9 +111,7 @@ async function createDatabase() {
       console.log(`Database '${dbName}' already exists. Skipping creation.`);
     }
 
-    const databaseUrl = process.env.POSTGRES_URL
-      ? process.env.POSTGRES_URL.replace(/\/[^/]+(\?.*)?$/, `/${dbName}$1`)
-      : `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${dbName}?sslmode=require`;
+    const databaseUrl = `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${dbName}?sslmode=require`;
 
     // Write the POSTGRES_URL to the .env file
     const envPath = path.resolve(process.cwd(), '.env');
@@ -166,6 +154,14 @@ async function purgeDatabase() {
   if (dbName === DEFAULT_DATABASE_NAME) {
     user = execSync('whoami').toString().trim();
     password = 'admin';
+  }
+
+  // For Vercel preview, connect to "verceldb" with environment variables
+  if (process.env.VERCEL_ENV === 'preview') {
+    dbName = 'verceldb';
+    user = process.env.POSTGRES_USER;
+    password = process.env.POSTGRES_PASSWORD;
+    console.log('Connecting to Vercel preview database: verceldb');
   }
 
   const client = createClient(dbName, user, password);
