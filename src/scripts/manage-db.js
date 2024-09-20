@@ -180,10 +180,10 @@ async function createAndCloneDatabase(destDbName) {
     const newDatabaseUrl = `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${destDbName}?schema=public`;
     fs.appendFileSync(
       path.join(process.cwd(), '.env'),
-      `DATABASE_URL=${newDatabaseUrl}\n`,
+      `POSTGRES_URL=${newDatabaseUrl}\n`,
     );
     console.log(
-      `DATABASE_URL=${newDatabaseUrl} added to .env.\n content of .env:`,
+      `POSTGRES_URL=${newDatabaseUrl} added to .env.\n content of .env:`,
     );
     console.log(fs.readFileSync(path.join(process.cwd(), '.env'), 'utf8'));
   } catch (error) {
