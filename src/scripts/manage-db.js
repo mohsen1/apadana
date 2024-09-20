@@ -4,8 +4,6 @@
 
 const { Client } = require('pg');
 const dotenv = require('dotenv');
-const fs = require('fs');
-const path = require('path');
 const { execSync } = require('child_process');
 
 const envPath = process.env.NODE_ENV === 'production' ? '.env' : '.env.local';
@@ -28,7 +26,7 @@ if (process.argv.length < 4 || process.argv.length > 5) {
   process.exit(1);
 }
 
-let action, dbName, sourceDbName, destDbName;
+let action, dbName;
 let databaseUserName = process.env.POSTGRES_USER;
 let databasePassword = process.env.POSTGRES_PASSWORD;
 
@@ -40,8 +38,6 @@ if (process.argv[2] === ACTIONS.CLONE) {
     process.exit(1);
   }
   action = ACTIONS.CLONE;
-  sourceDbName = process.argv[3];
-  destDbName = process.argv[4];
 } else {
   if (process.argv.length !== 4) {
     console.log(
@@ -54,7 +50,8 @@ if (process.argv[2] === ACTIONS.CLONE) {
 }
 
 // Default database name for local development
-const DEFAULT_DATABASE_NAME = 'apadana';
+const DEFAULT_DATABASE_NAME =
+  process.env.VERCEL_ENV === 'preview' ? 'verceldb' : 'apadana';
 
 // Load environment variables
 const POSTGRES_HOST = process.env.POSTGRES_HOST;
@@ -88,46 +85,6 @@ function createClient(
     database: dbName,
     ssl,
   });
-}
-
-// Function to create a database
-async function createDatabase() {
-  const client = createClient(POSTGRES_DATABASE);
-
-  try {
-    console.log('Connecting to database...');
-    await client.connect();
-    console.log(`Connected to '${POSTGRES_DATABASE}'.`);
-
-    // Check if the database exists
-    const checkDbQuery = `SELECT 1 FROM pg_database WHERE datname = $1`;
-    const result = await client.query(checkDbQuery, [dbName]);
-
-    if (result.rows.length === 0) {
-      // Database doesn't exist, create it
-      await client.query(`CREATE DATABASE "${dbName}"`);
-      console.log(`Database '${dbName}' created successfully.`);
-    } else {
-      console.log(`Database '${dbName}' already exists. Skipping creation.`);
-    }
-
-    const databaseUrl = `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${dbName}?sslmode=require`;
-
-    // Write the POSTGRES_URL to the .env file
-    const envPath = path.resolve(process.cwd(), '.env');
-    fs.writeFileSync(envPath, `POSTGRES_URL=${databaseUrl}`);
-    process.env.POSTGRES_URL = databaseUrl;
-    console.log(`Updated POSTGRES_URL in ${envPath} file for '${dbName}'.`);
-  } catch (error) {
-    if (error.code === '42P04') {
-      console.log(`Database '${dbName}' already exists. Skipping creation.`);
-    } else {
-      console.error('Error creating database:', error.message);
-      process.exit(1);
-    }
-  } finally {
-    await client.end();
-  }
 }
 
 // Function to delete a database
@@ -198,30 +155,28 @@ async function purgeDatabase() {
   }
 }
 
-// Function to clone a database
-async function cloneDatabase() {
+async function createAndCloneDatabase(destDbName) {
   const client = createClient(POSTGRES_DATABASE);
 
   try {
     await client.connect();
+    const createAndCloneQuery = `
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = '${destDbName}') THEN
+          CREATE DATABASE "${destDbName}";
+          PERFORM pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${destDbName}';
+          EXECUTE 'CREATE DATABASE "${destDbName}" WITH TEMPLATE "${DEFAULT_DATABASE_NAME}"';
+        END IF;
+      END $$;
+    `;
 
-    // Check if destination database exists
-    const checkDbQuery = `SELECT 1 FROM pg_database WHERE datname = $1`;
-    const result = await client.query(checkDbQuery, [destDbName]);
-
-    if (result.rows.length === 0) {
-      // Database doesn't exist, create it using template
-      await client.query(
-        `CREATE DATABASE "${destDbName}" WITH TEMPLATE "${sourceDbName}"`,
-      );
-      console.log(
-        `Database '${sourceDbName}' cloned to '${destDbName}' successfully.`,
-      );
-    } else {
-      console.log(`Database '${destDbName}' already exists. Skipping cloning.`);
-    }
+    await client.query(createAndCloneQuery);
+    console.log(
+      `Database '${destDbName}' created (if not exists) and cloned from '${DEFAULT_DATABASE_NAME}' successfully.`,
+    );
   } catch (error) {
-    console.error('Error cloning database:', error.message);
+    console.error('Error creating and cloning database:', error.message);
     process.exit(1);
   } finally {
     await client.end();
@@ -231,11 +186,8 @@ async function cloneDatabase() {
 // Handle CLI arguments
 async function main() {
   switch (action) {
-    case ACTIONS.CLONE:
-      await cloneDatabase();
-      break;
     case ACTIONS.CREATE:
-      await createDatabase();
+      await createAndCloneDatabase(dbName);
       break;
     case ACTIONS.DELETE:
       await deleteDatabase();
