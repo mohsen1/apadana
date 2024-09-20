@@ -6,6 +6,9 @@ const { Client } = require('pg');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
+const util = require('util');
+const execPromise = util.promisify(exec);
 
 // Load environment variables
 dotenv.config();
@@ -66,8 +69,29 @@ async function createDatabase() {
       // Database doesn't exist, create it
       await secureClient.query(`CREATE DATABASE "${DB_NAME}"`);
       console.log(`Database '${DB_NAME}' created successfully.`);
+
+      // Clone data from POSTGRES_DATABASE to DB_NAME
+      console.log(
+        `Cloning data from '${POSTGRES_DATABASE}' to '${DB_NAME}'...`,
+      );
+      try {
+        const dumpCommand = `PGPASSWORD=${POSTGRES_PASSWORD} pg_dump -h ${POSTGRES_HOST} -U ${POSTGRES_USER} -p ${POSTGRES_PORT} ${POSTGRES_DATABASE}`;
+        const restoreCommand = `PGPASSWORD=${POSTGRES_PASSWORD} psql -h ${POSTGRES_HOST} -U ${POSTGRES_USER} -p ${POSTGRES_PORT} -d ${DB_NAME}`;
+        const fullCommand = `${dumpCommand} | ${restoreCommand}`;
+
+        console.time('Cloning data');
+        await execPromise(fullCommand);
+        console.timeEnd('Cloning data');
+        console.log(
+          `Data cloned successfully from '${POSTGRES_DATABASE}' to '${DB_NAME}'.`,
+        );
+      } catch (cloneError) {
+        console.error(`Error cloning data: ${cloneError.message}`);
+      }
     } else {
-      console.log(`Database '${DB_NAME}' already exists. Skipping creation.`);
+      console.log(
+        `Database '${DB_NAME}' already exists. Skipping creation and cloning.`,
+      );
     }
 
     await secureClient.end();
