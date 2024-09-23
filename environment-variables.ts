@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -17,6 +18,7 @@ const schema = z.object({
  * @throws Will throw an error if the environment variables are invalid.
  */
 export function validateEnvironmentVariables() {
+  dotenv.config();
   const result = schema.safeParse(process.env);
 
   if (!result.success) {
