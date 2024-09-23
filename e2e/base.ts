@@ -48,7 +48,7 @@ export const test = baseTest.extend<TestExtensions>({
     // Capture screenshot on failure
     if (testInfo.status !== 'passed') {
       await page.screenshot({
-        path: `test-failed-${testInfo.title.replace(/\s+/g, '-')}.png`,
+        path: `${testInfo.outputDir}/test-failed-${testInfo.title.replace(/\s+/g, '-')}.png`,
       });
     }
   },

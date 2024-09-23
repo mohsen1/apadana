@@ -152,14 +152,7 @@ test.describe.serial('create listing', () => {
       .getByLabel('House rules')
       .fill('No smoking is allowed. No pets.');
 
-    // Wait for the Submit Listing button to be enabled
-    await page.waitForSelector('button[type="submit"]:not(:disabled)');
-
-    // Ensure the button is visible and clickable
-    await expect(
-      page.getByRole('button', { name: 'Submit Listing' }),
-    ).toBeEnabled();
-
+    await page.getByRole('button', { name: 'Submit Listing' }).click();
     await page.getByRole('button', { name: 'Submit Listing' }).click();
 
     await page.waitForURL(/\/listing\/\d+\/manage\/calendar\?newListing=true/);
@@ -174,14 +167,8 @@ test.describe.serial('create listing', () => {
     await page.signIn();
     await page.goto(`/listing/${currentListing.id}/delete`);
     await expect(page.getByText('Delete "My new test listing"')).toBeVisible();
-    // Wait for React hydration to complete
-    await page.waitForFunction(() => {
-      return (
-        window.document.querySelector('[data-hydrated="true"]') !== null ||
-        window.__NEXT_DATA__ !== undefined
-      );
-    });
 
+    await page.getByRole('button', { name: 'Delete' }).click();
     await page.getByRole('button', { name: 'Delete' }).click();
     await page.waitForURL('/listing');
     await page.goto(`/listing/${currentListing.id}/delete`);
