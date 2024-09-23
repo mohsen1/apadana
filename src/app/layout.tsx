@@ -1,7 +1,6 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { validateEnvironmentVariables } from 'environment-variables';
 import { Metadata } from 'next';
 import {
   Inter as FontSans,
@@ -21,8 +20,6 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 import { fileRouter } from '@/app/api/uploadthing/core';
 import { siteConfig } from '@/constant/config';
-
-validateEnvironmentVariables();
 
 const fontSans = FontSans({
   subsets: ['latin'],
