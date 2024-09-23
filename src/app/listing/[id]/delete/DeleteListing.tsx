@@ -1,5 +1,3 @@
-'use client';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Listing } from '@prisma/client';
 import { TrashIcon } from 'lucide-react';
