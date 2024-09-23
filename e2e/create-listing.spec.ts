@@ -174,9 +174,14 @@ test.describe.serial('create listing', () => {
     await page.signIn();
     await page.goto(`/listing/${currentListing.id}/delete`);
     await expect(page.getByText('Delete "My new test listing"')).toBeVisible();
-    // TODO: Find out why we have to wait a second for the page to load before clicking the delete button
-    //       Otherwise, the button is not clickable
-    await page.waitForTimeout(1000);
+    // Wait for React hydration to complete
+    await page.waitForFunction(() => {
+      return (
+        window.document.querySelector('[data-hydrated="true"]') !== null ||
+        window.__NEXT_DATA__ !== undefined
+      );
+    });
+
     await page.getByRole('button', { name: 'Delete' }).click();
     await page.waitForURL('/listing');
     await page.goto(`/listing/${currentListing.id}/delete`);
