@@ -152,6 +152,14 @@ test.describe.serial('create listing', () => {
       .getByLabel('House rules')
       .fill('No smoking is allowed. No pets.');
 
+    // Wait for the Submit Listing button to be enabled
+    await page.waitForSelector('button[type="submit"]:not(:disabled)');
+
+    // Ensure the button is visible and clickable
+    await expect(
+      page.getByRole('button', { name: 'Submit Listing' }),
+    ).toBeEnabled();
+
     await page.getByRole('button', { name: 'Submit Listing' }).click();
 
     await page.waitForURL(/\/listing\/\d+\/manage\/calendar\?newListing=true/);
