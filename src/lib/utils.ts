@@ -205,3 +205,33 @@ export function areAllDatesAvailable(
   }
   return true;
 }
+
+/**
+ * Retries an async function a specified number of times with a delay between attempts.
+ * @param fn The async function to retry.
+ * @param retries The number of retries.
+ * @param delay The delay between retries in milliseconds.
+ * @returns The result of the async function.
+ */
+export function retryAsync<T>(
+  fn: () => Promise<T>,
+  retries: number,
+  delay: number,
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const attempt = async () => {
+      try {
+        const result = await fn();
+        resolve(result);
+      } catch (error) {
+        if (retries > 0) {
+          setTimeout(attempt, delay);
+          retries--;
+        } else {
+          reject(error);
+        }
+      }
+    };
+    attempt();
+  });
+}
