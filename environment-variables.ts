@@ -20,9 +20,10 @@ export function validateEnvironmentVariables() {
   const result = schema.safeParse(process.env);
 
   if (!result.success) {
-    throw new Error(
-      `❌ Invalid environment variables: ${result.error.flatten().fieldErrors}`,
-    );
+    const messages = Object.entries(result.error.flatten().fieldErrors)
+      .map(([key, value]) => `    ${key}: ${value}`)
+      .join('\n');
+    throw new Error(`Invalid environment variables:\n${messages}`);
   }
 }
 
