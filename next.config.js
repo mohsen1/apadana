@@ -1,29 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { z } = require('zod');
-
-function validateEnvironmentVariable() {
-  const schema = z.object({
-    CLERK_SECRET_KEY: z.string(),
-    GOOGLE_MAPS_API_KEY: z.string(),
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
-    UPLOADTHING_APP_ID: z.string(),
-    UPLOADTHING_SECRET: z.string(),
-    UPLOADTHING_TOKEN: z.string(),
-    WEBHOOK_SECRET: z.string(),
-    POSTGRES_DATABASE_URL: z.string().url(),
-  });
-
-  const result = schema.safeParse(process.env);
-
-  if (!result.success) {
-    throw new Error(
-      `❌ Invalid environment variables: ${result.error.flatten().fieldErrors}`,
-    );
-  }
-}
-
-validateEnvironmentVariable();
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   productionBrowserSourceMaps: process.env.NEXT_E2E_BUILD === 'true',
