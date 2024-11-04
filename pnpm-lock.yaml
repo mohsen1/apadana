@@ -175,8 +175,8 @@ importers:
         specifier: ^1.10.1
         version: 1.10.1
       '@chromatic-com/storybook':
-        specifier: ^1.9.0
-        version: 1.9.0(react@18.3.1)
+        specifier: ^3.2.2
+        version: 3.2.2(react@18.3.1)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))(bufferutil@4.0.8)(utf-8-validate@6.0.4))
       '@clerk/testing':
         specifier: ^1.2.21
         version: 1.2.21(@playwright/test@1.47.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1011,9 +1011,11 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@chromatic-com/storybook@1.9.0':
-    resolution: {integrity: sha512-vYQ+TcfktEE3GHnLZXHCzXF/sN9dw+KivH8a5cmPyd9YtQs7fZtHrEgsIjWpYycXiweKMo1Lm1RZsjxk8DH3rA==}
+  '@chromatic-com/storybook@3.2.2':
+    resolution: {integrity: sha512-xmXt/GW0hAPbzNTrxYuVo43Adrtjue4DeVrsoIIEeJdGaPNNeNf+DHMlJKOBdlHmCnFUoe9R/0mLM9zUp5bKWw==}
     engines: {node: '>=16.0.0', yarn: '>=1.22.18'}
+    peerDependencies:
+      storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
 
   '@clerk/backend@1.11.1':
     resolution: {integrity: sha512-g+jk1wxS0j6s1or6e3rf8KK4bHaIxajCMHAASyhfl9a9OVBqtkeMgbQ3+LIFDRAOSQLxLKrIqJgPGPfOoHz17Q==}
@@ -3832,8 +3834,8 @@ packages:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
 
-  chromatic@11.7.1:
-    resolution: {integrity: sha512-LvgPimdQdnQB07ZDxLEC2KtxgYeqTw0X71GA7fi3zhgtKLxZcE+BSZ/5I9rrQp1V8ydmfElfw0ZwnUH4fVgUAQ==}
+  chromatic@11.16.3:
+    resolution: {integrity: sha512-bckarRbZ3M1BvsmhLqEMschuQPk2FlSD9cvy8383JwoVvaIqLr0dv1tI/DPM4LMuXOjTjeBSZZINVH9r3RMiiA==}
     hasBin: true
     peerDependencies:
       '@chromatic-com/cypress': ^0.*.* || ^1.0.0
@@ -4667,6 +4669,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@9.6.1:
@@ -8976,12 +8979,13 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@chromatic-com/storybook@1.9.0(react@18.3.1)':
+  '@chromatic-com/storybook@3.2.2(react@18.3.1)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))(bufferutil@4.0.8)(utf-8-validate@6.0.4))':
     dependencies:
-      chromatic: 11.7.1
+      chromatic: 11.16.3
       filesize: 10.1.6
       jsonfile: 6.1.0
       react-confetti: 6.1.0(react@18.3.1)
+      storybook: 8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       strip-ansi: 7.1.0
     transitivePeerDependencies:
       - '@chromatic-com/cypress'
@@ -12631,7 +12635,7 @@ snapshots:
 
   chownr@2.0.0: {}
 
-  chromatic@11.7.1: {}
+  chromatic@11.16.3: {}
 
   chrome-trace-event@1.0.4: {}
 
