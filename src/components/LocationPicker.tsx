@@ -3,6 +3,7 @@
 import {
   Circle,
   GoogleMap,
+  Libraries,
   Marker,
   useLoadScript,
 } from '@react-google-maps/api';
@@ -71,9 +72,10 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   const [customPin, setCustomPin] = useState<google.maps.Icon | null>(null);
   const [activePredictionIndex, setActivePredictionIndex] =
     useState<number>(-1);
+  const libraries: Libraries = ['places', 'geometry'];
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-    libraries: ['places', 'geometry'],
+    libraries,
   });
   const { theme } = useTheme();
 
