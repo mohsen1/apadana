@@ -63,6 +63,8 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   const [showExactLocation, setShowExactLocation] = useState(
     initialShowExactLocation,
   );
+  const [isFetchingCurrentLocation, setIsFetchingCurrentLocation] =
+    useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral | null>(
@@ -169,8 +171,10 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   };
 
   // New function to handle fetching user's current location
-  const handleFetchCurrentLocation = () => {
+  const handleFetchCurrentLocation = (e: React.MouseEvent<SVGSVGElement>) => {
+    e.preventDefault();
     if (navigator.geolocation) {
+      setIsFetchingCurrentLocation(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
@@ -184,6 +188,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           geocoder.geocode(
             { location: { lat: latitude, lng: longitude } },
             (results, status) => {
+              setIsFetchingCurrentLocation(false);
               if (
                 status === google.maps.GeocoderStatus.OK &&
                 results &&
@@ -340,6 +345,11 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                 </Tooltip>
               </TooltipProvider>
             </div>
+            {isFetchingCurrentLocation && (
+              <span className='text-muted-foreground'>
+                Fetching current location...
+              </span>
+            )}
             {errors.address && (
               <span className='text-red-500'>{errors.address}</span>
             )}
