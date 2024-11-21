@@ -10,6 +10,7 @@ export const UploadImageSchema = z.object({
   type: z.string(),
   size: z.number(),
   customId: z.string().nullable(),
+  fileHash: z.string(),
   serverData: z
     .object({
       uploadedBy: z.string(),

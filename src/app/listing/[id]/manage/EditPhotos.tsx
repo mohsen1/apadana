@@ -25,11 +25,15 @@ import {
 
 import { editListingImages } from '@/app/listing/[id]/manage/action';
 
-export function EditPhotos({
-  listing,
-}: {
-  listing: Listing & { images: Omit<UploadedFileData, 'appUrl'>[] };
-}) {
+type ListingWithImages = Listing & {
+  images: (Omit<UploadedFileData, 'appUrl'> & { fileHash: string })[];
+};
+
+interface EditPhotosProps {
+  listing: ListingWithImages;
+}
+
+export function EditPhotos({ listing }: EditPhotosProps) {
   const { status, execute } = useAction(editListingImages);
   const { handleSubmit, formState, control } = useForm<EditListingImages>({
     defaultValues: {

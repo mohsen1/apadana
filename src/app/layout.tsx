@@ -18,7 +18,7 @@ import Footer from '@/components/footer';
 import { Header } from '@/components/layout/header';
 import { ThemeProvider } from '@/components/theme-provider';
 
-import { fileRouter } from '@/app/api/uploadthing/core';
+import { ourFileRouter as fileRouter } from '@/app/api/uploadthing/core';
 import { siteConfig } from '@/constant/config';
 
 const fontSans = FontSans({

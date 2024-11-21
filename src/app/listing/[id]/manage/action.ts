@@ -153,6 +153,7 @@ export const editListingImages = actionClient
               name: image.name,
               type: image.type,
               size: image.size,
+              fileHash: image.fileHash || '',
               customId: image.customId,
             },
           });

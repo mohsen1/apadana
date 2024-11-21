@@ -116,8 +116,9 @@ model UploadThingImage {
   url       String
   key       String   @unique
   name      String
-  type      String
-  size      Int
+  type      String   @default("") @db.VarChar(100)
+  size      Int      @default(0)
+  fileHash  String
   customId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
