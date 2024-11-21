@@ -56,21 +56,19 @@ export async function POST(req: Request) {
     });
   }
 
-  if (evt.type === 'user.created' || evt.type === 'user.updated') {
+  if (
+    evt.type === 'user.created' ||
+    evt.type === 'user.updated' ||
+    evt.type === 'session.created'
+  ) {
     await createOrUpdateUser(evt.data as UserJSON);
   }
 
-  // In development, we need to create the user in the database when an
-  // existing user is logging in. They have a row in the production database
-  // but not in the development database. We use the session.created webhook
-  // to detect this and create the user in the development database.
-  if (
-    evt.type === 'session.created' &&
-    process.env.NODE_ENV === 'development'
-  ) {
-    await createOrUpdateUser(evt.data as unknown as UserJSON);
-    return new Response('Webhook received and user created (for development)', {
-      status: 200,
+  if (evt.type === 'user.deleted') {
+    await prisma.user.delete({
+      where: {
+        id: evt.data.id,
+      },
     });
   }
 
