@@ -1,59 +1,72 @@
-import { auth } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
+import { z } from 'zod';
 
 import prisma from '@/lib/prisma/client';
+import { actionClient } from '@/lib/safe-action';
 
 import { getListing } from '@/app/listing/action';
 
-export async function deleteListing(formData: FormData) {
-  'use server';
-  const id = formData.get('id');
-  const { userId, redirectToSignIn } = await auth();
+export const deleteListing = actionClient
+  .schema(z.object({ id: z.string() }))
+  .action(async ({ parsedInput, ctx }) => {
+    const { id } = parsedInput;
+    const { userId } = ctx;
 
-  if (!userId) {
-    return redirectToSignIn();
-  }
-
-  if (typeof id === 'string') {
-    const listingId = parseInt(id, 10);
-    const res = await getListing({ id: listingId });
-
-    if (!res?.data?.success) {
-      throw new Error(res?.data?.error);
+    if (!userId) {
+      return {
+        error: 'Unauthorized',
+      };
     }
 
-    const listing = res.data.listing;
+    if (typeof id === 'string') {
+      const listingId = parseInt(id, 10);
+      const res = await getListing({ id: listingId });
 
-    if (!listing) {
-      return new Response('Listing Not Found', { status: 404 });
+      if (!res?.data?.success) {
+        throw new Error(res?.data?.error);
+      }
+
+      const listing = res.data.listing;
+
+      if (!listing) {
+        return {
+          error: 'Listing Not Found',
+        };
+      }
+
+      if (listing.ownerId !== userId) {
+        return {
+          error: 'Listing Not Found',
+        };
+      }
+
+      await prisma.$transaction(async (tx) => {
+        // Delete associated images
+        await tx.uploadThingImage.deleteMany({
+          where: { listingId },
+        });
+
+        // Delete related booking requests
+        await tx.bookingRequest.deleteMany({
+          where: { listingId },
+        });
+
+        // Delete listing inventory
+        await tx.listingInventory.deleteMany({
+          where: { listingId },
+        });
+
+        // Finally, delete the listing
+        await tx.listing.delete({
+          where: { id: listingId },
+        });
+      });
+
+      return {
+        success: true,
+      };
     }
 
-    if (listing.ownerId !== userId) {
-      return new Response('Listing Not Found', { status: 404 });
-    }
-
-    await prisma.$transaction(async (tx) => {
-      // Delete associated images
-      await tx.uploadThingImage.deleteMany({
-        where: { listingId },
-      });
-
-      // Delete related booking requests
-      await tx.bookingRequest.deleteMany({
-        where: { listingId },
-      });
-
-      // Delete listing inventory
-      await tx.listingInventory.deleteMany({
-        where: { listingId },
-      });
-
-      // Finally, delete the listing
-      await tx.listing.delete({
-        where: { id: listingId },
-      });
-    });
-  }
-
-  redirect('/listing');
-}
+    return {
+      error: 'Invalid ID',
+    };
+  });

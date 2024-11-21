@@ -153,6 +153,7 @@ test.describe.serial('create listing', () => {
       .fill('No smoking is allowed. No pets.');
 
     await page.getByRole('button', { name: 'Submit Listing' }).click();
+    await page.getByRole('button', { name: 'Submit Listing' }).click();
 
     await page.waitForURL(/\/listing\/\d+\/manage\/calendar\?newListing=true/);
     currentListing.id = new URL(page.url()).pathname.split('/')[2];
@@ -166,9 +167,8 @@ test.describe.serial('create listing', () => {
     await page.signIn();
     await page.goto(`/listing/${currentListing.id}/delete`);
     await expect(page.getByText('Delete "My new test listing"')).toBeVisible();
-    // TODO: Find out why we have to wait a second for the page to load before clicking the delete button
-    //       Otherwise, the button is not clickable
-    await page.waitForTimeout(1000);
+
+    await page.getByRole('button', { name: 'Delete' }).click();
     await page.getByRole('button', { name: 'Delete' }).click();
     await page.waitForURL('/listing');
     await page.goto(`/listing/${currentListing.id}/delete`);
