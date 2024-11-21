@@ -1,11 +1,68 @@
-import { UserJSON, WebhookEvent } from '@clerk/nextjs/server';
-import { Permission, Prisma, Role } from '@prisma/client';
+import { clerkClient, UserJSON, WebhookEvent } from '@clerk/nextjs/server';
+import {
+  EmailAddress as ClerkEmailAddress,
+  ExternalAccount as ClerkExternalAccount,
+  Permission,
+  Prisma,
+  Role,
+  User as ClerkUser,
+} from '@prisma/client';
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 
 import prisma from '@/lib/prisma/client';
 
 import logger from '@/utils/logger';
+
+interface ClerkUserComplete extends ClerkUser {
+  primaryEmailAddressId: string;
+  emailAddresses: Omit<ClerkEmailAddress, 'isPrimary'>[];
+  externalAccounts: ClerkExternalAccount[];
+}
+
+async function clerkUserToUserCreateArgsData(
+  clerkUser: ClerkUserComplete,
+): Promise<Prisma.UserCreateArgs['data']> {
+  const orgMemberships =
+    await clerkClient().users.getOrganizationMembershipList({
+      userId: clerkUser.id,
+    });
+
+  return {
+    id: clerkUser.id,
+    firstName: clerkUser.firstName,
+    lastName: clerkUser.lastName,
+    imageUrl: clerkUser.imageUrl,
+    emailAddresses: {
+      create: clerkUser.emailAddresses.map((email) => ({
+        id: email.id,
+        emailAddress: email.emailAddress,
+        isPrimary: email.id === clerkUser.primaryEmailAddressId,
+        verification: email.verification?.[0],
+      })),
+    },
+    externalAccounts: {
+      create: clerkUser.externalAccounts
+        .filter(
+          (externalAccount) => externalAccount.id && externalAccount.provider,
+        )
+        .map((account) => ({
+          id: account.id,
+          provider: account.provider,
+          externalId: account.externalId,
+        })),
+    },
+    roles: {
+      create: orgMemberships.data.map((membership) => ({
+        role: mapRole(membership.role),
+      })),
+    },
+    // TODO: update permissions when creating a user object from clerk user
+    //  in webhooks in development
+    // permissions:
+  };
+}
+
 export async function POST(req: Request) {
   logger.info('Webhook request received');
 
@@ -68,16 +125,33 @@ export async function POST(req: Request) {
   }
 
   try {
-    if (
-      evt.type === 'user.created' ||
-      evt.type === 'user.updated' ||
-      evt.type === 'session.created'
-    ) {
+    if (evt.type === 'user.created' || evt.type === 'user.updated') {
       logger.info('Processing user data', {
         type: evt.type,
         userId: evt.data.id,
       });
       await createOrUpdateUser(evt.data as UserJSON);
+    }
+
+    if (
+      evt.type === 'session.created' &&
+      process.env.NODE_ENV === 'development'
+    ) {
+      logger.info('Processing session data', {
+        type: evt.type,
+        userId: evt.data.id,
+      });
+      const clerkUser = (await clerkClient().users.getUser(
+        evt.data.user_id,
+      )) as unknown as ClerkUserComplete;
+
+      const userData = await clerkUserToUserCreateArgsData(clerkUser);
+      await prisma.user.update({
+        where: {
+          id: evt.data.user_id,
+        },
+        data: userData,
+      });
     }
 
     if (evt.type === 'user.deleted') {
