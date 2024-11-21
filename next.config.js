@@ -1,10 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    dirs: ['src'],
-  },
+  productionBrowserSourceMaps: process.env.NEXT_E2E_BUILD === 'true',
 
   reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: !!process.env.CI,
+  },
+  eslint: {
+    ignoreDuringBuilds: !!process.env.CI,
+    dirs: ['src'],
+  },
   swcMinify: true,
 
   images: {

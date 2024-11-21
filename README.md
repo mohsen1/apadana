@@ -139,10 +139,40 @@ pnpm run test:watch
 pnpm run e2e
 ```
 
-When working on E2E tests, you can use this command to debug the tests.
+When working on E2E tests, first, makes sure your dev server is running, then, you can use this command to debug the tests.
 
 ```bash
-pnpm run e2e --debug
+pnpm run e2e:debug __PATH_TO_TEST_FILE__
+```
+
+This will launch Playwright browser in headed mode and also show you the Playwright debugger. Clicking on the ▶ button in the debugger will start the test execution.
+
+## Database
+
+You can use the following commands to manage the local database.
+
+### Delete local database
+
+This will delete the database with the name `apadana` and remove all the data in it.
+
+```bash
+pnpm run manage-db delete apadana
+```
+
+### Create local database
+
+This will create a new database with the name `apadana`.
+
+```bash
+pnpm run manage-db create apadana
+```
+
+### Migrate local database
+
+This will migrate the local database to the latest schema. If you have made changes to the schema, you can use this command to apply those changes to the database. You might need to run this command after creating a new database.
+
+```bash
+pnpm run migrate:dev
 ```
 
 ## Technology Stack Overview

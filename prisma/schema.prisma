@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_URL")
+  url      = env("POSTGRES_DATABASE_URL")
 }
 
 // TODO
@@ -137,6 +137,7 @@ enum Currency {
 model Listing {
   id                Int                @id @default(autoincrement())
   title             String             @db.VarChar(255)
+  slug              String             @default("") @db.VarChar(255)
   description       String             @db.Text
   propertyType      String             @db.VarChar(100)
   address           String             @db.VarChar(255)
@@ -154,6 +155,7 @@ model Listing {
   maximumGuests     Int                @default(5)
   houseRules        String             @db.Text
   allowPets         Boolean            @default(false)
+  petPolicy         String             @default("") @db.Text
   published         Boolean            @default(false)
   showExactLocation Boolean            @default(true)
   locationRadius    Float              @default(1) // in kilometers

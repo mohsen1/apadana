@@ -1,5 +1,5 @@
 import { setupClerkTestingToken } from '@clerk/testing/playwright';
-import { Page, test as baseTest } from '@playwright/test';
+import { Page, test as baseTest, TestInfo } from '@playwright/test';
 
 interface ExtendedPage extends Page {
   /**
@@ -8,17 +8,29 @@ interface ExtendedPage extends Page {
   signIn: () => Promise<void>;
 }
 
+interface CurrentListing {
+  id: string | undefined;
+}
+
 interface TestExtensions {
   /**
    * The page object that is extended with the signIn method
    */
   page: ExtendedPage;
+
+  /**
+   * The current listing that is being tested
+   */
+  currentListing: CurrentListing;
 }
 
 export const test = baseTest.extend<TestExtensions>({
+  currentListing: { id: undefined },
+
   page: async (
     { page }: { page: ExtendedPage },
     use: (page: ExtendedPage) => void,
+    testInfo: TestInfo,
   ) => {
     await setupClerkTestingToken({ page });
     page.signIn = async () => {
@@ -33,5 +45,13 @@ export const test = baseTest.extend<TestExtensions>({
       await page.getByRole('button', { name: 'Continue' }).click();
     };
     await use(page);
+    // Capture screenshot on failure
+    if (testInfo.status !== 'passed') {
+      await page.screenshot({
+        path: `test-failed-${testInfo.title.replace(/\s+/g, '-')}.png`,
+      });
+    }
   },
 });
+
+export const expect = test.expect;
