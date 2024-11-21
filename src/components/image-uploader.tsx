@@ -197,6 +197,7 @@ export const ImageUploader = ({
                     customId: `optimistic-${Date.now()}-${file.name}`,
                     url: URL.createObjectURL(file),
                     optimistic: true,
+                    fileHash: '',
                   }));
                   setImages((prev) => [...prev, ...newOptimisticImages]);
                   onChange([...images, ...newOptimisticImages]);
