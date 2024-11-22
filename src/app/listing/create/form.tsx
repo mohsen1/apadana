@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/card';
 
 import { createListing } from '@/app/listing/create/action';
+import FormDebugger from '@/app/listing/create/FormDebugger';
+import logger from '@/utils/logger';
 
 import { AmenitiesStep } from './AmenitiesStep';
 import { BasicInfoStep } from './BasicInfoStep';
@@ -89,6 +91,9 @@ export default function CreateListingForm() {
   );
 
   const { execute, result } = useAction(createListing, {
+    onError: (error) => {
+      logger.error('create listing error', error);
+    },
     onSuccess: (result) => {
       if (result.data?.success && result.data.listing) {
         router.push(
@@ -99,7 +104,12 @@ export default function CreateListingForm() {
   });
 
   const methods = useForm<CreateListing>({
-    resolver: zodResolver(CreateListingSchema),
+    resolver: zodResolver(CreateListingSchema, {
+      errorMap: (error, ctx) => {
+        logger.error(error, ctx);
+        return { message: ctx.defaultError ?? 'Unknown error' };
+      },
+    }),
     defaultValues,
   });
 
@@ -203,8 +213,10 @@ export default function CreateListingForm() {
   const canGoToNextStep = () => {
     if (currentStep === FormStep.Photos) {
       const { images } = getValues();
-      // Check if all images have a key, meaning they are uploaded
-      return images?.every((image) => image.serverData);
+      // Check if there are any images and they all have serverData
+      return (
+        images && images.length > 0 && images.every((image) => image.serverData)
+      );
     }
     const requiredFields = stepRequiredFields[currentStep];
     const values = getValues();
@@ -214,13 +226,24 @@ export default function CreateListingForm() {
   return (
     <FormProvider {...methods}>
       <form
-        onSubmit={handleSubmit((data) => {
-          updateUrlParams({
-            formData: data,
-            step: currentStep,
-          });
-          execute(data);
-        })}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (currentStep < steps.length - 1) {
+            return;
+          }
+          handleSubmit(
+            (data) => {
+              updateUrlParams({
+                formData: data,
+                step: currentStep,
+              });
+              execute(data);
+            },
+            (errors) => {
+              logger.error('submit errors', errors);
+            },
+          )(e);
+        }}
         className='max-w-4xl mx-auto p-6 space-y-8 flex-grow w-full'
       >
         <ResultMessage result={result} />
@@ -264,6 +287,7 @@ export default function CreateListingForm() {
           </CardFooter>
         </Card>
       </form>
+      <FormDebugger />
     </FormProvider>
   );
 }

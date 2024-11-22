@@ -8,10 +8,12 @@ import { CreateListingSchema } from '@/lib/prisma/schema';
 import { actionClient } from '@/lib/safe-action';
 
 import { assertError } from '@/utils/index';
+import logger from '@/utils/logger';
 
 export const createListing = actionClient
   .schema(CreateListingSchema)
   .action(async ({ parsedInput, ctx: { userId } }) => {
+    logger.info('createListing', { parsedInput, userId });
     try {
       if (!userId) {
         throw new Error('User not found');
