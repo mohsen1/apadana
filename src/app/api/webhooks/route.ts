@@ -133,13 +133,7 @@ async function handleUserCreatedOrUpdated(userJson: UserJSON) {
   return await createOrUpdateUser(userJson);
 }
 
-/**
- * Only in development mode we create users from Clerk sessions because sometimes
- * our DB in dev mode is fresh but the Clerk user has already been created.
- */
 async function handleSessionCreated(data: SessionJSON) {
-  if (process.env.NODE_ENV !== 'development') return;
-
   logger.info('Processing session data', {
     type: 'session.created',
     userId: data.user_id,
