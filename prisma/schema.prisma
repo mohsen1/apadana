@@ -75,6 +75,11 @@ model UserPermission {
   @@unique([userId, permission])
 }
 
+model TestTable {
+  id  Int    @id @default(autoincrement())
+  foo String @db.VarChar(255)
+}
+
 model User {
   id        String   @id // ID from Clerk
   firstName String?
