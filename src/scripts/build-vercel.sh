@@ -10,5 +10,6 @@ if [ "$VERCEL_ENV" == "preview" ]; then
   pnpm run build
 else
   echo "Skipping preview database creation... VERCEL_ENV: $VERCEL_ENV"
+  pnpm run migrate:prod
   pnpm run build
 fi
