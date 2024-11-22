@@ -1,7 +1,8 @@
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { HomeIcon } from 'lucide-react';
 import Link from 'next/link';
 
+import { LoggedInHeaderLinks } from '@/components/layout/LoggedInHeaderLinks';
+import { Nav } from '@/components/layout/Nav';
 import { Button } from '@/components/ui/button';
 
 export function Header() {
@@ -16,11 +17,7 @@ export function Header() {
         </Link>
       </div>
       <div className='flex gap-4 sm:gap-6 ml-10 border-l border-slate-700 pl-4'>
-        <SignedIn>
-          <Button href='/listing' variant='link'>
-            My Listings
-          </Button>
-        </SignedIn>
+        <LoggedInHeaderLinks />
         <Button href='/listing/create' variant='link'>
           Create Listing
         </Button>
@@ -35,14 +32,7 @@ export function Header() {
           </Button>
         )}
       </div>
-      <nav className='ml-auto flex gap-4 sm:gap-6'>
-        <SignedOut>
-          <SignInButton />
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
-      </nav>
+      <Nav />
     </header>
   );
 }

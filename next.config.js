@@ -13,7 +13,11 @@ const nextConfig = {
   swcMinify: true,
 
   images: {
-    domains: ['utfs.io', 'img.clerk.com'],
+    remotePatterns: [
+      { hostname: 'utfs.io' },
+      { hostname: 'img.clerk.com' },
+      { hostname: 'apadana.app' },
+    ],
   },
 
   experimental: {

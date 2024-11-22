@@ -91,7 +91,7 @@ export default defineConfig({
   /* Run your local server in production mode before starting the tests if not debugging the tests */
   webServer: startServer
     ? {
-        command: 'if [ ! -d ".next" ]; then pnpm run build; fi; pnpm run start',
+        command: 'pnpm run start || (pnpm run build && pnpm run start)',
         env: {
           PORT: port,
         },
