@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "predev": "src/scripts/start-local-db.sh && pnpm run migrate:dev",
-    "dev": "dotenv -e .env.local -- concurrently --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold\" npm:dev:*",
+    "dev": "dotenv -e .env.local -- concurrently --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold\" npm:dev:*",
     "dev:next": "next dev",
     "dev:prisma": "prisma generate --watch",
     "dev:storybook": "storybook dev -p 6006 --no-open --quiet",
     "dev:smee": "node src/scripts/smee-client.js",
+    "dev:studio": "dotenv -e .env -- prisma studio --browser none",
     "migrate:dev": "dotenv -e .env.local -- prisma migrate dev",
     "migrate:prod": "dotenv -e .env -- prisma migrate deploy",
     "manage-db": "src/scripts/manage-db.js",

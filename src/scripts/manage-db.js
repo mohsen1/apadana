@@ -70,14 +70,12 @@ if (!POSTGRES_HOST || !databaseUserName || !databasePassword) {
 
 // Function to create a new PostgreSQL client with appropriate SSL settings
 function createClient(
-  dbName,
+  dbName = 'postgres',
   user = databaseUserName,
   password = databasePassword,
 ) {
   const isProduction = process.env.NODE_ENV === 'production';
-  const ssl = isProduction
-    ? { rejectUnauthorized: false } // Adjust as needed for your production environment
-    : false;
+  const ssl = isProduction ? { rejectUnauthorized: false } : false;
 
   return new Client({
     host: POSTGRES_HOST,
@@ -158,34 +156,33 @@ async function purgeDatabase() {
 }
 
 async function createAndCloneDatabase(destDbName) {
-  const client = createClient(POSTGRES_DATABASE);
+  const client = createClient();
 
   try {
     await client.connect();
-    const createAndCloneQuery = `
-      DO $$ 
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = '${destDbName}') THEN
-          CREATE DATABASE "${destDbName}";
-          PERFORM pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${destDbName}';
-          EXECUTE 'CREATE DATABASE "${destDbName}" WITH TEMPLATE "${DEFAULT_DATABASE_NAME}"';
-        END IF;
-      END $$;
-    `;
 
-    await client.query(createAndCloneQuery);
+    // First, try to create the database directly
+    try {
+      await client.query(`CREATE DATABASE "${destDbName}"`);
+      console.log(`Database '${destDbName}' created successfully.`);
+    } catch (createError) {
+      // If database already exists, that's fine
+      if (createError.code === '42P04') {
+        // PostgreSQL error code for duplicate database
+        console.log(`Database '${destDbName}' already exists.`);
+      } else {
+        throw createError;
+      }
+    }
 
+    // Generate and append database URL to .env
     const newDatabaseUrl = `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${destDbName}?schema=public`;
     fs.appendFileSync(
       path.join(process.cwd(), '.env'),
-
-      [`POSTGRES_DATABASE_URL=${newDatabaseUrl}`].join('\n'),
-    );
-    console.log(
-      `Database '${destDbName}' created (if not exists) and cloned from '${DEFAULT_DATABASE_NAME}' successfully.`,
+      `\nPOSTGRES_DATABASE_URL=${newDatabaseUrl}`,
     );
   } catch (error) {
-    console.error('Error creating and cloning database:', error.message);
+    console.error('Error creating database:', error.message);
     process.exit(1);
   } finally {
     await client.end();

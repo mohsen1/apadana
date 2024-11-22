@@ -24,6 +24,16 @@ export function Header() {
         <Button href='/listing/create' variant='link'>
           Create Listing
         </Button>
+        {process.env.NODE_ENV === 'development' && (
+          <Button
+            href='http://localhost:5555'
+            variant='link'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            Prisma Studio
+          </Button>
+        )}
       </div>
       <nav className='ml-auto flex gap-4 sm:gap-6'>
         <SignedOut>

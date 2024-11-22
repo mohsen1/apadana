@@ -61,7 +61,7 @@ model UserRole {
   id     Int    @id @default(autoincrement())
   role   Role
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, role])
 }
@@ -70,7 +70,7 @@ model UserPermission {
   id         Int        @id @default(autoincrement())
   permission Permission
   userId     String
-  user       User       @relation(fields: [userId], references: [id])
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, permission])
 }
@@ -98,7 +98,7 @@ model EmailAddress {
   isPrimary    Boolean @default(false)
   verification String?
   userId       String
-  user         User    @relation(fields: [userId], references: [id])
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ExternalAccount {
@@ -106,7 +106,7 @@ model ExternalAccount {
   provider   String
   externalId String
   userId     String
-  user       User   @relation(fields: [userId], references: [id])
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, externalId])
 }
@@ -160,7 +160,7 @@ model Listing {
   published         Boolean            @default(false)
   showExactLocation Boolean            @default(true)
   locationRadius    Float              @default(1) // in kilometers
-  owner             User               @relation(fields: [ownerId], references: [id])
+  owner             User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId           String
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
@@ -191,7 +191,7 @@ model ListingInventory {
 
 model Booking {
   id               Int                @id @default(autoincrement())
-  user             User               @relation(fields: [userId], references: [id])
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String
   listingInventory ListingInventory[]
   totalPrice       Float
@@ -215,7 +215,7 @@ enum BookingRequestStatus {
 
 model BookingRequest {
   id         Int                  @id @default(autoincrement())
-  user       User                 @relation(fields: [userId], references: [id])
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String
   listing    Listing              @relation(fields: [listingId], references: [id])
   listingId  Int
