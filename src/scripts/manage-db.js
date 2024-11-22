@@ -52,13 +52,12 @@ if (process.argv[2] === ACTIONS.CLONE) {
 }
 
 // Default database name for local development
-const DEFAULT_DATABASE_NAME =
-  process.env.VERCEL_ENV === 'preview' ? 'verceldb' : 'apadana';
+const DEFAULT_DATABASE_NAME = 'apadana';
 
 // Load environment variables
 const POSTGRES_HOST = process.env.POSTGRES_HOST;
 const POSTGRES_PORT = process.env.POSTGRES_PORT || 5432;
-const POSTGRES_DATABASE = process.env.POSTGRES_DATABASE || 'verceldb';
+const POSTGRES_DATABASE = process.env.POSTGRES_DATABASE || 'neondb';
 
 // Validate environment variables
 if (!POSTGRES_HOST || !databaseUserName || !databasePassword) {
@@ -111,14 +110,6 @@ async function purgeDatabase() {
   if (dbName === DEFAULT_DATABASE_NAME) {
     user = execSync('whoami').toString().trim();
     password = 'admin';
-  }
-
-  // For Vercel preview, connect to "verceldb" with environment variables
-  if (process.env.VERCEL_ENV === 'preview') {
-    dbName = 'verceldb';
-    user = process.env.POSTGRES_USER;
-    password = process.env.POSTGRES_PASSWORD;
-    console.log('Connecting to Vercel preview database: verceldb');
   }
 
   const client = createClient(dbName, user, password);
