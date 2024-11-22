@@ -213,9 +213,9 @@ export default function CreateListingForm() {
   const canGoToNextStep = () => {
     if (currentStep === FormStep.Photos) {
       const { images } = getValues();
-      // Check if there are any images and they all have serverData
+      // Check if there are any images and they all have file hash
       return (
-        images && images.length > 0 && images.every((image) => image.serverData)
+        images && images.length > 0 && images.every((image) => !!image.fileHash)
       );
     }
     const requiredFields = stepRequiredFields[currentStep];

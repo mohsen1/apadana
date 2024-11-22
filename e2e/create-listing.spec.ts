@@ -1,40 +1,5 @@
 import { expect, test } from './base';
 
-const fakeUploadThingResponse = [
-  {
-    key: '1ec959da-a7f8-462f-bf58-c57d7759fef7-9uf9nu.jpg',
-    fileName: 'photo-1.jpg',
-    fileType: 'image',
-    fileUrl:
-      'https://utfs.io/f/1ec959da-a7f8-462f-bf58-c57d7759fef7-9uf9nu.jpg',
-    pollingJwt: 'fake',
-    pollingUrl: 'https://api.uploadthing.com/v6/serverCallback',
-    url: 'https://uploadthing-prod-sea1.s3.us-west-2.amazonaws.com/',
-    contentDisposition: 'inline',
-    customId: null,
-    fields: {
-      acl: 'public-read',
-      'Content-Type': 'image/jpeg',
-      'Content-Disposition':
-        'inline; filename="photo-1.jpg"; filename*=UTF-8\'\'photo-1.jpg',
-      bucket: 'uploadthing-prod-sea1',
-      'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
-      'X-Amz-Credential': 'fake',
-      'X-Amz-Date': '20240918T114658Z',
-      key: '1ec959da-a7f8-462f-bf58-c57d7759fef7-9uf9nu.jpg',
-      Policy: 'fake',
-      'X-Amz-Signature': 'fake',
-    },
-  },
-];
-
-const fakeUploadThingResponseServerCallbask = {
-  status: 'done',
-  callbackData: {
-    uploadedBy: 'user_2lO2Xgv9x9ODXHdXjgDjwHT85qe',
-  },
-};
-
 test.describe.serial('create listing', () => {
   test('Fill in the form step by step and create the listing', async ({
     page,
@@ -97,38 +62,39 @@ test.describe.serial('create listing', () => {
     // Move to the next step
     await page.getByRole('button', { name: 'Next' }).click();
 
-    // Fake file uploads
     await page.route(
       '**/api/uploadthing?actionType=upload&slug=imageUploader',
       async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify(fakeUploadThingResponse),
+          body: JSON.stringify([
+            {
+              url: 'https://sea1.ingest.uploadthing.com/DO8cEdIOn9QlPii1Ujs8uaIC0NwKfJXpOT3zdBGoRUY4ErV9?expires=1732268657066&x-ut-identifier=l0v1d7mwqi&x-ut-file-name=photo-1.jpg&x-ut-file-size=192117&x-ut-file-type=image%252Fjpeg&x-ut-slug=imageUploader&x-ut-content-disposition=inline&signature=hmac-sha256%3D64798f89554c8113eb908004117ef6762194f8f853370857aa83eadb79335413',
+              key: 'DO8cEdIOn9QlPii1Ujs8uaIC0NwKfJXpOT3zdBGoRUY4ErV9',
+              name: 'photo-1.jpg',
+              customId: null,
+            },
+          ]),
         });
       },
     );
 
-    await page.route(
-      'https://uploadthing-prod-sea1.s3.us-west-2.amazonaws.com/*',
-      async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: '',
-        });
-      },
-    );
-    await page.route(
-      'https://api.uploadthing.com/v6/serverCallback',
-      async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify(fakeUploadThingResponseServerCallbask),
-        });
-      },
-    );
+    await page.route('https://*.uploadthing.com/*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          url: 'https://utfs.io/f/DO8cEdIOn9QlPii1Ujs8uaIC0NwKfJXpOT3zdBGoRUY4ErV9',
+          appUrl:
+            'https://utfs.io/a/l0v1d7mwqi/DO8cEdIOn9QlPii1Ujs8uaIC0NwKfJXpOT3zdBGoRUY4ErV9',
+          serverData: {
+            uploadedBy: 'user_2pBNWcOEO4dt1XSmYwyCRd3IYJf',
+          },
+          fileHash: 'cfd8f6ed30409edfdcd674956b87ea1c',
+        }),
+      });
+    });
 
     // Upload images
     const fileInput = page.locator('input[type="file"]');

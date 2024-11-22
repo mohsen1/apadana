@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma/client';
 
-import DeleteListing from '@/app/listing/[id]/delete/DeleteListing';
+import { DeleteListing } from '@/app/listing/[id]/delete/DeleteListing';
 import NotFound from '@/app/not-found';
 
 export default async function DeleteListingPage({

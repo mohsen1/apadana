@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 
 import { deleteListing } from './action';
 
-export default function DeleteListing({ listing }: { listing: Listing }) {
+export function DeleteListing({ listing }: { listing: Listing }) {
   const { execute, status } = useAction(deleteListing);
 
   const { handleSubmit } = useForm<{ id: string }>({
