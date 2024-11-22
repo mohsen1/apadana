@@ -170,7 +170,7 @@ async function createAndCloneDatabase(destDbName) {
     const newDatabaseUrl = `postgresql://${databaseUserName}:${databasePassword}@${POSTGRES_HOST}:${POSTGRES_PORT}/${destDbName}?schema=public`;
     fs.appendFileSync(
       path.join(process.cwd(), '.env'),
-      `\nPOSTGRES_DATABASE_URL=${newDatabaseUrl}`,
+      `\nDATABASE_URL=${newDatabaseUrl}`,
     );
   } catch (error) {
     console.error('Error creating database:', error.message);

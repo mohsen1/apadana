@@ -9,7 +9,7 @@ const schema = z.object({
   UPLOADTHING_SECRET: z.string(),
   UPLOADTHING_TOKEN: z.string(),
   WEBHOOK_SECRET: z.string(),
-  POSTGRES_DATABASE_URL: z.string().url(),
+  DATABASE_URL: z.string().url(),
 });
 
 /**
