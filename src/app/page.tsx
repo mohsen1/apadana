@@ -160,7 +160,7 @@ export default function HomePage() {
         <div className=' md:px-6 mx-auto max-w-6xl'>
           <section className='w-full'>
             <div className='container px-4 md:px-6'>
-              <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl text-center mb-12'>
+              <h2 className='text-3xl mt-8 font-bold font-subheading tracking-tighter sm:text-5xl text-center mb-12'>
                 What Our Hosts Say
               </h2>
               <div className='grid gap-6 lg:grid-cols-3'>
