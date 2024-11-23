@@ -97,7 +97,7 @@ const Footer = () => {
         </div>
         <div className='mt-8 border-t border-gray-200 pt-8 text-center'>
           <p className='text-sm text-gray-600'>
-            &copy; {new Date().getFullYear()} Your Company Name. All rights
+            &copy; {new Date().getFullYear()} Apadana. All rights reserved.
             reserved.
           </p>
           <ThemeToggle />
