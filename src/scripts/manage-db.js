@@ -57,7 +57,6 @@ const DEFAULT_DATABASE_NAME = 'apadana';
 // Load environment variables
 const POSTGRES_HOST = process.env.POSTGRES_HOST;
 const POSTGRES_PORT = process.env.POSTGRES_PORT || 5432;
-const POSTGRES_DATABASE = process.env.POSTGRES_DATABASE || 'neondb';
 
 // Validate environment variables
 if (!POSTGRES_HOST || !databaseUserName || !databasePassword) {
@@ -88,10 +87,30 @@ function createClient(
 
 // Function to delete a database
 async function deleteDatabase() {
-  const client = createClient(POSTGRES_DATABASE);
+  let user = databaseUserName;
+  let password = databasePassword;
+
+  // Special handling for local development database
+  if (dbName === DEFAULT_DATABASE_NAME) {
+    user = execSync('whoami').toString().trim();
+    password = 'admin'; // Default local postgres password
+  }
+
+  // Connect to the 'postgres' database instead of the target database
+  const client = createClient('postgres', user, password);
 
   try {
     await client.connect();
+
+    // First, terminate all connections to the target database
+    await client.query(`
+      SELECT pg_terminate_backend(pg_stat_activity.pid)
+      FROM pg_stat_activity
+      WHERE pg_stat_activity.datname = '${dbName}'
+      AND pid <> pg_backend_pid();
+    `);
+
+    // Now drop the database
     await client.query(`DROP DATABASE IF EXISTS "${dbName}"`);
     console.log(`Database '${dbName}' deleted successfully.`);
   } catch (error) {

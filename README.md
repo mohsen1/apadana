@@ -153,7 +153,7 @@ You can use the following commands to manage the local database.
 
 ### Delete local database
 
-This will delete the database with the name `apadana` and remove all the data in it.
+This will delete the database if you want to start fresh.
 
 ```bash
 pnpm run manage-db delete apadana
