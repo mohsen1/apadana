@@ -50,43 +50,29 @@ export default defineConfig({
   },
 
   /* Configure projects for major browsers */
-  projects: [
-    {
+  get projects() {
+    const chromeProject = {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-    },
+    };
 
-    // TODO: Enable e2e testing for firefox and webkit
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
+    if (!process.env.CI) {
+      return [chromeProject];
+    }
 
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
+    return [
+      chromeProject,
 
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
-  ],
+      {
+        name: 'firefox',
+        use: { ...devices['Desktop Firefox'] },
+      },
+      {
+        name: 'webkit',
+        use: { ...devices['Desktop Safari'] },
+      },
+    ];
+  },
 
   /* Run your local server in production mode before starting the tests if not debugging the tests */
   webServer: startServer
