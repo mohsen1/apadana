@@ -1,3 +1,5 @@
+'use client';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Listing } from '@prisma/client';
 import { TrashIcon } from 'lucide-react';
@@ -26,11 +28,11 @@ export function DeleteListing({ listing }: { listing: Listing }) {
   return (
     <form
       className='max-w-4xl mx-auto pt-12 p-6 space-y-8 flex-grow'
-      onSubmit={handleSubmit((data) =>
+      onSubmit={handleSubmit((data) => {
         execute({
           id: data.id,
-        }),
-      )}
+        });
+      })}
     >
       <h1 className='text-2xl font-bold flex items-center gap-2'>
         <TrashIcon className='text-destructive' size={48} />
