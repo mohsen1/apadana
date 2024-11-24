@@ -1,5 +1,6 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
+import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Metadata } from 'next';
 import {
@@ -79,6 +80,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang='en' suppressHydrationWarning>
         <SpeedInsights />
+        <Analytics />
         <body
           className={cn(
             'min-h-screen bg-background font-sans antialiased flex flex-col',
