@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
@@ -89,6 +90,7 @@ export default function CreateListingForm() {
   const [currentStep, setCurrentStep] = useState<FormStep>(
     FormStep.LocationDetails,
   );
+  const [showLoading, setShowLoading] = useState(false);
 
   const { execute, result } = useAction(createListing, {
     onError: (error) => {
@@ -223,27 +225,42 @@ export default function CreateListingForm() {
     return requiredFields.every((field) => field in values);
   };
 
+  const handleFormSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (currentStep < steps.length - 1) {
+        return;
+      }
+
+      // Set up loading state with throttle
+      const loadingTimeout = setTimeout(() => {
+        setShowLoading(true);
+      }, 500);
+
+      handleSubmit(
+        async (data) => {
+          updateUrlParams({
+            formData: data,
+            step: currentStep,
+          });
+          await execute(data);
+          clearTimeout(loadingTimeout);
+          setShowLoading(false);
+        },
+        (errors) => {
+          logger.error('submit errors', errors);
+          clearTimeout(loadingTimeout);
+          setShowLoading(false);
+        },
+      )(e);
+    },
+    [currentStep, execute, handleSubmit, updateUrlParams],
+  );
+
   return (
     <FormProvider {...methods}>
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (currentStep < steps.length - 1) {
-            return;
-          }
-          handleSubmit(
-            (data) => {
-              updateUrlParams({
-                formData: data,
-                step: currentStep,
-              });
-              execute(data);
-            },
-            (errors) => {
-              logger.error('submit errors', errors);
-            },
-          )(e);
-        }}
+        onSubmit={handleFormSubmit}
         className='max-w-4xl mx-auto p-6 space-y-8 flex-grow w-full'
       >
         <ResultMessage result={result} />
@@ -280,8 +297,19 @@ export default function CreateListingForm() {
                 Next
               </Button>
             ) : (
-              <Button type='submit' disabled={isSubmitting}>
-                Submit Listing
+              <Button
+                type='submit'
+                disabled={isSubmitting || showLoading}
+                className='min-w-[100px]'
+              >
+                {isSubmitting || showLoading ? (
+                  <>
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Listing'
+                )}
               </Button>
             )}
           </CardFooter>
