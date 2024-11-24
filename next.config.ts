@@ -1,5 +1,6 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.NEXT_E2E_BUILD === 'true',
 
   reactStrictMode: true,
@@ -10,7 +11,6 @@ const nextConfig = {
     ignoreDuringBuilds: !!process.env.CI,
     dirs: ['src'],
   },
-  swcMinify: true,
 
   images: {
     remotePatterns: [
@@ -33,7 +33,7 @@ const nextConfig = {
 
   webpack(config) {
     // Grab the existing rule that handles SVG imports
-    const fileLoaderRule = config.module.rules.find((rule) =>
+    const fileLoaderRule = config.module.rules.find((rule: { test: RegExp }) =>
       rule.test?.test?.('.svg'),
     );
 
