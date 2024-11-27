@@ -17,6 +17,17 @@ dotenv.config();
 const startServer = process.env.PLAYWRIGHT_START_SERVER === 'true';
 const port = process.env.PORT || '3030';
 
+const isVercelDeployment = process.env.VERCEL_URL && process.env.CI;
+const vercelUrl = `https://${process.env.VERCEL_URL}`;
+const localUrl = `http://127.0.0.1:${port}`;
+
+const baseURL = isVercelDeployment
+  ? vercelUrl
+  : process.env.BASE_URL || localUrl;
+
+// eslint-disable-next-line no-console
+console.log('[Playwright] baseURL:', baseURL);
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -39,7 +50,7 @@ export default defineConfig({
   globalSetup: require.resolve('./e2e/global-setup.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: process.env.BASE_URL || `http://127.0.0.1:${port}`,
+    baseURL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: {
