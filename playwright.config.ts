@@ -38,7 +38,10 @@ export default defineConfig({
   globalSetup: require.resolve('./e2e/global-setup.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: process.env.BASE_URL || `http://127.0.0.1:${port}`,
+    baseURL:
+      process.env.VERCEL_URL && process.env.CI
+        ? `https://${process.env.VERCEL_URL}`
+        : process.env.BASE_URL || `http://127.0.0.1:${port}`,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: {
