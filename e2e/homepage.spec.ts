@@ -7,10 +7,10 @@ test('has title', async ({ page }) => {
   await expect(page).toHaveTitle(/Apadana/);
 });
 
-test('get started link', async ({ page }) => {
+test('get early access button', async ({ page }) => {
   await page.signIn();
   await page.goto('/');
-  // Click the get started link.
-  await page.getByText('Get started').first().click();
-  await expect(page.getByRole('button', { name: 'Next' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Get Early Access' }).first(),
+  ).toBeVisible();
 });

@@ -1,7 +1,9 @@
-name: Playwright Tests
+name: Playwright
 
 on:
   deployment_status:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -30,7 +32,7 @@ jobs:
           timeout_minutes: 15
           command: pnpm run e2e:ci
         env:
-          BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://apadana.app' || github.event.deployment_status.environment_url }}
+          BASE_URL: https://apadana.app
           PLAYWRIGHT_START_SERVER: 'false'
           CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
@@ -59,7 +61,7 @@ jobs:
             await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              name: 'Playwright Test Report',
+              name: 'Playwright Report',
               head_sha: sha,
               status: 'completed',
               conclusion: conclusion,
@@ -67,6 +69,7 @@ jobs:
               output: {
                 title: 'Playwright Test Report',
                 summary: `[**View the Playwright test report**](${reportUrl})`,
-                text: `The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}. Click the link above to view the detailed report.`
+                text: `# The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}.` +
+                  `\n\nClick [here](${reportUrl}) to view the detailed report.`
               }
             });

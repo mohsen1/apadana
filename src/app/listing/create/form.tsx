@@ -97,10 +97,12 @@ export default function CreateListingForm() {
       logger.error('create listing error', error);
     },
     onSuccess: (result) => {
-      if (result.data?.success && result.data.listing) {
-        router.replace(
-          `/listing/${result.data.listing.id}/manage/calendar?newListing=true`,
-        );
+      logger.info('create listing success', result);
+      if (result?.data?.listing) {
+        window.location.href = `/listing/${result.data.listing.id}/manage/calendar?newListing=true`;
+      } else {
+        logger.error('no listing returned from create listing', result);
+        router.replace(`/listings`);
       }
     },
   });

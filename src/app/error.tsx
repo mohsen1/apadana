@@ -2,9 +2,12 @@
 
 import { useTheme } from 'next-themes';
 import * as React from 'react';
+import { useEffect } from 'react';
 import { RiAlarmWarningFill } from 'react-icons/ri';
 
 import { Button } from '@/components/ui/button';
+
+import logger from '@/utils/logger';
 
 export default function Error({
   error,
@@ -18,6 +21,10 @@ export default function Error({
     console.error(error);
   }, [error]);
   const { theme } = useTheme();
+
+  useEffect(() => {
+    logger.error('Global error:', error);
+  }, [error]);
 
   const buttonColor =
     theme === 'dark'
