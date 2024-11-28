@@ -98,7 +98,7 @@ export default function CreateListingForm() {
     },
     onSuccess: (result) => {
       if (result.data?.success && result.data.listing) {
-        router.push(
+        router.replace(
           `/listing/${result.data.listing.id}/manage/calendar?newListing=true`,
         );
       }

@@ -1,11 +1,10 @@
 import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
-export default async function BookingPage({
-  params,
-}: {
-  params: { id: string };
+export default async function BookingPage(props: {
+  params: Promise<{ id: string }>;
 }) {
+  const params = await props.params;
   const res = await getListing({ id: Number(params.id) });
 
   if (!res?.data?.success) {

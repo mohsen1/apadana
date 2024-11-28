@@ -7,18 +7,17 @@ import { WelcomeToNewListing } from '@/app/listing/[id]/manage/WelcomeToNewListi
 import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
-export default async function ManageListingPage({
-  params,
-  searchParams,
-}: {
-  params: {
+export default async function ManageListingPage(props: {
+  params: Promise<{
     id: string;
     tab: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     newListing?: string;
-  };
+  }>;
 }) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const res = await getListing({
     id: Number.parseInt(params.id, 10),
     include: {

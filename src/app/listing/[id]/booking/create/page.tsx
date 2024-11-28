@@ -4,13 +4,12 @@ import CreateBookingForm from '@/app/listing/[id]/booking/create/CreateBookingFo
 import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
-export default async function CreateBookingPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string };
-  searchParams: { checkIn: string; checkOut: string };
+export default async function CreateBookingPage(props: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ checkIn: string; checkOut: string }>;
 }) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const res = await getListing({
     id: Number(params.id),
     include: { inventory: true, owner: true, images: true },

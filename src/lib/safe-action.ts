@@ -4,7 +4,7 @@ import { createSafeActionClient } from 'next-safe-action';
 const baseClient = createSafeActionClient({});
 
 export const actionClient = baseClient.use(async ({ next }) => {
-  const { userId } = auth();
+  const { userId } = await auth();
   return next({
     ctx: {
       userId,
