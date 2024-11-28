@@ -30,7 +30,7 @@ jobs:
           timeout_minutes: 15
           command: pnpm run e2e:ci
         env:
-          BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://apadana.app' || github.event.deployment_status.environment_url }}
           PLAYWRIGHT_START_SERVER: 'false'
           CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
@@ -63,9 +63,10 @@ jobs:
               head_sha: sha,
               status: 'completed',
               conclusion: conclusion,
+              details_url: reportUrl,
               output: {
                 title: 'Playwright Test Report',
-                summary: `[View the Playwright test report](${reportUrl})`,
+                summary: `[**View the Playwright test report**](${reportUrl})`,
                 text: `The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}. Click the link above to view the detailed report.`
               }
             });
