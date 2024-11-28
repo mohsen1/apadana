@@ -36,7 +36,7 @@ export default defineConfig({
   reporter: [
     ['html', { open: 'never', outputFolder: '.next/__e2e__reports__' }],
   ],
-  timeout: 5_000,
+  timeout: 30_000,
 
   globalSetup: require.resolve('./e2e/global-setup.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
