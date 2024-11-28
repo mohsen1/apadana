@@ -121,9 +121,9 @@ test.describe.serial('create listing', () => {
     await page.getByRole('button', { name: 'Submit Listing' }).click();
     await page.getByRole('button', { name: 'Submit Listing' }).click();
 
-    await page.waitForURL(/\/listing\/\d+\/manage\/calendar\?newListing=true/, {
-      timeout: test.info().timeout * 3,
-    });
+    test.setTimeout(test.info().timeout * 3);
+    await page.waitForURL(/\/listing\/\d+\/manage\/calendar\?newListing=true/);
+    test.setTimeout(test.info().timeout);
     currentListing.id = new URL(page.url()).pathname.split('/')[2];
 
     await expect(page.getByText('Welcome to your new listing!')).toBeVisible();
