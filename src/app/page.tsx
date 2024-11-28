@@ -9,6 +9,7 @@ import {
 import * as React from 'react';
 import { Novatrix } from 'uvcanvas';
 
+import { EarlyAccessForm } from '@/components/early-access-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -34,8 +35,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className='space-x-4'>
-                  <Button href='/listing/create'>Get Started</Button>
-                  <Button variant='outline'>Learn More</Button>
+                  <EarlyAccessForm />
                 </div>
               </div>
             </div>
@@ -292,12 +292,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className='space-x-4'>
-                  <Button size='lg' href='/listing/create'>
-                    Get Started Now
-                  </Button>
-                  <Button size='lg' variant='outline'>
-                    Contact Sales
-                  </Button>
+                  <EarlyAccessForm />
                 </div>
               </div>
             </div>
