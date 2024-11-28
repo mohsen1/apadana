@@ -96,13 +96,6 @@ export default function CreateListingForm() {
     onError: (error) => {
       logger.error('create listing error', error);
     },
-    onSuccess: (result) => {
-      if (result.data?.success && result.data.listing) {
-        router.replace(
-          `/listing/${result.data.listing.id}/manage/calendar?newListing=true`,
-        );
-      }
-    },
   });
 
   const methods = useForm<CreateListing>({
@@ -246,6 +239,14 @@ export default function CreateListingForm() {
           await execute(data);
           clearTimeout(loadingTimeout);
           setShowLoading(false);
+          if (result?.data?.listing) {
+            router.replace(
+              `/listing/${result.data.listing.id}/manage/calendar?newListing=true`,
+            );
+          } else {
+            logger.error('no listing returned from create listing', result);
+            router.replace(`/listings`);
+          }
         },
         (errors) => {
           logger.error('submit errors', errors);
@@ -254,7 +255,7 @@ export default function CreateListingForm() {
         },
       )(e);
     },
-    [currentStep, execute, handleSubmit, updateUrlParams],
+    [currentStep, execute, handleSubmit, updateUrlParams, router, result],
   );
 
   return (
