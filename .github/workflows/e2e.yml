@@ -62,10 +62,12 @@ jobs:
               name: 'Playwright Test Report',
               head_sha: sha,
               status: 'completed',
+              workflow_run_id: context.workflow_run.id,
               conclusion: conclusion,
+              details_url: reportUrl,
               output: {
                 title: 'Playwright Test Report',
-                summary: `[View the Playwright test report](${reportUrl})`,
+                summary: `[**View the Playwright test report**](${reportUrl})`,
                 text: `The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}. Click the link above to view the detailed report.`
               }
             });
