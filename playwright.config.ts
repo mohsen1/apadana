@@ -16,17 +16,8 @@ dotenv.config();
  */
 const startServer = process.env.PLAYWRIGHT_START_SERVER === 'true';
 const port = process.env.PORT || '3030';
-
-const isVercelDeployment = process.env.VERCEL_URL && process.env.CI;
-const vercelUrl = `https://${process.env.VERCEL_URL}`;
 const localUrl = `http://127.0.0.1:${port}`;
-
-const baseURL = isVercelDeployment
-  ? vercelUrl
-  : process.env.BASE_URL || localUrl;
-
-// eslint-disable-next-line no-console
-console.log('[Playwright] baseURL:', baseURL);
+const baseURL = process.env.BASE_URL || localUrl;
 
 /**
  * See https://playwright.dev/docs/test-configuration.
