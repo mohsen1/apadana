@@ -11,6 +11,6 @@ test('get early access button', async ({ page }) => {
   await page.signIn();
   await page.goto('/');
   await expect(
-    page.getByRole('button', { name: 'Get Early Access' }),
+    page.getByRole('button', { name: 'Get Early Access' }).first(),
   ).toBeVisible();
 });
