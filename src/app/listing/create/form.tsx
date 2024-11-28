@@ -96,6 +96,15 @@ export default function CreateListingForm() {
     onError: (error) => {
       logger.error('create listing error', error);
     },
+    onSuccess: (result) => {
+      logger.info('create listing success', result);
+      if (result?.data?.listing) {
+        window.location.href = `/listing/${result.data.listing.id}/manage/calendar?newListing=true`;
+      } else {
+        logger.error('no listing returned from create listing', result);
+        router.replace(`/listings`);
+      }
+    },
   });
 
   const methods = useForm<CreateListing>({
@@ -239,14 +248,6 @@ export default function CreateListingForm() {
           await execute(data);
           clearTimeout(loadingTimeout);
           setShowLoading(false);
-          if (result?.data?.listing) {
-            router.replace(
-              `/listing/${result.data.listing.id}/manage/calendar?newListing=true`,
-            );
-          } else {
-            logger.error('no listing returned from create listing', result);
-            router.replace(`/listings`);
-          }
         },
         (errors) => {
           logger.error('submit errors', errors);
@@ -255,7 +256,7 @@ export default function CreateListingForm() {
         },
       )(e);
     },
-    [currentStep, execute, handleSubmit, updateUrlParams, router, result],
+    [currentStep, execute, handleSubmit, updateUrlParams],
   );
 
   return (
