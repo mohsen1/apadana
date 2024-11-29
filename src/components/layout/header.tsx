@@ -22,14 +22,24 @@ export function Header() {
           Create Listing
         </Button>
         {process.env.NODE_ENV === 'development' && (
-          <Button
-            href='http://localhost:5555'
-            variant='link'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            Prisma Studio
-          </Button>
+          <>
+            <Button
+              href='http://localhost:5555'
+              variant='link'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              Prisma Studio
+            </Button>
+            <Button
+              href='http://localhost:6006'
+              variant='link'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              Storybook
+            </Button>
+          </>
         )}
       </div>
       <Nav />
