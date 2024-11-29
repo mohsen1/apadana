@@ -3,11 +3,6 @@ import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Metadata } from 'next';
-import {
-  Inter as FontSans,
-  Merriweather as FontHeading,
-  Noto_Sans as FontSubheading,
-} from 'next/font/google';
 import * as React from 'react';
 import { extractRouterConfig } from 'uploadthing/server';
 
@@ -24,22 +19,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ourFileRouter as fileRouter } from '@/app/api/uploadthing/core';
 import { siteConfig } from '@/constant/config';
 
-const fontSans = FontSans({
-  subsets: ['latin'],
-  variable: '--font-sans',
-});
-
-const fontHeading = FontHeading({
-  subsets: ['latin'],
-  variable: '--font-heading',
-  weight: ['300', '400', '700', '900'],
-});
-
-const fontSubheading = FontSubheading({
-  subsets: ['latin'],
-  variable: '--font-subheading',
-  weight: ['400', '500', '600', '700'],
-});
+import { fontHeading, fontSans, fontSubheading } from './fonts';
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
@@ -73,6 +53,7 @@ export const metadata: Metadata = {
     // creator: '@th_clarence',
   },
 };
+
 export default function RootLayout({
   children,
 }: {

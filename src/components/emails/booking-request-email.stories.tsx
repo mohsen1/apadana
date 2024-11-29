@@ -1,10 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
+import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
+
 import { BookingRequestEmail } from './booking-request-email';
 
 const meta: Meta<typeof BookingRequestEmail> = {
   title: 'Emails/BookingRequestEmail',
-  component: BookingRequestEmail,
+  render: (args) => (
+    <ReactEmailStoryRenderer Component={BookingRequestEmail} props={args} />
+  ),
   parameters: {
     layout: 'centered',
   },

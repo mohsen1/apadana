@@ -26,22 +26,30 @@ function ColorPalette() {
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
         {colors.map((color) => (
           <div key={color} className='border rounded-lg overflow-hidden'>
-            <div className={`h-24 bg-${color} text-${color}-foreground p-4`}>
+            <div className={`h-42 bg-${color} text-${color}-foreground p-4`}>
               <h2 className='text-lg font-semibold mb-2'>{color}</h2>
               <div className={`h-18 text-sm text-${color}-foreground`}>
                 <code className='font-thin block font-mono'>bg-{color}</code>
                 <code className='font-thin block font-mono'>
                   text-{color}-foreground
                 </code>
-                <div className='flex mt-2'>
+                <div
+                  className={`flex mt-2 bg-${color} text-${color}-foreground`}
+                >
                   {[10, 20, 30, 40, 50, 60, 70, 80, 90].map((shade) => (
                     <div
                       key={shade}
                       className={`
-                          w-6 h-6 
+                          w-10 h-10 
+                          p-1
+                          m-1
+                          border
                           font-mono
-                          text-xs
+                          text-sm
+                          grid
+                          place-items-center
                           bg-${color}/${shade}
+                          text-${color}-foreground
                         `}
                       title={`${color}/${shade}`}
                     >

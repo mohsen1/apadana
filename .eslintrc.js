@@ -71,7 +71,7 @@ module.exports = {
             '^\\.\\./\\.\\./\\.\\.(?!/?$)',
           ],
           ['^@/types'],
-          // other that didnt fit in
+          // other that didn't fit in
           ['^'],
         ],
       },
@@ -82,4 +82,5 @@ module.exports = {
     React: true,
     JSX: true,
   },
+  ignorePatterns: ['!.storybook'],
 };
