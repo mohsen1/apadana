@@ -26,6 +26,7 @@
     "e2e": "PLAYWRIGHT_START_SERVER=true PORT=3030 playwright test --project=chromium",
     "e2e:ci": "playwright test",
     "e2e:debug": "playwright test --project=chromium --debug",
+    "e2e:prod": "PLAYWRIGHT_START_SERVER=false BASE_URL=https://apadana.app playwright test --project=chromium",
     "format": "prettier -w .",
     "format:check": "prettier -c .",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
