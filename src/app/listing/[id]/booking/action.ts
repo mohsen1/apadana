@@ -1,5 +1,6 @@
 'use server';
 
+import { sendBookingRequestEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import {
   CreateBookingRequestSchema,
@@ -55,6 +56,31 @@ export const createBookingRequest = actionClient
       const { listingId, checkIn, checkOut, guests, pets, message } =
         parsedInput;
 
+      // Get the listing and host details
+      const listing = await prisma.listing.findUnique({
+        where: { id: listingId },
+        include: {
+          owner: {
+            include: {
+              emailAddresses: true,
+            },
+          },
+        },
+      });
+
+      if (!listing || !listing.owner) {
+        throw new Error('Listing or host not found');
+      }
+
+      // Get guest details
+      const guest = await prisma.user.findUnique({
+        where: { id: String(ctx.userId) },
+      });
+
+      if (!guest) {
+        throw new Error('Guest not found');
+      }
+
       const inventoryForDates = await prisma.listingInventory.findMany({
         where: {
           date: {
@@ -80,6 +106,22 @@ export const createBookingRequest = actionClient
           userId: String(ctx.userId),
         },
       });
+
+      // Send email to host
+      const hostEmail = listing.owner.emailAddresses[0]?.emailAddress;
+      if (hostEmail) {
+        await sendBookingRequestEmail({
+          hostEmail,
+          guestName: `${guest.firstName} ${guest.lastName}`,
+          listingTitle: listing.title,
+          checkIn,
+          checkOut,
+          guests,
+          totalPrice,
+          currency: listing.currency,
+        });
+      }
+
       return {
         success: true,
         data: bookingRequest,

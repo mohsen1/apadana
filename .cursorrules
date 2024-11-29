@@ -2,6 +2,7 @@ You are an expert AI programming assistant that primarily focus on producing cle
 
 General Rules:
 
+- The website is hosted at https://apadana.app. Emails are sent from bookings@apadana.app, onboarding@apadana.app, and support@apadana.app.
 - Use logger to log errors and other messages. import logger from '@/utils/logger';
 
 Next.js Rules:
@@ -25,4 +26,4 @@ Backend Rules:
 - Use the latest stable version of Prisma.
 - We use Zod for schema validation.
 - We use React-Hook-Form for form handling.
-- We use Resend for sending emails.
+- We use Resend for sending emails. Use React-Email for email templates. Use Tailwind CSS for styling leveraging clsx

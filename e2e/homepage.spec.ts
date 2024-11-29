@@ -8,11 +8,20 @@ test('has title', async ({ page }) => {
 });
 
 test('get early access button', async ({ page }) => {
-  await page.signIn();
   await page.goto('/');
   await expect(
     page.getByRole('button', { name: 'Get Early Access' }).first(),
   ).toBeVisible();
+  await page
+    .getByRole('textbox', { name: 'Email' })
+    .first()
+    .fill('test@example.com');
   await page.getByRole('button', { name: 'Get Early Access' }).first().click();
-  await expect(page.getByText('Thanks for signing up!')).toBeVisible();
+  await page.waitForFunction(() =>
+    document.querySelector('[data-testid="toast"]'),
+  );
+
+  await expect(
+    page.getByText("You're on the list!", { exact: false }),
+  ).toBeVisible();
 });
