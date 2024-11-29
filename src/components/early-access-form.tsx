@@ -53,7 +53,10 @@ export function EarlyAccessForm() {
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit(onSubmit)(e);
+      }}
       className='flex w-full max-w-sm items-center space-x-2'
     >
       <Input

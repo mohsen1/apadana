@@ -21,7 +21,6 @@ test('get early access button', async ({ page }) => {
     document.querySelector('[data-testid="toast"]'),
   );
 
-  await expect(
-    page.getByText("You're on the list!", { exact: false }),
-  ).toBeVisible();
+  await page.pause();
+  await expect(page.getByText("You're on the list!")).toBeVisible();
 });
