@@ -18,6 +18,8 @@ import { cn } from '@/lib/utils';
 import Footer from '@/components/footer';
 import { Header } from '@/components/layout/header';
 import { ThemeProvider } from '@/components/theme-provider';
+import { ToastProvider } from '@/components/ui/toast';
+import { Toaster } from '@/components/ui/toaster';
 
 import { ourFileRouter as fileRouter } from '@/app/api/uploadthing/core';
 import { siteConfig } from '@/constant/config';
@@ -90,10 +92,13 @@ export default function RootLayout({
           )}
         >
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
-            <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
-            <Header />
-            {children}
-            <Footer />
+            <ToastProvider>
+              <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
+              <Header />
+              {children}
+              <Toaster />
+              <Footer />
+            </ToastProvider>
           </ThemeProvider>
         </body>
       </html>

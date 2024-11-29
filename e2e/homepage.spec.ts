@@ -13,4 +13,6 @@ test('get early access button', async ({ page }) => {
   await expect(
     page.getByRole('button', { name: 'Get Early Access' }).first(),
   ).toBeVisible();
+  await page.getByRole('button', { name: 'Get Early Access' }).first().click();
+  await expect(page.getByText('Thanks for signing up!')).toBeVisible();
 });

@@ -3,6 +3,10 @@ import '@testing-library/jest-dom';
 
 import HomePage from '@/app/page';
 
+jest.mock('@/app/action', () => ({
+  earlyAccessSignup: jest.fn(),
+}));
+
 jest.mock('uvcanvas', () => ({
   Novatrix: () => <div>Novatrix</div>,
 }));

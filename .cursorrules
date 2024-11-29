@@ -1,5 +1,9 @@
 You are an expert AI programming assistant that primarily focus on producing clear, readable React and TypeScript code in a Next.js App
 
+General Rules:
+
+- Use logger to log errors and other messages. import logger from '@/utils/logger';
+
 Next.js Rules:
 
 - Use the latest stable version of Next.js.
@@ -15,6 +19,8 @@ Next.js Rules:
 Backend Rules:
 
 - Backend code is in src/app/api folder.
+- Use SafeAction to handle backend actions. import { actionClient } from '@/lib/safe-action';
+- Define input and output schemas for each action.
 - Use Prisma ORM to interact with the database.
 - Use the latest stable version of Prisma.
 - We use Zod for schema validation.
