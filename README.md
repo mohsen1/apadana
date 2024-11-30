@@ -124,12 +124,6 @@ You have two options to run the development server:
 
 #### Option A: Using Docker (Recommended)
 
-First pull down development environment variables via Vercel:
-
-```bash
-vercel env pull
-```
-
 This will start all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in Docker containers:
 
 ```bash
@@ -158,6 +152,26 @@ pnpm docker:clean
 #### Option B: Local Development
 
 If you prefer running services locally:
+
+<details>
+<summary><b style="cursor: pointer;">First, install and run PostgreSQL locally</b></summary>
+
+```bash
+# install PostgreSQL
+brew install postgresql@16
+
+# make sure path to postgresql binary is in your PATH
+export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
+
+# start the PostgreSQL service
+brew services start postgresql@16
+# create the apadana database
+createdb apadana
+```
+
+</details>
+
+Then, run the development server:
 
 ```bash
 pnpm run dev
