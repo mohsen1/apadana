@@ -20,9 +20,30 @@ services:
       - POSTGRES_PASSWORD=admin
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
-      - WATCHPACK_POLLING=true
+      - NODE_OPTIONS="--max-old-space-size=8192"
+      - NEXT_TELEMETRY_DISABLED=1
+      - NEXT_SHARP_PATH=/app/node_modules/sharp
     depends_on:
       - db
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 4G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        tag: "{{.Name}}"
+    tty: true
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
 
   db:
     image: postgres:16.6
@@ -39,6 +60,13 @@ services:
       - POSTGRES_DB=apadana
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        tag: "{{.Name}}"
+    command: [ "postgres", "-c", "log_statement=none", "-c", "log_min_messages=warning" ]
 
 volumes:
   app_node_modules:
