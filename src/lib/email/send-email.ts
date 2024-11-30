@@ -58,3 +58,13 @@ export async function sendEarlyAccessEmail(email: string) {
     react: EarlyAccessEmail({ email }),
   });
 }
+
+// TODO: Implement sendWelcomeEmail
+export async function sendWelcomeEmail(email: string) {
+  return resend.emails.send({
+    from: 'Apadana <onboarding@apadana.app>',
+    to: email,
+    subject: 'Welcome to the app',
+    html: '<p>Welcome to the app</p>',
+  });
+}

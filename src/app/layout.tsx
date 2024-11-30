@@ -1,4 +1,3 @@
-import { ClerkProvider } from '@clerk/nextjs';
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -18,6 +17,7 @@ import { Toaster } from '@/components/ui/toaster';
 
 import { ourFileRouter as fileRouter } from '@/app/api/uploadthing/core';
 import { siteConfig } from '@/constant/config';
+import { AuthProvider } from '@/contexts/auth-context';
 
 import { fontHeading, fontSans, fontSubheading } from './fonts';
 export const metadata: Metadata = {
@@ -60,7 +60,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider dynamic>
+    <AuthProvider>
       <html lang='en' suppressHydrationWarning>
         <SpeedInsights />
         <Analytics />
@@ -83,6 +83,6 @@ export default function RootLayout({
           </ThemeProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </AuthProvider>
   );
 }

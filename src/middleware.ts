@@ -1,21 +1,22 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { cookies } from 'next/headers';
 
-// Docs: https://clerk.com/docs/references/nextjs/clerk-middleware
+import prisma from '@/lib/prisma/client';
 
-const isProtectedRoute = createRouteMatcher([
-  '/listing/create',
-  '/listing/(.*)/manage',
-]);
+export async function middleware(request: Request) {
+  const { get: getCookie, delete: deleteCookie } = await cookies();
+  const sessionId = getCookie('sessionId')?.value;
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) auth.protect();
-});
+  if (!sessionId) {
+    return Response.redirect(new URL('/login', request.url));
+  }
 
-export const config = {
-  matcher: [
-    // Skip all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/api(.*)',
-  ],
-};
+  const session = await prisma.session.findUnique({
+    where: { id: sessionId },
+    include: { user: true },
+  });
+
+  if (!session || session.expiresAt < new Date()) {
+    deleteCookie('sessionId');
+    return Response.redirect(new URL('/login', request.url));
+  }
+}

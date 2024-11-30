@@ -90,6 +90,9 @@ model User {
   permissions      UserPermission[]
   bookings         Booking[]
   BookingRequest   BookingRequest[]
+  password         String?
+  sessions         Session[]
+  passwordReset    PasswordReset[]
 }
 
 model EmailAddress {
@@ -233,4 +236,21 @@ model BookingRequest {
 
   @@index([listingId])
   @@index([userId])
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastActive DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
