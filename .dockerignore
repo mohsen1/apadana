@@ -1,0 +1,18 @@
+.git
+.next
+node_modules
+.env*
+npm-debug.log*
+docker-compose*
+Dockerfile*
+.dockerignore
+.gitignore
+README.md
+.husky
+coverage
+playwright-report
+storybook-static
+test-results
+# Don't ignore these files
+!docker-entrypoint.dev.sh 
+!.env.local
