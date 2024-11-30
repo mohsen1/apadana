@@ -14,7 +14,7 @@ dotenv.config();
  *
  * This variable is used in the e2e:debug package.json script
  */
-const startServer = process.env.PLAYWRIGHT_START_SERVER === 'true';
+
 const port = process.env.PORT || '3030';
 const localUrl = `http://127.0.0.1:${port}`;
 const baseURL = process.env.BASE_URL || localUrl;
@@ -90,16 +90,4 @@ export default defineConfig({
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
   ],
-
-  /* Run your local server in production mode before starting the tests if not debugging the tests */
-  webServer: startServer
-    ? {
-        command: 'pnpm run start || (pnpm run build && pnpm run start)',
-        env: {
-          PORT: port,
-        },
-        url: `http://127.0.0.1:${port}`,
-        reuseExistingServer: !process.env.CI,
-      }
-    : undefined,
 });

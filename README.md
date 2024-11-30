@@ -120,22 +120,13 @@ vercel env pull
 
 ### 6. Run the development server
 
-You have two options to run the development server:
-
-#### Option A: Using Docker (Recommended)
-
 This will start all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in Docker containers:
 
 ```bash
 pnpm docker:dev
 ```
 
-The following services will be available:
-
-- Next.js: http://localhost:3000
-- Storybook: http://localhost:6006
-- Prisma Studio: http://localhost:5555
-- PostgreSQL: localhost:5432
+Navigate to [localhost:3000](http://localhost:3000) to see the development website.
 
 To stop the services:
 
@@ -149,96 +140,77 @@ To clean up everything including volumes:
 pnpm docker:clean
 ```
 
-#### Option B: Local Development
+## `package.json` scripts
 
-If you prefer running services locally:
+All commands can be run using `pnpm run <command>` or just `pnpm <command>` for most commands.
 
-<details>
-<summary><b style="cursor: pointer;">First, install and run PostgreSQL locally</b></summary>
+### Docker Commands
 
-```bash
-# install PostgreSQL
-brew install postgresql@16
+- `docker:dev` - Starts all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in Docker containers
+- `docker:down` - Stops all Docker containers
+- `docker:clean` - Stops containers and removes all volumes. Deletes the database.
+- `docker:rebuild` - Rebuilds the app container without cache and starts services
+- `docker:prune` - Removes all unused Docker resources (containers, networks, volumes). This is useful when you want to clean up your machine and start fresh.
+- `docker:prod` - Starts production Docker environment. Note that we are not using Docker Compose for production. This is for testing the production build locally.
+- `docker:prod:down` - Stops production Docker environment
+- `docker:prod:logs` - Shows logs from production Docker environment
+- `docker:prod:clean` - Stops production environment and removes volumes
 
-# make sure path to postgresql binary is in your PATH
-export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
+### Development Commands
 
-# start the PostgreSQL service
-brew services start postgresql@16
-# create the apadana database
-createdb apadana
-```
+Most of these commands are used by the `docker:dev` command. You should prefer using the `docker:dev` command instead.
 
-</details>
+### Database Commands
 
-Then, run the development server:
+Beside `migrate:dev`, you should use the `docker:*` commands to manage the database. You can delete the database and create a new one using the `docker:clean` command.
 
-```bash
-pnpm run dev
-```
+- `migrate:dev` - Runs database migrations in development. If you have made changes to the schema, you can use this command to apply those changes to the database. You will be asked to name the migration.
+- `migrate:prod` - Deploys database migrations in production. Should not run this manually. Only the CI/CD pipeline will do this.
+- `prisma:generate` - Generates Prisma client
+- `prisma:watch` - Watches for Prisma schema changes and regenerates client
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. You can start editing the page by modifying `src/pages/index.tsx`.
+### Build & Start Commands
 
-## Testing
+These commands are mostly used by the Docker images. You should prefer using the `docker:*` commands instead.
 
-### Unit testing
+- `build` - Generates Prisma client and builds Next.js application. Use `docker:prod` to test the production build locally.
+- `start` - Starts the production Next.js server. Use `docker:prod` to test the production build locally.
 
-```bash
-pnpm run test
-```
+### Testing Commands
 
-When working on tests, you can use this command to run the tests and rerun them when you save the changes.
+#### Unit Tests
 
-```bash
-pnpm run test:watch
-```
+- `test` - Runs Jest tests (unit tests)
+- `test:watch` - Runs Jest tests in watch mode
 
-### E2E testing
+#### E2E Tests
 
-```bash
-pnpm run e2e
-```
+- `e2e` - Runs Playwright E2E tests in Chromium. Provide the `--debug` flag to launch the browser in headed mode.
+- `e2e:ci` - Runs Playwright tests in CI environment. You should not run this locally.
+- `e2e:prod` - Runs E2E tests against production environment. This runs the tests against the production website. Use with caution.
 
-When working on E2E tests, first, makes sure your dev server is running, then, you can use this command to debug the tests.
+### Code Quality Commands
 
-```bash
-pnpm run e2e:debug __PATH_TO_TEST_FILE__
-```
+- `lint` - Runs ESLint
+- `lint:fix` - Runs ESLint with auto-fix and formats code
+- `lint:strict` - Runs ESLint with zero warnings allowed
+- `typecheck` - Generates Prisma client and runs TypeScript type checking
+- `format` - Formats code using Prettier
+- `format:check` - Checks code formatting without making changes
 
-This will launch Playwright browser in headed mode and also show you the Playwright debugger. Clicking on the ▶ button in the debugger will start the test execution.
+### Storybook Commands
 
-## Database
+- `storybook` - Starts Storybook development server
+- `build-storybook` - Builds Storybook for production
 
-You can use the following commands to manage the local database.
+### Git Hooks
 
-### Delete local database
-
-This will delete the database if you want to start fresh.
-
-```bash
-pnpm run manage-db delete apadana
-```
-
-### Create local database
-
-This will create a new database with the name `apadana`.
-
-```bash
-pnpm run manage-db create apadana
-```
-
-### Migrate local database
-
-This will migrate the local database to the latest schema. If you have made changes to the schema, you can use this command to apply those changes to the database. You might need to run this command after creating a new database.
-
-```bash
-pnpm run migrate:dev
-```
+- `prepare` - Installs Husky git hooks
 
 ## Technology Stack Overview
 
 This project is built on top of [Next.js](https://nextjs.org/) and is using [Next.js App Router](https://nextjs.org/docs/app).
-The backend is using [PostgreSQL](https://www.postgresql.org/) and [Prisma](https://www.prisma.io/). To perform database operations, Prisma Client is used inside of [Next.js App Router Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations). Authentication is implemented using [Clerk](https://clerk.com/), we receive a webhook when a user signs up and create an account in our database. For storing media files, [UploadThing](https://uploadthing.com/) is used.
+The backend is using [PostgreSQL](https://www.postgresql.org/) and [Prisma](https://www.prisma.io/). To perform database operations, Prisma Client is used inside of [Next.js App Router Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations). Locally we use Docker to run the database and Prisma Studio to view the database. Authentication is implemented using [Clerk](https://clerk.com/), we receive a webhook when a user signs up and create an account in our database. For storing media files, [UploadThing](https://uploadthing.com/) is used.
 
 ### Important Files and Folders
 
