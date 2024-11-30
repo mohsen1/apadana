@@ -12,14 +12,16 @@ If you can see this, you have already access to the Git repository. If not, plea
 
 You will need access to the following services to run the development environment:
 
-- [Vercel](https://vercel.com/)
-- [Clerk](https://clerk.com/)
-- [UploadThing](https://uploadthing.com/)
+- [Github](https://github.com/mohsen1/apadana) **required** to push code
+- [Vercel](https://vercel.com/) **required** to deploy
+- [Clerk](https://clerk.com/) optional for authentication
+- [UploadThing](https://uploadthing.com/) optional for media uploads
+- [Neon](https://neon.tech/) optional for PostgreSQL database management
 
 ### 2. Prepare your machine
 
 <details>
-  <summary style="cursor: pointer;">Install <a href="https://nodejs.org/en">Node.js</a>, <a href="https://pnpm.io/">pnpm</a>, <a href="https://vercel.com/docs/cli">Vercel CLI</a>, <a href="https://www.postgresql.org/download/">PostgreSQL</a>, and <a href="https://git-scm.com/downloads">Git</a></summary>
+  <summary style="cursor: pointer;">Install <a href="https://nodejs.org/en">Node.js</a>, <a href="https://pnpm.io/">pnpm</a>, <a href="https://vercel.com/docs/cli">Vercel CLI</a>, <a href="https://www.docker.com/get-started">Docker</a>, and <a href="https://git-scm.com/downloads">Git</a> on your machine. Click to expand for instructions.</summary>
 
 <details>
 <summary><b style="cursor: pointer;">on MacOS</b></summary>
@@ -38,11 +40,18 @@ You will need access to the following services to run the development environmen
    ```bash
    pnpm install -g vercel
    ```
-4. Install [PostgreSQL](https://www.postgresql.org/download/) (v15.4 or higher)
+4. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
    ```bash
-   brew install postgresql
+   brew install --cask docker
    ```
-   [Homebrew documentation for installing PostgreSQL via `brew`](https://wiki.postgresql.org/wiki/Homebrew)
+   After installation:
+   - Launch Docker Desktop from your Applications folder
+   - Wait for Docker Desktop to start completely
+   - Docker Compose is included with Docker Desktop for Mac
+   - Verify installation by running:
+   ```bash
+   docker compose version
+   ```
 5. Install [Git](https://git-scm.com/downloads)
    ```bash
    brew install git
@@ -65,11 +74,11 @@ You will need access to the following services to run the development environmen
    ```
 3. Install [Vercel CLI](https://vercel.com/docs/cli) (v3.1.0 or higher)
    ```bash
-   npm install -g vercel
+   pnpm install -g vercel
    ```
-4. Install [PostgreSQL](https://www.postgresql.org/download/) (v15.4 or higher)
+4. Install [Docker](https://www.docker.com/get-started)
    ```bash
-   sudo apt-get install -y postgresql
+   sudo apt-get install -y docker
    ```
 5. Install [Git](https://git-scm.com/downloads)
    ```bash
@@ -111,7 +120,58 @@ vercel env pull
 
 ### 6. Run the development server
 
-You can start the server using this command:
+You have two options to run the development server:
+
+#### Option A: Using Docker (Recommended)
+
+This will start all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in Docker containers:
+
+```bash
+pnpm docker:dev
+```
+
+The following services will be available:
+
+- Next.js: http://localhost:3000
+- Storybook: http://localhost:6006
+- Prisma Studio: http://localhost:5555
+- PostgreSQL: localhost:5432
+
+To stop the services:
+
+```bash
+pnpm docker:down
+```
+
+To clean up everything including volumes:
+
+```bash
+pnpm docker:clean
+```
+
+#### Option B: Local Development
+
+If you prefer running services locally:
+
+<details>
+<summary><b style="cursor: pointer;">First, install and run PostgreSQL locally</b></summary>
+
+```bash
+# install PostgreSQL
+brew install postgresql@16
+
+# make sure path to postgresql binary is in your PATH
+export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
+
+# start the PostgreSQL service
+brew services start postgresql@16
+# create the apadana database
+createdb apadana
+```
+
+</details>
+
+Then, run the development server:
 
 ```bash
 pnpm run dev
