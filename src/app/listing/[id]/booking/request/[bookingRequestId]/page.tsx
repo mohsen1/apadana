@@ -8,11 +8,10 @@ import { formatCurrency, formatHHMMDate, getLocale } from '@/lib/utils';
 import { getBookingRequest } from '@/app/listing/[id]/booking/action';
 import NotFound from '@/app/not-found';
 
-export default async function BookingRequestPage({
-  params,
-}: {
-  params: { id: string; bookingRequestId: string };
+export default async function BookingRequestPage(props: {
+  params: Promise<{ id: string; bookingRequestId: string }>;
 }) {
+  const params = await props.params;
   const res = await getBookingRequest({
     id: Number(params.bookingRequestId),
   });

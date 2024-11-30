@@ -119,10 +119,9 @@ test.describe.serial('create listing', () => {
       .fill('No smoking is allowed. No pets.');
 
     await page.getByRole('button', { name: 'Submit Listing' }).click();
-    await page.getByRole('button', { name: 'Submit Listing' }).click();
 
     await page.waitForURL(/\/listing\/\d+\/manage\/calendar\?newListing=true/, {
-      timeout: test.info().timeout * 3,
+      waitUntil: 'networkidle', // Add waitUntil to handle redirects
     });
     currentListing.id = new URL(page.url()).pathname.split('/')[2];
 

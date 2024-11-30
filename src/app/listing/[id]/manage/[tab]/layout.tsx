@@ -7,13 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
-export default async function ManageListingPageLayout({
-  children,
-  params,
-}: {
+export default async function ManageListingPageLayout(props: {
   children: React.ReactNode;
-  params: { id: string; tab: string };
+  params: Promise<{ id: string; tab: string }>;
 }) {
+  const params = await props.params;
+
+  const { children } = props;
+
   const { id, tab } = params;
 
   const res = await getListing({ id: parseInt(id, 10) });
