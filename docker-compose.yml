@@ -70,11 +70,7 @@ services:
         max-file: '3'
         tag: '{{.Name}}'
     command:
-      [
-        'postgres',
-        '-c', 'log_statement=none',
-        '-c', 'log_min_messages=panic'
-      ]
+      ['postgres', '-c', 'log_statement=none', '-c', 'log_min_messages=panic']
 
 volumes:
   app_node_modules:
