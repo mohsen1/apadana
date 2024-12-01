@@ -1,11 +1,17 @@
 FROM base-image
 
+# Copy package files first to leverage Docker layer caching
+COPY package.json pnpm-lock.yaml ./
+
 # Expose ports for Next.js, Storybook, and Prisma Studio
 EXPOSE 3000 6006 5555
 
 # Use a shell script as entrypoint to handle dependency updates
 COPY docker-entrypoint.dev.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.dev.sh
+
+# Install inotify-tools for file watching
+RUN apt-get update && apt-get install -y inotify-tools && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["docker-entrypoint.dev.sh"]
 CMD ["pnpm", "run", "dev"]

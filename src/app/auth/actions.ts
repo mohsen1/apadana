@@ -1,117 +1,94 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { createId } from 'oslo/id';
 import { z } from 'zod';
 
-import { argon, SESSION_DURATION } from '@/lib/auth/oslo';
+import { argon, SESSION_DURATION } from '@/lib/auth';
 import { sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
-import { actionClient } from '@/lib/safe-action';
-
-import logger from '@/utils/logger';
-
-const failure = z.object({
-  success: z.literal(false),
-  error: z.string(),
-});
+import { actionClient, ClientVisibleError } from '@/lib/safe-action';
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8).max(100),
+  password: z.string(),
 });
 
 const successfulLogin = z.object({
-  success: z.literal(true),
   user: z.object({
     id: z.string(),
     email: z.string().email(),
   }),
 });
 
-function createSession(userId: string) {
-  return prisma.session.create({
-    data: {
-      userId,
-      expiresAt: new Date(Date.now() + SESSION_DURATION.milliseconds()),
-    },
-  });
-}
-
 export const login = actionClient
   .schema(loginSchema)
-  .outputSchema(successfulLogin.or(failure))
-  .action(async ({ parsedInput }) => {
-    try {
-      // Find user by email
-      const user = await prisma.user.findFirst({
-        where: {
-          emailAddresses: {
-            some: {
-              emailAddress: parsedInput.email,
-            },
+  .outputSchema(successfulLogin)
+  .action(async ({ parsedInput, ctx }) => {
+    const user = await prisma.user.findFirst({
+      where: {
+        emailAddresses: {
+          some: {
+            emailAddress: parsedInput.email,
           },
         },
-        include: {
-          emailAddresses: true,
-        },
-      });
+      },
+      include: {
+        emailAddresses: true,
+      },
+    });
 
-      if (!user || !user.password) {
-        return {
-          success: false,
-          error: 'Invalid email or password',
-        };
-      }
-
-      // Verify password
-      const validPassword = await argon.verify(
-        user.password,
-        parsedInput.password,
-      );
-      if (!validPassword) {
-        return {
-          success: false,
-          error: 'Invalid email or password',
-        };
-      }
-
-      // Create new session
-      const session = await prisma.session.create({
-        data: {
-          userId: user.id,
-          expiresAt: new Date(Date.now() + SESSION_DURATION.milliseconds()),
-        },
-      });
-
-      // Set session cookie
-      cookies().set('sessionId', session.id, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        expires: session.expiresAt,
-        path: '/',
-      });
-
-      return {
-        success: true,
-        user: {
-          id: user.id,
-          email: user.emailAddresses.find((e) => e.isPrimary)?.emailAddress,
-        },
-      };
-    } catch (error) {
-      logger.error('Login error:', error);
-      return {
-        success: false,
-        error: 'Something went wrong',
-      };
+    // Check if user exists and has password
+    if (!user || !user.password) {
+      throw new ClientVisibleError('Invalid email or password');
     }
+
+    // Verify password
+    const validPassword = await argon.verify(
+      user.password,
+      parsedInput.password,
+    );
+    if (!validPassword) {
+      throw new ClientVisibleError('Invalid email or password');
+    }
+
+    // Create new session
+    const session = await prisma.session.create({
+      data: {
+        userId: user.id,
+        expiresAt: new Date(Date.now() + SESSION_DURATION.milliseconds()),
+      },
+    });
+
+    // Get primary email
+    const primaryEmail = user.emailAddresses.find(
+      (e) => e.isPrimary,
+    )?.emailAddress;
+
+    if (!primaryEmail) {
+      throw new Error('Primary email not found');
+    }
+
+    await ctx.setSession(session);
+
+    return {
+      user: {
+        id: user.id,
+        email: primaryEmail,
+      },
+    };
   });
 
 const signUpSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email(),
-  password: z.string().min(8).max(100),
+  password:
+    process.env.NODE_ENV === 'development'
+      ? z.string().min(1, 'Password is required')
+      : z
+          .string()
+          .min(8, 'Password must be at least 8 characters')
+          .max(100, 'Password must be less than 100 characters'),
 });
 
 const successfulSignUp = z.object({
@@ -124,96 +101,120 @@ const successfulSignUp = z.object({
 
 export const signUp = actionClient
   .schema(signUpSchema)
-  .outputSchema(successfulSignUp.or(failure))
-  .action(async ({ parsedInput }) => {
-    const hashedPassword = await argon.hash(parsedInput.password);
-    const userId = createId();
+  .outputSchema(successfulSignUp)
+  .action(async ({ parsedInput, ctx }) => {
+    // ensure email is not already in use
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        emailAddresses: { some: { emailAddress: parsedInput.email } },
+      },
+    });
+    if (existingUser) {
+      throw new Error(
+        'There is already an account with this email. Please login with that email.',
+      );
+    }
 
+    const hashedPassword = await argon.hash(parsedInput.password);
     const user = await prisma.user.create({
+      include: {
+        emailAddresses: true,
+        sessions: true,
+      },
       data: {
-        id: userId,
+        password: hashedPassword,
+        firstName: parsedInput.firstName,
+        lastName: parsedInput.lastName,
         emailAddresses: {
+          create: [
+            {
+              emailAddress: parsedInput.email,
+              isPrimary: true,
+            },
+          ],
+        },
+        sessions: {
           create: {
-            id: createId(),
-            emailAddress: email,
-            isPrimary: true,
+            expiresAt: new Date(Date.now() + SESSION_DURATION.milliseconds()),
           },
         },
-        password: hashedPassword,
       },
     });
 
-    // Create session
-    const session = await createSession(user.id);
+    await ctx.setSession(user.sessions[0]);
 
     // Send welcome email
-    await sendWelcomeEmail(user.email);
+    await sendWelcomeEmail(parsedInput.email);
 
-    return { user, session };
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        email: parsedInput.email,
+      },
+    };
   });
 
-const userSchema = z.object({
+const clientUserSchema = z.object({
   id: z.string(),
   email: z.string().email(),
+  firstName: z.string().nullable(),
+  lastName: z.string().nullable(),
+  imageUrl: z.string().nullable(),
 });
 
-const getCurrentUserOutput = z.object({
-  success: z.literal(true),
-  user: userSchema.nullable(),
-});
+export type ClientUser = z.infer<typeof clientUserSchema>;
+
+const getCurrentUserOutput = z
+  .object({
+    user: clientUserSchema.nullable(),
+  })
+  .nullable();
 
 export const getCurrentUser = actionClient
-  .outputSchema(getCurrentUserOutput.or(failure))
+  .outputSchema(getCurrentUserOutput)
   .action(async () => {
-    try {
-      const { get: getCookie, delete: deleteCookie } = await cookies();
-      const sessionId = getCookie('sessionId');
+    const { get: getCookie, delete: deleteCookie } = await cookies();
+    const sessionId = getCookie('sessionId');
 
-      if (!sessionId) {
-        return { success: true, user: null };
-      }
+    if (!sessionId) {
+      return { user: null };
+    }
 
-      const session = await prisma.session.findUnique({
-        where: { id: sessionId },
-        include: {
-          user: {
-            include: {
-              emailAddresses: {
-                where: { isPrimary: true },
-                take: 1,
-              },
+    const session = await prisma.session.findUnique({
+      where: { id: sessionId.value },
+      include: {
+        user: {
+          include: {
+            emailAddresses: {
+              where: { isPrimary: true },
+              take: 1,
             },
           },
         },
-      });
+      },
+    });
 
-      if (!session || session.expiresAt < new Date()) {
-        deleteCookie('sessionId');
-        return { success: true, user: null };
-      }
-
-      return {
-        success: true,
-        user: {
-          id: session.user.id,
-          email: session.user.emailAddresses[0]?.emailAddress,
-        },
-      };
-    } catch (error) {
-      logger.error('Error getting current user:', error);
-      return { success: true, user: null };
+    if (!session || session.expiresAt < new Date()) {
+      deleteCookie('sessionId');
+      return { user: null };
     }
+
+    return {
+      user: {
+        id: session.user.id,
+        email: session.user.emailAddresses[0]?.emailAddress,
+        firstName: session.user.firstName,
+        lastName: session.user.lastName,
+        imageUrl: session.user.imageUrl,
+      },
+    };
   });
 
 export const logOut = actionClient
-  .outputSchema(z.object({ success: z.literal(true) }).or(failure))
+  .outputSchema(z.object({ success: z.literal(true) }))
   .action(async () => {
-    try {
-      const { delete: deleteCookie } = await cookies();
-      deleteCookie('sessionId');
-      return { success: true };
-    } catch (error) {
-      logger.error('Error logging out:', error);
-      return { success: false, error: 'Something went wrong' };
-    }
+    const { delete: deleteCookie } = await cookies();
+    deleteCookie('sessionId');
+    return { success: true };
   });

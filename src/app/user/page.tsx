@@ -1,7 +1,13 @@
+'use client';
+
 import { useAuth } from '@/hooks/use-auth';
 
-export function Page() {
+export default function Page() {
   const { user } = useAuth();
 
-  return <div>{user?.firstName}</div>;
+  return (
+    <div>
+      Hello {user?.firstName} {user?.lastName}
+    </div>
+  );
 }

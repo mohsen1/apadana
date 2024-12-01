@@ -6,11 +6,12 @@ type ErrorMessageProps = {
 type ResultMessageProps = {
   result: {
     data?: {
-      success: boolean;
+      success?: boolean;
       error?: string;
+      [key: string]: unknown;
     };
     fetchError?: string;
-    serverError?: string;
+    serverError?: { error: string } | string;
     validationErrors?: object;
     bindArgsValidationErrors?: object;
   };
@@ -69,7 +70,14 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ result }) => {
           />
         )}
         {result.serverError && (
-          <ErrorMessage title='Server Error' content={result.serverError} />
+          <ErrorMessage
+            title='Server Error'
+            content={
+              typeof result.serverError === 'string'
+                ? result.serverError
+                : result.serverError.error
+            }
+          />
         )}
       </div>
     );

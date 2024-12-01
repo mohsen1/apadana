@@ -1,63 +1,47 @@
 'use client';
 
-import { User } from '@prisma/client';
-import { createContext, useEffect, useState } from 'react';
+import { useAction } from 'next-safe-action/hooks';
+import { createContext, useCallback, useEffect, useState } from 'react';
 
-import { getCurrentUser, logOut } from '@/app/auth/actions';
-import logger from '@/utils/logger';
+import { ClientUser, getCurrentUser, logOut } from '@/app/auth/actions';
+
+export type { ClientUser };
 
 interface AuthContextValue {
-  isLoaded: boolean;
-  isSignedIn: boolean;
-  user: User | null;
-  signOut: () => Promise<void>;
+  user: ClientUser | null;
+  signOut: () => void;
+  fetchUser: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
   undefined,
 );
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+export function AuthProvider({
+  children,
+  user: initialUser,
+}: {
+  children: React.ReactNode;
+  user: ClientUser | null;
+}) {
+  const { execute: signOut, result: signOutResult } = useAction(logOut);
+  const [user, setUser] = useState<ClientUser | null>(initialUser);
 
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        const response = await getCurrentUser();
-
-        if (!response.success) {
-          setUser(null);
-          return;
-        }
-
-        setUser(response.user);
-      } catch (error) {
-        logger.error('Error loading user:', error);
-        setUser(null);
-      } finally {
-        setIsLoaded(true);
-      }
-    }
-
-    loadUser();
+  const fetchUser = useCallback(async () => {
+    const result = await getCurrentUser();
+    setUser(result?.data?.user ?? null);
   }, []);
 
-  const signOut = async () => {
-    try {
-      await logOut();
+  useEffect(() => {
+    if (signOutResult?.data?.success) {
       setUser(null);
-    } catch (error) {
-      logger.error('Error signing out:', error);
-      throw new Error('Failed to sign out');
     }
-  };
+  }, [signOutResult?.data?.success]);
 
   const value: AuthContextValue = {
-    isLoaded,
-    isSignedIn: !!user,
     user,
     signOut,
+    fetchUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

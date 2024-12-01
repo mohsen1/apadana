@@ -7,6 +7,7 @@ import { extractRouterConfig } from 'uploadthing/server';
 
 import '@/styles/globals.css';
 
+import { getUserFromSession, sanitizeUserForClient } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 
 import Footer from '@/components/footer';
@@ -54,16 +55,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getUserFromSession();
+
   return (
-    <AuthProvider>
+    <AuthProvider user={sanitizeUserForClient(user)}>
       <html lang='en' suppressHydrationWarning>
-        <SpeedInsights />
-        <Analytics />
+        {process.env.NODE_ENV === 'production' && (
+          <>
+            <SpeedInsights />
+            <Analytics />
+          </>
+        )}
         <body
           className={cn(
             'min-h-screen bg-background font-sans antialiased flex flex-col',

@@ -1,11 +1,10 @@
 'use client';
 
-// import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
-import type { User } from '@prisma/client';
+import type { ClientUser } from '@/contexts/auth-context';
 
 import { useAuth } from '@/hooks/use-auth';
 
-import { AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 const SignInButton = () => (
@@ -14,20 +13,22 @@ const SignInButton = () => (
   </Button>
 );
 
-const UserButton = ({ user }: { user: User | null }) => (
+const UserButton = ({ user }: { user: ClientUser | null }) => (
   <Button variant='link' href='/user'>
-    <AvatarImage src={user?.imageUrl ?? ''} />
-    {user?.firstName} {user?.lastName}
+    <Avatar>
+      <AvatarImage src={user?.imageUrl ?? ''} />
+    </Avatar>
+    Hello, {user?.firstName} {user?.lastName}
   </Button>
 );
 
 export function Nav() {
-  const { isSignedIn, user } = useAuth();
+  const { user } = useAuth();
 
   return (
     <nav className='ml-auto flex gap-4 sm:gap-6'>
-      {!isSignedIn && <SignInButton />}
-      {isSignedIn && <UserButton user={user} />}
+      {!user && <SignInButton />}
+      {user && <UserButton user={user} />}
     </nav>
   );
 }

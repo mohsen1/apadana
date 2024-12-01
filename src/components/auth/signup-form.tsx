@@ -70,10 +70,13 @@ export function SignupForm() {
     try {
       const result = await signUp(data);
 
-      if (!isSuccessResult(result)) {
+      if (!result?.data?.user) {
         toast({
           title: 'Error',
-          description: result.error || 'Something went wrong',
+          description:
+            typeof result?.serverError === 'string'
+              ? result.serverError
+              : result?.serverError?.error,
           variant: 'destructive',
         });
         return;

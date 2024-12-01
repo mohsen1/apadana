@@ -20,8 +20,6 @@ enum Permission {
   // org:listing:manage
   MANAGE_LISTINGS
 
-  // Clerk standard permissions from here:
-  // https://clerk.com/docs/organizations/create-roles-permissions
   // org:member:manage
   READ_MEMBERS
   // org:billing:manage
@@ -76,7 +74,7 @@ model UserPermission {
 }
 
 model User {
-  id        String   @id // ID from Clerk
+  id        String   @id @default(cuid()) @db.VarChar(255)
   firstName String?
   lastName  String?
   imageUrl  String?
@@ -96,7 +94,7 @@ model User {
 }
 
 model EmailAddress {
-  id           String  @id
+  id           String  @id @default(cuid()) @db.VarChar(255)
   emailAddress String  @unique
   isPrimary    Boolean @default(false)
   verification String?
@@ -105,7 +103,7 @@ model EmailAddress {
 }
 
 model ExternalAccount {
-  id         String @id
+  id         String @id @default(cuid())
   provider   String
   externalId String
   userId     String

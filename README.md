@@ -14,7 +14,6 @@ You will need access to the following services to run the development environmen
 
 - [Github](https://github.com/mohsen1/apadana) **required** to push code
 - [Vercel](https://vercel.com/) **required** to deploy
-- [Clerk](https://clerk.com/) optional for authentication
 - [UploadThing](https://uploadthing.com/) optional for media uploads
 - [Neon](https://neon.tech/) optional for PostgreSQL database management
 
@@ -210,7 +209,7 @@ These commands are mostly used by the Docker images. You should prefer using the
 ## Technology Stack Overview
 
 This project is built on top of [Next.js](https://nextjs.org/) and is using [Next.js App Router](https://nextjs.org/docs/app).
-The backend is using [PostgreSQL](https://www.postgresql.org/) and [Prisma](https://www.prisma.io/). To perform database operations, Prisma Client is used inside of [Next.js App Router Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations). Locally we use Docker to run the database and Prisma Studio to view the database. Authentication is implemented using [Clerk](https://clerk.com/), we receive a webhook when a user signs up and create an account in our database. For storing media files, [UploadThing](https://uploadthing.com/) is used.
+The backend is using [PostgreSQL](https://www.postgresql.org/) and [Prisma](https://www.prisma.io/). To perform database operations, Prisma Client is used inside of [Next.js App Router Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations). Locally we use Docker to run the database and Prisma Studio to view the database. Authentication is implemented using using [Oslo](https://oslo.js.org) For storing media files, [UploadThing](https://uploadthing.com/) is used.
 
 ### Important Files and Folders
 

@@ -47,25 +47,14 @@ export function LoginForm() {
     try {
       const result = await login(data);
 
-      if (!result.success) {
+      if (!result?.data?.user) {
         toast({
           title: 'Error',
-          description: result?.error || 'Something went wrong',
+          description: result?.serverError?.error || 'Something went wrong',
           variant: 'destructive',
         });
         return;
       }
-
-      toast({
-        title: 'Success',
-        description: 'You have been logged in successfully',
-      });
-
-      // Refresh the current route and fetch new data from the server
-      router.refresh();
-
-      // Redirect to the dashboard or home page
-      router.push('/');
     } catch (error) {
       toast({
         title: 'Error',
