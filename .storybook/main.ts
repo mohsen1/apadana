@@ -14,6 +14,7 @@ const config: StorybookConfig = {
     options: {},
   },
   staticDirs: ['../public'],
+  logLevel: 'error',
   webpackFinal: async (config) => {
     if (config.module?.rules) {
       config.module.rules.push({
