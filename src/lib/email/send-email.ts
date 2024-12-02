@@ -1,10 +1,8 @@
-import { Resend } from 'resend';
+import resend from '@/lib/email/resend';
 
 import { BookingRequestEmail } from '@/components/emails/booking-request-email';
 import { EarlyAccessEmail } from '@/components/emails/early-access-email';
 import { PasswordResetEmail } from '@/components/emails/password-reset-email';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * Send a booking request email to the host when a guest requests a booking.

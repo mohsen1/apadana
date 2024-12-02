@@ -39,6 +39,9 @@ export function Header() {
             >
               Storybook
             </Button>
+            <Button href='/local-inbox' variant='link'>
+              Emails
+            </Button>
           </>
         )}
       </div>

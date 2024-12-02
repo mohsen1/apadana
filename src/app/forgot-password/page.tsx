@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -28,6 +29,9 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function ForgotPasswordPage() {
+  const searchParams = useSearchParams();
+  const initialEmail = searchParams.get('email') || '';
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
 
@@ -38,6 +42,9 @@ export default function ForgotPasswordPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: Array.isArray(initialEmail) ? initialEmail[0] : initialEmail,
+    },
   });
 
   const { execute: requestPasswordResetAction } = useAction(

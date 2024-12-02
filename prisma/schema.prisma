@@ -252,3 +252,13 @@ model PasswordReset {
   expiresAt DateTime
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+/// This is for local development only. Emails are not sent through Resend.
+model LocalEmail {
+  id        String   @id @default(cuid())
+  to        String
+  from      String
+  subject   String
+  html      String   @db.Text
+  createdAt DateTime @default(now())
+}

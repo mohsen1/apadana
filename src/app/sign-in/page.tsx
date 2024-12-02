@@ -1,16 +1,14 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAction } from 'next-safe-action/hooks';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/use-auth';
-
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,9 +20,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-
 import { login } from '@/app/auth/actions';
 import { AppleLogo, GoogleLogo } from '@/app/sign-in/logos';
+import { useAuth } from '@/hooks/use-auth';
 
 // Match the schema from actions.ts
 const loginSchema = z.object({
@@ -35,9 +33,11 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
   const { fetchUser } = useAuth();
-  const redirect = useSearchParams().get('redirect');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect');
+  const initialEmail = searchParams.get('email') || '';
   const [failedAttempts, setFailedAttempts] = useState(0);
 
   const { execute, status, hasErrored, result } = useAction(login, {
@@ -55,9 +55,13 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: initialEmail,
+    },
   });
 
   return (
@@ -111,7 +115,7 @@ export default function LoginPage() {
             {failedAttempts >= 2 && (
               <div className='text-sm text-center'>
                 <Link
-                  href='/forgot-password'
+                  href={`/forgot-password?email=${getValues('email')}`}
                   className='text-blue-600 dark:text-blue-400 hover:underline'
                 >
                   Forgot your password?
