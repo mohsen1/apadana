@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "docker:base": "docker build -t base-image -f Dockerfile.base .",
-    "docker:dev": "pnpm docker:base && docker-compose up --build --no-log-prefix",
+    "docker:dev": "concurrently \"pnpm docker:dev:start\" \"pnpm prisma:watch\" --raw",
+    "docker:dev:start": "pnpm docker:base && docker-compose up --build --no-log-prefix",
     "docker:down": "docker-compose down",
-    "docker:clean": "docker-compose down -v",
+    "docker:clean": "docker-compose down -v && docker volume prune -f",
     "docker:db": "docker-compose exec db psql -U admin -d apadana",
     "docker:rebuild": "docker compose build --no-cache app && docker compose up --no-log-prefix",
     "docker:prune": "docker system prune -af --volumes",

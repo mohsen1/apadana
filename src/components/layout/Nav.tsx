@@ -1,11 +1,11 @@
 'use client';
 
-import type { ClientUser } from '@/contexts/auth-context';
-
 import { useAuth } from '@/hooks/use-auth';
 
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+
+import type { ClientUser } from '@/contexts/auth-context';
 
 const SignInButton = () => (
   <Button variant='link' href='/sign-in'>

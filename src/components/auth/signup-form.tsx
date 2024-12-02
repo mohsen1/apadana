@@ -45,12 +45,6 @@ const signupSchema = z
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
-function isSuccessResult<T extends { success: boolean; error?: string }>(
-  result?: T,
-): result is T & { success: true } {
-  return !!result && 'success' in result && result.success;
-}
-
 export function SignupForm() {
   const router = useRouter();
   const { toast } = useToast();
