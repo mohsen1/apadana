@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 
 import { BookingRequestEmail } from '@/components/emails/booking-request-email';
 import { EarlyAccessEmail } from '@/components/emails/early-access-email';
+import { PasswordResetEmail } from '@/components/emails/password-reset-email';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -66,5 +67,17 @@ export async function sendWelcomeEmail(email: string) {
     to: email,
     subject: 'Welcome to the app',
     html: '<p>Welcome to the app</p>',
+  });
+}
+
+/**
+ * Send a password reset email to a user when they request a password reset.
+ */
+export async function sendPasswordResetEmail(email: string, resetLink: string) {
+  return resend.emails.send({
+    from: 'Apadana <security@apadana.app>',
+    to: email,
+    subject: 'Reset Your Password',
+    react: PasswordResetEmail({ resetLink }),
   });
 }

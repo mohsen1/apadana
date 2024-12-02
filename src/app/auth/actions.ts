@@ -5,13 +5,19 @@ import { z } from 'zod';
 
 import {
   argon,
+  RESET_TOKEN_DURATION,
   sanitizeUserForClient,
   SESSION_COOKIE_NAME,
   SESSION_DURATION,
 } from '@/lib/auth';
-import { sendWelcomeEmail } from '@/lib/email/send-email';
+import {
+  sendPasswordResetEmail,
+  sendWelcomeEmail,
+} from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
+
+import logger from '@/utils/logger';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -229,4 +235,129 @@ export const logOut = actionClient
     const { delete: deleteCookie } = await cookies();
     deleteCookie(SESSION_COOKIE_NAME);
     return { success: true };
+  });
+
+const requestPasswordResetSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Reset token is required'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password must be less than 100 characters'),
+});
+
+export const requestPasswordReset = actionClient
+  .schema(requestPasswordResetSchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      // Find user by email
+      const user = await prisma.user.findFirst({
+        where: {
+          emailAddresses: {
+            some: {
+              emailAddress: parsedInput.email,
+            },
+          },
+        },
+        include: {
+          emailAddresses: true,
+        },
+      });
+
+      // If no user found, still return success to prevent email enumeration
+      if (!user) {
+        logger.info('Password reset requested for non-existent email', {
+          email: parsedInput.email,
+        });
+        return;
+      }
+
+      // Delete any existing reset tokens for this user
+      await prisma.passwordReset.deleteMany({
+        where: { userId: user.id },
+      });
+
+      // Create new reset token
+      const resetToken = await prisma.passwordReset.create({
+        data: {
+          userId: user.id,
+          token: crypto.randomUUID(),
+          expiresAt: new Date(Date.now() + RESET_TOKEN_DURATION.milliseconds()),
+        },
+      });
+
+      // Generate reset link
+      const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken.token}`;
+
+      // Send reset email
+      await sendPasswordResetEmail(parsedInput.email, resetLink);
+
+      logger.info('Password reset email sent', {
+        userId: user.id,
+        email: parsedInput.email,
+      });
+    } catch (error) {
+      logger.error('Error in requestPasswordReset:', error);
+      throw new ClientVisibleError(
+        'Unable to process password reset request. Please try again later.',
+      );
+    }
+  });
+
+export const resetPassword = actionClient
+  .schema(resetPasswordSchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      // Find valid reset token
+      const resetToken = await prisma.passwordReset.findUnique({
+        where: { token: parsedInput.token },
+        include: { user: true },
+      });
+
+      if (!resetToken) {
+        throw new ClientVisibleError('Invalid or expired reset token');
+      }
+
+      if (resetToken.expiresAt < new Date()) {
+        // Clean up expired token
+        await prisma.passwordReset.delete({
+          where: { id: resetToken.id },
+        });
+        throw new ClientVisibleError('Reset token has expired');
+      }
+
+      // Hash new password
+      const hashedPassword = await argon.hash(parsedInput.password);
+
+      // Update user password
+      await prisma.user.update({
+        where: { id: resetToken.userId },
+        data: { password: hashedPassword },
+      });
+
+      // Delete used reset token
+      await prisma.passwordReset.delete({
+        where: { id: resetToken.id },
+      });
+
+      // Delete all existing sessions for this user for security
+      await prisma.session.deleteMany({
+        where: { userId: resetToken.userId },
+      });
+
+      logger.info('Password reset successful', {
+        userId: resetToken.userId,
+      });
+    } catch (error) {
+      logger.error('Error in resetPassword:', error);
+      if (error instanceof ClientVisibleError) {
+        throw error;
+      }
+      throw new ClientVisibleError(
+        'Unable to reset password. Please try again later.',
+      );
+    }
   });

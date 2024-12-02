@@ -71,6 +71,9 @@ importers:
       '@react-email/components':
         specifier: ^0.0.28
         version: 0.0.28(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
+      '@react-email/tailwind':
+        specifier: ^1.0.2
+        version: 1.0.2(react@19.0.0-rc-66855b96-20241106)
       '@react-google-maps/api':
         specifier: ^2.19.3
         version: 2.19.3(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)

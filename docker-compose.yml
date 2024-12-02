@@ -19,6 +19,7 @@ services:
       - POSTGRES_PASSWORD=admin
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
       - NODE_OPTIONS="--max-old-space-size=8192"
       - NEXT_TELEMETRY_DISABLED=1
       - STORYBOOK_TELEMETRY_DEBUG=1

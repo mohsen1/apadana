@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -37,12 +38,17 @@ export default function LoginPage() {
   const router = useRouter();
   const { fetchUser } = useAuth();
   const redirect = useSearchParams().get('redirect');
+  const [failedAttempts, setFailedAttempts] = useState(0);
+
   const { execute, status, hasErrored, result } = useAction(login, {
     onSuccess: ({ data }) => {
       if (data?.user) {
         fetchUser(data.user);
         router.push(redirect || '/');
       }
+    },
+    onError: () => {
+      setFailedAttempts((prev) => prev + 1);
     },
   });
 
@@ -102,6 +108,16 @@ export default function LoginPage() {
                 </p>
               )}
             </div>
+            {failedAttempts >= 2 && (
+              <div className='text-sm text-center'>
+                <Link
+                  href='/forgot-password'
+                  className='text-blue-600 dark:text-blue-400 hover:underline'
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+            )}
             {hasErrored && (
               <p className='text-sm text-red-500'>
                 {result?.serverError?.error}

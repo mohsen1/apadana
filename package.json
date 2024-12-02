@@ -65,6 +65,7 @@
     "@radix-ui/react-toast": "^1.2.2",
     "@radix-ui/react-tooltip": "^1.1.2",
     "@react-email/components": "^0.0.28",
+    "@react-email/tailwind": "^1.0.2",
     "@react-google-maps/api": "^2.19.3",
     "@storybook/addon-themes": "^8.2.9",
     "@types/lodash": "^4.17.7",
