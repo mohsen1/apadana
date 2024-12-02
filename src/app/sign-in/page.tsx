@@ -1,14 +1,16 @@
 'use client';
 
-import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAction } from 'next-safe-action/hooks';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,9 +22,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+
 import { login } from '@/app/auth/actions';
 import { AppleLogo, GoogleLogo } from '@/app/sign-in/logos';
-import { useAuth } from '@/hooks/use-auth';
 
 // Match the schema from actions.ts
 const loginSchema = z.object({
