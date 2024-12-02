@@ -2,7 +2,7 @@ import { Session } from '@prisma/client';
 import { cookies } from 'next/headers';
 import { createSafeActionClient } from 'next-safe-action';
 
-import { getUserFromSession } from '@/lib/auth';
+import { getUserFromSession, SESSION_COOKIE_NAME } from '@/lib/auth';
 
 /**
  * An error that is visible to the client. Throw this error to return an error message to the client.
@@ -42,7 +42,7 @@ export const actionClient = baseClient.use(async ({ next }) => {
  */
 export async function setSession(session: Session) {
   const { set: setCookie } = await cookies();
-  setCookie('session', session.id, {
+  setCookie(SESSION_COOKIE_NAME, session.id, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

@@ -207,7 +207,7 @@ export function SignupForm() {
             <Button
               variant='link'
               className='p-0 h-auto font-normal'
-              onClick={() => router.push('/auth/login')}
+              onClick={() => router.push('/sign-in')}
             >
               Sign in
             </Button>

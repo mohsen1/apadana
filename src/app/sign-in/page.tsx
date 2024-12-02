@@ -40,8 +40,8 @@ export default function LoginPage() {
   const { execute, status, hasErrored, result } = useAction(login, {
     onSuccess: ({ data }) => {
       if (data?.user) {
+        fetchUser(data.user);
         router.push(redirect || '/');
-        fetchUser();
       }
     },
   });

@@ -9,6 +9,8 @@ import { ClientUser } from '@/contexts/auth-context';
 export const SESSION_DURATION = new TimeSpan(2, 'w'); // 2 weeks
 export const RESET_TOKEN_DURATION = new TimeSpan(1, 'h'); // 1 hour
 
+export const SESSION_COOKIE_NAME = 'session' as const;
+
 export const argon = new Argon2id();
 
 /**
@@ -17,7 +19,7 @@ export const argon = new Argon2id();
  */
 export async function getUserFromSession() {
   const { get: getCookie } = await cookies();
-  const sessionId = getCookie('session');
+  const sessionId = getCookie(SESSION_COOKIE_NAME);
 
   if (!sessionId) {
     return null;
@@ -52,6 +54,14 @@ export async function getUserFromSession() {
   }
 
   return user;
+}
+
+/**
+ * Sign out a user by deleting the session cookie.
+ */
+export async function signOut() {
+  const { set: setCookie } = await cookies();
+  setCookie(SESSION_COOKIE_NAME, '', { maxAge: 0 });
 }
 
 /**

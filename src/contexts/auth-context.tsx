@@ -1,6 +1,5 @@
 'use client';
 
-import { useAction } from 'next-safe-action/hooks';
 import { createContext, useCallback, useEffect, useState } from 'react';
 
 import { ClientUser, getCurrentUser, logOut } from '@/app/auth/actions';
@@ -9,8 +8,8 @@ export type { ClientUser };
 
 interface AuthContextValue {
   user: ClientUser | null;
-  signOut: () => void;
-  fetchUser: () => void;
+  signOut: () => Promise<void>;
+  fetchUser: (user?: ClientUser) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
@@ -24,19 +23,25 @@ export function AuthProvider({
   children: React.ReactNode;
   user: ClientUser | null;
 }) {
-  const { execute: signOut, result: signOutResult } = useAction(logOut);
   const [user, setUser] = useState<ClientUser | null>(initialUser);
 
-  const fetchUser = useCallback(async () => {
+  const fetchUser = useCallback(async (user?: ClientUser) => {
+    if (user) {
+      setUser(user);
+      return;
+    }
     const result = await getCurrentUser();
     setUser(result?.data?.user ?? null);
   }, []);
 
+  const signOut = useCallback(async () => {
+    await logOut();
+    setUser(null);
+  }, []);
+
   useEffect(() => {
-    if (signOutResult?.data?.success) {
-      setUser(null);
-    }
-  }, [signOutResult?.data?.success]);
+    fetchUser();
+  }, [fetchUser]);
 
   const value: AuthContextValue = {
     user,

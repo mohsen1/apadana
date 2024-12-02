@@ -3,7 +3,12 @@
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 
-import { argon, SESSION_DURATION } from '@/lib/auth';
+import {
+  argon,
+  sanitizeUserForClient,
+  SESSION_COOKIE_NAME,
+  SESSION_DURATION,
+} from '@/lib/auth';
 import { sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
@@ -13,11 +18,16 @@ const loginSchema = z.object({
   password: z.string(),
 });
 
+const clientUserSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  firstName: z.string().nullable(),
+  lastName: z.string().nullable(),
+  imageUrl: z.string().nullable(),
+});
+
 const successfulLogin = z.object({
-  user: z.object({
-    id: z.string(),
-    email: z.string().email(),
-  }),
+  user: clientUserSchema,
 });
 
 export const login = actionClient
@@ -34,11 +44,18 @@ export const login = actionClient
       },
       include: {
         emailAddresses: true,
+        roles: true,
+        permissions: true,
       },
     });
 
+    if (!user) {
+      // This should never happen, but if it does, we don't want to leak information
+      throw new ClientVisibleError('Invalid email or password');
+    }
+
     // Check if user exists and has password
-    if (!user || !user.password) {
+    if (!user.password) {
       throw new ClientVisibleError('Invalid email or password');
     }
 
@@ -70,11 +87,14 @@ export const login = actionClient
 
     await ctx.setSession(session);
 
+    const clientUser = sanitizeUserForClient(user);
+
+    if (!clientUser) {
+      throw new Error('User not found');
+    }
+
     return {
-      user: {
-        id: user.id,
-        email: primaryEmail,
-      },
+      user: clientUser,
     };
   });
 
@@ -155,14 +175,6 @@ export const signUp = actionClient
     };
   });
 
-const clientUserSchema = z.object({
-  id: z.string(),
-  email: z.string().email(),
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
-  imageUrl: z.string().nullable(),
-});
-
 export type ClientUser = z.infer<typeof clientUserSchema>;
 
 const getCurrentUserOutput = z
@@ -175,7 +187,7 @@ export const getCurrentUser = actionClient
   .outputSchema(getCurrentUserOutput)
   .action(async () => {
     const { get: getCookie, delete: deleteCookie } = await cookies();
-    const sessionId = getCookie('sessionId');
+    const sessionId = getCookie(SESSION_COOKIE_NAME);
 
     if (!sessionId) {
       return { user: null };
@@ -215,6 +227,6 @@ export const logOut = actionClient
   .outputSchema(z.object({ success: z.literal(true) }))
   .action(async () => {
     const { delete: deleteCookie } = await cookies();
-    deleteCookie('sessionId');
+    deleteCookie(SESSION_COOKIE_NAME);
     return { success: true };
   });

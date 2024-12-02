@@ -1,6 +1,5 @@
-import { Permission, UserRole } from '@prisma/client';
+import { Permission, Role } from '@prisma/client';
 import _ from 'lodash';
-import { Metadata } from 'next';
 
 import { getUserFromSession } from '@/lib/auth';
 
@@ -15,15 +14,11 @@ export interface AuthProtection {
   /**
    * The roles that are required to access the page.
    */
-  roles?: UserRole[];
+  roles?: Role[];
   /**
    * The permissions that are required to access the page.
    */
   permissions?: Permission[];
-}
-
-interface AuthMetadata extends Metadata {
-  protection?: AuthProtection;
 }
 
 /**
@@ -31,9 +26,8 @@ interface AuthMetadata extends Metadata {
  * @param metadata - The metadata for the page.
  * @returns Whether the user has access to the page.
  */
-export async function verifyAccess(metadata: AuthMetadata) {
+export async function verifyAccess(protection: AuthProtection) {
   const user = await getUserFromSession();
-  const protection = metadata.protection;
 
   if (!protection) {
     return true;
@@ -43,28 +37,36 @@ export async function verifyAccess(metadata: AuthMetadata) {
     return false;
   }
 
-  if (_.intersection(protection.roles, user?.roles ?? []).length === 0) {
-    logger.warn(`Role requirement not met for page ${metadata.title}`, {
-      required: protection.roles,
-      current: user?.roles,
-      user: user?.id,
-    });
-    return false;
+  if (protection.roles) {
+    const userRoles = user?.roles.map((r) => r.role) ?? [];
+    const hasRole =
+      _.intersection(protection.roles, userRoles).length ===
+      protection.roles.length;
+
+    if (!hasRole) {
+      logger.warn(`Role requirement not met`, {
+        required: protection.roles,
+        current: user?.roles,
+        user: user?.id,
+      });
+
+      return false;
+    }
   }
 
   if (protection.permissions) {
+    const userPermissions = user?.permissions.map((p) => p.permission) ?? [];
     const hasPermission =
-      _.intersection(
-        protection.permissions,
-        (user?.permissions ?? []).map((p) => p.permission),
-      ).length > 0;
+      _.intersection(protection.permissions, userPermissions).length ===
+      protection.permissions.length;
 
     if (!hasPermission) {
-      logger.warn(`Permission requirement not met for page ${metadata.title}`, {
+      logger.warn(`Permission requirement not met`, {
         required: protection.permissions,
         current: user?.permissions,
         user: user?.id,
       });
+
       return false;
     }
   }
