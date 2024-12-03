@@ -16,6 +16,7 @@ Next.js Rules:
 - Use the latest stable version of Shaden UI.
 - Use the latest stable version of Tailwind CSS.
 - Use the latest stable version of Lucide for icons.
+- Instead of hardcoded colors like black or gray, use the colors defined in the theme.
 
 Backend Rules:
 

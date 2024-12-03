@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 
 export function Header() {
   return (
-    <header className='px-4 lg:px-6 h-14 flex items-center'>
+    <header className='flex-1 px-4 lg:px-6  flex items-center'>
       <div>
         <Link href='/' legacyBehavior>
           <a className='flex gap-2'>
@@ -16,7 +16,7 @@ export function Header() {
           </a>
         </Link>
       </div>
-      <div className='flex gap-4 sm:gap-6 ml-10 border-l border-slate-700 pl-4'>
+      <div className='flex ml-10 border-l border-slate-700 pl-4'>
         <LoggedInHeaderLinks />
         <Button href='/listing/create' variant='link'>
           Create Listing
