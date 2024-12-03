@@ -23,6 +23,7 @@ services:
       - NEXT_SHARP_PATH=/app/node_modules/sharp
       - PRISMA_HIDE_UPDATE_MESSAGE=true
       - NODE_OPTIONS="--no-deprecation"
+      - PRISMA_OUTPUT_DIR=../src/__generated__/prisma
     depends_on:
       db:
         condition: service_healthy

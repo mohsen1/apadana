@@ -176,6 +176,9 @@ importers:
       tailwind-merge:
         specifier: ^2.5.5
         version: 2.5.5
+      tailwindcss:
+        specifier: ^3.4.10
+        version: 3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4))
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4)))
@@ -324,9 +327,6 @@ importers:
       storybook:
         specifier: ^8.2.9
         version: 8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))(bufferutil@4.0.8)(utf-8-validate@6.0.4)
-      tailwindcss:
-        specifier: ^3.4.10
-        version: 3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4))
       ts-jest:
         specifier: ^29.2.5
         version: 29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.21.5)(jest@29.7.0(@types/node@22.5.4)(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4)))(typescript@5.5.4)

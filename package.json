@@ -24,6 +24,7 @@
     "migrate:prod": "dotenv -e .env -- prisma migrate deploy --no-hints",
     "prisma:generate": "dotenv -e .env.local -- prisma generate --no-hints",
     "prisma:watch": "dotenv -e .env.local -- prisma generate --no-hints --watch",
+    "prisma:seed": "dotenv -e .env.local -- prisma db seed",
     "build": "dotenv -e .env prisma generate --no-hints && dotenv -e .env next build",
     "start": "next start",
     "lint": "next lint",
@@ -104,6 +105,7 @@
     "uuid": "^11.0.3",
     "uvcanvas": "^0.2.1",
     "yet-another-react-lightbox": "^3.21.4",
+    "tailwindcss": "^3.4.10",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -149,7 +151,6 @@
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "storybook": "^8.2.9",
-    "tailwindcss": "^3.4.10",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
