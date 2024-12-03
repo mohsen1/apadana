@@ -86,39 +86,55 @@ export function AccountPage() {
           <h2 className='text-2xl font-semibold'>Profile details</h2>
           <Separator className='my-6' />
 
-          {/* Profile Section */}
+          {/* Updated Profile Section */}
           <div className='flex items-center justify-between mb-8'>
-            <div className='flex items-center gap-4'>
-              <Avatar className='h-16 w-16'>
-                <AvatarImage src={user?.imageUrl ?? '/placeholder.png'} />
-                <AvatarFallback>{userInitials}</AvatarFallback>
-              </Avatar>
-              <div>
+            <div className='flex items-start gap-4 '>
+              <UploadButton
+                endpoint='imageUploader'
+                onClientUploadComplete={(res) => {
+                  if (res[0]) {
+                    form.setValue('imageUrl', res[0].url);
+                    execute({ ...form.getValues(), imageUrl: res[0].url });
+                    toast({
+                      title: 'Image uploaded successfully',
+                      description: 'Your profile image has been updated.',
+                    });
+                  }
+                }}
+                onUploadError={(error: Error) => {
+                  toast({
+                    title: 'Error uploading image',
+                    description: error.message,
+                  });
+                }}
+                className='
+                ut-label:cursor-pointer ut-label:h-16 ut-label:w-16
+                ut-button:border-0 ut-button:h-full ut-button:w-full ut-button:p-0'
+                content={{
+                  button() {
+                    return (
+                      <div className='grid place-items-center'>
+                        <Avatar className='h-16 w-16 relative group cursor-pointer hover:opacity-90'>
+                          <AvatarImage
+                            src={user?.imageUrl ?? '/placeholder.png'}
+                          />
+                          <AvatarFallback>{userInitials}</AvatarFallback>
+                        </Avatar>
+                        <p className='text-xs text-foreground pt-2'>
+                          Click to change
+                        </p>
+                      </div>
+                    );
+                  },
+                }}
+              />
+              <div className='text-start'>
                 <h3 className='text-lg font-medium'>
                   {user?.firstName} {user?.lastName}
                 </h3>
                 <p className='text-muted-foreground'>{user?.email}</p>
               </div>
             </div>
-            <UploadButton
-              endpoint='imageUploader'
-              onClientUploadComplete={(res) => {
-                if (res[0]) {
-                  form.setValue('imageUrl', res[0].url);
-                  execute({ ...form.getValues(), imageUrl: res[0].url });
-                  toast({
-                    title: 'Image uploaded successfully',
-                    description: 'Your profile image has been updated.',
-                  });
-                }
-              }}
-              onUploadError={(error: Error) => {
-                toast({
-                  title: 'Error uploading image',
-                  description: error.message,
-                });
-              }}
-            />
           </div>
 
           {/* Name Section */}
