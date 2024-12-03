@@ -49,3 +49,6 @@ storybook-static/
 
 # playwright
 playwright/.auth
+
+# prisma
+src/__generated__/prisma

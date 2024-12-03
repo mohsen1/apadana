@@ -1,6 +1,5 @@
 'use client';
 
-import { BookingRequest, BookingRequestStatus, User } from '@prisma/client';
 import { formatRelative } from 'date-fns';
 import { useState } from 'react';
 
@@ -18,6 +17,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+import {
+  BookingRequest,
+  BookingRequestStatus,
+  User,
+} from '@/__generated__/prisma';
 import { BookingRequestActions } from '@/app/listing/[id]/manage/BookingRequestActions';
 import { BookingRequestStatusBadge } from '@/app/listing/[id]/manage/BookingRequestStatusBadge';
 

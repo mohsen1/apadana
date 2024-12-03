@@ -7,6 +7,11 @@ import {
 import prisma from '@/lib/prisma/client';
 
 export class LocalResend {
+  contacts = {
+    create: async () => {
+      return { data: { id: 'mock-contact-id' }, error: null };
+    },
+  };
   emails = {
     send: async (
       payload: CreateEmailOptions,

@@ -1,8 +1,9 @@
 'use server';
 
-import { Resend } from 'resend';
 import { z } from 'zod';
 
+import resend from '@/lib/email/resend';
+import prisma from '@/lib/prisma/client';
 import { actionClient } from '@/lib/safe-action';
 
 import EarlyAccessEmail from '@/components/emails/early-access-email';
@@ -22,18 +23,15 @@ const OutputSchema = z.object({
   error: z.string().optional(),
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const GENERAL_AUDIENCE_ID = '4f99651b-4f7d-4fa8-9aec-2f0e8022cb46';
-
 async function handler(data: Input) {
   try {
     const { email } = data;
 
-    // Add email to Resend Audience
-    await resend.contacts.create({
-      email,
-      audienceId: GENERAL_AUDIENCE_ID,
-      unsubscribed: false,
+    // Add email to list of early access signups
+    await prisma.earlyAccessSignup.create({
+      data: {
+        email,
+      },
     });
 
     // Send confirmation email

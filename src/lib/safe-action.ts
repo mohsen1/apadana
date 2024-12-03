@@ -1,9 +1,9 @@
-import { Session } from '@prisma/client';
 import { createSafeActionClient } from 'next-safe-action';
 
 import { getUserInServer } from '@/lib/auth';
 import { SESSION_COOKIE_NAME } from '@/lib/auth/constants';
 
+import { Session } from '@/__generated__/prisma';
 import logger from '@/utils/logger';
 
 /**

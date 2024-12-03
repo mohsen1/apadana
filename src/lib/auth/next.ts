@@ -1,8 +1,8 @@
-import { Permission, Role } from '@prisma/client';
 import _ from 'lodash';
 
 import { getUserInServer } from '@/lib/auth';
 
+import { Permission, Role } from '@/__generated__/prisma';
 import logger from '@/utils/logger';
 
 export interface AuthProtection {

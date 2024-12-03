@@ -3,6 +3,9 @@
 
 generator client {
   provider = "prisma-client-js"
+  // we are outputting outside of the node_modules folder 
+  // so editors can pickup changes in the generated client
+  output   = "../src/__generated__/prisma"
 }
 
 datasource db {
@@ -260,5 +263,11 @@ model LocalEmail {
   from      String
   subject   String
   html      String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model EarlyAccessSignup {
+  id        String   @id @default(cuid())
+  email     String   @unique
   createdAt DateTime @default(now())
 }

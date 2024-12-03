@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { PrismaClient } from '@prisma/client';
-
 import { argon } from '@/lib/auth/argon';
+
+import { PrismaClient } from '@/__generated__/prisma';
 
 const prisma = new PrismaClient();
 

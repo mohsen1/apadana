@@ -1,9 +1,8 @@
 'use server';
 
-import { Listing } from '@prisma/client';
-
 import { getUserInServer } from '@/lib/auth';
 
+import { Listing } from '@/__generated__/prisma';
 import { createListing } from '@/app/listing/create/action';
 import { TypedFormData } from '@/utils/formData';
 
