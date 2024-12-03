@@ -39,3 +39,21 @@ export const updateUser = actionClient
       throw new Error('Failed to update user');
     }
   });
+
+export const deleteAccount = actionClient.action(async ({ ctx }) => {
+  try {
+    if (!ctx.userId) {
+      throw new UnauthorizedError();
+    }
+
+    await prisma.user.delete({
+      where: { id: ctx.userId },
+    });
+
+    logger.info('Account deleted successfully', { userId: ctx.userId });
+    return { success: true };
+  } catch (error) {
+    logger.error('Error deleting account:', error);
+    throw new Error('Failed to delete account');
+  }
+});

@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Shield, User } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -22,7 +21,7 @@ import { updateUser } from './actions';
 import type { UpdateUserInput } from './schema';
 import { updateUserSchema } from './schema';
 
-export function AccountPage() {
+export function AccountProfile() {
   const { user, setUser } = useAuth();
   const form = useForm<UpdateUserInput>({
     resolver: zodResolver(updateUserSchema),
@@ -60,26 +59,7 @@ export function AccountPage() {
   const [isEditing, setIsEditing] = useState(false);
 
   return (
-    <div className='flex min-h-screen'>
-      {/* Sidebar */}
-      <div className='w-64 border-r p-6'>
-        <h1 className='text-2xl font-semibold'>Account</h1>
-        <p className='text-sm text-muted-foreground mt-1'>
-          Manage your account info.
-        </p>
-
-        <div className='mt-8 space-y-2'>
-          <button className='flex items-center w-full p-2 rounded-md bg-accent text-accent-foreground'>
-            <User className='mr-2 h-4 w-4' />
-            Profile
-          </button>
-          <button className='flex items-center w-full p-2 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground'>
-            <Shield className='mr-2 h-4 w-4' />
-            Security
-          </button>
-        </div>
-      </div>
-
+    <div className='w-full'>
       {/* Main Content */}
       <div className='flex-1 p-6'>
         <div className='max-w-3xl'>
