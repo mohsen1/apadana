@@ -22,8 +22,8 @@ function SidebarButton({
       href={href}
       className={`flex items-center justify-start w-full p-2  rounded-none text-left ${
         isActive
-          ? 'bg-slate-200 dark:bg-slate-800 text-accent-foreground dark:text-accent'
-          : 'hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-accent-foreground dark:hover:text-accent'
+          ? 'bg-slate-200 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800'
+          : 'hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-500-foreground dark:hover:text-sky-500'
       }`}
     >
       {children}

@@ -19,7 +19,7 @@ function ColorPalette() {
   return (
     <div className='p-4'>
       <h1 className='text-2xl font-bold mb-4'>Color Palette</h1>
-      <p className='text-accent-foreground mb-4'>
+      <p className='text-sky-500-foreground mb-4'>
         We try to keep the number of colors to a minimum for easier
         customization.
       </p>

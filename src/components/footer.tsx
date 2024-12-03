@@ -1,9 +1,16 @@
+import { cn } from '@/lib/utils';
+
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 
-const Footer = () => {
+const Footer = ({ className }: { className?: string }) => {
   return (
-    <footer className='flex-1 py-8 mx-auto max-w-6xl dark:text-gray-200'>
+    <footer
+      className={cn(
+        'flex-1 py-8 mx-auto max-w-6xl dark:text-gray-200',
+        className,
+      )}
+    >
       <div className='container mx-auto px-4'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
           <div className='w-full'>

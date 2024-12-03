@@ -1,13 +1,20 @@
 import { HomeIcon } from 'lucide-react';
 import Link from 'next/link';
 
+import { cn } from '@/lib/utils';
+
 import { LoggedInHeaderLinks } from '@/components/layout/LoggedInHeaderLinks';
 import { Nav } from '@/components/layout/Nav';
 import { Button } from '@/components/ui/button';
 
-export function Header() {
+export function Header({ className }: { className?: string }) {
   return (
-    <header className='flex-1 px-4 lg:px-6 flex items-center bg-gray-100 dark:bg-gray-900'>
+    <header
+      className={cn(
+        'flex-1 px-4 lg:px-6 flex items-center bg-gray-100 dark:bg-gray-900',
+        className,
+      )}
+    >
       <div>
         <Link href='/' legacyBehavior>
           <a className='flex gap-2 text-gray-800 dark:text-gray-200'>

@@ -75,7 +75,8 @@ export default async function RootLayout({
         <body
           className={cn(
             'text-gray-900 dark:text-gray-100',
-            'min-h-screen bg-gray-50 dark:bg-gray-950 font-sans antialiased flex flex-col',
+            'min-h-screen bg-gray-50 dark:bg-gray-950 font-sans antialiased',
+            'flex flex-col',
             fontSans.variable,
             fontHeading.variable,
             fontSubheading.variable,
@@ -84,10 +85,12 @@ export default async function RootLayout({
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
             <ToastProvider>
               <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
-              <Header />
-              <div className='flex-grow'>{children}</div>
+              <Header className='h-16' />
+              <main className='flex-1 min-h-[calc(100vh-4rem)]'>
+                {children}
+              </main>
+              <Footer className='mt-auto' />
               <Toaster />
-              <Footer />
             </ToastProvider>
           </ThemeProvider>
         </body>
