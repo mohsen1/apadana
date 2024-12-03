@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "docker:dev": "concurrently \"pnpm docker:dev:start\" \"pnpm prisma:watch\" --raw",
-    "docker:dev:start": "docker-compose up --build --no-log-prefix",
+    "docker:dev:start": "docker-compose -f docker/docker-compose.yml up --build --no-log-prefix",
     "docker:down": "docker-compose down",
     "docker:clean": "docker-compose down -v && docker volume prune -f",
     "docker:db": "docker-compose exec db psql -U admin -d apadana",
@@ -31,7 +31,7 @@
     "lint:strict": "eslint --max-warnings=0 src",
     "typecheck": "pnpm prisma:generate && tsc --noEmit --incremental false",
     "test:watch": "jest --watch",
-    "test": "jest",
+    "test": "jest --config config/jest.config.ts",
     "e2e": "PORT=3030 playwright test --project=chromium",
     "e2e:dev": "PORT=3000 playwright test --project=chromium",
     "e2e:ci": "playwright test",

@@ -1,0 +1,273 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  // we are outputting outside of the node_modules folder 
+  // so editors can pickup changes in the generated client
+  output   = "../src/__generated__/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// TODO
+// generator zod {
+//   provider = "prisma-zod-generator"
+//   output   = "../src/lib/prisma/generated"
+// }
+
+enum Permission {
+  // org:listing:manage
+  MANAGE_LISTINGS
+
+  // org:member:manage
+  READ_MEMBERS
+  // org:billing:manage
+  MANAGE_BILLING
+  // org:reports:view
+  VIEW_REPORTS
+  // org:settings:edit
+  EDIT_SETTINGS
+  // org:domains:manage
+  MANAGE_DOMAINS
+  // org:organization:manage
+  MANAGE_ORGANIZATION
+  // org:organization:delete
+  DELETE_ORGANIZATION
+  // org:members:manage
+  MANAGE_MEMBERS
+  // org:user:manage
+  MANAGE_USERS
+  // org:role:manage
+  MANAGE_ROLES
+  // org:permission:manage
+  MANAGE_PERMISSIONS
+}
+
+enum Role {
+  // org:admin
+  ADMIN
+  // org:user -- all users are hosts
+  HOST
+  // org:cohost
+  COHOST
+  // org:guest
+  GUEST
+}
+
+model UserRole {
+  id     Int    @id @default(autoincrement())
+  role   Role
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+}
+
+model UserPermission {
+  id         Int        @id @default(autoincrement())
+  permission Permission
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permission])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  firstName String?
+  lastName  String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emailAddresses   EmailAddress[]
+  externalAccounts ExternalAccount[]
+  listings         Listing[]
+  roles            UserRole[]
+  permissions      UserPermission[]
+  bookings         Booking[]
+  BookingRequest   BookingRequest[]
+  password         String?
+  sessions         Session[]
+  passwordReset    PasswordReset[]
+}
+
+model EmailAddress {
+  id           String  @id @default(cuid())
+  emailAddress String  @unique
+  isPrimary    Boolean @default(false)
+  verification String?
+  userId       String
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ExternalAccount {
+  id         String @id @default(cuid())
+  provider   String
+  externalId String
+  userId     String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, externalId])
+}
+
+model UploadThingImage {
+  id        String   @id @default(cuid())
+  url       String
+  key       String   @unique
+  name      String
+  type      String   @default("") @db.VarChar(100)
+  size      Int      @default(0)
+  fileHash  String
+  customId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listing   Listing @relation(fields: [listingId], references: [id])
+  listingId Int
+}
+
+/// Not a complete list of currencies, but a starting point
+enum Currency {
+  USD
+  EUR
+  GBP
+  CAD
+}
+
+model Listing {
+  id                Int                @id @default(autoincrement())
+  title             String             @db.VarChar(255)
+  slug              String             @default("") @db.VarChar(255)
+  description       String             @db.Text
+  propertyType      String             @db.VarChar(100)
+  address           String             @db.VarChar(255)
+  latitude          Float?
+  longitude         Float?
+  timeZone          String             @default("America/New_York") @db.VarChar(100)
+  /// HH:MM 24-hour format
+  checkInTime       String             @default("14:00") @db.VarChar(6)
+  /// HH:MM 24-hour format
+  checkOutTime      String             @default("11:00") @db.VarChar(6)
+  amenities         String[]
+  pricePerNight     Float
+  currency          Currency           @default(USD)
+  minimumStay       Int                @default(1)
+  maximumGuests     Int                @default(5)
+  houseRules        String             @db.Text
+  allowPets         Boolean            @default(false)
+  petPolicy         String             @default("") @db.Text
+  published         Boolean            @default(false)
+  showExactLocation Boolean            @default(true)
+  locationRadius    Float              @default(1) // in kilometers
+  owner             User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId           String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  images            UploadThingImage[]
+  inventory         ListingInventory[]
+  BookingRequest    BookingRequest[]
+
+  @@index([ownerId])
+  @@index([pricePerNight])
+}
+
+model ListingInventory {
+  id          Int      @id @default(autoincrement())
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  listingId   Int
+  date        DateTime
+  /// is this date available for booking
+  isAvailable Boolean  @default(true)
+  price       Float
+  /// related booking for this date
+  booking     Booking? @relation(fields: [bookingId], references: [id])
+  bookingId   Int?
+
+  @@unique([listingId, date])
+  @@index([date])
+  @@index([bookingId])
+}
+
+model Booking {
+  id               Int                @id @default(autoincrement())
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String
+  listingInventory ListingInventory[]
+  totalPrice       Float
+  checkIn          DateTime
+  checkOut         DateTime
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  bookingRequest   BookingRequest?    @relation(fields: [bookingRequestId], references: [id])
+  bookingRequestId Int?
+
+  @@index([userId])
+  @@index([bookingRequestId])
+}
+
+enum BookingRequestStatus {
+  PENDING
+  EXPIRED
+  ACCEPTED
+  REJECTED
+}
+
+model BookingRequest {
+  id         Int                  @id @default(autoincrement())
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  listing    Listing              @relation(fields: [listingId], references: [id])
+  listingId  Int
+  message    String               @db.Text
+  checkIn    DateTime
+  checkOut   DateTime
+  guests     Int
+  status     BookingRequestStatus @default(PENDING)
+  pets       Boolean              @default(false)
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  Booking    Booking[]
+  /// Total price for the booking request calculated from the listing price per night and the number of nights at the time of the booking request
+  totalPrice Float                @default(0)
+
+  @@index([listingId])
+  @@index([userId])
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastActive DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// This is for local development only. Emails are not sent through Resend.
+model LocalEmail {
+  id        String   @id @default(cuid())
+  to        String
+  from      String
+  subject   String
+  html      String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model EarlyAccessSignup {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

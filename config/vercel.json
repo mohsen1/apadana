@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "src/scripts/build-vercel.sh",
+  "buildCommand": "scripts/build-vercel.sh",
   "headers": [
     {
       "source": "/fonts/inter-var-latin.woff2",

@@ -1,0 +1,23 @@
+# Create the new directories at the root level
+mkdir config docker scripts test
+
+# Move configuration files into the config/ directory
+mv environment-variables.ts \
+  jest.config.ts jest.setup.ts next-env.d.ts \
+  next-sitemap.config.js next.config.ts \
+  postcss.config.js tailwind.config.ts \
+  tsconfig.json renovate.json vercel.json \
+  config/
+
+# Move Docker-related files into the docker/ directory
+mv Dockerfile.dev Dockerfile.prod \
+  docker-compose.yml docker-compose.prod.yml \
+  docker-entrypoint.dev.sh docker/
+
+# Move scripts into the scripts/ directory
+mv src/scripts/build-vercel.sh scripts/
+
+# Move test-related files into the test/ directory
+mv playwright.config.ts playwright e2e test-results test/
+
+# Note: Ensure to review changes before committing

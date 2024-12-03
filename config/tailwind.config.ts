@@ -4,11 +4,11 @@ import { fontFamily } from 'tailwindcss/defaultTheme';
 import { withUt } from 'uploadthing/tw';
 const config: Config = {
   content: [
-    path.join(__dirname, 'src/**/*.{js,ts,jsx,tsx,mdx}'),
-    path.join(__dirname, 'src/pages/**/*.{js,ts,jsx,tsx,mdx}'),
-    path.join(__dirname, 'src/components/**/*.{js,ts,jsx,tsx,mdx}'),
-    path.join(__dirname, 'src/app/**/*.{js,ts,jsx,tsx,mdx}'),
-    path.join(__dirname, 'src/stories/**/*.{js,ts,jsx,tsx,mdx}'),
+    path.join(__dirname, '../src/**/*.{js,ts,jsx,tsx,mdx}'),
+    path.join(__dirname, '../src/pages/**/*.{js,ts,jsx,tsx,mdx}'),
+    path.join(__dirname, '../src/components/**/*.{js,ts,jsx,tsx,mdx}'),
+    path.join(__dirname, '../src/app/**/*.{js,ts,jsx,tsx,mdx}'),
+    path.join(__dirname, '../src/stories/**/*.{js,ts,jsx,tsx,mdx}'),
   ],
   darkMode: 'class',
   theme: {
