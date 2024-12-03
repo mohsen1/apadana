@@ -1,10 +1,11 @@
-import { Listing, UploadThingImage } from '@prisma/client';
 import Image from 'next/image';
 import React from 'react';
 
 import { formatCurrency } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
+
+import { Listing, UploadThingImage } from '@/__generated__/prisma';
 
 type ListingsGridProps = {
   listings: Array<Listing & { images?: UploadThingImage[] }>;

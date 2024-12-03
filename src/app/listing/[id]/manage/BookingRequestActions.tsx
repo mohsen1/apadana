@@ -1,11 +1,11 @@
 'use client';
-import { BookingRequest, BookingRequestStatus } from '@prisma/client';
 import { Check, Loader2, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 
 import { Button } from '@/components/ui/button';
 
+import { BookingRequest, BookingRequestStatus } from '@/__generated__/prisma';
 import { changeBookingRequestStatus } from '@/app/listing/[id]/manage/action';
 
 export function BookingRequestActions({

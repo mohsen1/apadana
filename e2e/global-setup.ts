@@ -1,8 +1,5 @@
-import { clerkSetup } from '@clerk/testing/playwright';
 import { FullConfig } from '@playwright/test';
 
-async function globalSetup(_config: FullConfig) {
-  await clerkSetup();
-}
+function globalSetup(_config: FullConfig) {}
 
 export default globalSetup;

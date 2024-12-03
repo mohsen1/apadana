@@ -1,4 +1,3 @@
-import { ClerkProvider } from '@clerk/nextjs';
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -8,6 +7,8 @@ import { extractRouterConfig } from 'uploadthing/server';
 
 import '@/styles/globals.css';
 
+import { getUserInServer } from '@/lib/auth';
+import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { cn } from '@/lib/utils';
 
 import Footer from '@/components/footer';
@@ -18,6 +19,7 @@ import { Toaster } from '@/components/ui/toaster';
 
 import { ourFileRouter as fileRouter } from '@/app/api/uploadthing/core';
 import { siteConfig } from '@/constant/config';
+import { AuthProvider } from '@/contexts/auth-context';
 
 import { fontHeading, fontSans, fontSubheading } from './fonts';
 export const metadata: Metadata = {
@@ -54,16 +56,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getUserInServer();
+
   return (
-    <ClerkProvider dynamic>
+    <AuthProvider user={sanitizeUserForClient(user)}>
       <html lang='en' suppressHydrationWarning>
-        <SpeedInsights />
-        <Analytics />
+        {process.env.NODE_ENV === 'production' && (
+          <>
+            <SpeedInsights />
+            <Analytics />
+          </>
+        )}
         <body
           className={cn(
             'min-h-screen bg-background font-sans antialiased flex flex-col',
@@ -76,13 +84,13 @@ export default function RootLayout({
             <ToastProvider>
               <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
               <Header />
-              {children}
+              <div className='flex-grow'>{children}</div>
               <Toaster />
               <Footer />
             </ToastProvider>
           </ThemeProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </AuthProvider>
   );
 }

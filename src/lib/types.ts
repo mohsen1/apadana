@@ -5,7 +5,7 @@ import {
   ListingInventory,
   UploadThingImage,
   User,
-} from '@prisma/client';
+} from '@/__generated__/prisma';
 
 export type FullUser = User & {
   emailAddresses: EmailAddress[];

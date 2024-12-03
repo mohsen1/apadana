@@ -5,9 +5,6 @@ test.describe.serial('create listing', () => {
     page,
     currentListing,
   }) => {
-    // Sign in to the application
-    await page.signIn();
-
     // Navigate to the create listing page
     await page.goto('/listing/create');
 
@@ -131,7 +128,6 @@ test.describe.serial('create listing', () => {
 
   test('Delete the listing', async ({ page, currentListing }) => {
     expect(currentListing.id).toBeDefined();
-    await page.signIn();
     await page.goto(`/listing/${currentListing.id}/delete`);
     await expect(page.getByText('Delete "My new test listing"')).toBeVisible();
 

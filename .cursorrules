@@ -4,6 +4,7 @@ General Rules:
 
 - The website is hosted at https://apadana.app. Emails are sent from bookings@apadana.app, onboarding@apadana.app, and support@apadana.app.
 - Use logger to log errors and other messages. import logger from '@/utils/logger';
+- Utils are in src/utils folder.
 
 Next.js Rules:
 
@@ -16,6 +17,12 @@ Next.js Rules:
 - Use the latest stable version of Shaden UI.
 - Use the latest stable version of Tailwind CSS.
 - Use the latest stable version of Lucide for icons.
+- Do not add new directories directly under src/app unless it is for a route
+- All non-page common components are in src/components folder.
+- Components in src/components/ui are from Shaden UI.
+- Hooks are in src/hooks folder.
+- Emails are in src/components/emails folder.
+- Instead of hardcoded colors like black or gray, use the colors defined in the theme.
 
 Backend Rules:
 
@@ -23,7 +30,35 @@ Backend Rules:
 - Use SafeAction to handle backend actions. import { actionClient } from '@/lib/safe-action';
 - Define input and output schemas for each action.
 - Use Prisma ORM to interact with the database.
+- Always import prisma from '@/lib/prisma/client';
 - Use the latest stable version of Prisma.
 - We use Zod for schema validation.
-- We use React-Hook-Form for form handling.
+- We use React-Hook-Form for form handling. Always use it when building forms.
+- We use next-safe-action for safe actions. Always use it when building forms.
 - We use Resend for sending emails. Use React-Email for email templates. Use Tailwind CSS for styling leveraging clsx
+- When making actions use this API signature:
+  ```ts
+  actionClient.schema(input).action(async ({ parsedInput, ctx }) => {
+    // ...
+  });
+  ```
+- Actions for each route in app directory should be co-located with the route in app/actions folder.
+- All actions of each route should be in an actions.ts file
+- Use Zod for schema validation and action input/output.
+- We use uploadthing for file uploads. Use the uploadthing client to upload files. import { uploadthing } from '@/lib/uploadthing';
+- We are NOT USING NEXT-AUTH for authentication. We are using our own auth system built on top of Oslo libs
+
+End-to-end testing:
+
+- Use Playwright for end-to-end testing.
+- All playwright tests are in e2e folder.
+- Backend for testing is built with TEST_ENV=e2e
+- All tests are in spec.ts files
+- E2E tests should be fast and as small as possible.
+- E2E tests should not depend on each other.
+- E2E tests should not depend on the database to be empty.
+- Use test.beforeEach to prepare the environment for each test.
+- The /api/e2e endpoint is used to send commands to the backend for testing.
+  - POST /api/e2e with body of JSON with the following fields:
+    - command: string
+    - args: Record<string, unknown>

@@ -82,5 +82,5 @@ module.exports = {
     React: true,
     JSX: true,
   },
-  ignorePatterns: ['!.storybook'],
+  ignorePatterns: ['!.storybook', 'src/__generated__'],
 };

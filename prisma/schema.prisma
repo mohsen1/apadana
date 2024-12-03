@@ -3,6 +3,9 @@
 
 generator client {
   provider = "prisma-client-js"
+  // we are outputting outside of the node_modules folder 
+  // so editors can pickup changes in the generated client
+  output   = "../src/__generated__/prisma"
 }
 
 datasource db {
@@ -20,8 +23,6 @@ enum Permission {
   // org:listing:manage
   MANAGE_LISTINGS
 
-  // Clerk standard permissions from here:
-  // https://clerk.com/docs/organizations/create-roles-permissions
   // org:member:manage
   READ_MEMBERS
   // org:billing:manage
@@ -76,7 +77,7 @@ model UserPermission {
 }
 
 model User {
-  id        String   @id // ID from Clerk
+  id        String   @id @default(cuid())
   firstName String?
   lastName  String?
   imageUrl  String?
@@ -90,10 +91,13 @@ model User {
   permissions      UserPermission[]
   bookings         Booking[]
   BookingRequest   BookingRequest[]
+  password         String?
+  sessions         Session[]
+  passwordReset    PasswordReset[]
 }
 
 model EmailAddress {
-  id           String  @id
+  id           String  @id @default(cuid())
   emailAddress String  @unique
   isPrimary    Boolean @default(false)
   verification String?
@@ -102,7 +106,7 @@ model EmailAddress {
 }
 
 model ExternalAccount {
-  id         String @id
+  id         String @id @default(cuid())
   provider   String
   externalId String
   userId     String
@@ -233,4 +237,37 @@ model BookingRequest {
 
   @@index([listingId])
   @@index([userId])
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastActive DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// This is for local development only. Emails are not sent through Resend.
+model LocalEmail {
+  id        String   @id @default(cuid())
+  to        String
+  from      String
+  subject   String
+  html      String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model EarlyAccessSignup {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }

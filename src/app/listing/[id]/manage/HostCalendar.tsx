@@ -1,7 +1,6 @@
 'use client';
 
 import { getLocalTimeZone, today as getToday } from '@internationalized/date';
-import { ListingInventory } from '@prisma/client';
 import { RefreshCcw } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
@@ -24,6 +23,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 
+import { ListingInventory } from '@/__generated__/prisma';
 import { editInventory } from '@/app/listing/[id]/manage/action';
 import { getListing } from '@/app/listing/action';
 import { RangeValue } from '@/utils/types';

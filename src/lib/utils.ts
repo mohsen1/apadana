@@ -1,9 +1,10 @@
-import { Currency, ListingInventory } from '@prisma/client';
 import { type ClassValue, clsx } from 'clsx';
 import { startOfDay } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { DateValue } from 'react-aria';
 import { twMerge } from 'tailwind-merge';
+
+import { Currency, ListingInventory } from '@/__generated__/prisma';
 
 /**
  * Set the date to the start of the day in the specified time zone.

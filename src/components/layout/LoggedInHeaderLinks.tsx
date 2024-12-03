@@ -1,15 +1,24 @@
-'use client';
+'use server';
 
-import { SignedIn } from '@clerk/nextjs';
+import { getUserInServer } from '@/lib/auth';
 
 import { Button } from '@/components/ui/button';
 
-export function LoggedInHeaderLinks() {
+export async function LoggedInHeaderLinks() {
+  const user = await getUserInServer();
+
+  if (!user) {
+    return null;
+  }
+
   return (
-    <SignedIn>
+    <>
+      <Button href='/listing/create' variant='link'>
+        Create Listing
+      </Button>
       <Button href='/listing' variant='link'>
         My Listings
       </Button>
-    </SignedIn>
+    </>
   );
 }

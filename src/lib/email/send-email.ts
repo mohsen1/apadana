@@ -1,9 +1,8 @@
-import { Resend } from 'resend';
+import resend from '@/lib/email/resend';
 
 import { BookingRequestEmail } from '@/components/emails/booking-request-email';
 import { EarlyAccessEmail } from '@/components/emails/early-access-email';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { PasswordResetEmail } from '@/components/emails/password-reset-email';
 
 /**
  * Send a booking request email to the host when a guest requests a booking.
@@ -56,5 +55,27 @@ export async function sendEarlyAccessEmail(email: string) {
     to: email,
     subject: 'Welcome to Apadana Early Access',
     react: EarlyAccessEmail({ email }),
+  });
+}
+
+// TODO: Implement sendWelcomeEmail
+export async function sendWelcomeEmail(email: string) {
+  return resend.emails.send({
+    from: 'Apadana <onboarding@apadana.app>',
+    to: email,
+    subject: 'Welcome to the app',
+    html: '<p>Welcome to the app</p>',
+  });
+}
+
+/**
+ * Send a password reset email to a user when they request a password reset.
+ */
+export async function sendPasswordResetEmail(email: string, resetLink: string) {
+  return resend.emails.send({
+    from: 'Apadana <security@apadana.app>',
+    to: email,
+    subject: 'Reset Your Password',
+    react: PasswordResetEmail({ resetLink }),
   });
 }

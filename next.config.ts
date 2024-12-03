@@ -13,11 +13,7 @@ const nextConfig: NextConfig = {
   },
 
   images: {
-    remotePatterns: [
-      { hostname: 'utfs.io' },
-      { hostname: 'img.clerk.com' },
-      { hostname: 'apadana.app' },
-    ],
+    remotePatterns: [{ hostname: 'utfs.io' }, { hostname: 'apadana.app' }],
   },
 
   experimental: {

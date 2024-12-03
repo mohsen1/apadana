@@ -1,21 +1,11 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-// Docs: https://clerk.com/docs/references/nextjs/clerk-middleware
+import { isUsingLocalResend } from '@/lib/email/resend';
 
-const isProtectedRoute = createRouteMatcher([
-  '/listing/create',
-  '/listing/(.*)/manage',
-]);
-
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) auth.protect();
-});
-
-export const config = {
-  matcher: [
-    // Skip all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/api(.*)',
-  ],
-};
+export function middleware(req: NextRequest) {
+  if (req.nextUrl.pathname.startsWith('/local-inbox') && !isUsingLocalResend) {
+    return NextResponse.redirect('/');
+  }
+  return NextResponse.next();
+}

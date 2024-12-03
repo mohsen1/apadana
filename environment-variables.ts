@@ -2,9 +2,7 @@ import dotenv from 'dotenv';
 import { z } from 'zod';
 
 const schema = z.object({
-  CLERK_SECRET_KEY: z.string(),
   GOOGLE_MAPS_API_KEY: z.string(),
-  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
   UPLOADTHING_APP_ID: z.string(),
   UPLOADTHING_SECRET: z.string(),
   UPLOADTHING_TOKEN: z.string(),

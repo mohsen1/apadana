@@ -1,10 +1,11 @@
 'use server';
 
-import { auth } from '@clerk/nextjs/server';
-import { Listing } from '@prisma/client';
+import { getUserInServer } from '@/lib/auth';
 
+import { Listing } from '@/__generated__/prisma';
 import { createListing } from '@/app/listing/create/action';
 import { TypedFormData } from '@/utils/formData';
+
 export type ServerResponse = {
   success: boolean;
   listing?: Listing;
@@ -84,9 +85,10 @@ export async function submitForm(
   try {
     validateFormData(formData);
 
-    const { userId, redirectToSignIn } = await auth();
-    if (!userId) {
-      return redirectToSignIn();
+    const user = await getUserInServer();
+
+    if (!user) {
+      return { success: false, error: 'User not authenticated' };
     }
 
     const res = await createListing({
