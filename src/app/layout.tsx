@@ -84,7 +84,7 @@ export default async function RootLayout({
             <ToastProvider>
               <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
               <Header />
-              {children}
+              <div className='flex-grow'>{children}</div>
               <Toaster />
               <Footer />
             </ToastProvider>
