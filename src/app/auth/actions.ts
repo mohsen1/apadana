@@ -3,13 +3,13 @@
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 
+import { argon } from '@/lib/auth/argon';
 import {
-  argon,
   RESET_TOKEN_DURATION,
-  sanitizeUserForClient,
   SESSION_COOKIE_NAME,
   SESSION_DURATION,
-} from '@/lib/auth';
+} from '@/lib/auth/constants';
+import { sanitizeUserForClient } from '@/lib/auth/utils';
 import {
   sendPasswordResetEmail,
   sendWelcomeEmail,
@@ -204,10 +204,9 @@ export const getCurrentUser = actionClient
       include: {
         user: {
           include: {
-            emailAddresses: {
-              where: { isPrimary: true },
-              take: 1,
-            },
+            emailAddresses: true,
+            roles: true,
+            permissions: true,
           },
         },
       },
@@ -218,15 +217,8 @@ export const getCurrentUser = actionClient
       return { user: null };
     }
 
-    return {
-      user: {
-        id: session.user.id,
-        email: session.user.emailAddresses[0]?.emailAddress,
-        firstName: session.user.firstName,
-        lastName: session.user.lastName,
-        imageUrl: session.user.imageUrl,
-      },
-    };
+    const clientUser = sanitizeUserForClient(session.user);
+    return { user: clientUser };
   });
 
 export const logOut = actionClient

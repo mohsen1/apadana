@@ -1,23 +1,9 @@
-import _ from 'lodash';
-import { cookies } from 'next/headers';
-import { TimeSpan } from 'oslo';
-import { Argon2id } from 'oslo/password';
-
 import prisma from '@/lib/prisma/client';
 
-import { ClientUser } from '@/contexts/auth-context';
-export const SESSION_DURATION = new TimeSpan(2, 'w'); // 2 weeks
-export const RESET_TOKEN_DURATION = new TimeSpan(1, 'h'); // 1 hour
+import { SESSION_COOKIE_NAME } from './constants';
 
-export const SESSION_COOKIE_NAME = 'session' as const;
-
-export const argon = new Argon2id();
-
-/**
- * Authenticate a user on the server side.
- * @returns The session if the user is authenticated, otherwise null.
- */
-export async function getUserFromSession() {
+export async function getServerSession() {
+  const { cookies } = await import('next/headers');
   const { get: getCookie } = await cookies();
   const sessionId = getCookie(SESSION_COOKIE_NAME);
 
@@ -37,6 +23,20 @@ export async function getUserFromSession() {
     await prisma.session.delete({
       where: { id: session.id },
     });
+    return null;
+  }
+
+  return session;
+}
+
+/**
+ * Authenticate a user on the server side.
+ * @returns The session if the user is authenticated, otherwise null.
+ */
+export async function getUserInServer() {
+  const session = await getServerSession();
+
+  if (!session) {
     return null;
   }
 
@@ -60,24 +60,7 @@ export async function getUserFromSession() {
  * Sign out a user by deleting the session cookie.
  */
 export async function signOut() {
+  const { cookies } = await import('next/headers');
   const { set: setCookie } = await cookies();
   setCookie(SESSION_COOKIE_NAME, '', { maxAge: 0 });
-}
-
-/**
- * Sanitize a user for client side use. `getUserFromSession` is used for server side
- * code, but we need to sanitize the user for client side code.
- */
-export function sanitizeUserForClient(
-  user: Awaited<ReturnType<typeof getUserFromSession>>,
-): ClientUser | null {
-  if (!user) {
-    return null;
-  }
-  const email = user.emailAddresses[0].emailAddress;
-
-  return {
-    ..._.pick(user, ['id', 'firstName', 'lastName', 'imageUrl']),
-    email,
-  };
 }

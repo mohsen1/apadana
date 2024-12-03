@@ -2,7 +2,7 @@
 
 import { Listing } from '@prisma/client';
 
-import { getUserFromSession } from '@/lib/auth';
+import { getUserInServer } from '@/lib/auth';
 
 import { createListing } from '@/app/listing/create/action';
 import { TypedFormData } from '@/utils/formData';
@@ -86,7 +86,7 @@ export async function submitForm(
   try {
     validateFormData(formData);
 
-    const user = await getUserFromSession();
+    const user = await getUserInServer();
 
     if (!user) {
       return { success: false, error: 'User not authenticated' };

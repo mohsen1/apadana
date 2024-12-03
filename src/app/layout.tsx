@@ -7,7 +7,8 @@ import { extractRouterConfig } from 'uploadthing/server';
 
 import '@/styles/globals.css';
 
-import { getUserFromSession, sanitizeUserForClient } from '@/lib/auth';
+import { getUserInServer } from '@/lib/auth';
+import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { cn } from '@/lib/utils';
 
 import Footer from '@/components/footer';
@@ -60,7 +61,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUserFromSession();
+  const user = await getUserInServer();
 
   return (
     <AuthProvider user={sanitizeUserForClient(user)}>

@@ -7,10 +7,6 @@ services:
       - '3030:3030'
     environment:
       - DATABASE_URL=postgresql://admin:admin@db:5432/apadana
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
       - PRISMA_HIDE_UPDATE_MESSAGE=true

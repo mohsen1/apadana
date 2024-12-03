@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
 
 import { AuthBoundary } from '@/components/auth/AuthBoundary';
-import { UserSettings } from '@/components/user/UserSettings';
+
+import { AccountPage } from './AccountPage';
 
 export const metadata: Metadata = {
-  title: 'User Settings',
+  title: 'Use Account',
 };
 
 export default async function UserPage() {
@@ -13,7 +14,7 @@ export default async function UserPage() {
       redirectTo='/sign-in?redirect=/user'
       protection={{ authRequired: true }}
     >
-      <UserSettings />
+      <AccountPage />
     </AuthBoundary>
   );
 }

@@ -10,6 +10,7 @@ interface AuthContextValue {
   user: ClientUser | null;
   signOut: () => Promise<void>;
   fetchUser: (user?: ClientUser) => void;
+  setUser: (user: ClientUser | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
@@ -25,11 +26,7 @@ export function AuthProvider({
 }) {
   const [user, setUser] = useState<ClientUser | null>(initialUser);
 
-  const fetchUser = useCallback(async (user?: ClientUser) => {
-    if (user) {
-      setUser(user);
-      return;
-    }
+  const fetchUser = useCallback(async () => {
     const result = await getCurrentUser();
     setUser(result?.data?.user ?? null);
   }, []);
@@ -47,6 +44,7 @@ export function AuthProvider({
     user,
     signOut,
     fetchUser,
+    setUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,7 +1,7 @@
 import { Permission, Role } from '@prisma/client';
 import _ from 'lodash';
 
-import { getUserFromSession } from '@/lib/auth';
+import { getUserInServer } from '@/lib/auth';
 
 import logger from '@/utils/logger';
 
@@ -27,7 +27,7 @@ export interface AuthProtection {
  * @returns Whether the user has access to the page.
  */
 export async function verifyAccess(protection: AuthProtection) {
-  const user = await getUserFromSession();
+  const user = await getUserInServer();
 
   if (!protection) {
     return true;
