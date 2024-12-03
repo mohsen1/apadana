@@ -71,8 +71,8 @@ const SortableImage = ({
       {...listeners}
       className='aspect-square relative m-2'
     >
-      <div className='border rounded-lg shadow-md overflow-hidden w-full h-full'>
-        <div className='relative w-full h-full bg-slate-50'>
+      <div className='border border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden w-full h-full'>
+        <div className='relative w-full h-full bg-gray-100 dark:bg-gray-800'>
           <ImageLoader
             src={image.url}
             alt={image.name}
@@ -80,7 +80,7 @@ const SortableImage = ({
             className='object-contain'
           />
           {isCover && (
-            <div className='absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-1'>
+            <div className='absolute bottom-0 left-0 right-0 bg-black/50 dark:bg-black/70 text-white text-center py-1'>
               Cover Photo
             </div>
           )}
@@ -96,7 +96,7 @@ const SortableImage = ({
           e.stopPropagation();
         }}
         type='button'
-        className='absolute -top-3 -right-3 bg-gray-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 focus:bg-red-600 focus:outline-none'
+        className='absolute -top-3 -right-3 bg-gray-500 dark:bg-gray-400 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 dark:hover:bg-red-500 focus:bg-red-600 dark:focus:bg-red-500 focus:outline-none'
       >
         <XIcon className='w-4 h-4' />
       </button>
@@ -157,9 +157,7 @@ export const ImageUploader = ({
         style={{
           opacity: isUploading ? 1 : 0,
           backgroundRepeat: 'no-repeat',
-          backgroundImage:
-            // HSL value is the the --bg-accent color
-            'linear-gradient(0deg, hsl(192 100% 50%), hsl(192 100% 50%))',
+          backgroundImage: 'linear-gradient(0deg, #3b82f6, #3b82f6)',
           backgroundSize: `${uploadingProgress}% 100%`,
         }}
       >
@@ -232,21 +230,28 @@ export const ImageUploader = ({
                 }}
                 disabled={isUploading}
                 className={`
-                  aspect-square w-full flex items-center justify-center 
-                  ut-label:h-full ut-label:w-full ut-label:flex ut-label:items-center ut-label:justify-center
+                  aspect-square w-full 
+                  [&>*:first-child]:w-full [&>*:first-child]:h-full [&>*:first-child]:flex
+                  [&>*:first-child]:items-center [&>*:first-child]:justify-center
                 `}
                 content={{
                   button({ ready, isUploading }) {
                     const buttonClasses = cn(
-                      'w-full h-full flex flex-col gap-2 items-center justify-center text-primary hover:bg-muted hover:text-accent-foreground',
+                      'w-full h-full flex flex-col gap-2 items-center justify-center',
+                      'border-2 border-dashed border-gray-300 dark:border-gray-500',
+                      'bg-gray-50 dark:bg-gray-900/95',
+                      'hover:bg-gray-100 dark:hover:bg-gray-800/80',
+                      'hover:border-blue-500 dark:hover:border-blue-400',
                       ready ? 'cursor-pointer' : 'cursor-not-allowed',
                       isUploading ? 'opacity-50' : '',
                     );
 
                     return (
                       <div className={buttonClasses}>
-                        <PlusIcon className='w-8 h-8 text-xl min-h-8 min-w-8 text-primary' />
-                        <span>Upload {images.length ? 'more' : ''} images</span>
+                        <PlusIcon className='w-8 h-8 text-xl min-h-8 min-w-8 text-blue-100 dark:text-blue-400' />
+                        <span className='text-gray-700 dark:text-gray-200 text-sm w-full text-center'>
+                          Upload {images.length ? 'more' : ''} images
+                        </span>
                       </div>
                     );
                   },

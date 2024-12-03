@@ -23,6 +23,16 @@ Next.js Rules:
 - Hooks are in src/hooks folder.
 - Emails are in src/components/emails folder.
 - Instead of hardcoded colors like black or gray, use the colors defined in the theme.
+- Use these colors in components
+  - Gray
+  - Red
+  - Yellow
+  - Green
+  - Blue
+  - Indigo
+    Purple
+    Pink
+- ALWAYS handle dark mode in components.
 
 Backend Rules:
 

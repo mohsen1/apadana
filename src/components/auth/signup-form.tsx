@@ -10,6 +10,13 @@ import { useToast } from '@/hooks/use-toast';
 
 import { Button } from '@/components/ui/button';
 import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
   Form,
   FormControl,
   FormField,
@@ -96,124 +103,141 @@ export function SignupForm() {
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className='space-y-6 w-full sm:w-[400px]'
-      >
-        <div className='grid grid-cols-2 gap-4'>
-          <FormField
-            control={form.control}
-            name='firstName'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>First Name</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder='John'
-                    {...field}
-                    autoComplete='given-name'
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name='lastName'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last Name</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder='Doe'
-                    {...field}
-                    autoComplete='family-name'
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name='email'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input
-                  type='email'
-                  placeholder='you@example.com'
-                  {...field}
-                  autoComplete='email'
+    <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
+      <Card className='w-full max-w-md shadow-lg bg-gray-100 dark:bg-gray-900'>
+        <CardHeader>
+          <CardTitle className='text-2xl font-bold text-center'>
+            Create your account
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+              <div className='grid grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='firstName'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='John'
+                          {...field}
+                          autoComplete='given-name'
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
-        <FormField
-          control={form.control}
-          name='password'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type='password' {...field} autoComplete='new-password' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormField
+                  control={form.control}
+                  name='lastName'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='Doe'
+                          {...field}
+                          autoComplete='family-name'
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-        <FormField
-          control={form.control}
-          name='confirmPassword'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl>
-                <Input type='password' {...field} autoComplete='new-password' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              <FormField
+                control={form.control}
+                name='email'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='email'
+                        placeholder='you@example.com'
+                        {...field}
+                        autoComplete='email'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <div className='flex flex-col gap-4'>
-          <Button
-            type='submit'
-            className='w-full'
-            disabled={form.formState.isSubmitting}
-          >
-            {form.formState.isSubmitting ? (
-              <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Creating account...
-              </>
-            ) : (
-              'Create account'
-            )}
-          </Button>
+              <FormField
+                control={form.control}
+                name='password'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='password'
+                        {...field}
+                        autoComplete='new-password'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <div className='text-center text-sm text-muted-foreground'>
+              <FormField
+                control={form.control}
+                name='confirmPassword'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='password'
+                        {...field}
+                        autoComplete='new-password'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className='flex flex-col gap-4'>
+                <Button
+                  type='submit'
+                  className='w-full'
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? (
+                    <>
+                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                      Creating account...
+                    </>
+                  ) : (
+                    'Create account'
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+        <CardFooter className='justify-center'>
+          <div className='text-sm text-gray-600 dark:text-gray-400'>
             Already have an account?{' '}
             <Button
               variant='link'
-              className='p-0 h-auto font-normal'
+              className='p-0 h-auto font-normal text-blue-600 dark:text-blue-400 hover:underline'
               onClick={() => router.push('/sign-in')}
             >
               Sign in
             </Button>
           </div>
-        </div>
-      </form>
-    </Form>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

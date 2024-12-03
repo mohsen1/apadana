@@ -15,6 +15,7 @@ COPY . .
 
 # Build the application
 ENV NODE_ENV production
+RUN pnpm prisma:generate
 RUN pnpm build
 
 # Production stage

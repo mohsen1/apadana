@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button';
 
 import type { ClientUser } from '@/contexts/auth-context';
 
-// const SignInButton = () => (
-//   <Button variant='link' href='/sign-in'>
-//     Sign In
-//   </Button>
-// );
+const SignInButton = () => (
+  <Button variant='link' href='/sign-in'>
+    Sign In
+  </Button>
+);
 
 const UserButton = ({ user }: { user: ClientUser | null }) => (
   <Button variant='link' href='/user'>
@@ -28,7 +28,7 @@ export function Nav() {
   return (
     <nav className='ml-auto flex gap-4 sm:gap-6'>
       {/* Hiding sign in button until launch */}
-      {/* {!user && <SignInButton />} */}
+      {!user && process.env.NODE_ENV === 'development' && <SignInButton />}
       {user && <UserButton user={user} />}
     </nav>
   );

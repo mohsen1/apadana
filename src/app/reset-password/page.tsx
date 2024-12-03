@@ -83,10 +83,10 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4'>
+    <div className='min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4'>
       <Card className='w-full max-w-md shadow-lg'>
         <CardHeader>
-          <CardTitle className='text-2xl font-bold text-center'>
+          <CardTitle className='text-2xl font-bold text-center text-black dark:text-white'>
             Reset Your Password
           </CardTitle>
         </CardHeader>

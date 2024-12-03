@@ -63,11 +63,11 @@ export default function SignUpPage() {
   });
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4'>
+    <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
       <Card className='w-full max-w-md shadow-lg'>
         <CardHeader>
           <CardTitle className='text-2xl font-bold text-center'>
-            Sign Up
+            Sign Up for an account
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -70,7 +70,7 @@ export default function LoginPage() {
     <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
       <Card
         className={cn(
-          'w-full max-w-md shadow-lg bg-gray-100 dark:bg-gray-900',
+          'w-full max-w-md shadow-lg',
           hasErrored && 'shadow-red-500',
         )}
       >

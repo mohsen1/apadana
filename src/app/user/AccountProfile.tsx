@@ -64,7 +64,7 @@ export function AccountProfile() {
       <div className='flex-1 p-6'>
         <div className='max-w-3xl'>
           <h2 className='text-2xl font-semibold'>Profile details</h2>
-          <Separator className='my-6' />
+          <Separator className='my-6 border-gray-700' />
 
           {/* Updated Profile Section */}
           <div className='flex items-center justify-between mb-8'>
@@ -89,7 +89,8 @@ export function AccountProfile() {
                 }}
                 className='
                 ut-label:cursor-pointer ut-label:h-16 ut-label:w-16
-                ut-button:border-0 ut-button:h-full ut-button:w-full ut-button:p-0'
+                ut-button:border-0 ut-button:h-full ut-button:w-full ut-button:p-0
+                border-gray-700'
                 content={{
                   button() {
                     return (
@@ -125,6 +126,7 @@ export function AccountProfile() {
                 variant='outline'
                 onClick={() => setIsEditing(!isEditing)}
                 disabled={status === 'executing'}
+                className='border-gray-700'
               >
                 {isEditing ? 'Cancel' : 'Edit name'}
               </Button>
@@ -142,6 +144,7 @@ export function AccountProfile() {
                       id='firstName'
                       {...form.register('firstName')}
                       placeholder='Enter first name'
+                      className='border-gray-700'
                     />
                     {form.formState.errors.firstName && (
                       <p className='text-sm text-destructive'>
@@ -155,6 +158,7 @@ export function AccountProfile() {
                       id='lastName'
                       {...form.register('lastName')}
                       placeholder='Enter last name'
+                      className='border-gray-700'
                     />
                     {form.formState.errors.lastName && (
                       <p className='text-sm text-destructive'>
@@ -178,7 +182,11 @@ export function AccountProfile() {
           <div className='mb-8'>
             <div className='flex items-center justify-between mb-4'>
               <h3 className='text-lg font-medium'>Email addresses</h3>
-              <Button variant='ghost' size='sm'>
+              <Button
+                variant='ghost'
+                size='sm'
+                className='border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
+              >
                 ...
               </Button>
             </div>
@@ -188,7 +196,11 @@ export function AccountProfile() {
                 <Badge variant='secondary'>Primary</Badge>
               </div>
             </div>
-            <Button variant='outline' size='sm' className='mt-4'>
+            <Button
+              variant='outline'
+              size='sm'
+              className='mt-4 border-gray-700'
+            >
               <span className='mr-2'>+</span> Add email address
             </Button>
           </div>
@@ -197,7 +209,7 @@ export function AccountProfile() {
           <div>
             <div className='flex items-center justify-between mb-4'>
               <h3 className='text-lg font-medium'>Connected accounts</h3>
-              <Button variant='ghost' size='sm'>
+              <Button variant='ghost' size='sm' className='border-gray-700'>
                 ...
               </Button>
             </div>
@@ -225,7 +237,11 @@ export function AccountProfile() {
                 <span className='text-muted-foreground'>john@example.com</span>
               </div>
             </div>
-            <Button variant='outline' size='sm' className='mt-4'>
+            <Button
+              variant='outline'
+              size='sm'
+              className='mt-4 border-gray-700'
+            >
               <span className='mr-2'>+</span> Connect account
             </Button>
           </div>
