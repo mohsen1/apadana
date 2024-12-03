@@ -119,10 +119,7 @@ const signUpSchema = z.object({
 
 const successfulSignUp = z.object({
   success: z.literal(true),
-  user: z.object({
-    id: z.string(),
-    email: z.string().email(),
-  }),
+  user: clientUserSchema,
 });
 
 export const signUp = actionClient
@@ -174,9 +171,14 @@ export const signUp = actionClient
     // Send welcome email
     await sendWelcomeEmail(parsedInput.email);
 
+    const clientUser = sanitizeUserForClient(user);
+    if (!clientUser) {
+      throw new Error('Failed to create user');
+    }
+
     return {
       success: true,
-      user: sanitizeUserForClient(user),
+      user: clientUser,
     };
   });
 

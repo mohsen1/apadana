@@ -51,43 +51,23 @@ export default defineConfig({
       sources: true,
     },
   },
+  // get webServer() {
+  // if (process.env.CI) { return undefined; }
+  //   return {
+  //     command: `docker compose ps -q | grep -q . && nc -z localhost ${port} || (pnpm docker:prod:down && pnpm run docker:prod)`,
+  //     url: baseURL,
+  //     reuseExistingServer: true,
+  //     timeout: 120_000,
+  //   };
+  // },
 
   /* Configure projects for major browsers */
   projects: [
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
     },
-
-    // TODO: Enable e2e testing for firefox and webkit
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
   ],
 });

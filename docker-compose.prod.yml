@@ -12,6 +12,7 @@ services:
       - PRISMA_HIDE_UPDATE_MESSAGE=true
       - STORYBOOK_TELEMETRY_DEBUG=1
       - NEXT_SHARP_PATH=/app/node_modules/sharp
+      - TEST_ENV=e2e
     depends_on:
       db:
         condition: service_healthy

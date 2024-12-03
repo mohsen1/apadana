@@ -47,3 +47,18 @@ Backend Rules:
 - Use Zod for schema validation and action input/output.
 - We use uploadthing for file uploads. Use the uploadthing client to upload files. import { uploadthing } from '@/lib/uploadthing';
 - We are NOT USING NEXT-AUTH for authentication. We are using our own auth system built on top of Oslo libs
+
+End-to-end testing:
+
+- Use Playwright for end-to-end testing.
+- All playwright tests are in e2e folder.
+- Backend for testing is built with TEST_ENV=e2e
+- All tests are in spec.ts files
+- E2E tests should be fast and as small as possible.
+- E2E tests should not depend on each other.
+- E2E tests should not depend on the database to be empty.
+- Use test.beforeEach to prepare the environment for each test.
+- The /api/e2e endpoint is used to send commands to the backend for testing.
+  - POST /api/e2e with body of JSON with the following fields:
+    - command: string
+    - args: Record<string, unknown>
