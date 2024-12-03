@@ -8,6 +8,8 @@ import { useAction } from 'next-safe-action/hooks';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { useAuth } from '@/hooks/use-auth';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -42,10 +44,13 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
   const router = useRouter();
-
+  const { setUser } = useAuth();
   const { execute, status, hasErrored, result } = useAction(signUp, {
-    onSuccess: () => {
-      router.push('/user');
+    onSuccess: ({ data }) => {
+      if (data?.user) {
+        setUser(data.user);
+        router.push('/user');
+      }
     },
   });
 

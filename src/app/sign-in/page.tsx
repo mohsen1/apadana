@@ -35,7 +35,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { fetchUser } = useAuth();
+  const { setUser } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
@@ -45,7 +45,7 @@ export default function LoginPage() {
   const { execute, status, hasErrored, result } = useAction(login, {
     onSuccess: ({ data }) => {
       if (data?.user) {
-        fetchUser(data.user);
+        setUser(data.user);
         router.push(redirect || '/');
       }
     },

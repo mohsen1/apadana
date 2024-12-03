@@ -146,6 +146,8 @@ export const signUp = actionClient
       include: {
         emailAddresses: true,
         sessions: true,
+        roles: true,
+        permissions: true,
       },
       data: {
         password: hashedPassword,
@@ -174,10 +176,7 @@ export const signUp = actionClient
 
     return {
       success: true,
-      user: {
-        id: user.id,
-        email: parsedInput.email,
-      },
+      user: sanitizeUserForClient(user),
     };
   });
 
