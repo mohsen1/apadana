@@ -12,8 +12,13 @@ export async function LoggedInHeaderLinks() {
   }
 
   return (
-    <Button href='/listing' variant='link'>
-      My Listings
-    </Button>
+    <>
+      <Button href='/listing/create' variant='link'>
+        Create Listing
+      </Button>
+      <Button href='/listing' variant='link'>
+        My Listings
+      </Button>
+    </>
   );
 }

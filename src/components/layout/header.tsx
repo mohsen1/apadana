@@ -18,9 +18,7 @@ export function Header() {
       </div>
       <div className='flex ml-10 border-l border-slate-700 pl-4'>
         <LoggedInHeaderLinks />
-        <Button href='/listing/create' variant='link'>
-          Create Listing
-        </Button>
+
         {process.env.NODE_ENV === 'development' && (
           <>
             <Button
