@@ -5,24 +5,32 @@ import path from 'path';
 const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
 setup('authenticate', async ({ page }) => {
-  const port = process.env.PORT ?? 3000;
+  await page.goto('/');
 
-  try {
-    await fetch(`http://localhost:${port}/api/e2e`, {
+  await page.evaluate(() => {
+    fetch(`/api/e2e`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({
         command: 'login',
       }),
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Error(
+          `Failed to authenticate the test user: ${res.statusText}`,
+        );
+      }
+      console.log('[auth.setup.ts] Authenticated the test user');
     });
-  } catch (e) {
-    console.error('[auth.setup.ts] Failed to authenticate the test user', e);
-  }
+  });
+
+  await page.pause();
 
   // Expect user name in the header
-  await page.waitForURL('/');
+  await page.goto('/');
   await expect(page.getByRole('button', { name: 'Test User' })).toBeVisible();
 
   console.log('[auth.setup.ts] Authenticated the test user');

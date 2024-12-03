@@ -1,12 +1,34 @@
-FROM base-image
+# Base stage
+FROM node:22.11.0 AS base
 
-# Copy package files first to leverage Docker layer caching
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
+
+# Set pnpm store directory
+RUN pnpm config set store-dir /root/.pnpm-store
+
+# Copy package files
 COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies with cache
+RUN --mount=type=cache,target=/root/.pnpm-store \
+  pnpm install --frozen-lockfile
+
+# Copy the rest of the application
+COPY . .
+
+# Generate Prisma client
+RUN pnpm prisma generate
+
+# Development stage
+FROM base AS dev
 
 # Expose ports for Next.js, Storybook, and Prisma Studio
 EXPOSE 3000 6006 5555
 
-# Use a shell script as entrypoint to handle dependency updates
+# Copy entrypoint script
 COPY docker-entrypoint.dev.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.dev.sh
 

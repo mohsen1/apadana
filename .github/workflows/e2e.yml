@@ -2,8 +2,6 @@ name: Playwright
 
 on:
   deployment_status:
-    branches:
-      - main
 
 permissions:
   contents: read
