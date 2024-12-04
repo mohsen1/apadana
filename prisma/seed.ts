@@ -1,9 +1,6 @@
 /* eslint-disable no-console */
 import { argon } from '@/lib/auth/argon';
-
-import { PrismaClient } from '@/__generated__/prisma';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma/client';
 
 async function main() {
   const hashedPassword = await argon.hash('password123');

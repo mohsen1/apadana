@@ -41,8 +41,6 @@ RUN pnpm prisma:generate
 # Development stage
 FROM base AS dev
 
-# Seed the database
-RUN pnpm prisma:seed
 
 # Expose ports for Next.js, Storybook, and Prisma Studio
 EXPOSE 3000 6006 5555

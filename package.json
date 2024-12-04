@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "docker:dev": "concurrently \"pnpm docker:dev:start\" \"pnpm prisma:watch\" --raw",
-    "docker:dev:start": "docker-compose up --build --no-log-prefix",
+    "docker:dev": "concurrently \"pnpm docker:dev:start\" \"pnpm prisma:watch\" --kill-others-on-fail --handle-input --raw",
+    "docker:dev:start": "docker-compose up --build --no-log-prefix --abort-on-container-exit",
     "docker:down": "docker-compose down",
     "docker:clean": "docker-compose down -v && docker volume prune -f",
     "docker:db": "docker-compose exec db psql -U admin -d apadana",
@@ -18,13 +18,13 @@
     "dev": "dotenv -e .env.local -- concurrently --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold\" npm:dev:*",
     "dev:next": "next dev --turbo",
     "dev:prisma": "dotenv -e .env.local -- prisma generate --no-hints --watch",
+    "dev:prisma:seed": "dotenv -e .env.local -- prisma db seed",
     "dev:storybook": "storybook dev --quiet --port=6006 --no-open | grep -v -iE '^(info|warn)'",
     "dev:studio": "nodemon --watch prisma/schema.prisma --exec 'dotenv -e .env -- prisma studio --browser none'",
     "migrate:dev": "dotenv -e .env.local -- prisma migrate dev --name $(date +'%Y%m%d_%H%M%S')",
     "migrate:prod": "dotenv -e .env -- prisma migrate deploy --no-hints",
     "prisma:generate": "dotenv -e .env.local -- prisma generate --no-hints",
     "prisma:watch": "dotenv -e .env.local -- prisma generate --no-hints --watch",
-    "prisma:seed": "dotenv -e .env.local -- prisma db seed",
     "build": "dotenv -e .env prisma generate --no-hints && dotenv -e .env next build",
     "start": "next start",
     "lint": "next lint",
@@ -100,12 +100,13 @@
     "slugify": "^1.6.6",
     "svix": "^1.31.0",
     "tailwind-merge": "^2.5.5",
+    "tailwindcss": "^3.4.10",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.19.2",
     "uploadthing": "^7.1.0",
     "uuid": "^11.0.3",
     "uvcanvas": "^0.2.1",
     "yet-another-react-lightbox": "^3.21.4",
-    "tailwindcss": "^3.4.10",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -145,6 +146,7 @@
     "lint-staged": "^12.5.0",
     "next-router-mock": "^0.9.13",
     "next-sitemap": "^2.5.28",
+    "nodemon": "^3.1.0",
     "pg": "^8.13.0",
     "postcss": "^8.4.41",
     "postcss-loader": "^8.1.1",
@@ -152,10 +154,7 @@
     "prettier-plugin-tailwindcss": "^0.5.14",
     "storybook": "^8.2.9",
     "ts-jest": "^29.2.5",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.5.4",
-    "nodemon": "^3.1.0"
+    "typescript": "^5.5.4"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
@@ -174,6 +173,6 @@
     }
   },
   "prisma": {
-    "seed": "ts-node --require tsconfig-paths/register prisma/seed.ts"
+    "seed": "tsx --env-file .env.local prisma/seed.ts"
   }
 }
