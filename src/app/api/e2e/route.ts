@@ -1,6 +1,8 @@
+import { setServerSession } from '@/lib/auth';
 import { SESSION_DURATION } from '@/lib/auth/constants';
 import prisma from '@/lib/prisma/client';
-import { setSession } from '@/lib/safe-action';
+
+export const runtime = 'nodejs';
 
 interface E2ECommand {
   command: string;
@@ -20,6 +22,7 @@ export async function POST(request: Request) {
   }
 
   const body: E2ECommand = await request.json();
+
   const { command, args = {} } = body as E2ECommand;
 
   if (!command) {
@@ -55,12 +58,33 @@ export async function POST(request: Request) {
         },
       });
 
-      await setSession(session);
+      await setServerSession(session);
 
-      return new Response('OK');
+      return new Response('OK', {
+        headers: {
+          'Access-Control-Allow-Origin': request.headers.get('Origin') || '*',
+          'Access-Control-Allow-Credentials': 'true',
+        },
+      });
     }
     default: {
       return new Response(`Unknown command "${command}"`, { status: 400 });
     }
   }
+}
+
+export async function OPTIONS(request: Request) {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': request.headers.get('Origin') || '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Credentials': 'true',
+    },
+  });
+}
+
+export async function GET() {
+  return new Response('Send a POST request to this endpoint');
 }

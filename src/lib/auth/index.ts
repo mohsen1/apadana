@@ -1,18 +1,39 @@
+import { cookies } from 'next/headers';
+
 import prisma from '@/lib/prisma/client';
+
+import { Session } from '@/__generated__/prisma';
 
 import { SESSION_COOKIE_NAME } from './constants';
 
+export async function deleteServerSession() {
+  const { delete: deleteCookie } = await cookies();
+  deleteCookie(SESSION_COOKIE_NAME);
+}
+
+export async function setServerSession(session: Session) {
+  const { set: setCookie } = await cookies();
+  setCookie(SESSION_COOKIE_NAME, session.id, {
+    expires: session.expiresAt,
+    path: '/',
+    httpOnly: true,
+    domain: process.env.NEXT_PUBLIC_DOMAIN,
+    secure: process.env.NODE_ENV === 'production',
+  });
+}
+
 export async function getServerSession() {
-  const { cookies } = await import('next/headers');
   const { get: getCookie } = await cookies();
-  const sessionId = getCookie(SESSION_COOKIE_NAME);
+  const sessionId = getCookie(SESSION_COOKIE_NAME)?.value;
 
   if (!sessionId) {
+    // This request might not have a session cookie, so we don't need to delete it
+    // for subsequent requests.
     return null;
   }
 
   const session = await prisma.session.findUnique({
-    where: { id: sessionId.value },
+    where: { id: sessionId },
   });
 
   if (!session) {
@@ -50,17 +71,9 @@ export async function getUserInServer() {
   });
 
   if (!user) {
+    await deleteServerSession();
     return null;
   }
 
   return user;
-}
-
-/**
- * Sign out a user by deleting the session cookie.
- */
-export async function signOut() {
-  const { cookies } = await import('next/headers');
-  const { set: setCookie } = await cookies();
-  setCookie(SESSION_COOKIE_NAME, '', { maxAge: 0 });
 }

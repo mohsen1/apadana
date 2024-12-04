@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -27,7 +28,7 @@ const formSchema = z
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -127,6 +128,31 @@ export default function ResetPasswordPage() {
           </form>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <div className='min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4'>
+      <Suspense
+        fallback={
+          <Card className='w-full max-w-md shadow-lg'>
+            <CardHeader>
+              <CardTitle className='text-2xl font-bold text-center text-black dark:text-white'>
+                Loading...
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className='flex justify-center'>
+                <Loader2 className='h-6 w-6 animate-spin' />
+              </div>
+            </CardContent>
+          </Card>
+        }
+      >
+        <ResetPasswordForm />
+      </Suspense>
     </div>
   );
 }

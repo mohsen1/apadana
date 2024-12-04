@@ -7,8 +7,6 @@ import { extractRouterConfig } from 'uploadthing/server';
 
 import '@/styles/globals.css';
 
-import { getUserInServer } from '@/lib/auth';
-import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { cn } from '@/lib/utils';
 
 import Footer from '@/components/footer';
@@ -18,6 +16,7 @@ import { ToastProvider } from '@/components/ui/toast';
 import { Toaster } from '@/components/ui/toaster';
 
 import { ourFileRouter as fileRouter } from '@/app/api/uploadthing/core';
+import { getCurrentUser } from '@/app/auth/actions';
 import { siteConfig } from '@/constant/config';
 import { AuthProvider } from '@/contexts/auth-context';
 
@@ -25,7 +24,9 @@ import { fontHeading, fontSans, fontSubheading } from './fonts';
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: siteConfig.title,
+    default: `${siteConfig.title} ${
+      process.env.NODE_ENV === 'development' ? '(dev)' : ''
+    }`,
     template: `%s | ${siteConfig.title}`,
   },
   description: siteConfig.description,
@@ -61,10 +62,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUserInServer();
-
+  const result = await getCurrentUser();
+  const user = result?.data?.user;
   return (
-    <AuthProvider user={sanitizeUserForClient(user)}>
+    <AuthProvider initialUser={user}>
       <html lang='en' suppressHydrationWarning>
         {process.env.NODE_ENV === 'production' && (
           <>

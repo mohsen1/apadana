@@ -9,7 +9,7 @@ export type { ClientUser };
 interface AuthContextValue {
   user: ClientUser | null;
   signOut: () => Promise<void>;
-  fetchUser: (user?: ClientUser) => void;
+  fetchUser: () => void;
   setUser: (user: ClientUser | null) => void;
 }
 
@@ -17,14 +17,13 @@ export const AuthContext = createContext<AuthContextValue | undefined>(
   undefined,
 );
 
-export function AuthProvider({
-  children,
-  user: initialUser,
-}: {
+interface AuthProviderProps {
   children: React.ReactNode;
-  user: ClientUser | null;
-}) {
-  const [user, setUser] = useState<ClientUser | null>(initialUser);
+  initialUser?: ClientUser | null;
+}
+
+export function AuthProvider({ children, initialUser }: AuthProviderProps) {
+  const [user, setUser] = useState<ClientUser | null>(initialUser ?? null);
 
   const fetchUser = useCallback(async () => {
     const result = await getCurrentUser();

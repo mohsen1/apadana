@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
+import { Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -42,7 +43,7 @@ const signUpSchema = z
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
-export default function SignUpPage() {
+function SignUpForm() {
   const router = useRouter();
   const { setUser } = useAuth();
   const { execute, status, hasErrored, result } = useAction(signUp, {
@@ -151,5 +152,23 @@ export default function SignUpPage() {
         </CardFooter>
       </Card>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
+          <Card className='w-full max-w-md shadow-lg'>
+            <CardContent className='flex justify-center p-8'>
+              <Loader2 className='h-8 w-8 animate-spin' />
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
+      <SignUpForm />
+    </Suspense>
   );
 }

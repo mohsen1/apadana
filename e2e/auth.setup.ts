@@ -7,8 +7,8 @@ const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 setup('authenticate', async ({ page }) => {
   await page.goto('/');
 
-  await page.evaluate(() => {
-    fetch(`/api/e2e`, {
+  await page.evaluate(async () => {
+    const response = await fetch(`/api/e2e`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -17,23 +17,19 @@ setup('authenticate', async ({ page }) => {
       body: JSON.stringify({
         command: 'login',
       }),
-    }).then((res) => {
-      if (!res.ok) {
-        throw new Error(
-          `Failed to authenticate the test user: ${res.statusText}`,
-        );
-      }
-      console.log('[auth.setup.ts] Authenticated the test user');
     });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(
+        `Failed to authenticate the test user: ${response.status} ${response.statusText} ${text}`,
+      );
+    }
+    console.log('[auth.setup.ts] Authenticated the test user');
   });
 
-  await page.pause();
-
-  // Expect user name in the header
+  // Proceed with your test
   await page.goto('/');
-  await expect(page.getByRole('button', { name: 'Test User' })).toBeVisible();
-
-  console.log('[auth.setup.ts] Authenticated the test user');
+  await expect(page.getByRole('link', { name: /Hello, .*?/ })).toBeVisible();
 
   await page.context().storageState({ path: authFile });
 });
