@@ -28,10 +28,10 @@ async function handler(data: Input) {
     const { email } = data;
 
     // Add email to list of early access signups
-    await prisma.earlyAccessSignup.create({
-      data: {
-        email,
-      },
+    await prisma.earlyAccessSignup.upsert({
+      where: { email },
+      update: { email },
+      create: { email },
     });
 
     // Send confirmation email
