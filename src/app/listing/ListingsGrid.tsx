@@ -5,10 +5,10 @@ import { formatCurrency } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
 
-import { Listing, UploadThingImage } from '@/__generated__/prisma';
+import { Listing, UploadedPhoto } from '@/__generated__/prisma';
 
 type ListingsGridProps = {
-  listings: Array<Listing & { images?: UploadThingImage[] }>;
+  listings: Array<Listing & { images?: UploadedPhoto[] }>;
 };
 
 const ListingsGrid = ({ listings }: ListingsGridProps) => {

@@ -31,6 +31,18 @@ const getUploadSignedUrl = actionClient
   .schema(inputSchema)
   .outputSchema(outputSchema)
   .action(async ({ parsedInput }) => {
+    if (process.env.TEST_ENV === 'e2e') {
+      // Return fake signed URLs for e2e testing
+      const urls = parsedInput.files.map((file) => {
+        const fileExtension = file.filename.split('.').pop() ?? '';
+        const key = `fake_upload_${crypto.randomUUID()}.${fileExtension}`;
+        const url = `/api/fake-upload/${key}`;
+        return { url, key };
+      });
+
+      return { urls };
+    }
+
     if (
       !process.env.S3_UPLOAD_REGION ||
       !process.env.S3_UPLOAD_KEY ||

@@ -29,8 +29,6 @@ export const WithInitialImage: Story = {
       {
         key: '1',
         name: 'sample.jpg',
-        size: 100,
-        type: 'image/jpeg',
         url: 'https://apadana.app/images/sample.jpg',
       },
     ],

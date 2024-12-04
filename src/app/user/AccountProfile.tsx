@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from '@/hooks/use-toast';
+import { useFileUploader } from '@/hooks/useFileUploader';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -16,8 +17,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-
-import { UploadButton } from '@/utils/uploadthing';
 
 import { updateUser } from './actions';
 import type { UpdateUserInput } from './schema';
@@ -32,6 +31,9 @@ export function AccountProfile() {
       lastName: user?.lastName ?? undefined,
       imageUrl: user?.imageUrl ?? undefined,
     },
+  });
+  const { handleFileSelect } = useFileUploader(([file]) => {
+    execute({ ...form.getValues(), imageUrl: file.uploadedUrl });
   });
 
   const { execute, status } = useAction(updateUser, {
@@ -71,46 +73,19 @@ export function AccountProfile() {
           {/* Updated Profile Section */}
           <div className='flex items-center justify-between mb-8'>
             <div className='flex items-start gap-4 '>
-              <UploadButton
-                endpoint='imageUploader'
-                onClientUploadComplete={(res) => {
-                  if (res[0]) {
-                    form.setValue('imageUrl', res[0].url);
-                    execute({ ...form.getValues(), imageUrl: res[0].url });
-                    toast({
-                      title: 'Image uploaded successfully',
-                      description: 'Your profile image has been updated.',
-                    });
-                  }
-                }}
-                onUploadError={(error: Error) => {
-                  toast({
-                    title: 'Error uploading image',
-                    description: error.message,
-                  });
-                }}
-                className='
-                ut-label:cursor-pointer ut-label:h-16 ut-label:w-16
-                ut-button:border-0 ut-button:h-full ut-button:w-full ut-button:p-0
-                border-gray-700'
-                content={{
-                  button() {
-                    return (
-                      <div className='grid place-items-center'>
-                        <Avatar className='h-16 w-16 relative group cursor-pointer hover:opacity-90'>
-                          <AvatarImage
-                            src={user?.imageUrl ?? '/placeholder.png'}
-                          />
-                          <AvatarFallback>{userInitials}</AvatarFallback>
-                        </Avatar>
-                        <p className='text-xs text-foreground pt-2'>
-                          Click to change
-                        </p>
-                      </div>
-                    );
-                  },
-                }}
+              <label htmlFor='image-uploader-input'>
+                <Avatar className='h-16 w-16 relative group cursor-pointer hover:opacity-90'>
+                  <AvatarImage src={user?.imageUrl ?? '/placeholder.png'} />
+                  <AvatarFallback>{userInitials}</AvatarFallback>
+                </Avatar>
+              </label>
+              <input
+                id='image-uploader-input'
+                type='file'
+                className='hidden'
+                onChange={handleFileSelect}
               />
+
               <div className='text-start'>
                 <h3 className='text-lg font-medium'>
                   {user?.firstName} {user?.lastName}

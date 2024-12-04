@@ -3,7 +3,7 @@ import {
   EmailAddress,
   Listing,
   ListingInventory,
-  UploadThingImage,
+  UploadedPhoto,
   User,
 } from '@/__generated__/prisma';
 
@@ -15,7 +15,7 @@ export type FullUser = User & {
  * Listing with all the related data
  */
 export type FullListing = Listing & {
-  images: UploadThingImage[];
+  images: UploadedPhoto[];
   owner: User;
   inventory: ListingInventory[];
 };
@@ -24,7 +24,7 @@ export type FullListing = Listing & {
  * Listing with only the public data
  */
 export type PublicListing = Listing & {
-  images: UploadThingImage[];
+  images: UploadedPhoto[];
   owner: User;
   inventory: ListingInventory[];
 };

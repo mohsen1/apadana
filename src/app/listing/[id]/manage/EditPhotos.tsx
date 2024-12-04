@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, SaveIcon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Controller, useForm } from 'react-hook-form';
-import { UploadedFileData } from 'uploadthing/types';
 
 import {
   EditListingImages,
@@ -22,11 +21,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-import { Listing } from '@/__generated__/prisma';
+import { Listing, UploadedPhoto } from '@/__generated__/prisma';
 import { editListingImages } from '@/app/listing/[id]/manage/action';
 
 type ListingWithImages = Listing & {
-  images: (Omit<UploadedFileData, 'appUrl'> & { fileHash: string })[];
+  images: UploadedPhoto[];
 };
 
 interface EditPhotosProps {

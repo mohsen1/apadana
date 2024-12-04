@@ -5,14 +5,14 @@ import Lightbox from 'yet-another-react-lightbox';
 
 import 'yet-another-react-lightbox/styles.css';
 
-import { UploadThingImage } from '@/__generated__/prisma';
+import { UploadedPhoto } from '@/__generated__/prisma';
 
 export function LightBox({
   images,
   children,
   index,
 }: {
-  images: UploadThingImage[];
+  images: UploadedPhoto[];
   children: React.ReactNode;
   index: number;
 }) {

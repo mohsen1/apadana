@@ -73,34 +73,6 @@ test.describe.serial('Create and delete a Listing', () => {
     });
 
     await test.step('Mock image upload and verify upload', async () => {
-      await page.route(
-        '**/api/uploadthing?actionType=upload&slug=imageUploader',
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify([
-              {
-                url: 'https://example.com/uploaded/photo-1.jpg',
-                key: 'photo-1-key',
-                name: 'photo-1.jpg',
-                customId: null,
-              },
-            ]),
-          });
-        },
-      );
-
-      await page.route('https://*.uploadthing.com/*', async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            url: 'https://utfs.io/f/photo-1-key',
-          }),
-        });
-      });
-
       const fileInput = page.locator('input[type="file"]');
       await fileInput.setInputFiles(['e2e/fixtures/photo-1.jpg']);
       await expect(page.getByRole('button', { name: 'Next' })).toBeEnabled();

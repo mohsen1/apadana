@@ -43,7 +43,7 @@ export const deleteListing = actionClient
 
       await prisma.$transaction(async (tx) => {
         // Delete associated images
-        await tx.uploadThingImage.deleteMany({
+        await tx.uploadedPhoto.deleteMany({
           where: { listingId },
         });
 
