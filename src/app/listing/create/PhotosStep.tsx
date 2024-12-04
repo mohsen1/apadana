@@ -20,9 +20,7 @@ export function PhotosStep() {
         control={control}
         render={({ field }) => (
           <ImageUploader
-            initialImages={field.value?.map((img) => ({
-              ...img,
-            }))}
+            initialImages={[]}
             onChange={(images) => {
               clearErrors('images');
               field.onChange(images);
