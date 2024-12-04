@@ -1,9 +1,7 @@
-import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Metadata } from 'next';
 import * as React from 'react';
-import { extractRouterConfig } from 'uploadthing/server';
 
 import '@/styles/globals.css';
 
@@ -15,7 +13,6 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { ToastProvider } from '@/components/ui/toast';
 import { Toaster } from '@/components/ui/toaster';
 
-import { ourFileRouter as fileRouter } from '@/app/api/uploadthing/core';
 import { getCurrentUser } from '@/app/auth/actions';
 import { siteConfig } from '@/constant/config';
 import { AuthProvider } from '@/contexts/auth-context';
@@ -85,7 +82,6 @@ export default async function RootLayout({
         >
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
             <ToastProvider>
-              <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
               <Header className='h-16' />
               <main className='flex-1 min-h-[calc(100vh-4rem)]'>
                 {children}

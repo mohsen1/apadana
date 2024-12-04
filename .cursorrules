@@ -4,7 +4,7 @@ General Rules:
 
 - The website is hosted at `https://apadana.app`.
 - Emails are sent from `bookings@apadana.app`, `onboarding@apadana.app`, and `support@apadana.app`.
-- Use `logger` from `@/utils/logger` to log errors and messages.
+- Use `logger` from `@/utils/logger` to log errors and messages. (default export)
 - Utility functions are in `src/utils`.
 - Non-route handler code is in `src/lib`.
 - Use `pnpm` as the package manager.

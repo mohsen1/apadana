@@ -1,11 +1,22 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { Upload, X, CheckCircle2, AlertCircle } from 'lucide-react';
+'use client';
+
+import {
+  AlertCircle,
+  CheckCircle2,
+  Upload as UploadIcon,
+  X,
+} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import React, { useCallback, useRef, useState } from 'react';
+
+import { cn } from '@/lib/utils';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+
+import { getUploadSignedUrl } from '@/app/upload/action';
 
 // Type definitions for file upload state
 interface FileUploadState {
@@ -13,10 +24,13 @@ interface FileUploadState {
   progress: number;
   status: 'pending' | 'uploading' | 'success' | 'error';
   statusMessage?: string;
+  key?: string;
+  signedUrl?: string;
+  uploadedUrl?: string;
 }
 
 export const FileUploader: React.FC = () => {
-  const [files, setFiles] = useState<FileUploadState[]>([]);
+  const [fileStates, setFileStates] = useState<FileUploadState[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,127 +47,128 @@ export const FileUploader: React.FC = () => {
       }),
     );
 
-    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    setFileStates((prevFiles) => [...prevFiles, ...newFiles]);
   };
 
   // Remove a file from the upload list
   const removeFile = (fileToRemove: File) => {
-    setFiles((prevFiles) =>
+    setFileStates((prevFiles) =>
       prevFiles.filter((fileState) => fileState.file !== fileToRemove),
     );
   };
 
-  // Upload files using streaming fetch
-  const uploadFiles = useCallback(async () => {
-    if (files.length === 0) return;
+  const updateFile = (
+    file: FileUploadState,
+    updates: Partial<FileUploadState>,
+  ) => {
+    setFileStates((prev) =>
+      prev.map((fileState) =>
+        fileState.key === file.key ? { ...fileState, ...updates } : fileState,
+      ),
+    );
+  };
 
+  // Upload files using AWS S3 SDK with progress tracking
+  const uploadFiles = useCallback(async () => {
+    if (fileStates.length === 0) return;
     setIsUploading(true);
 
-    // Create a FormData object to send files
-    const formData = new FormData();
-    files.forEach((fileState) => {
-      formData.append('files', fileState.file);
-    });
-
     try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
+      // Get signed URLs for all files
+      const response = await getUploadSignedUrl({
+        files: fileStates.map((fileState) => ({
+          filename: fileState.file.name,
+          contentType: fileState.file.type,
+        })),
       });
 
-      // Check if the response is a ReadableStream
-      if (!response.body) {
-        throw new Error('No response body');
+      const urls = response?.data?.urls;
+
+      if (!urls) {
+        throw new Error('No URLs returned from signed URL action');
       }
 
-      // Create a reader to consume the stream
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
+      const newFiles = fileStates.map((fileState, index) => ({
+        ...fileState,
+        signedUrl: urls[index].url,
+        key: urls[index].key,
+      }));
 
-      // Update file states based on stream messages
-      const updateFileStates = (message: string) => {
-        setFiles((prevFiles) =>
-          prevFiles.map((fileState) => {
-            // Check for specific file upload messages
-            if (message.includes(fileState.file.name)) {
-              if (message.includes('uploaded successfully')) {
-                return {
-                  ...fileState,
-                  status: 'success',
-                  statusMessage: 'Upload complete',
-                  progress: 100,
-                };
-              }
+      setFileStates(newFiles);
 
-              // Parse upload progress
-              const progressMatch = message.match(/(\d+) bytes/);
-              if (progressMatch) {
-                const uploadedBytes = parseInt(progressMatch[1], 10);
-                const progress = Math.min(
-                  100,
-                  Math.round((uploadedBytes / fileState.file.size) * 100),
-                );
+      // Upload each file
+      await Promise.all(
+        newFiles.map(async (fileState) => {
+          try {
+            if (!fileState.signedUrl)
+              throw new Error('No signed URL available');
 
-                return {
-                  ...fileState,
-                  status: 'uploading',
-                  progress,
-                };
-              }
-            }
+            // Update status to uploading
+            updateFile(fileState, { status: 'uploading', progress: 0 });
 
-            // Handle generic error messages
-            if (message.includes('Error')) {
-              return {
-                ...fileState,
-                status: 'error',
-                statusMessage: message,
-              };
-            }
+            const xhr = new XMLHttpRequest();
 
-            return fileState;
-          }),
-        );
-      };
+            await new Promise((resolve, reject) => {
+              xhr.upload.addEventListener('progress', (event) => {
+                if (event.lengthComputable) {
+                  const progress = Math.round(
+                    (event.loaded * 100) / event.total,
+                  );
+                  updateFile(fileState, { progress });
+                }
+              });
 
-      // Read the stream
-      while (true) {
-        const { done, value } = await reader.read();
+              xhr.addEventListener('load', (event) => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                  const S3_UPLOAD_BUCKET = 'apadana-uploads';
+                  const S3_UPLOAD_REGION = 'us-east-1';
+                  updateFile(fileState, {
+                    status: 'success',
+                    progress: 100,
+                    statusMessage: 'Upload complete',
+                    uploadedUrl: `https://${S3_UPLOAD_BUCKET}.s3.${S3_UPLOAD_REGION}.amazonaws.com/${fileState.key}`,
+                  });
+                  resolve(null);
+                } else {
+                  throw new Error(`Upload failed with status ${xhr.status}`);
+                }
+              });
 
-        if (done) break;
+              xhr.addEventListener('error', () => {
+                reject(new Error('Upload failed'));
+              });
 
-        const chunk = decoder.decode(value);
-
-        // Split chunk into lines and process each
-        chunk.split('\n').forEach((line) => {
-          if (line.trim()) {
-            updateFileStates(line);
+              xhr.open('PUT', fileState.signedUrl);
+              xhr.setRequestHeader('Content-Type', fileState.file.type);
+              xhr.send(fileState.file);
+            });
+          } catch (error) {
+            updateFile(fileState, {
+              status: 'error',
+              statusMessage: 'Upload failed',
+            });
           }
-        });
-      }
-    } catch (error) {
-      // Handle any fetch or streaming errors
-      console.error('Upload error:', error);
-      setFiles((prevFiles) =>
-        prevFiles.map((fileState) => ({
-          ...fileState,
-          status: 'error',
-          statusMessage:
-            error instanceof Error ? error.message : 'Unknown error',
-        })),
+        }),
       );
+    } catch (error) {
+      fileStates.forEach((fileState) => {
+        updateFile(fileState, {
+          status: 'error',
+          statusMessage: 'Failed to get upload URL',
+        });
+      });
     } finally {
       setIsUploading(false);
     }
-  }, [files]);
+  }, [fileStates]);
 
   // Render file upload progress
   const renderFileProgress = (fileState: FileUploadState) => {
     const statusIcons = {
-      pending: <Upload className='h-5 w-5 text-muted-foreground' />,
+      pending: <UploadIcon className='h-5 w-5 text-muted-foreground' />,
       uploading: (
         <div className='relative w-5 h-5'>
-          <Upload className='h-5 w-5 text-primary' />
+          <UploadIcon className='h-5 w-5 text-primary' />
           <div
             className='absolute inset-0 rounded-full border-2 border-primary animate-spin'
             style={{ borderTopColor: 'transparent' }}
@@ -171,6 +186,7 @@ export const FileUploader: React.FC = () => {
           <div className='text-sm font-medium truncate'>
             {fileState.file.name}
           </div>
+          <div>{fileState.progress}%</div>
           <Progress
             value={fileState.progress}
             className={cn(
@@ -225,7 +241,7 @@ export const FileUploader: React.FC = () => {
           disabled={isUploading}
         >
           <div className='flex flex-col items-center gap-2'>
-            <Upload className='h-6 w-6' />
+            <UploadIcon className='h-6 w-6' />
             <span className='font-medium'>Click to upload files</span>
             <span className='text-xs text-muted-foreground'>
               or drag and drop files here
@@ -233,23 +249,27 @@ export const FileUploader: React.FC = () => {
           </div>
         </Button>
 
-        {files.length > 0 && (
+        {fileStates.length > 0 && (
           <Card>
             <CardContent className='pt-6 space-y-4'>
-              {files.map((fileState, index) => (
+              {fileStates.map((fileState, index) => (
                 <div key={fileState.file.name + index}>
                   {renderFileProgress(fileState)}
-                  {index < files.length - 1 && <Separator className='my-4' />}
+                  {index < fileStates.length - 1 && (
+                    <Separator className='my-4' />
+                  )}
                 </div>
               ))}
             </CardContent>
           </Card>
         )}
 
-        {files.length > 0 && (
+        {fileStates.length > 0 && (
           <Button
             onClick={uploadFiles}
-            disabled={isUploading || files.every((f) => f.status === 'success')}
+            disabled={
+              isUploading || fileStates.every((f) => f.status === 'success')
+            }
           >
             {isUploading ? (
               <>
@@ -258,12 +278,25 @@ export const FileUploader: React.FC = () => {
               </>
             ) : (
               <>
-                <Upload className='mr-2 h-4 w-4' />
+                <UploadIcon className='mr-2 h-4 w-4' />
                 Upload Files
               </>
             )}
           </Button>
         )}
+      </div>
+      <div className='flex flex-col gap-2'>
+        {fileStates
+          .filter((f) => f.status === 'success')
+          .map((fileState) => (
+            <div key={fileState.file.name} className='w-full'>
+              <img
+                src={fileState.uploadedUrl}
+                alt={fileState.file.name}
+                className='w-full'
+              />
+            </div>
+          ))}
       </div>
     </div>
   );

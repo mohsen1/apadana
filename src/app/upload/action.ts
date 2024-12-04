@@ -1,0 +1,73 @@
+'use server';
+
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import crypto from 'crypto';
+import { z } from 'zod';
+
+import { actionClient } from '@/lib/safe-action';
+
+import logger from '@/utils/logger';
+
+// Initialize S3 client
+const s3Client = new S3Client({
+  region: process.env.S3_UPLOAD_REGION!,
+  credentials: {
+    accessKeyId: process.env.S3_UPLOAD_KEY!,
+    secretAccessKey: process.env.S3_UPLOAD_SECRET!,
+  },
+});
+
+const inputSchema = z.object({
+  files: z.array(
+    z.object({
+      filename: z.string(),
+      contentType: z.string(),
+    }),
+  ),
+});
+
+const outputSchema = z.object({
+  urls: z.array(
+    z.object({
+      url: z.string(),
+      key: z.string(),
+    }),
+  ),
+});
+
+const getUploadSignedUrl = actionClient
+  .schema(inputSchema)
+  .outputSchema(outputSchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      const urls = await Promise.all(
+        parsedInput.files.map(async (file) => {
+          // Generate a unique key for each file
+          const fileExtension = file.filename.split('.').pop() ?? '';
+          const key = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}/${crypto.randomUUID()}.${fileExtension}`;
+
+          const command = new PutObjectCommand({
+            Bucket: process.env.S3_UPLOAD_BUCKET!,
+            Key: key,
+            ContentType: file.contentType,
+          });
+
+          const url = await getSignedUrl(s3Client, command, {
+            expiresIn: 3600,
+          }); // URL expires in 1 hour
+
+          return { url, key };
+        }),
+      );
+
+      console.log('urls', urls);
+
+      return { urls };
+    } catch (error) {
+      logger.error('Error generating signed URLs:', error);
+      throw new Error('Failed to generate upload URLs');
+    }
+  });
+
+export { getUploadSignedUrl };

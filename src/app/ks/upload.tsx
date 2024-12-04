@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+
 import { FileUploader } from './FileUploader';
 
-let S3_UPLOAD_BASE_URL = `https://${process.env.S3_UPLOAD_BUCKET}.s3.${process.env.S3_UPLOAD_REGION}.amazonaws.com`;
+const S3_UPLOAD_BASE_URL = `https://${process.env.S3_UPLOAD_BUCKET}.s3.${process.env.S3_UPLOAD_REGION}.amazonaws.com`;
 
 export function Upload() {
   const [uploadResults, setUploadResults] = useState<Array<{ key: string }>>(
