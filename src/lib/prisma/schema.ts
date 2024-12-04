@@ -8,15 +8,6 @@ export const UploadImageSchema = z.object({
   url: z.string(),
   key: z.string(),
   name: z.string(),
-  type: z.string(),
-  size: z.number(),
-  customId: z.string().nullable(),
-  fileHash: z.string(),
-  serverData: z
-    .object({
-      uploadedBy: z.string(),
-    })
-    .optional(),
 });
 
 export type UploadImage = z.infer<typeof UploadImageSchema>;

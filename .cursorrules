@@ -9,6 +9,11 @@ General Rules:
 - Non-route handler code is in `src/lib`.
 - Use `pnpm` as the package manager.
 
+Typescript Rules:
+
+- Use `assertError` to assert errors
+- Use modern syntax: ?. ?? #private AsyncIterators for..of and anything ES2022+
+
 Next.js Rules:
 
 - Use the latest stable versions of Next.js, TypeScript, React, Node.js, Shaden UI, Tailwind CSS, Prisma, and Lucide icons.

@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
+
 import { getUploadSignedUrl } from '@/app/upload/action';
+import { assertError } from '@/utils';
 
 export interface FileUploadState {
   /**
@@ -36,12 +38,86 @@ export interface FileUploadState {
   localUrl?: string;
 }
 
-export const useFileUploader = () => {
+export const useFileUploader = (
+  onUploadSuccess?: (uploadedFiles: FileUploadState[]) => void,
+  onUploadError?: (error: Error, failedFiles: FileUploadState[]) => void,
+) => {
   const [totalProgress, setTotalProgress] = useState(0);
   const [fileStates, setFileStates] = useState<FileUploadState[]>([]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const computeTotalProgress = useCallback(() => {
+    const totalProgress = fileStates.reduce((acc, fileState) => {
+      return acc + fileState.progress;
+    }, 0);
+    return Math.round(totalProgress / fileStates.length);
+  }, [fileStates]);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadSingleFile = useCallback(
+    async (
+      fileState: FileUploadState,
+    ): Promise<FileUploadState | undefined> => {
+      try {
+        if (!fileState.signedUrl) throw new Error('No signed URL available');
+
+        updateFile(fileState, { status: 'uploading', progress: 0 });
+
+        const xhr = new XMLHttpRequest();
+
+        return new Promise<FileUploadState>((resolve, reject) => {
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const progress = Math.round((event.loaded * 100) / event.total);
+              updateFile(fileState, { progress });
+              setTotalProgress(computeTotalProgress());
+            }
+          });
+
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              const S3_UPLOAD_BUCKET = 'apadana-uploads';
+              const S3_UPLOAD_REGION = 'us-east-1';
+              const updates: Partial<FileUploadState> = {
+                status: 'success',
+                progress: 100,
+                statusMessage: 'Upload complete',
+                uploadedUrl: `https://${S3_UPLOAD_BUCKET}.s3.${S3_UPLOAD_REGION}.amazonaws.com/${fileState.key}`,
+              };
+              updateFile(fileState, updates);
+              resolve({
+                ...fileState,
+                ...updates,
+              });
+            } else {
+              reject(new Error(`Upload failed with status ${xhr.status}`));
+            }
+          });
+
+          xhr.addEventListener('error', () => {
+            reject(new Error('Upload failed'));
+          });
+
+          if (!fileState.signedUrl)
+            throw new Error(
+              `No signed URL available for file ${fileState.file.name}`,
+            );
+
+          xhr.open('PUT', fileState.signedUrl);
+          xhr.setRequestHeader('Content-Type', fileState.file.type);
+          xhr.send(fileState.file);
+        });
+      } catch (error) {
+        assertError(error);
+        updateFile(fileState, {
+          status: 'error',
+          statusMessage: 'Upload failed',
+        });
+
+        onUploadError?.(error, [fileState]);
+      }
+    },
+    [onUploadError, computeTotalProgress],
+  );
   const handleFileSelect = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFiles = event.target.files;
@@ -82,74 +158,24 @@ export const useFileUploader = () => {
           return [...existingFiles, ...filesToUpload];
         });
 
-        await Promise.all(
-          filesToUpload.map((fileState) => uploadSingleFile(fileState)),
+        const uploadedFiles = await Promise.all(
+          filesToUpload.map(uploadSingleFile),
         );
+        onUploadSuccess?.(uploadedFiles.filter((fs) => fs !== undefined));
       } catch (error) {
+        assertError(error);
         newFiles.forEach((fileState) => {
           updateFile(fileState, {
             status: 'error',
             statusMessage: 'Failed to get upload URL',
           });
         });
+
+        onUploadError?.(error, newFiles);
       }
     },
-    [],
+    [onUploadSuccess, onUploadError, uploadSingleFile],
   );
-
-  const uploadSingleFile = async (fileState: FileUploadState) => {
-    try {
-      if (!fileState.signedUrl) throw new Error('No signed URL available');
-
-      updateFile(fileState, { status: 'uploading', progress: 0 });
-
-      const xhr = new XMLHttpRequest();
-
-      await new Promise((resolve, reject) => {
-        xhr.upload.addEventListener('progress', (event) => {
-          if (event.lengthComputable) {
-            const progress = Math.round((event.loaded * 100) / event.total);
-            updateFile(fileState, { progress });
-            setTotalProgress(computeTotalProgress());
-          }
-        });
-
-        xhr.addEventListener('load', () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            const S3_UPLOAD_BUCKET = 'apadana-uploads';
-            const S3_UPLOAD_REGION = 'us-east-1';
-            updateFile(fileState, {
-              status: 'success',
-              progress: 100,
-              statusMessage: 'Upload complete',
-              uploadedUrl: `https://${S3_UPLOAD_BUCKET}.s3.${S3_UPLOAD_REGION}.amazonaws.com/${fileState.key}`,
-            });
-            resolve(null);
-          } else {
-            reject(new Error(`Upload failed with status ${xhr.status}`));
-          }
-        });
-
-        xhr.addEventListener('error', () => {
-          reject(new Error('Upload failed'));
-        });
-
-        if (!fileState.signedUrl)
-          throw new Error(
-            `No signed URL available for file ${fileState.file.name}`,
-          );
-
-        xhr.open('PUT', fileState.signedUrl);
-        xhr.setRequestHeader('Content-Type', fileState.file.type);
-        xhr.send(fileState.file);
-      });
-    } catch (error) {
-      updateFile(fileState, {
-        status: 'error',
-        statusMessage: 'Upload failed',
-      });
-    }
-  };
 
   const removeFile = (key: string) => {
     setFileStates((prevFiles) =>
@@ -173,13 +199,6 @@ export const useFileUploader = () => {
       ),
     );
   };
-
-  function computeTotalProgress() {
-    const totalProgress = fileStates.reduce((acc, fileState) => {
-      return acc + fileState.progress;
-    }, 0);
-    return Math.round(totalProgress / fileStates.length);
-  }
 
   return {
     fileStates,

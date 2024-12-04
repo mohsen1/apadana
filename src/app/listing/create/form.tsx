@@ -215,13 +215,6 @@ export default function CreateListingForm() {
   };
 
   const canGoToNextStep = () => {
-    if (currentStep === FormStep.Photos) {
-      const { images } = getValues();
-      // Check if there are any images and they all have file hash
-      return (
-        images && images.length > 0 && images.every((image) => !!image.fileHash)
-      );
-    }
     const requiredFields = stepRequiredFields[currentStep];
     const values = getValues();
     return requiredFields.every((field) => field in values);

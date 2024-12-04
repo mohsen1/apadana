@@ -15,7 +15,7 @@ export function PhotosStep() {
 
   return (
     <div className='space-y-4'>
-      <Controller
+      <Controller<CreateListing, 'images'>
         name='images'
         control={control}
         render={({ field }) => (

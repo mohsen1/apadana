@@ -9,15 +9,6 @@ import { actionClient } from '@/lib/safe-action';
 
 import logger from '@/utils/logger';
 
-// Initialize S3 client
-const s3Client = new S3Client({
-  region: process.env.S3_UPLOAD_REGION!,
-  credentials: {
-    accessKeyId: process.env.S3_UPLOAD_KEY!,
-    secretAccessKey: process.env.S3_UPLOAD_SECRET!,
-  },
-});
-
 const inputSchema = z.object({
   files: z.array(
     z.object({
@@ -40,6 +31,21 @@ const getUploadSignedUrl = actionClient
   .schema(inputSchema)
   .outputSchema(outputSchema)
   .action(async ({ parsedInput }) => {
+    if (
+      !process.env.S3_UPLOAD_REGION ||
+      !process.env.S3_UPLOAD_KEY ||
+      !process.env.S3_UPLOAD_SECRET
+    ) {
+      throw new Error('S3 upload credentials are not set');
+    }
+    // Initialize S3 client
+    const s3Client = new S3Client({
+      region: process.env.S3_UPLOAD_REGION,
+      credentials: {
+        accessKeyId: process.env.S3_UPLOAD_KEY,
+        secretAccessKey: process.env.S3_UPLOAD_SECRET,
+      },
+    });
     try {
       const urls = await Promise.all(
         parsedInput.files.map(async (file) => {
@@ -48,7 +54,7 @@ const getUploadSignedUrl = actionClient
           const key = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}/${crypto.randomUUID()}.${fileExtension}`;
 
           const command = new PutObjectCommand({
-            Bucket: process.env.S3_UPLOAD_BUCKET!,
+            Bucket: process.env.S3_UPLOAD_BUCKET,
             Key: key,
             ContentType: file.contentType,
           });
@@ -60,8 +66,6 @@ const getUploadSignedUrl = actionClient
           return { url, key };
         }),
       );
-
-      console.log('urls', urls);
 
       return { urls };
     } catch (error) {

@@ -17,21 +17,23 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { PlusIcon, XIcon } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { cn } from '@/lib/utils';
+import { FileUploadState, useFileUploader } from '@/hooks/useFileUploader';
 
 import ImageLoader from '@/components/ImageLoader';
-import { FileUploadState, useFileUploader } from '@/hooks/useFileUploader';
 import { Progress } from '@/components/ui/progress';
 
+export interface ImageUploaderImage {
+  key: string;
+  name: string;
+  url: string;
+}
+
 interface ImageUploaderProps {
-  initialImages?: {
-    key: string;
-    name: string;
-    url: string;
-  }[];
-  onChange: (images: { key: string; name: string; url: string }[]) => void;
+  initialImages?: ImageUploaderImage[];
+  onChange: (images: ImageUploaderImage[]) => void;
   onError?: (error: Error | null) => void;
 }
 
@@ -45,10 +47,13 @@ const SortableImage = ({
   isCover: boolean;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: fileState.key! });
+    useSortable({ id: fileState.key ?? '' });
 
   const onDeleteCb = useCallback(() => {
-    onDelete(fileState.key!);
+    if (!fileState.key) {
+      throw new Error('File state key is undefined');
+    }
+    onDelete(fileState.key);
   }, [onDelete, fileState.key]);
 
   const style = {
@@ -71,7 +76,7 @@ const SortableImage = ({
           })}
         >
           <ImageLoader
-            src={fileState.localUrl!}
+            src={fileState.localUrl ?? ''}
             alt={fileState.file.name}
             fill
             className='object-contain'
@@ -113,8 +118,33 @@ export const ImageUploader = ({
   onChange,
   onError,
 }: ImageUploaderProps) => {
-  const { fileStates, totalProgress, removeFile, handleFileSelect } =
-    useFileUploader();
+  const { fileStates, removeFile, handleFileSelect } = useFileUploader(
+    (files) => {
+      const images = files
+        .filter(
+          (file): file is Required<FileUploadState> =>
+            file.status === 'success' && file.key !== undefined,
+        )
+        .map((file) => ({
+          key: file.key,
+          name: file.file.name,
+          url: file.uploadedUrl,
+        }));
+      onChange(images);
+    },
+    onError,
+  );
+  const [orderedImages, setOrderedImages] = useState<FileUploadState[]>([
+    ...fileStates,
+    ...(initialImages ?? []).map((image) => ({
+      key: image.key,
+      file: new File([], image.name),
+      status: 'success' as const,
+      localUrl: image.url,
+      uploadedUrl: image.url,
+      progress: 100,
+    })),
+  ]);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -126,23 +156,34 @@ export const ImageUploader = ({
     }),
   );
 
-  const deleteImage = (key: string) => {
-    removeFile(key);
-  };
+  useEffect(() => {
+    setOrderedImages(fileStates);
+  }, [fileStates]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    // if (active.id !== over?.id) {
-    //   setImages((items) => {
-    //     const oldIndex = items.findIndex((item) => item.key === active.id);
-    //     const newIndex = items.findIndex((item) => item.key === over?.id);
+    if (active.id !== over?.id) {
+      setOrderedImages((items) => {
+        const oldIndex = items.findIndex((item) => item.key === active.id);
+        const newIndex = items.findIndex((item) => item.key === over?.id);
 
-    //     const newOrder = arraySwap(items, oldIndex, newIndex);
-    //     onChange(newOrder);
-    //     return newOrder;
-    //   });
-    // }
+        const newOrder = arraySwap(items, oldIndex, newIndex);
+        onChange(
+          newOrder
+            .filter(
+              (item): item is Required<FileUploadState> =>
+                item.status === 'success' && item.key !== undefined,
+            )
+            .map((item) => ({
+              key: item.key,
+              name: item.file.name,
+              url: item.uploadedUrl,
+            })),
+        );
+        return newOrder;
+      });
+    }
   };
 
   return (
@@ -154,15 +195,19 @@ export const ImageUploader = ({
         autoScroll={false}
       >
         <SortableContext
-          items={fileStates.map((img) => img.key!)}
+          items={orderedImages
+            .filter(
+              (img): img is Required<FileUploadState> => img.key !== undefined,
+            )
+            .map((img) => img.key)}
           strategy={rectSwappingStrategy}
         >
           <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
-            {fileStates.map((fileState, index) => (
+            {orderedImages.map((fileState, index) => (
               <SortableImage
                 key={fileState.key || index}
                 fileState={fileState}
-                onDelete={deleteImage}
+                onDelete={removeFile}
                 isCover={index === 0}
               />
             ))}

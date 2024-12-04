@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { ImageUploader } from './image-uploader';
 
 const meta: Meta<typeof ImageUploader> = {
