@@ -1,14 +1,10 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { z } from 'zod';
 
+import { deleteServerSession, getUserInServer } from '@/lib/auth';
 import { argon } from '@/lib/auth/argon';
-import {
-  RESET_TOKEN_DURATION,
-  SESSION_COOKIE_NAME,
-  SESSION_DURATION,
-} from '@/lib/auth/constants';
+import { RESET_TOKEN_DURATION, SESSION_DURATION } from '@/lib/auth/constants';
 import { sanitizeUserForClient } from '@/lib/auth/utils';
 import {
   sendPasswordResetEmail,
@@ -193,40 +189,15 @@ const getCurrentUserOutput = z
 export const getCurrentUser = actionClient
   .outputSchema(getCurrentUserOutput)
   .action(async () => {
-    const { get: getCookie, delete: deleteCookie } = await cookies();
-    const sessionId = getCookie(SESSION_COOKIE_NAME);
-
-    if (!sessionId) {
-      return { user: null };
-    }
-
-    const session = await prisma.session.findUnique({
-      where: { id: sessionId.value },
-      include: {
-        user: {
-          include: {
-            emailAddresses: true,
-            roles: true,
-            permissions: true,
-          },
-        },
-      },
-    });
-
-    if (!session || session.expiresAt < new Date()) {
-      deleteCookie('sessionId');
-      return { user: null };
-    }
-
-    const clientUser = sanitizeUserForClient(session.user);
+    const user = await getUserInServer();
+    const clientUser = sanitizeUserForClient(user);
     return { user: clientUser };
   });
 
 export const logOut = actionClient
   .outputSchema(z.object({ success: z.literal(true) }))
   .action(async () => {
-    const { delete: deleteCookie } = await cookies();
-    deleteCookie(SESSION_COOKIE_NAME);
+    await deleteServerSession();
     return { success: true };
   });
 

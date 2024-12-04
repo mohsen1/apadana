@@ -83,4 +83,12 @@ module.exports = {
     JSX: true,
   },
   ignorePatterns: ['!.storybook', 'src/__generated__'],
+  overrides: [
+    {
+      files: ['e2e/**/*.ts', 'e2e/**/*.tsx'],
+      rules: {
+        'react-hooks/rules-of-hooks': 'off',
+      },
+    },
+  ],
 };

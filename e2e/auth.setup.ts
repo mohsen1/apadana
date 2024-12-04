@@ -29,7 +29,7 @@ setup('authenticate', async ({ page }) => {
 
   // Proceed with your test
   await page.goto('/');
-  await expect(page.getByRole('button', { name: 'Test User' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Hello, .*?/ })).toBeVisible();
 
   await page.context().storageState({ path: authFile });
 });

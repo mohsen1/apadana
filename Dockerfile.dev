@@ -23,6 +23,8 @@ RUN pnpm config set store-dir /root/.pnpm-store
 RUN pnpm config set update-notifier false
 # node deprecation warnings off
 RUN pnpm config set node-deprecation-warnings false
+# Turn off Node.js warnings
+ENV NODE_OPTIONS=--no-warnings
 
 # Copy package files
 COPY package.json pnpm-lock.yaml ./

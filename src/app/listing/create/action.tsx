@@ -49,9 +49,12 @@ export const createListing = actionClient
         },
       });
 
+      logger.info('created listing', { listing });
+
       return { success: true, listing };
     } catch (error) {
       assertError(error);
+      logger.error('create listing error', { error });
       return { success: false, error: error.message };
     }
   });

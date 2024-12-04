@@ -1,6 +1,6 @@
+import { setServerSession } from '@/lib/auth';
 import { SESSION_DURATION } from '@/lib/auth/constants';
 import prisma from '@/lib/prisma/client';
-import { setSession } from '@/lib/safe-action';
 
 export const runtime = 'nodejs';
 
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
         },
       });
 
-      await setSession(session);
+      await setServerSession(session);
 
       return new Response('OK', {
         headers: {

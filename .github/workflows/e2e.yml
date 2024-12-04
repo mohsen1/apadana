@@ -1,7 +1,9 @@
 name: Playwright
 
 on:
-  deployment_status:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -12,7 +14,6 @@ permissions:
 jobs:
   run-e2es:
     name: Run E2E Tests
-    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,12 +29,8 @@ jobs:
         run: pnpm exec playwright install  --with-deps
 
       - name: Run tests
-        uses: nick-fields/retry@v3
         id: test-run
-        with:
-          max_attempts: 2
-          timeout_minutes: 15
-          command: pnpm run e2e:ci
+        run: pnpm run e2e:ci
         env:
           BASE_URL: http://localhost:3030
 

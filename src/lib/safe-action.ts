@@ -1,9 +1,7 @@
 import { createSafeActionClient } from 'next-safe-action';
 
-import { getUserInServer } from '@/lib/auth';
-import { SESSION_COOKIE_NAME } from '@/lib/auth/constants';
+import { getUserInServer, setServerSession } from '@/lib/auth';
 
-import { Session } from '@/__generated__/prisma';
 import logger from '@/utils/logger';
 
 /**
@@ -47,24 +45,8 @@ export const actionClient = baseClient.use(async ({ next }) => {
   return next({
     ctx: {
       user,
-      userId: user?.id,
-      setSession,
+      userId: user?.id ?? null,
+      setSession: setServerSession,
     },
   });
 });
-
-/**
- * Set the session cookie
- * @param session - The session to set
- */
-export async function setSession(session: Session) {
-  const { cookies } = await import('next/headers');
-  const { set: setCookie } = await cookies();
-  setCookie(SESSION_COOKIE_NAME, session.id, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    expires: session.expiresAt,
-    path: '/',
-  });
-}

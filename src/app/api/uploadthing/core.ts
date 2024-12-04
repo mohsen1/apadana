@@ -3,6 +3,8 @@ import { UploadThingError } from 'uploadthing/server';
 
 import { getUserInServer } from '@/lib/auth';
 
+import logger from '@/utils/logger';
+
 const f = createUploadthing();
 
 // FileRouter for your app, can contain multiple FileRoutes
@@ -20,22 +22,18 @@ export const ourFileRouter = {
   })
     // Set permissions and file types for this FileRoute
     .middleware(async () => {
-      // This code runs on your server before upload
       const user = await getUserInServer();
 
-      // If you throw, the user will not be able to upload
       if (!user) throw new UploadThingError('Unauthorized');
 
       // Whatever is returned here is accessible in onUploadComplete as `metadata`
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-      // eslint-disable-next-line no-console
-      console.log('Upload complete for userId:', metadata.userId);
-
-      // eslint-disable-next-line no-console
-      console.log('file url', file.url);
+      logger.info('file uploaded', {
+        fileUrl: file.url,
+        userId: metadata.userId,
+      });
 
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };

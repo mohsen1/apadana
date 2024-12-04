@@ -5,7 +5,7 @@ import { CheckCircle2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { requestPasswordReset } from '@/app/auth/actions';
 
@@ -28,7 +29,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordForm() {
   const searchParams = useSearchParams();
   const initialEmail = searchParams.get('email') || '';
 
@@ -43,7 +44,7 @@ export default function ForgotPasswordPage() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: Array.isArray(initialEmail) ? initialEmail[0] : initialEmail,
+      email: initialEmail,
     },
   });
 
@@ -59,86 +60,106 @@ export default function ForgotPasswordPage() {
 
   if (isSubmitted) {
     return (
-      <div className='min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4'>
-        <Card className='w-full max-w-md shadow-lg'>
-          <CardHeader>
-            <div className='flex justify-center mb-4'>
-              <CheckCircle2 className='h-12 w-12 text-green-500' />
-            </div>
-            <CardTitle className='text-2xl font-bold text-center'>
-              Check your email
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className='text-center text-gray-600 dark:text-gray-400'>
-              If an account exists for {submittedEmail}, you will receive a
-              password reset link.
-            </p>
-          </CardContent>
-          <CardFooter className='justify-center'>
-            <Link
-              href='/sign-in'
-              className='text-blue-600 dark:text-blue-400 hover:underline'
-            >
-              Return to sign in
-            </Link>
-          </CardFooter>
-        </Card>
-      </div>
+      <Card className='w-full max-w-md shadow-lg'>
+        <CardHeader>
+          <div className='flex justify-center mb-4'>
+            <CheckCircle2 className='h-12 w-12 text-green-500' />
+          </div>
+          <CardTitle className='text-2xl font-bold text-center'>
+            Check your email
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className='text-center text-muted-foreground'>
+            If an account exists for {submittedEmail}, you will receive a
+            password reset link.
+          </p>
+        </CardContent>
+        <CardFooter className='justify-center'>
+          <Link href='/sign-in' className='text-primary hover:underline'>
+            Return to sign in
+          </Link>
+        </CardFooter>
+      </Card>
     );
   }
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4'>
-      <Card className='w-full max-w-md shadow-lg'>
-        <CardHeader>
-          <CardTitle className='text-2xl font-bold text-center'>
-            Reset Password
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmit(requestPasswordResetAction)(e);
-            }}
-            className='space-y-4'
-          >
-            <div className='space-y-2'>
-              <Label htmlFor='email'>Email</Label>
-              <Input
-                {...register('email')}
-                type='email'
-                placeholder='Enter your email'
-              />
-              {errors.email && (
-                <p className='text-sm text-red-500'>{errors.email.message}</p>
-              )}
-            </div>
-            <Button className='w-full' type='submit' disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  Sending Reset Link...
-                </>
-              ) : (
-                'Send Reset Link'
-              )}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className='justify-center'>
-          <p className='text-sm text-gray-600 dark:text-gray-400'>
-            Remember your password?{' '}
-            <Link
-              href='/sign-in'
-              className='text-blue-600 dark:text-blue-400 hover:underline'
-            >
-              Sign in
-            </Link>
-          </p>
-        </CardFooter>
-      </Card>
+    <Card className='w-full max-w-md shadow-lg'>
+      <CardHeader>
+        <CardTitle className='text-2xl font-bold text-center'>
+          Reset Password
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(requestPasswordResetAction)(e);
+          }}
+          className='space-y-4'
+        >
+          <div className='space-y-2'>
+            <Label htmlFor='email'>Email</Label>
+            <Input
+              {...register('email')}
+              type='email'
+              placeholder='Enter your email'
+            />
+            {errors.email && (
+              <p className='text-sm text-destructive'>{errors.email.message}</p>
+            )}
+          </div>
+          <Button className='w-full' type='submit' disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                Sending Reset Link...
+              </>
+            ) : (
+              'Send Reset Link'
+            )}
+          </Button>
+        </form>
+      </CardContent>
+      <CardFooter className='justify-center'>
+        <p className='text-sm text-muted-foreground'>
+          Remember your password?{' '}
+          <Link href='/sign-in' className='text-primary hover:underline'>
+            Sign in
+          </Link>
+        </p>
+      </CardFooter>
+    </Card>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <Card className='w-full max-w-md shadow-lg'>
+      <CardHeader>
+        <Skeleton className='h-8 w-3/4 mx-auto' />
+      </CardHeader>
+      <CardContent className='space-y-4'>
+        <div className='space-y-2'>
+          <Skeleton className='h-4 w-20' />
+          <Skeleton className='h-10 w-full' />
+        </div>
+        <Skeleton className='h-10 w-full' />
+      </CardContent>
+      <CardFooter className='justify-center'>
+        <Skeleton className='h-4 w-48' />
+      </CardFooter>
+    </Card>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <div className='min-h-screen flex items-center justify-center bg-background p-4'>
+      <Suspense fallback={<LoadingFallback />}>
+        <ForgotPasswordForm />
+      </Suspense>
     </div>
   );
 }

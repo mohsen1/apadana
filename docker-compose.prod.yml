@@ -1,5 +1,5 @@
 services:
-  app:
+  app_prod:
     build:
       context: .
       dockerfile: Dockerfile.prod
@@ -7,7 +7,7 @@ services:
       - '3030:3030'
     environment:
       - PORT=3030
-      - DATABASE_URL=postgresql://admin:admin@db:5432/apadana
+      - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
       - PRISMA_HIDE_UPDATE_MESSAGE=true
@@ -16,10 +16,10 @@ services:
       - STORYBOOK_TELEMETRY_DEBUG=1
       - NEXT_SHARP_PATH=/app/node_modules/sharp
       - TEST_ENV=e2e
-       # this is also added in Dockerfile.dev. maybe we can remove it from here?
+        # this is also added in Dockerfile.dev. maybe we can remove it from here?
       - PRISMA_OUTPUT_DIR=node_modules/.prisma/client
     depends_on:
-      db:
+      db_prod:
         condition: service_healthy
     deploy:
       resources:
@@ -43,10 +43,10 @@ services:
       start_period: 40s
     restart: unless-stopped
 
-  db:
+  db_prod:
     image: postgres:16.6
     ports:
-      - '5432:5432'
+      - '5433:5432'
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U admin -d apadana']
       interval: 1s
@@ -57,7 +57,7 @@ services:
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=apadana
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_prod:/var/lib/postgresql/data
     logging:
       driver: 'json-file'
       options:
@@ -77,4 +77,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  postgres_data_prod:

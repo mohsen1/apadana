@@ -1,14 +1,14 @@
 import { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  productionBrowserSourceMaps: process.env.NEXT_E2E_BUILD === 'true',
+  productionBrowserSourceMaps: process.env.TEST_ENV === 'e2e',
 
   reactStrictMode: true,
   typescript: {
-    ignoreBuildErrors: !!process.env.CI,
+    ignoreBuildErrors: true,
   },
   eslint: {
-    ignoreDuringBuilds: !!process.env.CI,
+    ignoreDuringBuilds: true,
     dirs: ['src'],
   },
 

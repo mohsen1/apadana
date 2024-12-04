@@ -1,27 +1,18 @@
 /* eslint-disable no-console */
+import { faker } from '@faker-js/faker';
+
 import { argon } from '@/lib/auth/argon';
 import prisma from '@/lib/prisma/client';
 
 async function main() {
-  const hashedPassword = await argon.hash('password123');
+  await createUser('test@example.com', 'password123');
 
-  await prisma.user.create({
-    data: {
-      firstName: 'Test',
-      lastName: 'User',
-      password: hashedPassword,
-      emailAddresses: {
-        create: [
-          {
-            emailAddress: 'test@example.com',
-            isPrimary: true,
-          },
-        ],
-      },
-    },
-  });
+  // Create 5 additional users with realistic names
+  for (let i = 1; i < 6; i++) {
+    await createUser(`test_${i}@example.com`, 'password123');
+  }
 
-  console.log('[prisma/seed.ts]Database seeded successfully');
+  console.log('[prisma/seed.ts] Database seeded successfully');
 }
 
 main()
@@ -33,3 +24,31 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+async function createUser(email: string, password: string) {
+  const hashedPassword = await argon.hash(password);
+
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      emailAddresses: {
+        some: { emailAddress: email },
+      },
+    },
+  });
+
+  if (existingUser) {
+    return existingUser;
+  }
+
+  return prisma.user.create({
+    data: {
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      imageUrl: faker.image.avatarGitHub(),
+      password: hashedPassword,
+      emailAddresses: {
+        create: [{ emailAddress: email, isPrimary: true }],
+      },
+    },
+  });
+}

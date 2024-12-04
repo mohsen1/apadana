@@ -134,10 +134,12 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         if (location) {
           const lat = location.lat();
           const lng = location.lng();
-          setSelectedLocation({ lat, lng });
-          setMapCenter({ lat, lng });
-          setMapZoom(14); // Default zoom level
-          onLocationChange?.(lat, lng);
+          if (typeof lat === 'number' && typeof lng === 'number') {
+            setSelectedLocation({ lat, lng });
+            setMapCenter({ lat, lng });
+            setMapZoom(14); // Default zoom level
+            onLocationChange?.(lat, lng);
+          }
         }
       }
     });

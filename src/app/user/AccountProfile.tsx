@@ -1,6 +1,8 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { LogOut } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -22,7 +24,7 @@ import type { UpdateUserInput } from './schema';
 import { updateUserSchema } from './schema';
 
 export function AccountProfile() {
-  const { user, setUser } = useAuth();
+  const { user, signOut, setUser } = useAuth();
   const form = useForm<UpdateUserInput>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
@@ -243,6 +245,22 @@ export function AccountProfile() {
               className='mt-4 border-gray-700'
             >
               <span className='mr-2'>+</span> Connect account
+            </Button>
+          </div>
+
+          <Separator className='my-8 border-gray-700' />
+
+          <div>
+            <Button
+              variant='destructive'
+              onClick={async () => {
+                await signOut();
+                redirect('/');
+              }}
+              className='flex items-center gap-2'
+            >
+              <LogOut className='h-4 w-4' />
+              Sign out
             </Button>
           </div>
         </div>

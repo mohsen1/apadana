@@ -1,11 +1,12 @@
 'use server';
 
-import { getUserInServer } from '@/lib/auth';
-
 import { Button } from '@/components/ui/button';
 
+import { getCurrentUser } from '@/app/auth/actions';
+
 export async function LoggedInHeaderLinks() {
-  const user = await getUserInServer();
+  const result = await getCurrentUser();
+  const user = result?.data?.user;
 
   const createListing = (
     <Button href='/listing/create' variant='link'>
