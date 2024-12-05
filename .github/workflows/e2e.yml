@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
   actions: read
   checks: write
 
@@ -38,13 +37,13 @@ jobs:
       - name: Create .env.local
         run: 'touch .env.local'
 
-      - name: Build Docker Images
+      - name: Build Docker Images with Buildx Bake
         run: |
           mkdir -p /tmp/.buildx-cache-new
-          docker compose -f docker-compose.prod.yml build \
+          docker buildx bake --file docker-compose.prod.yml \
             --progress plain \
-            --cache-from type=local,src=/tmp/.buildx-cache \
-            --cache-to type=local,dest=/tmp/.buildx-cache-new
+            --set *.cache-from=type=local,src=/tmp/.buildx-cache \
+            --set *.cache-to=type=local,dest=/tmp/.buildx-cache-new
 
       - name: Update Docker Cache
         run: |
@@ -70,8 +69,8 @@ jobs:
 
       - name: Upload Playwright Test Report
         id: upload-results
-        uses: shallwefootball/s3-upload-action@master
-        if: always()
+        uses: shallwefootball/s3-upload-action@<commit-sha>
+        if: always() && hashFiles('.next/__e2e__reports__') != ''
         with:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
