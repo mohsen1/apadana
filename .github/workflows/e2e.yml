@@ -21,36 +21,43 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
       - name: Setup
         uses: ./.github/actions/setup
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+      - name: Restore Docker Cache
+        uses: actions/cache@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('**/docker-compose.prod.yml', '**/Dockerfile') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Create .env.local
         run: 'touch .env.local'
 
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./docker-compose.prod.yml
-          push: false
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}:cache,mode=max
+      - name: Build Docker Images
+        run: |
+          mkdir -p /tmp/.buildx-cache-new
+          docker compose -f docker-compose.prod.yml build \
+            --progress plain \
+            --cache-from type=local,src=/tmp/.buildx-cache \
+            --cache-to type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Update Docker Cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Start Docker Compose
-        run: pnpm docker:prod:ci
+        run: docker compose -f docker-compose.prod.yml up -d
+
+      - name: Wait for Service
+        run: |
+          # Wait for the application to be ready
+          timeout 120s bash -c 'until curl -s http://localhost:3030/api/health; do sleep 2; done'
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps

@@ -11,7 +11,6 @@
     "docker:rebuild": "docker compose build --no-cache app && docker compose up --no-log-prefix",
     "docker:prune": "docker system prune -af --volumes",
     "docker:prod": "docker-compose -f docker-compose.prod.yml up --build --no-log-prefix",
-    "docker:prod:ci": "docker-compose -f docker-compose.prod.yml up --no-log-prefix --abort-on-container-exit -d",
     "docker:prod:down": "docker-compose -f docker-compose.prod.yml down",
     "docker:prod:logs": "docker-compose -f docker-compose.prod.yml logs -f",
     "docker:prod:clean": "docker-compose -f docker-compose.prod.yml down -v",
