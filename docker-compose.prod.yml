@@ -30,7 +30,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('**/docker-compose.prod.yml', '**/Dockerfile') }}
+          key: $${{ runner.os }}-buildx-$${{ hashFiles('**/docker-compose.prod.yml', '**/Dockerfile') }}
           restore-keys: '${{ runner.os }}-buildx-'
 
       - name: Create .env.local

@@ -67,42 +67,42 @@ jobs:
         env:
           BASE_URL: http://localhost:3030
 
-      - name: Upload Playwright Test Report
-        id: upload-results
-        uses: shallwefootball/s3-upload-action@v1.3.3
-        if: always() && hashFiles('.next/__e2e__reports__') != ''
-        with:
-          aws_key_id: ${{ secrets.AWS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_bucket: apadana-e2e
-          source_dir: .next/__e2e__reports__
-          destination_dir: ${{ github.event.pull_request.head.sha || github.sha }}
+      # - name: Upload Playwright Test Report
+      #   id: upload-results
+      #   uses: shallwefootball/s3-upload-action@v1.3.3
+      #   if: always() && hashFiles('.next/__e2e__reports__') != ''
+      #   with:
+      #     aws_key_id: ${{ secrets.AWS_KEY_ID }}
+      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws_bucket: apadana-e2e
+      #     source_dir: .next/__e2e__reports__
+      #     destination_dir: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Write Comment
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const sha = context.payload.pull_request?.head.sha || context.sha;
-            const testRunOutcome = '${{ steps.test-run.outcome }}';
-            const conclusion = testRunOutcome === 'success' ? 'success' : 'failure';
-            const reportUrl = `https://apadana-e2e.s3.amazonaws.com/${sha}/index.html`;
+      # - name: Write Comment
+      #   if: always()
+      #   uses: actions/github-script@v7
+      #   with:
+      #     script: |
+      #       const sha = context.payload.pull_request?.head.sha || context.sha;
+      #       const testRunOutcome = '${{ steps.test-run.outcome }}';
+      #       const conclusion = testRunOutcome === 'success' ? 'success' : 'failure';
+      #       const reportUrl = `https://apadana-e2e.s3.amazonaws.com/${sha}/index.html`;
 
-            await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Playwright Report',
-              head_sha: sha,
-              status: 'completed',
-              conclusion: conclusion,
-              details_url: reportUrl,
-              output: {
-                title: 'Playwright Test Report',
-                summary: `[**View the Playwright test report**](${reportUrl})`,
-                text: `# The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}.` +
-                  `\n\nClick [here](${reportUrl}) to view the detailed report.`
-              }
-            });
+      #       await github.rest.checks.create({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         name: 'Playwright Report',
+      #         head_sha: sha,
+      #         status: 'completed',
+      #         conclusion: conclusion,
+      #         details_url: reportUrl,
+      #         output: {
+      #           title: 'Playwright Test Report',
+      #           summary: `[**View the Playwright test report**](${reportUrl})`,
+      #           text: `# The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}.` +
+      #             `\n\nClick [here](${reportUrl}) to view the detailed report.`
+      #         }
+      #       });
 
       - name: Stop Docker Compose
         if: always()
