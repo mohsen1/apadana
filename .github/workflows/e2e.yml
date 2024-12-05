@@ -5,7 +5,7 @@ on:
     branches:
       - main
       # TODO: remove
-      - file-uploadeer
+      - fix-e2e-tests
 
 permissions:
   contents: read

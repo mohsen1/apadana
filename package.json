@@ -23,7 +23,6 @@
     "dev:storybook": "storybook dev --quiet --port=6006 --no-open | grep -v -iE '^(info|warn)'",
     "dev:studio": "nodemon --watch prisma/schema.prisma --exec 'dotenv -e .env -- prisma studio --browser none'",
     "migrate:dev": "dotenv -e .env.local -- prisma migrate dev --name $(date +'%Y%m%d_%H%M%S')",
-    "migrate:prod": "dotenv -e .env -- prisma migrate deploy",
     "prisma:generate": "dotenv -e .env.local -- prisma generate --no-hints",
     "prisma:watch": "dotenv -e .env.local -- prisma generate --no-hints --watch",
     "build": "dotenv -e .env.local -- prisma generate --no-hints && dotenv -e .env.local -- next build",
