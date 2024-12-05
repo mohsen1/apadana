@@ -13,7 +13,16 @@ export async function deleteServerSession() {
 export async function setServerSession(session: Session) {
   const { set: setCookie } = await cookies();
 
-  const publicUrl = new URL(process.env.VERCEL_URL);
+  let vercelUrl = process.env.VERCEL_URL;
+
+  // eslint-disable-next-line no-console
+  console.log('process.env.VERCEL_URL', process.env.VERCEL_URL);
+
+  if (!vercelUrl.startsWith('http://') && !vercelUrl.startsWith('https://')) {
+    vercelUrl = `https://${vercelUrl}`;
+  }
+
+  const publicUrl = new URL(vercelUrl);
   const secure = publicUrl.protocol === 'https:';
   const domain =
     publicUrl.hostname === 'localhost' || publicUrl.hostname === '127.0.0.1'
