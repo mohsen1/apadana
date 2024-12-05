@@ -35,8 +35,6 @@ RUN --mount=type=cache,target=/root/.pnpm-store pnpm install --frozen-lockfile -
 # Copy the rest of the application
 COPY . .
 
-RUN echo "PRISMA_OUTPUT_DIR=../src/__generated__/prisma" >> .env.local
-
 # Generate Prisma client
 RUN pnpm prisma:generate
 

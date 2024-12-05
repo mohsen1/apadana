@@ -20,8 +20,6 @@ runs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile --silent --ignore-scripts
       shell: bash
-      env:
-        PRISMA_OUTPUT_DIR: '../src/__generated__/prisma'
 
     - name: Generate Prisma client
       run: pnpm prisma generate

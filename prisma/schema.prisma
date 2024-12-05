@@ -4,9 +4,6 @@
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-arm64-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
-  // we are outputting outside of the node_modules folder 
-  // so editors can pickup changes in the generated client
-  output        = env("PRISMA_OUTPUT_DIR")
 }
 
 datasource db {

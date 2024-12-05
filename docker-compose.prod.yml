@@ -20,8 +20,6 @@ services:
       - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
       - STORYBOOK_TELEMETRY_DEBUG=1
       - TEST_ENV=e2e
-        # this is also added in Dockerfile.dev. maybe we can remove it from here?
-      - PRISMA_OUTPUT_DIR=node_modules/.prisma/client
     depends_on:
       db_prod:
         condition: service_healthy

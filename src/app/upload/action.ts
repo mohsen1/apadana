@@ -36,7 +36,7 @@ const getUploadSignedUrl = actionClient
       const urls = parsedInput.files.map((file) => {
         const fileExtension = file.filename.split('.').pop() ?? '';
         const key = `fake_upload_${crypto.randomUUID()}.${fileExtension}`;
-        const url = `${process.env.NEXT_PUBLIC_DOMAIN}/fake-upload/${key}`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/fake-upload/${key}`;
 
         return { url, key };
       });
