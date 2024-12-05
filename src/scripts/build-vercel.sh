@@ -5,17 +5,17 @@
 
 # if The following environment variable is not set, exit
 variables=(
-  NEXT_PUBLIC_API_URL
   GOOGLE_MAPS_API_KEY
+  RESEND_API_KEY
   NEXT_PUBLIC_S3_UPLOAD_BUCKET
   NEXT_PUBLIC_S3_UPLOAD_REGION
-  RESEND_API_KEY
   S3_UPLOAD_KEY
   S3_UPLOAD_SECRET
 )
 
 # set the domain to the vercel url. this value is dynamic and changes on each deploy depending on the environment
 export NEXT_PUBLIC_DOMAIN=$VERCEL_URL
+export NEXT_PUBLIC_API_URL=$VERCEL_URL/api
 
 for variable in "${variables[@]}"; do
   if [ -z "${!variable}" ]; then
