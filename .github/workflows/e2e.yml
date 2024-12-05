@@ -58,6 +58,10 @@ jobs:
           # Wait for the application to be ready
           timeout 120s bash -c 'until curl -s http://localhost:3030/api/health; do sleep 2; done'
 
+      - name: Print Docker Logs
+        if: failure()
+        run: docker compose -f docker-compose.prod.yml logs
+
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
 
