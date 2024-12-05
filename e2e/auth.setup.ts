@@ -1,35 +1,29 @@
-/* eslint-disable no-console */
 import { expect, test as setup } from '@playwright/test';
 import path from 'path';
 
 const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
-setup('authenticate', async ({ page }) => {
-  await page.goto('/');
-
-  await page.evaluate(async () => {
-    const response = await fetch(`/api/e2e`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        command: 'login',
-      }),
-    });
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(
-        `Failed to authenticate the test user: ${response.status} ${response.statusText} ${text}`,
-      );
-    }
-    console.log('[auth.setup.ts] Authenticated the test user');
+setup('authenticate', async ({ page, context }) => {
+  const response = await context.request.post('/api/e2e', {
+    data: {
+      command: 'login',
+    },
   });
 
-  // Proceed with your test
+  const body = await response.json();
+
+  // Verify the response is successful
+  expect(body.success).toBe(true);
+
+  // Verify that the cookies are set
+  const cookies = await page.context().cookies();
+  expect(cookies.length).toBeGreaterThan(0);
+
   await page.goto('/');
+
+  // Verify that the user-specific link is visible
   await expect(page.getByRole('link', { name: /Hello, .*?/ })).toBeVisible();
 
+  // Save the authenticated state
   await page.context().storageState({ path: authFile });
 });

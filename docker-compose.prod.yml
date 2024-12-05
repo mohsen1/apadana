@@ -11,14 +11,13 @@ services:
       - PORT=3030
       - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
       - NODE_ENV=production
+      - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
       - NEXT_TELEMETRY_DISABLED=1
       - NEXT_SHARP_PATH=/app/node_modules/sharp
       - NEXT_PUBLIC_DOMAIN=http://localhost:3030
       - NEXT_PUBLIC_API_URL=http://localhost:3030/api
       - PRISMA_HIDE_UPDATE_MESSAGE=true
       - PRISMA_BINARY_TARGETS=native,linux-arm64-openssl-3.0.x,linux-musl-openssl-3.0.x
-      - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
-      - STORYBOOK_TELEMETRY_DEBUG=1
       - TEST_ENV=e2e
     depends_on:
       db_prod:
@@ -53,7 +52,7 @@ services:
       test: ['CMD-SHELL', 'pg_isready -U admin -d apadana']
       interval: 1s
       timeout: 1s
-      retries: 5
+      retries: 90
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin

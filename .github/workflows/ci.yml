@@ -24,8 +24,15 @@ jobs:
       - name: Build
         run: pnpm run build
         env:
-          DATABASE_URL: fake
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DATABASE_URL: 'postgresql://fake:fake@fake:5432/fake'
+          RESEND_API_KEY: fake_RESEND_API_KEY
+          GOOGLE_MAPS_API_KEY: fake_GOOGLE_MAPS_API_KEY
+          NEXT_PUBLIC_DOMAIN: 'https://apadana.app'
+          NEXT_PUBLIC_API_URL: 'https://apadana.app/api'
+          NEXT_PUBLIC_S3_UPLOAD_BUCKET: fake_NEXT_PUBLIC_S3_UPLOAD_BUCKET
+          NEXT_PUBLIC_S3_UPLOAD_REGION: fake_NEXT_PUBLIC_S3_UPLOAD_REGION
+          S3_UPLOAD_KEY: fake_S3_UPLOAD_KEY
+          S3_UPLOAD_SECRET: fake_S3_UPLOAD_SECRET
 
   lint:
     name: Lint
@@ -70,3 +77,14 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
       - run: pnpm run test
+        env:
+          DATABASE_URL: 'postgresql://fake:fake@fake:5432/fake'
+          RESEND_API_KEY: fake-RESEND_API_KEY
+          GOOGLE_MAPS_API_KEY: fake-GOOGLE_MAPS_API_KEY
+          NEXT_PUBLIC_DOMAIN: 'https://apadana.app'
+          NEXT_PUBLIC_API_URL: 'https://apadana.app/api'
+          NEXT_PUBLIC_S3_UPLOAD_BUCKET: fake-S3_UPLOAD_BUCKET
+          NEXT_PUBLIC_S3_UPLOAD_REGION: fake-S3_UPLOAD_REGION
+          S3_UPLOAD_KEY: fake-S3_UPLOAD_KEY
+          S3_UPLOAD_SECRET: fake-S3_UPLOAD_SECRET
+          TEST_ENV: 'unit'

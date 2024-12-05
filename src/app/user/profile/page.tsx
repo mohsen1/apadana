@@ -1,5 +1,11 @@
+import { AuthBoundary } from '@/components/auth/AuthBoundary';
+
 import { AccountProfile } from '@/app/user/AccountProfile';
 
 export default function Page() {
-  return <AccountProfile />;
+  return (
+    <AuthBoundary protection={{ authRequired: true }} redirectTo='/sign-in'>
+      <AccountProfile />
+    </AuthBoundary>
+  );
 }

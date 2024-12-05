@@ -41,10 +41,12 @@ export const createListing = actionClient
             },
           },
           images: {
-            connectOrCreate: (parsedInput.images || []).map((image) => ({
-              where: { key: image.key },
-              create: image,
-            })),
+            connectOrCreate: (parsedInput.images || [])
+              .filter((image) => image?.key)
+              .map((image) => ({
+                where: { key: image.key },
+                create: image,
+              })),
           },
         },
       });
