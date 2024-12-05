@@ -1,8 +1,7 @@
+import { Session } from '@prisma/client';
 import { cookies } from 'next/headers';
 
 import prisma from '@/lib/prisma/client';
-
-import { Session } from '@/__generated__/prisma';
 
 import { SESSION_COOKIE_NAME } from './constants';
 

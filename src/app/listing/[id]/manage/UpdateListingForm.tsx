@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Listing } from '@prisma/client';
 import { Clock, DollarSign, Loader2, SaveIcon, Users } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Controller, useForm } from 'react-hook-form';
@@ -22,7 +23,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 
-import { Listing } from '@/__generated__/prisma';
 import { editListing } from '@/app/listing/[id]/manage/action';
 
 const EditListingSchema = CreateListingSchema.omit({

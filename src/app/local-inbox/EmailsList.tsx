@@ -1,7 +1,6 @@
 'use client';
+import { LocalEmail } from '@prisma/client';
 import { useState } from 'react';
-
-import { LocalEmail } from '@/__generated__/prisma';
 
 interface EmailsListProps {
   emails: LocalEmail[];

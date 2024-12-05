@@ -1,6 +1,5 @@
+import { BookingRequestStatus } from '@prisma/client';
 import { z } from 'zod';
-
-import { BookingRequestStatus } from '@/__generated__/prisma';
 
 // TODO: use code generators for this
 

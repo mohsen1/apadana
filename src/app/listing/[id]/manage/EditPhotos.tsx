@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Listing, UploadedPhoto } from '@prisma/client';
 import { Loader2, SaveIcon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Controller, useForm } from 'react-hook-form';
@@ -21,7 +22,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-import { Listing, UploadedPhoto } from '@/__generated__/prisma';
 import { editListingImages } from '@/app/listing/[id]/manage/action';
 
 type ListingWithImages = Listing & {
