@@ -1,4 +1,6 @@
-import prisma from '@/lib/prisma/client';
+import { Suspense } from 'react';
+
+import { getEmails } from '@/app/local-inbox/action';
 
 import EmailsList from './EmailsList';
 
@@ -7,9 +9,17 @@ export const metadata = {
 };
 
 export default async function EmailsPage() {
-  const emails = await prisma.localEmail.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+  const result = await getEmails();
 
-  return <EmailsList emails={emails} />;
+  if (result?.serverError) {
+    return <div>{result.serverError.error}</div>;
+  }
+
+  const emails = result?.data ?? [];
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EmailsList emails={emails} />
+    </Suspense>
+  );
 }
