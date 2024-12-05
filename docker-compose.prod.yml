@@ -1,80 +1,115 @@
-services:
-  app_prod:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    ports:
-      - '3030:3030'
-    env_file:
-      - .env.local
-    environment:
-      - PORT=3030
-      - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
-      - NODE_ENV=production
-      - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
-      - NEXT_TELEMETRY_DISABLED=1
-      - NEXT_SHARP_PATH=/app/node_modules/sharp
-      - VERCEL_URL=http://localhost:3030
-      - PRISMA_HIDE_UPDATE_MESSAGE=true
-      - PRISMA_BINARY_TARGETS=native,linux-arm64-openssl-3.0.x,linux-musl-openssl-3.0.x
-      - TEST_ENV=e2e
-    depends_on:
-      db_prod:
-        condition: service_healthy
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 4G
-        reservations:
-          cpus: '1'
-          memory: 2G
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-        tag: '{{.Name}}'
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3030/api/health']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    restart: unless-stopped
+name: Playwright
 
-  db_prod:
-    image: postgres:16.6
-    ports:
-      - '5433:5432'
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U admin -d apadana']
-      interval: 1s
-      timeout: 1s
-      retries: 90
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=apadana
-    volumes:
-      - postgres_data_prod:/var/lib/postgresql/data
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-        tag: '{{.Name}}'
-    command:
-      ['postgres', '-c', 'log_statement=none', '-c', 'log_min_messages=warning']
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-    restart: unless-stopped
+on:
+  push:
+    branches:
+      - main
+      # TODO: remove
+      - fix-e2e-tests
 
-volumes:
-  postgres_data_prod:
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  run-e2es:
+    name: Run E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Restore Docker Cache
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('**/docker-compose.prod.yml', '**/Dockerfile') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Create .env.local
+        run: 'touch .env.local'
+
+      - name: Build Docker Images with Buildx Bake
+        run: |
+          mkdir -p /tmp/.buildx-cache-new
+          docker buildx bake --file docker-compose.prod.yml \
+            --progress plain \
+            --load \
+            --set *.cache-from=type=local,src=/tmp/.buildx-cache \
+            --set *.cache-to=type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Update Docker Cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Start Docker Compose
+        run: docker compose -f docker-compose.prod.yml up -d
+
+      - name: Wait for Service
+        run: |
+          # Wait for the application to be ready
+          timeout 120s bash -c 'until curl -s http://localhost:3030/api/health; do sleep 2; done'
+        continue-on-error: true
+
+      - name: Display Docker Compose Logs
+        if: failure()
+        run: docker compose -f docker-compose.prod.yml logs
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Run tests
+        id: test-run
+        run: pnpm run e2e:ci
+        env:
+          BASE_URL: http://localhost:3030
+
+      - name: Upload Playwright Test Report
+        id: upload-results
+        uses: shallwefootball/s3-upload-action@<commit-sha>
+        if: always() && hashFiles('.next/__e2e__reports__') != '''
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: apadana-e2e
+          source_dir: .next/__e2e__reports__
+          destination_dir: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Write Comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.payload.pull_request?.head.sha || context.sha;
+            const testRunOutcome = '${{ steps.test-run.outcome }}';
+            const conclusion = testRunOutcome === 'success' ? 'success' : 'failure';
+            const reportUrl = `https://apadana-e2e.s3.amazonaws.com/${sha}/index.html`;
+
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Playwright Report',
+              head_sha: sha,
+              status: 'completed',
+              conclusion: conclusion,
+              details_url: reportUrl,
+              output: {
+                title: 'Playwright Test Report',
+                summary: `[**View the Playwright test report**](${reportUrl})`,
+                text: `# The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}.` +
+                  `\n\nClick [here](${reportUrl}) to view the detailed report.`
+              }
+            });
+
+      - name: Stop Docker Compose
+        if: always()
+        run: docker compose -f docker-compose.prod.yml down
