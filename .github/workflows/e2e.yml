@@ -30,9 +30,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('**/docker-compose.prod.yml', '**/Dockerfile') }}
+          key: apadana-e2e-custom-key-buildx-${{ hashFiles('**/docker-compose.prod.yml', '**/Dockerfile') }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            apadana-e2e-custom-key-buildx-
 
       - name: Create .env.local
         run: 'touch .env.local'
