@@ -56,7 +56,7 @@ jobs:
       - name: Wait for Service
         run: |
           # Wait for the application to be ready
-          timeout 120s bash -c 'until curl -s http://localhost:3030/api/health; do sleep 2; done'
+          timeout 60s bash -c 'until curl -s http://localhost:3030/api/health; do sleep 2; done'
 
       - name: Print Docker Logs
         if: failure()

@@ -25,6 +25,7 @@
     "migrate:dev": "dotenv -e .env.local -- prisma migrate dev --name $(date +'%Y%m%d_%H%M%S')",
     "prisma:generate": "dotenv -e .env.local -- prisma generate --no-hints",
     "prisma:watch": "dotenv -e .env.local -- prisma generate --no-hints --watch",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "build": "dotenv -e .env.local -- prisma generate --no-hints && dotenv -e .env.local -- next build",
     "start": "next start",
     "fix": "pnpm lint:fix && pnpm format",
