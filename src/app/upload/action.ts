@@ -1,0 +1,90 @@
+'use server';
+
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import crypto from 'crypto';
+import { z } from 'zod';
+
+import { actionClient } from '@/lib/safe-action';
+
+import logger from '@/utils/logger';
+
+const inputSchema = z.object({
+  files: z.array(
+    z.object({
+      filename: z.string(),
+      contentType: z.string(),
+    }),
+  ),
+});
+
+const outputSchema = z.object({
+  urls: z.array(
+    z.object({
+      url: z.string(),
+      key: z.string(),
+    }),
+  ),
+});
+
+const getUploadSignedUrl = actionClient
+  .schema(inputSchema)
+  .outputSchema(outputSchema)
+  .action(async ({ parsedInput }) => {
+    if (process.env.TEST_ENV === 'e2e') {
+      // Return fake signed URLs for e2e testing
+      const urls = parsedInput.files.map((file) => {
+        const fileExtension = file.filename.split('.').pop() ?? '';
+        const key = `fake_upload_${crypto.randomUUID()}.${fileExtension}`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/fake-upload/${key}`;
+
+        return { url, key };
+      });
+
+      return { urls };
+    }
+
+    if (
+      !process.env.S3_UPLOAD_REGION ||
+      !process.env.S3_UPLOAD_KEY ||
+      !process.env.S3_UPLOAD_SECRET
+    ) {
+      throw new Error('S3 upload credentials are not set');
+    }
+    // Initialize S3 client
+    const s3Client = new S3Client({
+      region: process.env.S3_UPLOAD_REGION,
+      credentials: {
+        accessKeyId: process.env.S3_UPLOAD_KEY,
+        secretAccessKey: process.env.S3_UPLOAD_SECRET,
+      },
+    });
+    try {
+      const urls = await Promise.all(
+        parsedInput.files.map(async (file) => {
+          // Generate a unique key for each file
+          const fileExtension = file.filename.split('.').pop() ?? '';
+          const key = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}/${crypto.randomUUID()}.${fileExtension}`;
+
+          const command = new PutObjectCommand({
+            Bucket: process.env.S3_UPLOAD_BUCKET,
+            Key: key,
+            ContentType: file.contentType,
+          });
+
+          const url = await getSignedUrl(s3Client, command, {
+            expiresIn: 3600,
+          }); // URL expires in 1 hour
+
+          return { url, key };
+        }),
+      );
+
+      return { urls };
+    } catch (error) {
+      logger.error('Error generating signed URLs:', error);
+      throw new Error('Failed to generate upload URLs');
+    }
+  });
+
+export { getUploadSignedUrl };

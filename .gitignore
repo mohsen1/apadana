@@ -52,3 +52,6 @@ playwright/.auth
 
 # prisma
 src/__generated__/prisma
+
+# Test uploads
+e2e/uploads/

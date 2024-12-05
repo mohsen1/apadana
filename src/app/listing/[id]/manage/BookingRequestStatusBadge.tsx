@@ -1,8 +1,8 @@
+import { BookingRequestStatus } from '@prisma/client';
+
 import { cn } from '@/lib/utils';
 
 import { Badge } from '@/components/ui/badge';
-
-import { BookingRequestStatus } from '@/__generated__/prisma';
 
 export function BookingRequestStatusBadge({
   status,

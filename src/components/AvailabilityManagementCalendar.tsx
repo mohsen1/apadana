@@ -6,10 +6,10 @@ import {
   getLocalTimeZone,
   isSameDay,
 } from '@internationalized/date';
+import { Listing, ListingInventory } from '@prisma/client';
 
 import { cn, formatCurrency } from '@/lib/utils';
 
-import { Listing, ListingInventory } from '@/__generated__/prisma';
 import { RangeValue } from '@/utils/types';
 
 import { Calendar } from './range-calendar';

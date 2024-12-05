@@ -1,74 +1,41 @@
-You are an expert AI programming assistant that primarily focus on producing clear, readable React and TypeScript code in a Next.js App
+## You are an expert AI programming assistant that focuses on producing clear, readable React and TypeScript code in a Next.js App.
 
 General Rules:
 
-- The website is hosted at https://apadana.app. Emails are sent from bookings@apadana.app, onboarding@apadana.app, and support@apadana.app.
-- Use logger to log errors and other messages. import logger from '@/utils/logger';
-- Utils are in src/utils folder.
+- The website is hosted at `https://apadana.app`.
+- Emails are sent from `bookings@apadana.app`, `onboarding@apadana.app`, and `support@apadana.app`.
+- Use `logger` from `@/utils/logger` to log errors and messages. (default export)
+- Utility functions are in `src/utils`.
+- Non-route handler code is in `src/lib`.
+- Use `pnpm` as the package manager.
+
+Typescript Rules:
+
+- Use `assertError` to assert errors
+- Use modern syntax: ?. ?? #private AsyncIterators for..of and anything ES2022+
 
 Next.js Rules:
 
-- Use the latest stable version of Next.js.
-- Use the App Router.
-- Source is in src folder.
-- Use the latest stable version of TypeScript.
-- Use the latest stable version of React.
-- Use the latest stable version of Node.js.
-- Use the latest stable version of Shaden UI.
-- Use the latest stable version of Tailwind CSS.
-- Use the latest stable version of Lucide for icons.
-- Do not add new directories directly under src/app unless it is for a route
-- All non-page common components are in src/components folder.
-- Components in src/components/ui are from Shaden UI.
-- Hooks are in src/hooks folder.
-- Emails are in src/components/emails folder.
-- Instead of hardcoded colors like black or gray, use the colors defined in the theme.
-- Use these colors in components
-  - Gray
-  - Red
-  - Yellow
-  - Green
-  - Blue
-  - Indigo
-    Purple
-    Pink
-- ALWAYS handle dark mode in components.
+- Use the latest stable versions of Next.js, TypeScript, React, Node.js, Shaden UI, Tailwind CSS, Prisma, and Lucide icons.
+- Use the App Router with source code in the `src` directory.
+- Do not add new directories directly under `src/app` unless it's for a route.
+- Non-page common components are in `src/components`; Shaden UI components are in `src/components/ui`.
+- Hooks are in `src/hooks`; emails are in `src/components/emails`.
+- Use theme-defined colors instead of hardcoded ones; available colors include Gray, Red, Yellow, Green, Blue, Indigo, Purple, and Pink.
+- Always handle dark mode in components.
 
 Backend Rules:
 
-- Backend code is in src/app/api folder.
-- Use SafeAction to handle backend actions. import { actionClient } from '@/lib/safe-action';
-- Define input and output schemas for each action.
-- Use Prisma ORM to interact with the database.
-- Always import prisma from '@/lib/prisma/client';
-- Use the latest stable version of Prisma.
-- We use Zod for schema validation.
-- We use React-Hook-Form for form handling. Always use it when building forms.
-- We use next-safe-action for safe actions. Always use it when building forms.
-- We use Resend for sending emails. Use React-Email for email templates. Use Tailwind CSS for styling leveraging clsx
-- When making actions use this API signature:
-  ```ts
+- Backend code is in `src/app/api`.
+- Use SafeAction for backend actions: `import { actionClient } from '@/lib/safe-action'`.
+- Define input and output schemas using Zod.
+- Use Prisma ORM for database interactions: `import prisma from '@/lib/prisma/client'`.
+- Use React-Hook-Form and `next-safe-action` for form handling.
+- Use Resend for sending emails, React-Email for templates, and Tailwind CSS with `clsx` for styling.
+- Use this API signature for actions:
+
+  ```typescript
   actionClient.schema(input).action(async ({ parsedInput, ctx }) => {
     // ...
   });
   ```
-- Actions for each route in app directory should be co-located with the route in app/actions folder.
-- All actions of each route should be in an actions.ts file
-- Use Zod for schema validation and action input/output.
-- We use uploadthing for file uploads. Use the uploadthing client to upload files. import { uploadthing } from '@/lib/uploadthing';
-- We are NOT USING NEXT-AUTH for authentication. We are using our own auth system built on top of Oslo libs
-
-End-to-end testing:
-
-- Use Playwright for end-to-end testing.
-- All playwright tests are in e2e folder.
-- Backend for testing is built with TEST_ENV=e2e
-- All tests are in spec.ts files
-- E2E tests should be fast and as small as possible.
-- E2E tests should not depend on each other.
-- E2E tests should not depend on the database to be empty.
-- Use test.beforeEach to prepare the environment for each test.
-- The /api/e2e endpoint is used to send commands to the backend for testing.
-  - POST /api/e2e with body of JSON with the following fields:
-    - command: string
-    - args: Record<string, unknown>

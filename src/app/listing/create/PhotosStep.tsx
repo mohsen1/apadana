@@ -15,14 +15,12 @@ export function PhotosStep() {
 
   return (
     <div className='space-y-4'>
-      <Controller
+      <Controller<CreateListing, 'images'>
         name='images'
         control={control}
         render={({ field }) => (
           <ImageUploader
-            initialImages={field.value?.map((img) => ({
-              ...img,
-            }))}
+            initialImages={[]}
             onChange={(images) => {
               clearErrors('images');
               field.onChange(images);

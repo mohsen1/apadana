@@ -133,14 +133,14 @@ export const editListingImages = actionClient
       await prisma.$transaction(async (tx) => {
         // Delete removed images
         for (const imageToDelete of imagesToDelete) {
-          await tx.uploadThingImage.delete({
+          await tx.uploadedPhoto.delete({
             where: { id: imageToDelete.id },
           });
         }
 
         // Update or create new images
         for (const image of parsedInput.images) {
-          await tx.uploadThingImage.upsert({
+          await tx.uploadedPhoto.upsert({
             where: { key: image.key },
             update: {
               url: image.url,
@@ -151,10 +151,6 @@ export const editListingImages = actionClient
               key: image.key,
               url: image.url,
               name: image.name,
-              type: image.type,
-              size: image.size,
-              fileHash: image.fileHash || '',
-              customId: image.customId,
             },
           });
         }

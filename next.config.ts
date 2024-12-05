@@ -13,7 +13,16 @@ const nextConfig: NextConfig = {
   },
 
   images: {
-    remotePatterns: [{ hostname: 'utfs.io' }, { hostname: 'apadana.app' }],
+    remotePatterns: [
+      { hostname: 'utfs.io' },
+      { hostname: 'apadana.app' },
+      {
+        hostname: `${process.env.S3_UPLOAD_BUCKET}.s3.amazonaws.com`,
+      },
+      {
+        hostname: `${process.env.S3_UPLOAD_BUCKET}.s3.${process.env.S3_UPLOAD_REGION}.amazonaws.com`,
+      },
+    ],
   },
 
   experimental: {

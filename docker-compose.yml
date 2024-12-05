@@ -13,17 +13,12 @@ services:
       - pnpm_store:/root/.pnpm-store
       - next_cache:/app/.next
       - ./package.json:/app/package.json:delegated
+    env_file:
+      - .env.local
     environment:
       - DATABASE_URL=postgresql://admin:admin@db:5432/apadana
-      - NEXT_PUBLIC_APP_URL=http://localhost:3000
       - NODE_OPTIONS="--max-old-space-size=8192"
-      - NEXT_TELEMETRY_DISABLED=1
-      - STORYBOOK_TELEMETRY_DEBUG=1
-      - STORYBOOK_LOG_LEVEL=error
       - NEXT_SHARP_PATH=/app/node_modules/sharp
-      - PRISMA_HIDE_UPDATE_MESSAGE=true
-      - NODE_OPTIONS="--no-deprecation"
-      - PRISMA_OUTPUT_DIR=../src/__generated__/prisma
     depends_on:
       db:
         condition: service_healthy

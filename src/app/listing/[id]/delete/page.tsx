@@ -1,5 +1,7 @@
 import prisma from '@/lib/prisma/client';
 
+import { AuthBoundary } from '@/components/auth/AuthBoundary';
+
 import { DeleteListing } from '@/app/listing/[id]/delete/DeleteListing';
 import NotFound from '@/app/not-found';
 
@@ -21,5 +23,9 @@ export default async function DeleteListingPage(props: {
       />
     );
   }
-  return <DeleteListing listing={listing} />;
+  return (
+    <AuthBoundary protection={{ authRequired: true }} showAccessDenied>
+      <DeleteListing listing={listing} />
+    </AuthBoundary>
+  );
 }

@@ -3,7 +3,7 @@ import { expect, test } from './base';
 test.describe.serial('Create and delete a Listing', () => {
   let currentListingId: string;
 
-  test.skip('create listing ', async ({ page }) => {
+  test('create listing ', async ({ page }) => {
     await test.step('Navigate to the create listing page', async () => {
       await page.goto('/listing/create');
       await expect(page.getByText('Location Details')).toBeVisible();
@@ -72,43 +72,21 @@ test.describe.serial('Create and delete a Listing', () => {
       await expect(page.getByRole('heading', { name: 'Photos' })).toBeVisible();
     });
 
-    await test.step('Mock image upload and verify upload', async () => {
-      await page.route(
-        '**/api/uploadthing?actionType=upload&slug=imageUploader',
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify([
-              {
-                url: 'https://example.com/uploaded/photo-1.jpg',
-                key: 'photo-1-key',
-                name: 'photo-1.jpg',
-                customId: null,
-              },
-            ]),
-          });
-        },
-      );
-
-      await page.route('https://*.uploadthing.com/*', async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            url: 'https://utfs.io/f/photo-1-key',
-          }),
-        });
-      });
-
+    await test.step('Upload images and verify upload', async () => {
       const fileInput = page.locator('input[type="file"]');
       await fileInput.setInputFiles(['e2e/fixtures/photo-1.jpg']);
-      await expect(page.getByRole('button', { name: 'Next' })).toBeEnabled();
+
+      const button = page.getByRole('button', { name: 'Next' });
+
+      await expect(button).toBeEnabled();
+
+      await button.click();
     });
 
     await test.step('Navigate to pricing step', async () => {
-      await page.getByRole('button', { name: 'Next' }).click();
-      await expect(page.locator('h1')).toHaveText('Pricing');
+      await expect(
+        page.getByRole('heading', { name: 'Pricing' }),
+      ).toBeVisible();
     });
 
     await test.step('Fill in pricing details', async () => {
@@ -123,7 +101,9 @@ test.describe.serial('Create and delete a Listing', () => {
 
     await test.step('Navigate to house rules step', async () => {
       await page.getByRole('button', { name: 'Next' }).click();
-      await expect(page.locator('h1')).toHaveText('House Rules');
+      await expect(
+        page.getByRole('heading', { name: 'House Rules' }),
+      ).toBeVisible();
     });
 
     await test.step('Fill in house rules and submit listing', async () => {
@@ -152,7 +132,7 @@ test.describe.serial('Create and delete a Listing', () => {
     });
   });
 
-  test.skip('Delete the listing', async ({ page }) => {
+  test('Delete the listing', async ({ page }) => {
     await page.goto(`/listing/${currentListingId}/delete`);
     await expect(page.getByText('Delete "My new test listing"')).toBeVisible();
 
