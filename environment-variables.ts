@@ -10,7 +10,7 @@ const schema = z.object({
   DATABASE_URL: z.string().url(),
 
   // Next
-  VERCEL_URL: z.string().url(),
+  VERCEL_URL: z.string(),
   NEXT_PUBLIC_DOMAIN: z.string().url(),
 
   // S3 Upload
