@@ -12,9 +12,8 @@ export async function deleteServerSession() {
 
 export async function setServerSession(session: Session) {
   const { set: setCookie } = await cookies();
-  const { NEXT_PUBLIC_DOMAIN } = process.env;
 
-  const publicUrl = new URL(NEXT_PUBLIC_DOMAIN);
+  const publicUrl = new URL(process.env.VERCEL_URL);
   const secure = publicUrl.protocol === 'https:';
   const domain =
     publicUrl.hostname === 'localhost' || publicUrl.hostname === '127.0.0.1'
