@@ -31,8 +31,7 @@ jobs:
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ hashFiles('**/docker-compose.prod.yml', '**/Dockerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+          restore-keys: '${{ runner.os }}-buildx-'
 
       - name: Create .env.local
         run: 'touch .env.local'
@@ -76,7 +75,7 @@ jobs:
       - name: Upload Playwright Test Report
         id: upload-results
         uses: shallwefootball/s3-upload-action@<commit-sha>
-        if: always() && hashFiles('.next/__e2e__reports__') != '''
+        if: "always() && hashFiles('.next/__e2e__reports__') != ''"
         with:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
