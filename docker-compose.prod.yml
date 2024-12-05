@@ -14,7 +14,7 @@ services:
       - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
       - NEXT_TELEMETRY_DISABLED=1
       - NEXT_SHARP_PATH=/app/node_modules/sharp
-      - NEXT_PUBLIC_DOMAIN=http://localhost:3030
+      - VERCEL_URL=http://localhost:3030
       - PRISMA_HIDE_UPDATE_MESSAGE=true
       - PRISMA_BINARY_TARGETS=native,linux-arm64-openssl-3.0.x,linux-musl-openssl-3.0.x
       - TEST_ENV=e2e

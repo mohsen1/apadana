@@ -25,6 +25,8 @@ jobs:
 
       - name: Start Docker Compose
         run: |
+          # Create empty .env.local
+          touch .env.local
           docker compose -f docker-compose.prod.yml up -d
           # Wait for the application to be ready
           timeout 60s bash -c 'until curl -s http://localhost:3030/api/health; do sleep 2; done'
