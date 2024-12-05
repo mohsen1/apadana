@@ -12,11 +12,13 @@ services:
       - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
+      - NEXT_SHARP_PATH=/app/node_modules/sharp
+      - NEXT_PUBLIC_DOMAIN=http://localhost:3030
+      - NEXT_PUBLIC_API_URL=http://localhost:3030/api
       - PRISMA_HIDE_UPDATE_MESSAGE=true
       - PRISMA_BINARY_TARGETS=native,linux-arm64-openssl-3.0.x,linux-musl-openssl-3.0.x
       - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
       - STORYBOOK_TELEMETRY_DEBUG=1
-      - NEXT_SHARP_PATH=/app/node_modules/sharp
       - TEST_ENV=e2e
         # this is also added in Dockerfile.dev. maybe we can remove it from here?
       - PRISMA_OUTPUT_DIR=node_modules/.prisma/client
