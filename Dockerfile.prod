@@ -39,7 +39,6 @@ RUN pnpm exec next telemetry disable
 # Build and generate prisma
 RUN pnpm prisma:generate
 
-ENV NEXT_PUBLIC_API_URL=http://localhost:3030/api
 ENV NEXT_PUBLIC_DOMAIN=http://localhost:3030
 ENV NEXT_PUBLIC_TEST_ENV=e2e
 

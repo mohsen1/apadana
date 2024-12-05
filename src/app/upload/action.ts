@@ -33,9 +33,9 @@ const getUploadSignedUrl = actionClient
   .action(async ({ parsedInput }) => {
     const {
       TEST_ENV,
-      NEXT_PUBLIC_API_URL,
       NEXT_PUBLIC_S3_UPLOAD_REGION,
       S3_UPLOAD_KEY,
+      NEXT_PUBLIC_DOMAIN,
       S3_UPLOAD_SECRET,
     } = process.env;
 
@@ -44,7 +44,7 @@ const getUploadSignedUrl = actionClient
       const urls = parsedInput.files.map((file) => {
         const fileExtension = file.filename.split('.').pop() ?? '';
         const key = `fake_upload_${crypto.randomUUID()}.${fileExtension}`;
-        const url = `${NEXT_PUBLIC_API_URL}/fake-upload/${key}`;
+        const url = `${NEXT_PUBLIC_DOMAIN}/api/fake-upload/${key}`;
 
         return { url, key };
       });
