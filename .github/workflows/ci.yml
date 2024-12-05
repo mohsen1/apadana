@@ -28,7 +28,7 @@ jobs:
           RESEND_API_KEY: fake_RESEND_API_KEY
           GOOGLE_MAPS_API_KEY: fake_GOOGLE_MAPS_API_KEY
           NEXT_PUBLIC_DOMAIN: 'https://apadana.app'
-          VERCEL_URL: 'apadana.app'
+          VERCEL_URL: 'https://apadana.app'
           NEXT_PUBLIC_S3_UPLOAD_BUCKET: fake_NEXT_PUBLIC_S3_UPLOAD_BUCKET
           NEXT_PUBLIC_S3_UPLOAD_REGION: fake_NEXT_PUBLIC_S3_UPLOAD_REGION
           S3_UPLOAD_KEY: fake_S3_UPLOAD_KEY
@@ -82,7 +82,7 @@ jobs:
           RESEND_API_KEY: fake-RESEND_API_KEY
           GOOGLE_MAPS_API_KEY: fake-GOOGLE_MAPS_API_KEY
           NEXT_PUBLIC_DOMAIN: 'https://apadana.app'
-          VERCEL_URL: 'apadana.app'
+          VERCEL_URL: 'https://apadana.app'
           NEXT_PUBLIC_S3_UPLOAD_BUCKET: fake-S3_UPLOAD_BUCKET
           NEXT_PUBLIC_S3_UPLOAD_REGION: fake-S3_UPLOAD_REGION
           S3_UPLOAD_KEY: fake-S3_UPLOAD_KEY
