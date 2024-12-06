@@ -12,6 +12,11 @@ import { Button } from '@/components/ui/button';
 
 export async function Header({ className }: { className?: string }) {
   const isDev = process.env.NODE_ENV === 'development';
+
+  const showHeaderLinks =
+    process.env.NODE_ENV === 'development' ||
+    process.env.TEST_ENV === 'e2e' ||
+    process.env.TEST_ENV === 'unit';
   return (
     <header
       className={cn(
@@ -31,9 +36,9 @@ export async function Header({ className }: { className?: string }) {
         </Link>
       </div>
       <div className='flex ml-10 border-l border-gray-300 dark:border-gray-700 pl-4'>
-        <LoggedInHeaderLinks />
+        {showHeaderLinks && <LoggedInHeaderLinks />}
 
-        {isDev && (
+        {showHeaderLinks && (
           <>
             <Button
               href='http://localhost:5555'
@@ -63,7 +68,7 @@ export async function Header({ className }: { className?: string }) {
           </>
         )}
       </div>
-      <Nav />
+      {showHeaderLinks && <Nav />}
     </header>
   );
 }

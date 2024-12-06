@@ -16,8 +16,6 @@ services:
     env_file:
       - .env.local
     environment:
-      - DATABASE_URL=postgresql://admin:admin@db:5432/apadana
-      - NODE_OPTIONS="--max-old-space-size=8192"
       - NEXT_SHARP_PATH=/app/node_modules/sharp
     depends_on:
       db:
@@ -36,7 +34,6 @@ services:
         max-size: '10m'
         max-file: '3'
         tag: '{{.Name}}'
-    tty: true
     ulimits:
       nofile:
         soft: 65536

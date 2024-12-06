@@ -53,6 +53,24 @@ export const useFileUploader = (
   }, [fileStates]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const getUploadedUrl = (key?: string) => {
+    if (!key) return undefined;
+
+    const NEXT_PUBLIC_S3_UPLOAD_BUCKET =
+      process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET;
+    const NEXT_PUBLIC_S3_UPLOAD_REGION =
+      process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
+    const TEST_ENV = process.env.NEXT_PUBLIC_TEST_ENV;
+    const NEXT_PUBLIC_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
+
+    if (TEST_ENV === 'e2e') {
+      return `${NEXT_PUBLIC_DOMAIN}/api/fake-uploads/${key}`;
+    }
+
+    return `https://${NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.${NEXT_PUBLIC_S3_UPLOAD_REGION}.amazonaws.com/${key}`;
+  };
+
   const uploadSingleFile = useCallback(
     async (
       fileState: FileUploadState,
@@ -75,13 +93,11 @@ export const useFileUploader = (
 
           xhr.addEventListener('load', () => {
             if (xhr.status >= 200 && xhr.status < 300) {
-              const S3_UPLOAD_BUCKET = 'apadana-uploads';
-              const S3_UPLOAD_REGION = 'us-east-1';
               const updates: Partial<FileUploadState> = {
                 status: 'success',
                 progress: 100,
                 statusMessage: 'Upload complete',
-                uploadedUrl: `https://${S3_UPLOAD_BUCKET}.s3.${S3_UPLOAD_REGION}.amazonaws.com/${fileState.key}`,
+                uploadedUrl: getUploadedUrl(fileState.key),
               };
               updateFile(fileState, updates);
               resolve({

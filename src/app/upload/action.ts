@@ -31,12 +31,20 @@ const getUploadSignedUrl = actionClient
   .schema(inputSchema)
   .outputSchema(outputSchema)
   .action(async ({ parsedInput }) => {
-    if (process.env.TEST_ENV === 'e2e') {
+    const {
+      TEST_ENV,
+      NEXT_PUBLIC_S3_UPLOAD_REGION,
+      S3_UPLOAD_KEY,
+      NEXT_PUBLIC_DOMAIN,
+      S3_UPLOAD_SECRET,
+    } = process.env;
+
+    if (TEST_ENV === 'e2e') {
       // Return fake signed URLs for e2e testing
       const urls = parsedInput.files.map((file) => {
         const fileExtension = file.filename.split('.').pop() ?? '';
         const key = `fake_upload_${crypto.randomUUID()}.${fileExtension}`;
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/fake-upload/${key}`;
+        const url = `${NEXT_PUBLIC_DOMAIN}/api/fake-upload/${key}`;
 
         return { url, key };
       });
@@ -44,19 +52,12 @@ const getUploadSignedUrl = actionClient
       return { urls };
     }
 
-    if (
-      !process.env.S3_UPLOAD_REGION ||
-      !process.env.S3_UPLOAD_KEY ||
-      !process.env.S3_UPLOAD_SECRET
-    ) {
-      throw new Error('S3 upload credentials are not set');
-    }
     // Initialize S3 client
     const s3Client = new S3Client({
-      region: process.env.S3_UPLOAD_REGION,
+      region: NEXT_PUBLIC_S3_UPLOAD_REGION,
       credentials: {
-        accessKeyId: process.env.S3_UPLOAD_KEY,
-        secretAccessKey: process.env.S3_UPLOAD_SECRET,
+        accessKeyId: S3_UPLOAD_KEY,
+        secretAccessKey: S3_UPLOAD_SECRET,
       },
     });
     try {
@@ -67,7 +68,7 @@ const getUploadSignedUrl = actionClient
           const key = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}/${crypto.randomUUID()}.${fileExtension}`;
 
           const command = new PutObjectCommand({
-            Bucket: process.env.S3_UPLOAD_BUCKET,
+            Bucket: process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET,
             Key: key,
             ContentType: file.contentType,
           });

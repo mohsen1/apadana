@@ -1,5 +1,6 @@
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { validateEnvironmentVariables } from 'environment-variables';
 import { Metadata } from 'next';
 import * as React from 'react';
 
@@ -59,8 +60,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  validateEnvironmentVariables();
+
   const result = await getCurrentUser();
   const user = result?.data?.user;
+
   return (
     <AuthProvider initialUser={user}>
       <html lang='en' suppressHydrationWarning>

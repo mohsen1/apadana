@@ -4,6 +4,8 @@ import prisma from '@/lib/prisma/client';
 
 export const runtime = 'nodejs';
 
+export const dynamic = 'force-dynamic';
+
 interface E2ECommand {
   command: string;
   args?: Record<string, string>;
@@ -31,24 +33,14 @@ export async function POST(request: Request) {
 
   switch (command) {
     case 'login': {
+      const email = args.email ?? 'test@example.com';
       const testUser = await prisma.user.findFirst({
         where: {
-          emailAddresses: { some: { emailAddress: 'test@example.com' } },
+          emailAddresses: { some: { emailAddress: email } },
         },
       });
       if (!testUser) {
         return new Response('Test user not found', { status: 404 });
-      }
-
-      if (args.userId) {
-        const user = await prisma.user.findUnique({
-          where: { id: args.userId as string },
-        });
-        if (!user) {
-          return new Response('User not found with the provided ID', {
-            status: 404,
-          });
-        }
       }
 
       const session = await prisma.session.create({
@@ -58,14 +50,23 @@ export async function POST(request: Request) {
         },
       });
 
-      await setServerSession(session);
+      const cookie = await setServerSession(session);
 
-      return new Response('OK', {
-        headers: {
-          'Access-Control-Allow-Origin': request.headers.get('Origin') || '*',
-          'Access-Control-Allow-Credentials': 'true',
+      return new Response(
+        JSON.stringify({
+          success: true,
+          email: email,
+        }),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Set-Cookie': cookie.toString(),
+            'Access-Control-Allow-Credentials': 'true',
+            'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_DOMAIN,
+          },
         },
-      });
+      );
     }
     default: {
       return new Response(`Unknown command "${command}"`, { status: 400 });
@@ -79,12 +80,9 @@ export async function OPTIONS(request: Request) {
     headers: {
       'Access-Control-Allow-Origin': request.headers.get('Origin') || '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Expose-Headers': 'Set-Cookie',
+      'Access-Control-Allow-Headers': 'Content-Type, Set-Cookie',
     },
   });
-}
-
-export async function GET() {
-  return new Response('Send a POST request to this endpoint');
 }

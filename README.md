@@ -143,78 +143,77 @@ pnpm docker:clean
 
 All commands can be run using `pnpm run <command>` or just `pnpm <command>` for most commands.
 
-### Docker Commands
+### Docker Commands (Preferred)
 
 - `docker:dev` - Starts all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in Docker containers
 - `docker:down` - Stops all Docker containers
 - `docker:clean` - Stops containers and removes all volumes. Deletes the database.
 - `docker:rebuild` - Rebuilds the app container without cache and starts services
-- `docker:prune` - Removes all unused Docker resources (containers, networks, volumes). This is useful when you want to clean up your machine and start fresh.
-- `docker:prod` - Starts production Docker environment. Note that we are not using Docker Compose for production. This is for testing the production build locally.
+- `docker:prune` - Removes all unused Docker resources (containers, networks, volumes). Useful for a fresh start.
+- `docker:prod` - Starts production Docker environment locally for testing
 - `docker:prod:down` - Stops production Docker environment
 - `docker:prod:logs` - Shows logs from production Docker environment
 - `docker:prod:clean` - Stops production environment and removes volumes
+- `docker:prod:rebuild` - Rebuilds and restarts the production app container. This can be run while `docker:prod` script is running. It will save you time vs. building from scratch. Useful for e2e testing.
 
 ### Development Commands
 
 Most of these commands are used by the `docker:dev` command. You should prefer using the `docker:dev` command instead.
 
+- `dev` - Starts all development services concurrently
+- `dev:next` - Starts Next.js development server with Turbo
+- `dev:prisma` - Watches Prisma schema for changes
+- `dev:prisma:seed` - Seeds the database
+- `dev:storybook` - Starts Storybook development server
+- `dev:studio` - Starts Prisma Studio
+
 ### Database Commands
 
-Beside `migrate:dev`, you should use the `docker:*` commands to manage the database. You can delete the database and create a new one using the `docker:clean` command.
+Beside `migrate:dev`, you should use the `docker:*` commands to manage the database.
 
-- `migrate:dev` - Runs database migrations in development. If you have made changes to the schema, you can use this command to apply those changes to the database. You will be asked to name the migration.
-- `migrate:prod` - Deploys database migrations in production. Should not run this manually. Only the CI/CD pipeline will do this.
+- `migrate:dev` - Runs database migrations in development
+- `migrate:prod` - Deploys database migrations in production (CI/CD only)
 - `prisma:generate` - Generates Prisma client
-- `prisma:watch` - Watches for Prisma schema changes and regenerates client
-
-### Build & Start Commands
-
-These commands are mostly used by the Docker images. You should prefer using the `docker:*` commands instead.
-
-- `build` - Generates Prisma client and builds Next.js application. Use `docker:prod` to test the production build locally.
-- `start` - Starts the production Next.js server. Use `docker:prod` to test the production build locally.
+- `prisma:watch` - Watches for Prisma schema changes
 
 ### Testing Commands
 
-#### Unit Tests
-
-- `test` - Runs Jest tests (unit tests)
+- `test` - Runs Jest unit tests
 - `test:watch` - Runs Jest tests in watch mode
+- `e2e` - Runs Playwright E2E tests in Chromium against production environment started with `docker:prod` command
+- `e2e:dev` - Runs E2E tests against development environment
+- `e2e:ci` - Runs Playwright tests in CI environment
+- `e2e:prod` - Runs E2E tests against production environment live on [https://apadana.app](https://apadana.app)
 
-#### E2E Tests
+### Code Quality Command
 
-- `e2e` - Runs Playwright E2E tests in Chromium. Provide the `--debug` flag to launch the browser in headed mode.
-- `e2e:ci` - Runs Playwright tests in CI environment. You should not run this locally.
-- `e2e:prod` - Runs E2E tests against production environment. This runs the tests against the production website. Use with caution.
-
-### Code Quality Commands
-
+- `fix` - Runs ESLint with auto-fix and formats code
 - `lint` - Runs ESLint
-- `lint:fix` - Runs ESLint with auto-fix and formats code
-- `lint:strict` - Runs ESLint with zero warnings allowed
-- `typecheck` - Generates Prisma client and runs TypeScript type checking
+- `lint:strict` - Runs ESLint with zero warnings allowed. Used in CI/CD pipeline.
+- `typecheck` - Runs TypeScript type checking
 - `format` - Formats code using Prettier
-- `format:check` - Checks code formatting without making changes
+- `format:check` - Checks code formatting. Used in CI/CD pipeline.
 
-### Storybook Commands
+### Build & Deploy Commands
 
-- `storybook` - Starts Storybook development server
-- `build-storybook` - Builds Storybook for production
+- `build` - Generates Prisma client and builds Next.js application
+- `start` - Starts the production Next.js server
+- `postbuild` - Generates sitemap after build
 
-### Git Hooks
+### Other Commands
 
 - `prepare` - Installs Husky git hooks
+- `storybook` - Starts Storybook development server
+- `build-storybook` - Builds Storybook for production
 
 ## Technology Stack Overview
 
 This project is built on top of [Next.js](https://nextjs.org/) and is using [Next.js App Router](https://nextjs.org/docs/app).
-The backend is using [PostgreSQL](https://www.postgresql.org/) and [Prisma](https://www.prisma.io/). To perform database operations, Prisma Client is used inside of [Next.js App Router Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations). Locally we use Docker to run the database and Prisma Studio to view the database. Authentication is implemented using using [Oslo](https://oslo.js.org) For storing media files, [UploadThing](https://uploadthing.com/) is used.
+The backend is using [PostgreSQL](https://www.postgresql.org/) and [Prisma](https://www.prisma.io/). To perform database operations, Prisma Client is used inside of [Next.js App Router Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations). Locally we use Docker to run the database and Prisma Studio to view the database. Authentication is implemented using using [Oslo](https://oslo.js.org). We use AWS S3 for media storage.
 
 ### Important Files and Folders
 
 - `prisma/schema.prisma`: This file contains the schema for the database.
 - `src/app/layout.tsx`: This file contains the main layout for the app.
-- `src/app/api/uploadthing/core.ts`: This file contains the core logic for handling file uploads using UploadThing.
 - `src/lib/prisma/client.ts`: This file contains the Prisma Client instance.
 - `src/middleware.ts`: This file contains the main [Next.js middleware](https://nextjs.org/docs/app/building-your-application/routing/middleware) for the app.

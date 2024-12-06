@@ -31,6 +31,7 @@ COPY . .
 RUN pnpm exec next telemetry disable
 
 # Build the application
+ENV PRISMA_OUTPUT_DIR node_modules/.prisma/client
 ENV NODE_ENV production
 RUN pnpm prisma:generate
 

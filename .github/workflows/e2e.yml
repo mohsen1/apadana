@@ -1,11 +1,12 @@
-name: Playwright
+name: Playwright E2E Tests
 
 on:
-  push:
-    branches:
-      - main
-      # TODO: remove
-      - file-uploadeer
+  workflow_run:
+    workflows:
+      - CI
+      - Deployment
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -17,43 +18,139 @@ jobs:
   run-e2es:
     name: Run E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - name: Check if CI and Deployment workflows have succeeded
+        id: check-workflows
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { github, context } = require('@actions/github');
+            const { setFailed, setOutput } = require('@actions/core');
+
+            try {
+              const sha = context.payload.workflow_run.head_sha;
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
+
+              // Fetch the CI workflow runs for this commit
+              const ciWorkflows = await github.rest.actions.listWorkflowRunsForRepo({
+                owner,
+                repo,
+                workflow_id: 'CI',
+                head_sha: sha
+              });
+
+              const ciWorkflowRun = ciWorkflows.data.workflow_runs.find(run => run.head_sha === sha);
+
+              if (!ciWorkflowRun || ciWorkflowRun.conclusion !== 'success') {
+                throw new Error('CI workflow has not succeeded.');
+              }
+
+              // Fetch the Deployment workflow runs for this commit
+              const deploymentWorkflows = await github.rest.actions.listWorkflowRunsForRepo({
+                owner,
+                repo,
+                workflow_id: 'Deployment',
+                head_sha: sha
+              });
+
+              const deploymentWorkflowRun = deploymentWorkflows.data.workflow_runs.find(run => run.head_sha === sha);
+
+              if (!deploymentWorkflowRun || deploymentWorkflowRun.conclusion !== 'success') {
+                throw new Error('Deployment workflow has not succeeded.');
+              }
+
+              core.setOutput('ci_status', ciWorkflowRun.conclusion);
+              core.setOutput('deployment_status', deploymentWorkflowRun.conclusion);
+            } catch (error) {
+              setFailed(error.message);
+            }
+
+      - name: Checkout repository
+        if: steps.check-workflows.outcome == 'success'
+        uses: actions/checkout@v4
+
       - name: Setup
+        if: steps.check-workflows.outcome == 'success'
         uses: ./.github/actions/setup
 
-      - name: Start Docker Compose
-        uses: docker/setup-buildx-action@v3
-        with:
-          compose-file: docker-compose.prod.yml
-
       - name: Install Playwright Browsers
-        run: pnpm exec playwright install  --with-deps
+        if: steps.check-workflows.outcome == 'success'
+        run: pnpm exec playwright install --with-deps
 
-      - name: Run tests
+      - name: Get Deployment URL
+        if: steps.check-workflows.outcome == 'success'
+        id: get-deployment-url
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { context, github } = require('@actions/github');
+            const { setFailed, setOutput } = require('@actions/core');
+
+            try {
+              const sha = context.payload.workflow_run.head_sha;
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
+
+              // Get the deployments for the commit SHA
+              const { data: deployments } = await github.rest.repos.listDeployments({
+                owner,
+                repo,
+                sha: sha,
+              });
+
+              if (deployments.length === 0) {
+                throw new Error('No deployments found for the current SHA.');
+              }
+
+              const deploymentId = deployments[0].id;
+
+              // Get the deployment statuses
+              const { data: statuses } = await github.rest.repos.listDeploymentStatuses({
+                owner,
+                repo,
+                deployment_id: deploymentId,
+              });
+
+              if (statuses.length === 0) {
+                throw new Error('No deployment statuses found for the deployment.');
+              }
+
+              const environmentUrl = statuses[0].environment_url;
+
+              if (!environmentUrl) {
+                throw new Error('No environment URL found in the deployment status.');
+              }
+
+              setOutput('environment_url', environmentUrl);
+            } catch (error) {
+              setFailed(error.message);
+            }
+
+      - name: Run E2E Tests
+        if: steps.check-workflows.outcome == 'success'
         id: test-run
         run: pnpm run e2e:ci
         env:
-          BASE_URL: http://localhost:3030
+          BASE_URL: ${{ steps.get-deployment-url.outputs.environment_url }}
 
       - name: Upload Playwright Test Report
+        if: always()
         id: upload-results
         uses: shallwefootball/s3-upload-action@master
-        if: always()
         with:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_bucket: apadana-e2e
           source_dir: .next/__e2e__reports__
-          destination_dir: ${{ github.event.pull_request.head.sha || github.sha }}
+          destination_dir: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-      - name: Write Comment
+      - name: Write GitHub Check
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
-            const { sha } = context.payload.deployment;
+            const sha = context.payload.workflow_run.head_sha;
             const testRunOutcome = '${{ steps.test-run.outcome }}';
             const conclusion = testRunOutcome === 'success' ? 'success' : 'failure';
             const reportUrl = `https://apadana-e2e.s3.amazonaws.com/${sha}/index.html`;
@@ -61,16 +158,15 @@ jobs:
             await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              name: 'Playwright Report',
+              name: 'Playwright E2E Tests',
               head_sha: sha,
               status: 'completed',
               conclusion: conclusion,
               details_url: reportUrl,
               output: {
-                title: 'Playwright Test Report',
-                summary: `[**View the Playwright test report**](${reportUrl})`,
-                text: `# The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}.` +
-                  `\n\nClick [here](${reportUrl}) to view the detailed report.`
+                title: 'Playwright E2E Test Report',
+                summary: `[**View the Playwright E2E test report**](${reportUrl})`,
+                text: `# The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}.\n\nClick [here](${reportUrl}) to view the detailed report.`
               }
             });
 

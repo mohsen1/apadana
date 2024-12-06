@@ -28,7 +28,7 @@ export function Nav() {
   return (
     <nav className='ml-auto flex gap-4 sm:gap-6'>
       {/* Hiding sign in button until launch */}
-      {!user && process.env.NODE_ENV === 'development' && <SignInButton />}
+      {!user && <SignInButton />}
       {user && <UserButton user={user} />}
     </nav>
   );
