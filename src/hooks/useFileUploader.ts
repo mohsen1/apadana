@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 
 import { getUploadSignedUrl } from '@/app/upload/action';
 import { assertError } from '@/utils';
+import { isDevOrTestEnv } from '@/utils/environment';
 
 export interface FileUploadState {
   /**
@@ -61,11 +62,10 @@ export const useFileUploader = (
       process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET;
     const NEXT_PUBLIC_S3_UPLOAD_REGION =
       process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
-    const NEXT_PUBLIC_TEST_ENV = process.env.NEXT_PUBLIC_NEXT_PUBLIC_TEST_ENV;
     const NEXT_PUBLIC_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
 
-    if (NEXT_PUBLIC_TEST_ENV === 'e2e') {
-      return `${NEXT_PUBLIC_DOMAIN}/api/fake-uploads/${key}`;
+    if (isDevOrTestEnv) {
+      return `http://${NEXT_PUBLIC_DOMAIN}/api/fake-upload/${key}`;
     }
 
     return `https://${NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.${NEXT_PUBLIC_S3_UPLOAD_REGION}.amazonaws.com/${key}`;

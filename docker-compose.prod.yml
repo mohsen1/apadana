@@ -22,6 +22,11 @@ services:
     depends_on:
       db_prod:
         condition: service_healthy
+    command:
+      - 'sh'
+      - '-c'
+      - 'pnpm migrate:prod && pnpm dev:prisma:seed && pnpm build && pnpm start'
+
     deploy:
       resources:
         limits:

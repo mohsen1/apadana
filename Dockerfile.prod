@@ -38,4 +38,3 @@ RUN pnpm prisma:generate
 
 # Expose port and start the application
 EXPOSE 3030
-CMD ["sh", "-c", "pnpm migrate:prod && pnpm dev:prisma:seed && pnpm build && pnpm start"]

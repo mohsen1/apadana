@@ -2,22 +2,21 @@ import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 
+import { isDevOrTestEnv } from '@/utils/environment';
 import logger from '@/utils/logger';
 
 export const runtime = 'nodejs';
 
 export async function GET(
-  _request: NextRequest,
-  { params }: { params: { path: string[] } },
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> },
 ) {
-  if (
-    process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' &&
-    process.env.NODE_ENV !== 'development'
-  ) {
+  if (!isDevOrTestEnv) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
-  const filePath = params.path.join('/');
+  const { path: pathParam } = await params;
+  const filePath = pathParam.join('/');
   const fullPath = path.join(process.cwd(), 'e2e', 'uploads', filePath);
 
   if (!fs.existsSync(fullPath)) {
@@ -26,46 +25,50 @@ export async function GET(
 
   const fileContent = fs.readFileSync(fullPath);
 
-  return new NextResponse(fileContent, {
+  const response = new NextResponse(fileContent, {
     status: 200,
-    headers: {
-      'Content-Type': 'application/octet-stream',
-    },
   });
+
+  return response;
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { path: string[] } },
+  { params }: { params: Promise<{ path: string[] }> },
 ) {
-  // Only allow in test environment
-  if (
-    process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' &&
-    process.env.NODE_ENV !== 'development'
-  ) {
+  if (!isDevOrTestEnv) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
   try {
-    // Reconstruct the file path from the URL segments
-    const filePath = params.path.join('/');
-
-    // Create the uploads directory in the e2e test folder if it doesn't exist
+    const { path: pathParam } = await params;
+    const filePath = pathParam.join('/');
     const uploadDir = path.join(process.cwd(), 'e2e', 'uploads');
     const fullPath = path.join(uploadDir, filePath);
 
-    // Ensure the directory exists
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
 
-    // Get the file content from the request
     const fileContent = await request.arrayBuffer();
 
-    // Write the file
     fs.writeFileSync(fullPath, Buffer.from(fileContent));
 
-    return new NextResponse(null, { status: 200 });
+    return new NextResponse(null, {
+      status: 200,
+    });
   } catch (error) {
     logger.error('Error handling fake upload:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
+}
+
+export async function OPTIONS(_request: NextRequest) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
 }

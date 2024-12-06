@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { actionClient } from '@/lib/safe-action';
 
+import { isDevOrTestEnv } from '@/utils/environment';
 import logger from '@/utils/logger';
 
 const inputSchema = z.object({
@@ -32,19 +33,18 @@ const getUploadSignedUrl = actionClient
   .outputSchema(outputSchema)
   .action(async ({ parsedInput }) => {
     const {
-      NEXT_PUBLIC_TEST_ENV,
       NEXT_PUBLIC_S3_UPLOAD_REGION,
       S3_UPLOAD_KEY,
       NEXT_PUBLIC_DOMAIN,
       S3_UPLOAD_SECRET,
     } = process.env;
 
-    if (NEXT_PUBLIC_TEST_ENV === 'e2e') {
+    if (isDevOrTestEnv) {
       // Return fake signed URLs for e2e testing
       const urls = parsedInput.files.map((file) => {
         const fileExtension = file.filename.split('.').pop() ?? '';
         const key = `fake_upload_${crypto.randomUUID()}.${fileExtension}`;
-        const url = `${NEXT_PUBLIC_DOMAIN}/api/fake-upload/${key}`;
+        const url = `http://${NEXT_PUBLIC_DOMAIN}/api/fake-upload/${key}`;
 
         return { url, key };
       });
