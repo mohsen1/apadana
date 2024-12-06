@@ -165,7 +165,7 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
                   <Label htmlFor='datePrice' className='text-lg'>
                     Set the price for{' '}
                     <div>
-                      <span className='font-bold'>
+                      <span className='font-bold' suppressHydrationWarning>
                         {range?.start
                           ?.toDate(listingData.timeZone)
                           .toLocaleDateString(getLocale(), {

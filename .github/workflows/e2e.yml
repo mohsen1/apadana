@@ -83,27 +83,9 @@ jobs:
           source_dir: .next/__e2e__reports__
           destination_dir: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-      - name: Write GitHub Check
-        uses: actions/github-script@v7
+      - name: Set details link
         if: always()
+        uses: actions/github-script@v7
         with:
           script: |
-            const sha = context.sha;
-            const testRunOutcome = '${{ steps.test-run.outcome }}';
-            const conclusion = testRunOutcome === 'success' ? 'success' : 'failure';
-            const reportUrl = `https://apadana-e2e.s3.amazonaws.com/${sha}/index.html`;
-
-            await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Results',
-              head_sha: sha,
-              status: 'completed',
-              conclusion,
-              details_url: reportUrl,
-              output: {
-                title: 'Playwright E2E Test Report',
-                summary: `[**View the Playwright E2E test report**](${reportUrl})`,
-                text: `# The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}.\n\nClick [here](${reportUrl}) to view the detailed report.`
-              }
-            });
+            core.setOutput('details_link', ${{ steps.upload-results.outputs.destination_url }});
