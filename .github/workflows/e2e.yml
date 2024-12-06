@@ -23,48 +23,28 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            try {
-              // Fetch the CI workflow runs for this commit
-              const ciWorkflows = await github.rest.actions.listWorkflowRunsForRepo({
-                owner,
-                repo,
-                per_page: 100,
-                event: 'push',
-                status: 'completed',
-                branch: context.ref.replace('refs/heads/', '')
-              });
+            // Check CI workflow
+            const ciWorkflows = await github.rest.actions.listWorkflowRunsForWorkflow({
+              owner,
+              repo,
+              workflow_id: 'ci.yml', 
+              head_sha: sha
+            });
+            const ciWorkflowRun = ciWorkflows.data.workflow_runs.find(run => run.conclusion === 'success');
+            if (!ciWorkflowRun) throw new Error('CI workflow not successful for this SHA.');
 
-              const ciWorkflowRun = ciWorkflows.data.workflow_runs.find(run => 
-                run.head_sha === sha && run.name === 'CI'
-              );
+            // Check Deployment workflow
+            const deploymentWorkflows = await github.rest.actions.listWorkflowRunsForWorkflow({
+              owner,
+              repo,
+              workflow_id: 'deployment.yml', 
+              head_sha: sha
+            });
+            const deploymentWorkflowRun = deploymentWorkflows.data.workflow_runs.find(run => run.conclusion === 'success');
+            if (!deploymentWorkflowRun) throw new Error('Deployment workflow not successful for this SHA.');
 
-              if (!ciWorkflowRun || ciWorkflowRun.conclusion !== 'success') {
-                throw new Error('CI workflow has not succeeded.');
-              }
-
-              // Fetch the Deployment workflow runs for this commit
-              const deploymentWorkflows = await github.rest.actions.listWorkflowRunsForRepo({
-                owner,
-                repo,
-                per_page: 100,
-                event: 'deployment',
-                status: 'completed',
-                branch: context.ref.replace('refs/heads/', '')
-              });
-
-              const deploymentWorkflowRun = deploymentWorkflows.data.workflow_runs.find(run => 
-                run.head_sha === sha && run.name === 'Deployment'
-              );
-
-              if (!deploymentWorkflowRun || deploymentWorkflowRun.conclusion !== 'success') {
-                throw new Error('Deployment workflow has not succeeded.');
-              }
-
-              core.setOutput('ci_status', ciWorkflowRun.conclusion);
-              core.setOutput('deployment_status', deploymentWorkflowRun.conclusion);
-            } catch (error) {
-              core.setFailed(error.message);
-            }
+            core.setOutput('ci_status', ciWorkflowRun.conclusion);
+            core.setOutput('deployment_status', deploymentWorkflowRun.conclusion);
 
       - name: Checkout repository
         if: steps.check-workflows.outcome == 'success'
