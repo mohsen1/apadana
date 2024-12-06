@@ -174,15 +174,5 @@
   },
   "prisma": {
     "seed": "tsx --env-file .env.local prisma/seed.ts"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1"
-    },
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/lib/test/setup-tests.ts"
-    ]
   }
 }
