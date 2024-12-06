@@ -18,6 +18,11 @@ export class UnauthorizedError extends Error {
   name = 'UnauthorizedError';
 }
 
+export type ActionResponse<T> = {
+  success: boolean;
+  error?: string;
+} & T;
+
 const baseClient = createSafeActionClient({
   handleServerError: (error) => {
     if (process.env.NODE_ENV === 'development') {

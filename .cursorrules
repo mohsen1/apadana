@@ -8,6 +8,7 @@ General Rules:
 - Utility functions are in `src/utils`.
 - Non-route handler code is in `src/lib`.
 - Use `pnpm` as the package manager.
+- We use Jest for unit testing.
 
 Typescript Rules:
 

@@ -45,7 +45,8 @@
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "prepare": "husky install",
     "storybook": "storybook dev -p 6006 --quiet",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.705.0",
@@ -113,6 +114,7 @@
   "devDependencies": {
     "@actions/core": "^1.10.1",
     "@chromatic-com/storybook": "^1.9.0",
+    "@jest/globals": "^29.7.0",
     "@playwright/test": "^1.47.0",
     "@storybook/addon-essentials": "^8.2.9",
     "@storybook/addon-interactions": "^8.2.9",
@@ -123,6 +125,7 @@
     "@storybook/react": "^8.2.9",
     "@storybook/test": "^8.2.9",
     "@svgr/webpack": "^8.1.0",
+    "@swc/jest": "^0.2.37",
     "@tailwindcss/forms": "^0.5.9",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.0",
