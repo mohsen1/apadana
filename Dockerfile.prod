@@ -33,6 +33,7 @@ RUN pnpm exec next telemetry disable
 # Build the application
 ENV PRISMA_OUTPUT_DIR node_modules/.prisma/client
 ENV NODE_ENV production
+ENV NEXT_PUBLIC_DOMAIN localhost:3030
 RUN pnpm prisma:generate
 
 # Expose port and start the application
