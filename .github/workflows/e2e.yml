@@ -24,9 +24,6 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { github, context } = require('@actions/github');
-            const { setFailed, setOutput } = require('@actions/core');
-
             try {
               const sha = context.payload.workflow_run.head_sha;
               const owner = context.repo.owner;
@@ -131,11 +128,12 @@ jobs:
         if: steps.check-workflows.outcome == 'success'
         id: test-run
         run: pnpm run e2e:ci
+        continue-on-error: true
         env:
           BASE_URL: ${{ steps.get-deployment-url.outputs.environment_url }}
 
       - name: Upload Playwright Test Report
-        if: always()
+        if: steps.check-workflows.outcome == 'success'
         id: upload-results
         uses: shallwefootball/s3-upload-action@master
         with:
@@ -146,7 +144,7 @@ jobs:
           destination_dir: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Write GitHub Check
-        if: always()
+        if: steps.check-workflows.outcome == 'success'
         uses: actions/github-script@v7
         with:
           script: |
@@ -169,7 +167,3 @@ jobs:
                 text: `# The Playwright E2E tests have ${conclusion === 'success' ? 'passed' : 'failed'}.\n\nClick [here](${reportUrl}) to view the detailed report.`
               }
             });
-
-      - name: Stop Docker Compose
-        if: always()
-        run: docker compose -f docker-compose.prod.yml down
