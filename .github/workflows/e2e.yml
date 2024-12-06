@@ -55,6 +55,8 @@ jobs:
 
       - name: Wait for Service
         run: |
+          echo "Waiting for service to be ready..."
+          curl -v http://localhost:3000/api/health
           # Wait for the application to be ready
           timeout 120s bash -c 'until curl -s http://localhost:3030/api/health; do sleep 2; done'
 
