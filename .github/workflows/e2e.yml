@@ -1,4 +1,4 @@
-name: Playwright E2E Tests
+name: E2E
 
 on:
   deployment_status:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   run-e2es:
-    name: Run E2E Tests
+    name: Playwright
     runs-on: ubuntu-latest
     steps:
       - name: Check if Deployment is successful
