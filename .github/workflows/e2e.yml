@@ -19,6 +19,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const util = require('utils');
+            console.log(util.inspect(context.payload, false, null, true /* enable colors */));
 
             try {
               const sha = context.payload.deployment.sha;
