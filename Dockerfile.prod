@@ -2,9 +2,6 @@
 FROM node:22.11.0-slim 
 
 
-# Expose port and start the application
-EXPOSE 3030
-
 RUN apt-get update && apt-get install -y \
   python3 \
   make \
@@ -20,28 +17,24 @@ RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 RUN pnpm config set update-notifier false
 # node deprecation warnings off
 RUN pnpm config set node-deprecation-warnings false
+# Turn off Node.js warnings
+ENV NODE_OPTIONS=--no-warnings
 
 # Copy and install dependencies
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts --ignore-scripts 
 
 # Copy source code
 COPY . .
 
-# create an empty .env.local file because many package.json scripts expect it to exist
-RUN touch .env.local
-
 # Disable Next.js telemetry
 RUN pnpm exec next telemetry disable
 
-# ensure NEXT_PUBLIC_DOMAIN is defined
-
-# Build and generate prisma
+# Build the application
+ENV PRISMA_OUTPUT_DIR node_modules/.prisma/client
+ENV NODE_ENV production
 RUN pnpm prisma:generate
 
-ENV NEXT_PUBLIC_DOMAIN=http://localhost:3030
-ENV NEXT_PUBLIC_TEST_ENV=e2e
-
-# We need to build in the CMD because the build process needs the database to be ready
-# so it can generate static pages
-CMD sh -c "pnpm prisma:migrate:deploy && pnpm dev:prisma:seed && pnpm build && pnpm start"
+# Expose port and start the application
+EXPOSE 3030
+CMD ["sh", "-c", "pnpm migrate:prod && pnpm dev:prisma:seed && pnpm build && pnpm start"]
