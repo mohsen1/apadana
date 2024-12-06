@@ -1,14 +1,27 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { describe, expect, it, vi } from 'vitest';
 
 import HomePage from '@/app/page';
 
-jest.mock('@/app/action', () => ({
-  earlyAccessSignup: jest.fn(),
+vi.mock('@/app/action', () => ({
+  earlyAccessSignup: vi.fn(),
 }));
 
-jest.mock('uvcanvas', () => ({
+vi.mock('uvcanvas', () => ({
   Novatrix: () => <div>Novatrix</div>,
+}));
+
+// Mock useRouter
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  useSearchParams: () => ({
+    get: vi.fn(),
+  }),
+  usePathname: () => '',
 }));
 
 describe('Homepage', () => {
