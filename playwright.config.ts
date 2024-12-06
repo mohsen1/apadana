@@ -16,7 +16,7 @@ dotenv.config();
  */
 
 const port = process.env.PORT || '3030';
-const localUrl = `http://127.0.0.1:${port}`;
+const localUrl = `http://localhost:${port}`;
 const baseURL = process.env.BASE_URL || localUrl;
 
 /**

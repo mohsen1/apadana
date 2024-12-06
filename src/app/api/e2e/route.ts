@@ -17,7 +17,7 @@ interface E2ECommand {
  */
 export async function POST(request: Request) {
   if (
-    process.env.TEST_ENV !== 'e2e' &&
+    process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' &&
     process.env.NODE_ENV !== 'development'
   ) {
     return new Response('Not allowed', { status: 403 });

@@ -15,8 +15,8 @@ export async function Header({ className }: { className?: string }) {
 
   const showHeaderLinks =
     process.env.NODE_ENV === 'development' ||
-    process.env.TEST_ENV === 'e2e' ||
-    process.env.TEST_ENV === 'unit';
+    process.env.NEXT_PUBLIC_TEST_ENV === 'e2e' ||
+    process.env.NEXT_PUBLIC_TEST_ENV === 'unit';
   return (
     <header
       className={cn(
