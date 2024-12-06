@@ -85,18 +85,9 @@ jobs:
         with:
           script: |
             try {
-              // Use deployment_status context instead of workflow_run
               const sha = context.payload.deployment.sha;
-              const owner = context.repo.owner;
-              const repo = context.repo.repo;
-
-              // Get the environment URL directly from the deployment status
-              const environmentUrl = context.payload.deployment_status.environment_url;
-
-              if (!environmentUrl) {
-                throw new Error('No environment URL found in the deployment status.');
-              }
-
+              const environmentUrl = context.payload.deployment_status.environment_url || context.payload.deployment_status.target_url;
+              if (!environmentUrl) throw new Error('No environment URL found.');
               core.setOutput('environment_url', environmentUrl);
             } catch (error) {
               core.setFailed(error.message);
@@ -120,13 +111,12 @@ jobs:
           aws_bucket: apadana-e2e
           source_dir: .next/__e2e__reports__
           destination_dir: ${{ github.event.workflow_run.head_sha || github.sha }}
-
       - name: Write GitHub Check
         if: steps.check-workflows.outcome == 'success'
         uses: actions/github-script@v7
         with:
           script: |
-            const sha = context.payload.workflow_run.head_sha;
+            const sha = context.payload.deployment.sha;
             const testRunOutcome = '${{ steps.test-run.outcome }}';
             const conclusion = testRunOutcome === 'success' ? 'success' : 'failure';
             const reportUrl = `https://apadana-e2e.s3.amazonaws.com/${sha}/index.html`;
@@ -137,7 +127,7 @@ jobs:
               name: 'Playwright E2E Tests',
               head_sha: sha,
               status: 'completed',
-              conclusion: conclusion,
+              conclusion,
               details_url: reportUrl,
               output: {
                 title: 'Playwright E2E Test Report',
