@@ -86,7 +86,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const sha = context.payload.deployment.sha;
+            const sha = context.sha;
             const testRunOutcome = '${{ steps.test-run.outcome }}';
             const conclusion = testRunOutcome === 'success' ? 'success' : 'failure';
             const reportUrl = `https://apadana-e2e.s3.amazonaws.com/${sha}/index.html`;
@@ -94,7 +94,7 @@ jobs:
             await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              name: 'Playwright E2E Tests',
+              name: 'Results',
               head_sha: sha,
               status: 'completed',
               conclusion,
