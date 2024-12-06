@@ -19,22 +19,24 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            console.log('payload', context.payload);
+            const sha = context.payload.deployment.sha;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
 
             try {
-              const sha = context.payload.deployment.sha;
-              const owner = context.repo.owner;
-              const repo = context.repo.repo;
-
               // Fetch the CI workflow runs for this commit
               const ciWorkflows = await github.rest.actions.listWorkflowRunsForRepo({
                 owner,
                 repo,
-                workflow_id: 'CI',
-                head_sha: sha
+                per_page: 100,
+                event: 'push',
+                status: 'completed',
+                branch: context.ref.replace('refs/heads/', '')
               });
 
-              const ciWorkflowRun = ciWorkflows.data.workflow_runs.find(run => run.head_sha === sha);
+              const ciWorkflowRun = ciWorkflows.data.workflow_runs.find(run => 
+                run.head_sha === sha && run.name === 'CI'
+              );
 
               if (!ciWorkflowRun || ciWorkflowRun.conclusion !== 'success') {
                 throw new Error('CI workflow has not succeeded.');
@@ -44,11 +46,15 @@ jobs:
               const deploymentWorkflows = await github.rest.actions.listWorkflowRunsForRepo({
                 owner,
                 repo,
-                workflow_id: 'Deployment',
-                head_sha: sha
+                per_page: 100,
+                event: 'deployment',
+                status: 'completed',
+                branch: context.ref.replace('refs/heads/', '')
               });
 
-              const deploymentWorkflowRun = deploymentWorkflows.data.workflow_runs.find(run => run.head_sha === sha);
+              const deploymentWorkflowRun = deploymentWorkflows.data.workflow_runs.find(run => 
+                run.head_sha === sha && run.name === 'Deployment'
+              );
 
               if (!deploymentWorkflowRun || deploymentWorkflowRun.conclusion !== 'success') {
                 throw new Error('Deployment workflow has not succeeded.');
