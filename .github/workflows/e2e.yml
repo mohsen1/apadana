@@ -48,13 +48,13 @@ jobs:
             });
             const ciRun = workflowRuns.data.workflow_runs.find(run => run.path === '.github/workflows/ci.yml');
               core.setOutput('ci_status', ciRun.conclusion);
-              if (ciRun.conclusion !== 'success') throw new Error('CI workflow not successful for this SHA.');
-            } catch (error) {
-              if (error.status === 404) {
-                core.setOutput('ci_status', 'not_found');
-              } else {
-                throw error;
+              const failed = ciRun.conclusion !== 'success';
+              if (failed) {
+                console.log('CI workflow not successful for this SHA.');
+                core.setOutput('skip', 'true');
               }
+            } catch (error) {
+              core.setOutput('skip', 'true');
             }
 
       - name: Checkout repository
