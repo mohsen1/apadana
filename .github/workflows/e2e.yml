@@ -1,12 +1,7 @@
 name: Playwright E2E Tests
 
 on:
-  workflow_run:
-    workflows:
-      - CI
-      - Deployment
-    types:
-      - completed
+  deployment_status:
 
 permissions:
   contents: read
