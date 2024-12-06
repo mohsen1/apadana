@@ -21,7 +21,7 @@ jobs:
           script: |
 
             try {
-              const sha = context.payload.workflow_run.head_sha;
+              const sha = context.payload.deployment.sha;
               const owner = context.repo.owner;
               const repo = context.repo.repo;
 
