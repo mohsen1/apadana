@@ -8,6 +8,8 @@ permissions:
   pull-requests: write
   actions: read
   checks: write
+  deployments: read
+  statuses: read
 
 jobs:
   run-e2es:
