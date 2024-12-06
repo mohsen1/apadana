@@ -22,5 +22,5 @@ test('get early access button', async ({ page }) => {
   );
 
   await page.pause();
-  await expect(page.getByText("You're on the list!")).toBeVisible();
+  await expect(page.getByText("You're on the list!").first()).toBeVisible();
 });

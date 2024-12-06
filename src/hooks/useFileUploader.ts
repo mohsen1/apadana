@@ -61,10 +61,10 @@ export const useFileUploader = (
       process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET;
     const NEXT_PUBLIC_S3_UPLOAD_REGION =
       process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
-    const TEST_ENV = process.env.NEXT_PUBLIC_TEST_ENV;
+    const NEXT_PUBLIC_TEST_ENV = process.env.NEXT_PUBLIC_NEXT_PUBLIC_TEST_ENV;
     const NEXT_PUBLIC_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
 
-    if (TEST_ENV === 'e2e') {
+    if (NEXT_PUBLIC_TEST_ENV === 'e2e') {
       return `${NEXT_PUBLIC_DOMAIN}/api/fake-uploads/${key}`;
     }
 

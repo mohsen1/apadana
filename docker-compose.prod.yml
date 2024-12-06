@@ -17,7 +17,7 @@ services:
       - NEXT_SHARP_PATH=/app/node_modules/sharp
       - PRISMA_HIDE_UPDATE_MESSAGE=true
       - PRISMA_BINARY_TARGETS=native,linux-arm64-openssl-3.0.x,linux-musl-openssl-3.0.x
-      - TEST_ENV=e2e
+      - NEXT_PUBLIC_TEST_ENV=e2e
       - VERCEL_URL=localhost:3030
     depends_on:
       db_prod:

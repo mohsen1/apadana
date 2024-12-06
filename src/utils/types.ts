@@ -7,7 +7,7 @@ export interface RangeValue<T> {
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      TEST_ENV?: 'unit' | 'e2e';
+      NEXT_PUBLIC_TEST_ENV?: 'unit' | 'e2e';
     }
   }
 }

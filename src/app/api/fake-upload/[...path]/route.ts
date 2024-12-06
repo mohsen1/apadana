@@ -11,7 +11,7 @@ export async function GET(
   { params }: { params: { path: string[] } },
 ) {
   if (
-    process.env.TEST_ENV !== 'e2e' &&
+    process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' &&
     process.env.NODE_ENV !== 'development'
   ) {
     return new NextResponse('Forbidden', { status: 403 });
@@ -40,7 +40,7 @@ export async function PUT(
 ) {
   // Only allow in test environment
   if (
-    process.env.TEST_ENV !== 'e2e' &&
+    process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' &&
     process.env.NODE_ENV !== 'development'
   ) {
     return new NextResponse('Forbidden', { status: 403 });

@@ -23,7 +23,7 @@ const schema = z.object({
   RESEND_API_KEY: z.string(),
 
   // Testing
-  TEST_ENV: z.enum(['e2e', 'local']).optional(),
+  NEXT_PUBLIC_TEST_ENV: z.enum(['e2e', 'local']).optional(),
 });
 
 /**
