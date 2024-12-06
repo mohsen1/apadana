@@ -110,12 +110,7 @@ test.describe.serial('Create and delete a Listing', () => {
       await page
         .getByLabel('House rules')
         .fill('No smoking is allowed. No pets.');
-      await page.getByRole('button', { name: 'Submit Listing' }).click({
-        force: true,
-      });
-      await page.getByRole('button', { name: 'Submit Listing' }).click({
-        force: true,
-      });
+      await page.getByRole('button', { name: 'Submit Listing' }).click();
       await page.waitForURL(
         /\/listing\/\d+\/manage\/calendar\?newListing=true/,
         {
