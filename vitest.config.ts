@@ -21,6 +21,12 @@ export default defineConfig({
       ['**/*.test.tsx', 'jsdom'],
       ['**/*.test.ts', 'node'],
     ],
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: true,
+      },
+    },
   },
   resolve: {
     alias: {
