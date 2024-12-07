@@ -1,16 +1,18 @@
 // tests/getBookings.test.ts
 
+import { afterEach } from 'node:test';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import prisma from '@/lib/prisma/client';
 
 import { findOrCreateTestUser } from '@/__tests__/setup/fixtures';
+import { clearDatabase } from '@/__tests__/setup/test-container';
 
 import { getBookings } from '../action';
 
 vi.mock('@/lib/safe-action');
 
-describe('getBookings action', () => {
+describe('getBookings action', async () => {
   let userId: string | null;
   let otherUserId: string;
   let listingId: number;
@@ -133,15 +135,9 @@ describe('getBookings action', () => {
     });
   });
 
-  // afterAll(async () => {
-  //   // Clean up
-  //   await prisma.booking.deleteMany({});
-  //   await prisma.bookingRequest.deleteMany({});
-  //   await prisma.listingInventory.deleteMany({});
-  //   await prisma.listing.deleteMany({});
-  //   await prisma.user.deleteMany({});
-  //   await prisma.$disconnect();
-  // });
+  afterEach(async () => {
+    await clearDatabase();
+  });
 
   test('fails if listing does not exist or user does not own it', async () => {
     const result = await getBookings({ listingId: 9999999 });

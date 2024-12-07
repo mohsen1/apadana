@@ -1,8 +1,6 @@
 import { afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
 
-import { clearDatabase } from './test-container';
-
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -36,7 +34,6 @@ vi.mock('next/headers', () => ({
   }),
 }));
 
-afterEach(async () => {
-  await clearDatabase();
+afterEach(() => {
   vi.clearAllMocks();
 });
