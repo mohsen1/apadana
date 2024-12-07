@@ -77,20 +77,29 @@ jobs:
     name: Run jest
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: apadana_test_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
       - name: Setup
         uses: ./.github/actions/setup
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
       - run: pnpm run test
         env:
-          DATABASE_URL: 'postgresql://fake:fake@fake:5432/fake'
-          RESEND_API_KEY: fake-RESEND_API_KEY
-          GOOGLE_MAPS_API_KEY: fake-GOOGLE_MAPS_API_KEY
-          NEXT_PUBLIC_DOMAIN: 'https://apadana.app'
-          VERCEL_URL: 'apadana.app'
-          NEXT_PUBLIC_S3_UPLOAD_BUCKET: fake-S3_UPLOAD_BUCKET
-          NEXT_PUBLIC_S3_UPLOAD_REGION: fake-S3_UPLOAD_REGION
-          S3_UPLOAD_KEY: fake-S3_UPLOAD_KEY
-          S3_UPLOAD_SECRET: fake-S3_UPLOAD_SECRET
+          DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/apadana_test_ci'
           TEST_ENV: 'unit'
