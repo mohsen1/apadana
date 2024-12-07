@@ -100,3 +100,7 @@ export function createLogger(filePath: string, level: LogLevel = 'debug') {
 
   return new Logger(fileName, level);
 }
+
+const defaultLogger = new Logger('', 'info');
+
+export default defaultLogger;

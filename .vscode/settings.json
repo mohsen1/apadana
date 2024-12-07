@@ -2,6 +2,10 @@
   "css.validate": false,
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
+  "debug.javascript.autoAttachFilter": "always",
+  "debug.javascript.terminalOptions": {
+    "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+  },
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
@@ -14,18 +18,19 @@
     "containerClassName"
   ],
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "cSpell.words": ["Apadana"],
   "files.exclude": {
     "build": true,
     "out": true,
     ".next": true,
-    ".vscode": true
+    ".swc": true,
+    ".vercel": true
   },
   "search.exclude": {
     "build": true,
     "out": true,
     ".next": true,
-    ".vscode": true,
+    ".swc": true,
+    ".vercel": true,
     "pnpm-lock.yaml": true
   }
 }

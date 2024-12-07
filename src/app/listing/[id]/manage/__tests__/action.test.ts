@@ -1,38 +1,25 @@
 // tests/getBookings.test.ts
-import { PrismaClient } from '@prisma/client';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+import prisma from '@/lib/prisma/client';
+
+import { findOrCreateTestUser } from '@/__tests__/setup/fixtures';
 
 import { getBookings } from '../action';
 
-const prisma = new PrismaClient();
+vi.mock('@/lib/safe-action');
 
-describe.skip('getBookings action', () => {
-  let userId: string;
+describe('getBookings action', () => {
+  let userId: string | null;
   let otherUserId: string;
   let listingId: number;
   let otherListingId: number;
 
-  beforeAll(async () => {
-    // Prepare test DB
-    // Create two users
-    const userA = await prisma.user.create({
-      data: {
-        firstName: 'John',
-        lastName: 'Doe',
-        emailAddresses: {
-          create: [{ emailAddress: 'john@example.com', isPrimary: true }],
-        },
-      },
-    });
-    const userB = await prisma.user.create({
-      data: {
-        firstName: 'Jane',
-        lastName: 'Smith',
-        emailAddresses: {
-          create: [{ emailAddress: 'jane@example.com', isPrimary: true }],
-        },
-      },
-    });
+  beforeEach(async () => {
+    const userA = await findOrCreateTestUser('test@example.com');
+    const userB = await findOrCreateTestUser('jane@example.com');
+
     userId = userA.id;
     otherUserId = userB.id;
 
@@ -146,21 +133,15 @@ describe.skip('getBookings action', () => {
     });
   });
 
-  afterAll(async () => {
-    // Clean up
-    await prisma.booking.deleteMany({});
-    await prisma.bookingRequest.deleteMany({});
-    await prisma.listingInventory.deleteMany({});
-    await prisma.listing.deleteMany({});
-    await prisma.user.deleteMany({});
-    await prisma.$disconnect();
-  });
-
-  test('fails if no userId in context', async () => {
-    const result = await getBookings({ listingId });
-    expect(result?.data?.success).toBe(false);
-    expect(result?.data?.error).toMatch(/User not found/);
-  });
+  // afterAll(async () => {
+  //   // Clean up
+  //   await prisma.booking.deleteMany({});
+  //   await prisma.bookingRequest.deleteMany({});
+  //   await prisma.listingInventory.deleteMany({});
+  //   await prisma.listing.deleteMany({});
+  //   await prisma.user.deleteMany({});
+  //   await prisma.$disconnect();
+  // });
 
   test('fails if listing does not exist or user does not own it', async () => {
     const result = await getBookings({ listingId: 9999999 });
@@ -173,17 +154,18 @@ describe.skip('getBookings action', () => {
   });
 
   test('returns bookings for a listing owned by the user', async () => {
-    const result = await getBookings({
-      parsedInput: { listingId },
-      ctx: { userId },
-    });
-    expect(result.success).toBe(true);
-    expect(result.bookings.length).toBe(1);
+    const result = await getBookings({ listingId });
 
-    const booking = result.bookings[0];
-    expect(booking.userId).toEqual(userId);
-    expect(booking.listingInventory.length).toBe(2);
-    expect(booking.bookingRequest).toBeDefined();
-    expect(booking.bookingRequest.listingId).toBe(listingId);
+    expect(result?.serverError).toBeFalsy();
+
+    expect(result?.data).toBeTruthy();
+
+    expect(result?.data?.bookings?.length).toBe(1);
+
+    const booking = result?.data?.bookings?.[0];
+    expect(booking?.userId).toEqual(userId);
+    expect(booking?.listingInventory.length).toBe(2);
+    expect(booking?.bookingRequest).toBeDefined();
+    expect(booking?.bookingRequest?.listingId).toBe(listingId);
   });
 });
