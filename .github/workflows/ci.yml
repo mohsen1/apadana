@@ -103,3 +103,4 @@ jobs:
         env:
           DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/apadana_test_ci'
           TEST_ENV: 'unit'
+          VERCEL_URL: fake-vercel.com
