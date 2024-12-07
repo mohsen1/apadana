@@ -8,8 +8,14 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
     globals: true,
+    // In future we can launch multiple test containers in parallel
+    // (each with their own specific port)
+    // and assign different databases URL to each parallel runner
+    // but for now we need to run tests sequentially
+    maxConcurrency: 1,
     environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
+    globalSetup: './src/__tests__/setup/vitest.global.setup.ts',
+    setupFiles: ['./src/__tests__/setup/vitest.setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
     exclude: ['node_modules', '.next', 'e2e'],
     env: {

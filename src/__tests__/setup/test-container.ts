@@ -10,6 +10,21 @@ const logger = createLogger(__filename, 'warn');
 const exec = promisify(nativeExec);
 const composeFile = 'docker-compose.test.yml';
 
+function safeParse<T>(value: string): { value: string; parsed: T | null } {
+  try {
+    return {
+      value,
+      parsed: JSON.parse(value),
+    };
+  } catch (error) {
+    assertError(error);
+    return {
+      value,
+      parsed: null,
+    };
+  }
+}
+
 async function waitForContainerHealthy(
   composeFile: string,
   serviceName: string,
@@ -31,8 +46,17 @@ async function waitForContainerHealthy(
         'Raw container status output:',
         containerStatusResult.stdout,
       );
-      let containers: { Service: string; State: string; Health: string }[] =
-        JSON.parse(containerStatusResult.stdout);
+      let { parsed: containers } = safeParse<
+        { Service: string; State: string; Health: string }[]
+      >(containerStatusResult.stdout);
+
+      if (!containers) {
+        logger.error(
+          'Failed to parse container status output:',
+          containerStatusResult.stdout,
+        );
+        throw new Error('Failed to parse container status output');
+      }
 
       if (!Array.isArray(containers)) {
         logger.debug(
@@ -91,6 +115,39 @@ async function waitForContainerHealthy(
   }
 }
 
+async function cleanDatabaseSchema() {
+  logger.info('Cleaning database schema...');
+  try {
+    await prisma.$transaction([
+      // Drop all tables
+      prisma.$executeRawUnsafe(`
+        DO $$ DECLARE
+          r RECORD;
+        BEGIN
+          FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+            EXECUTE 'DROP TABLE IF EXISTS "' || r.tablename || '" CASCADE';
+          END LOOP;
+        END $$;
+      `),
+      // Drop all custom types (enums)
+      prisma.$executeRawUnsafe(`
+        DO $$ DECLARE
+          r RECORD;
+        BEGIN
+          FOR r IN (SELECT typname FROM pg_type WHERE typnamespace = 'public'::regnamespace AND typtype = 'e') LOOP
+            EXECUTE 'DROP TYPE IF EXISTS "' || r.typname || '" CASCADE';
+          END LOOP;
+        END $$;
+      `),
+    ]);
+    logger.info('Database schema cleaned successfully');
+  } catch (error) {
+    assertError(error);
+    logger.error('Failed to clean database schema:', error);
+    throw error;
+  }
+}
+
 export async function setupTestContainer() {
   logger.info('Setting up test database container...');
 
@@ -108,27 +165,50 @@ export async function setupTestContainer() {
     DATABASE_URL,
   });
 
-  logger.debug('Environment variables configured:', {
-    POSTGRES_USER,
-    POSTGRES_DB,
-    POSTGRES_PORT,
-    DATABASE_URL,
-  });
-
-  const composeFile = 'docker-compose.test.yml';
-
   try {
-    logger.debug('Bringing down any existing test containers');
-    await exec(`docker compose -f ${composeFile} down`, {
+    // Check if container is already running and healthy
+    try {
+      await waitForContainerHealthy(composeFile, 'postgres_test', 1, 1000);
+      logger.log(
+        'ℹ️ Test container is already running and healthy, skipping setup',
+      );
+
+      // Clean the schema before running migrations
+      logger.info('Cleaning database schema before migrations');
+      await cleanDatabaseSchema();
+
+      logger.info('Running database migrations on existing container');
+      try {
+        await exec('pnpm prisma migrate deploy', {
+          env: process.env,
+        });
+      } catch (error) {
+        assertError(error);
+        logger.error('Failed to run database migrations:', error);
+        throw error; // Re-throw to trigger container teardown
+      }
+      return;
+    } catch (error) {
+      logger.debug(
+        'Container not running or not healthy, proceeding with setup',
+      );
+
+      // Add explicit container removal only if health check fails
+      logger.debug('Forcing removal of existing unhealthy test containers');
+      await exec(`docker compose -f ${composeFile} down --remove-orphans -v`, {
+        env: process.env,
+      });
+    }
+
+    logger.debug('Building test containers');
+    await exec(`docker compose -f ${composeFile} build`, {
       env: process.env,
     });
 
-    logger.debug('Starting test containers');
+    logger.log('⏳ Launching test container...');
     await exec(`docker compose -f ${composeFile} up -d`, {
       env: process.env,
     });
-
-    logger.log('⏳ Waiting for postgres container to be healthy...');
 
     await waitForContainerHealthy(composeFile, 'postgres_test', 10, 1000);
 
