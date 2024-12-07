@@ -178,8 +178,8 @@ Beside `migrate:dev`, you should use the `docker:*` commands to manage the datab
 
 ### Testing Commands
 
-- `test` - Runs Jest unit tests
-- `test:watch` - Runs Jest tests in watch mode
+- `test` - Runs Vitest unit tests
+- `test:watch` - Runs Vitest tests in watch mode
 - `e2e` - Runs Playwright E2E tests in Chromium against production environment started with `docker:prod` command
 - `e2e:dev` - Runs E2E tests against development environment
 - `e2e:ci` - Runs Playwright tests in CI environment

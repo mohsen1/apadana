@@ -2,7 +2,9 @@ import { createSafeActionClient } from 'next-safe-action';
 
 import { getUserInServer, setServerSession } from '@/lib/auth';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger(__filename);
 
 /**
  * An error that is visible to the client. Throw this error to return an error message to the client.
@@ -18,7 +20,12 @@ export class UnauthorizedError extends Error {
   name = 'UnauthorizedError';
 }
 
-const baseClient = createSafeActionClient({
+export type ActionResponse<T> = {
+  success: boolean;
+  error?: string;
+} & T;
+
+export const baseClient = createSafeActionClient({
   handleServerError: (error) => {
     if (process.env.NODE_ENV === 'development') {
       logger.error('Safe action error', { error });
