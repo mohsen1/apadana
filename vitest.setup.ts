@@ -1,5 +1,11 @@
-import { vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import '@testing-library/jest-dom';
+
+import {
+  clearDatabase,
+  setupTestContainer,
+  teardownTestContainer,
+} from './src/__tests__/setup/test-container';
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
@@ -34,7 +40,15 @@ vi.mock('next/headers', () => ({
   }),
 }));
 
-// Clean up after each test
-afterEach(() => {
+beforeAll(async () => {
+  await setupTestContainer();
+}, 60000);
+
+afterAll(async () => {
+  await teardownTestContainer();
+});
+
+afterEach(async () => {
+  await clearDatabase();
   vi.clearAllMocks();
 });

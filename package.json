@@ -34,8 +34,9 @@
     "lint:fix": "eslint src --fix && pnpm format",
     "lint:strict": "eslint --max-warnings=0 src",
     "typecheck": "pnpm prisma:generate && tsc --noEmit --incremental false",
-    "test:watch": "vitest",
-    "test": "vitest run",
+    "test": "dotenv -e .env.test -- vitest run",
+    "test:watch": "dotenv -e .env.test -- vitest",
+    "test:coverage": "dotenv -e .env.test -- vitest run --coverage",
     "e2e": "PORT=3030 playwright test --project=chromium",
     "e2e:dev": "PORT=3000 playwright test --project=chromium",
     "e2e:ci": "playwright test",
@@ -46,8 +47,8 @@
     "prepare": "husky install",
     "storybook": "storybook dev -p 6006 --quiet",
     "build-storybook": "storybook build",
-    "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:cleanup": "docker-compose -f docker-compose.test.yml down"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.705.0",
@@ -125,6 +126,7 @@
     "@storybook/react": "^8.2.9",
     "@storybook/test": "^8.2.9",
     "@svgr/webpack": "^8.1.0",
+    "@testcontainers/postgresql": "^10.16.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.0",
     "@types/node": "^22.5.4",
@@ -144,6 +146,7 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-storybook": "^0.8.0",
     "eslint-plugin-unused-imports": "^2.0.0",
+    "execa": "^9.5.1",
     "happy-dom": "^13.10.1",
     "husky": "^7.0.4",
     "lint-staged": "^12.5.0",
@@ -155,6 +158,7 @@
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "storybook": "^8.2.9",
+    "testcontainers": "^10.16.0",
     "typescript": "^5.5.4",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.6.0"

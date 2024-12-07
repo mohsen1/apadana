@@ -50,11 +50,11 @@ storybook-static/
 # playwright
 playwright/.auth
 
-# prisma
-src/__generated__/prisma
-
 # Test uploads
 e2e/uploads/
+
+# Unit test
+!.env.test
 
 # Do not allow new files in root
 .*
