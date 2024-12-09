@@ -363,3 +363,125 @@ describe('Booking Requests Actions', () => {
     });
   });
 });
+
+vi.mock('@/lib/safe-action');
+vi.mock('@/lib/email/send-email', () => ({
+  sendBookingRequestEmail: vi.fn(),
+}));
+
+describe('Booking Requests Edge Cases', () => {
+  let guestUser: User;
+  let hostUser: User;
+  let listingId: number;
+
+  beforeEach(async () => {
+    await setSafeActionContext(undefined);
+
+    guestUser = await findOrCreateTestUser('guest-edge@example.com', {
+      firstName: 'Guest',
+      lastName: 'Edge',
+    });
+    hostUser = await findOrCreateTestUser('host-edge@example.com', {
+      firstName: 'Host',
+      lastName: 'Edge',
+    });
+
+    const listing = await createListing({ hostId: hostUser.id });
+    listingId = listing.id;
+
+    // Set the action context to the guest user by default
+    await setSafeActionContext({ user: guestUser });
+  });
+
+  afterEach(async () => {
+    await clearDatabase();
+  });
+
+  test('fails if some requested dates are not available', async () => {
+    // Dates: Jan 10, Jan 11, Jan 12
+    const checkIn = new Date('2030-01-10T00:00:00.000Z');
+    const checkOut = new Date('2030-01-12T00:00:00.000Z');
+
+    // Create inventory:
+    // Jan 10 is available, price 100
+    await prisma.listingInventory.create({
+      data: {
+        listingId,
+        date: checkIn,
+        isAvailable: true,
+        price: 100,
+      },
+    });
+    // Jan 11 is NOT available
+    await prisma.listingInventory.create({
+      data: {
+        listingId,
+        date: new Date('2030-01-11T00:00:00.000Z'),
+        isAvailable: false,
+        price: 120, // price should not matter if unavailable
+      },
+    });
+    // Jan 12 is available, price 100
+    await prisma.listingInventory.create({
+      data: {
+        listingId,
+        date: checkOut,
+        isAvailable: true,
+        price: 100,
+      },
+    });
+
+    // Attempt to create a booking request spanning Jan 10 - Jan 12
+    // Expected: should fail because one of the days (Jan 11) is not available.
+    const result = await createBookingRequest({
+      listingId,
+      checkIn,
+      checkOut,
+      guests: 2,
+      pets: false,
+      message: 'Testing partial availability',
+    });
+
+    // Assuming the desired behavior is to reject the entire request if any day is unavailable.
+    // If the code does not yet implement this logic, this test will fail until implemented.
+    expect(result?.data?.success).toBe(false);
+    expect(result?.data?.error).toMatch(/One or more dates are not available/);
+  });
+
+  test('fails if checkIn equals checkOut', async () => {
+    // Invalid scenario: same checkIn and checkOut date
+    const checkIn = new Date('2030-02-01T00:00:00.000Z');
+    const checkOut = new Date('2030-02-01T00:00:00.000Z'); // same as checkIn
+
+    const result = await createBookingRequest({
+      listingId,
+      checkIn,
+      checkOut,
+      guests: 1,
+      pets: false,
+      message: 'CheckIn equals CheckOut scenario',
+    });
+
+    // Expect a failure due to invalid date range
+    expect(result?.data?.success).toBe(false);
+    expect(result?.data?.error).toMatch(/Invalid date range/);
+  });
+
+  test('fails if booking duration is less than one day', async () => {
+    // Set checkout to be less than 24 hours after checkin
+    const checkIn = new Date('2030-02-01T10:00:00.000Z');
+    const checkOut = new Date('2030-02-01T20:00:00.000Z'); // Only 10 hours later
+
+    const result = await createBookingRequest({
+      listingId,
+      checkIn,
+      checkOut,
+      guests: 1,
+      pets: false,
+      message: 'Less than one day booking attempt',
+    });
+
+    expect(result?.data?.success).toBe(false);
+    expect(result?.data?.error).toMatch(/Booking must be at least one day/);
+  });
+});
