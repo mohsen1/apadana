@@ -155,26 +155,24 @@ describe('getBookings action', async () => {
     await setSafeActionContext(undefined);
   });
 
-  test('fails if user is not logged in', async () => {
-    await setSafeActionContext({
-      user: null,
-    });
-    const result = await getBookings({ listingId });
-    expect(result?.data?.success).toBe(false);
-    expect(result?.data?.error).toMatch(/User not found/);
+  test('fails when user is not authenticated', async () => {
+    await setSafeActionContext({ user: null });
 
-    // reset the context
-    await setSafeActionContext(undefined);
+    const result = await getBookings({
+      listingId,
+      take: 10,
+      skip: 0,
+    });
+    expect(result?.serverError?.error).toBe('User not found');
   });
 
   test('fails if listing does not exist or user does not own it', async () => {
     // Clear auth context first
     await setSafeActionContext(undefined);
 
-    const result = await getBookings({ listingId: 9999999 });
-    expect(result?.data?.success).toBe(false);
-    expect(result?.data?.error).toMatch(
-      /Listing not found or you do not have access/,
+    const noListingResult = await getBookings({ listingId: 9999999 });
+    expect(noListingResult?.serverError?.error).toBe(
+      'An unknown error occurred',
     );
 
     // Set auth context back
@@ -182,9 +180,10 @@ describe('getBookings action', async () => {
       user: { id: userId },
     });
 
-    const result2 = await getBookings({ listingId: otherListingId });
-    expect(result2?.data?.success).toBe(false);
-    expect(result2?.data?.error).toMatch(/do not have access/);
+    const otherListingResult = await getBookings({ listingId: otherListingId });
+    expect(otherListingResult?.serverError?.error).toBe(
+      'An unknown error occurred',
+    );
   });
 
   test('returns bookings for a listing owned by the user', async () => {
@@ -217,15 +216,13 @@ describe('getBookings action', async () => {
       },
     });
 
-    const result = await getBookings({ listingId: newListing.id });
-    expect(result?.data?.success).toBe(true);
-    expect(result?.data?.bookings?.length).toBe(0);
+    const emptyResult = await getBookings({ listingId: newListing.id });
+    expect(emptyResult?.data?.bookings.length).toBe(0);
   });
 
   test('ignores bookings from other users listings', async () => {
     // Confirm we only see bookings belonging to user’s listing, not the otherUserId listing
     const result = await getBookings({ listingId });
-    expect(result?.data?.success).toBe(true);
     const bookings = result?.data?.bookings;
     expect(
       bookings?.every((b) =>
@@ -285,12 +282,16 @@ describe('getBookings action', async () => {
       });
     }
 
-    const result = await getBookings({ listingId });
-    expect(result?.data?.success).toBe(true);
-    expect(result?.data?.bookings?.length).toBeGreaterThanOrEqual(6);
+    const largeResult = await getBookings({ listingId });
+    expect(largeResult?.data?.bookings.length).toBeGreaterThanOrEqual(6);
   });
 
   test('ensures booking requests that are not accepted are not returned as bookings', async () => {
+    // Clear existing bookings first
+    await prisma.booking.deleteMany({
+      where: { listingInventory: { some: { listingId } } },
+    });
+
     await prisma.listingInventory.create({
       data: {
         listingId: listingId,
@@ -312,22 +313,17 @@ describe('getBookings action', async () => {
         totalPrice: 100,
       },
     });
-    const result = await getBookings({ listingId });
-    // Should not include pending requests because no booking is created yet
-    expect(
-      result?.data?.bookings?.some(
-        (b) => b.bookingRequest?.status === 'PENDING',
-      ),
-    ).toBe(false);
+    const pendingResult = await getBookings({ listingId });
+    expect(pendingResult?.data?.bookings.length).toBe(0);
   });
 
   test('verifies serverError property remains false in normal operations', async () => {
-    const result = await getBookings({ listingId });
-    expect(result?.serverError).toBeFalsy();
+    const normalResult = await getBookings({ listingId });
+    expect(normalResult?.serverError).toBeFalsy();
   });
 
   test('checks error messages return a string when listing is invalid', async () => {
-    const result = await getBookings({ listingId: 123456789 });
-    expect(typeof result?.data?.error).toBe('string');
+    const invalidResult = await getBookings({ listingId: 123456789 });
+    expect(invalidResult?.serverError?.error).toBe('An unknown error occurred');
   });
 });

@@ -9,8 +9,8 @@ export const dynamic = 'force-dynamic';
 
 export default async function ListingsPage() {
   const res = await getListings({});
-  if (!res?.data?.success) {
-    throw res?.data?.error || new Error('Failed to get listings');
+  if (!res?.data?.listings) {
+    throw new Error('Failed to get listings');
   }
   const { listings } = res.data;
 

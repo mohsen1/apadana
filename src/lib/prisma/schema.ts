@@ -144,6 +144,16 @@ export type ChangeBookingRequestStatus = z.infer<
 
 export const GetBookingsSchema = z.object({
   listingId: z.number(),
+  take: z
+    .number()
+    .optional()
+    .default(10)
+    .describe('Limit of how many bookings to return'),
+  skip: z
+    .number()
+    .optional()
+    .default(0)
+    .describe('Offset of how many bookings to skip'),
 });
 
 export type GetBookings = z.infer<typeof GetBookingsSchema>;

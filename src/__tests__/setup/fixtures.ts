@@ -1,4 +1,5 @@
-import { Currency } from '@prisma/client';
+import { Currency, Prisma } from '@prisma/client';
+import _ from 'lodash';
 
 import prisma from '@/lib/prisma';
 
@@ -47,17 +48,30 @@ export async function findOrCreateTestUser(
   return existing;
 }
 
-export async function createListing({ hostId }: { hostId: string }) {
+export async function createListing(
+  createListingData: Partial<Prisma.ListingCreateInput> & {
+    ownerId: string;
+  },
+) {
+  const defaultData = {
+    title: 'Test Listing',
+    description: 'Cozy spot',
+    propertyType: 'apartment',
+    address: '123 Test Ave',
+    pricePerNight: 100,
+    currency: Currency.USD,
+    houseRules: 'No smoking',
+  };
   return prisma.listing.create({
     data: {
-      title: 'Test Listing',
-      description: 'Cozy spot',
-      propertyType: 'apartment',
-      address: '123 Test Ave',
-      pricePerNight: 100,
-      currency: Currency.USD,
-      houseRules: 'No smoking',
-      ownerId: hostId,
+      ...defaultData,
+      published: true,
+      ..._.omit(createListingData, 'ownerId'),
+      owner: {
+        connect: {
+          id: createListingData.ownerId,
+        },
+      },
     },
   });
 }

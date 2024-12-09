@@ -13,7 +13,7 @@ setup('authenticate', async ({ page, context }) => {
   const body = await response.json();
 
   // Verify the response is successful
-  expect(body.success).toBe(true);
+  expect(body.data).toBeTruthy();
 
   // Verify that the cookies are set
   const cookies = await page.context().cookies();

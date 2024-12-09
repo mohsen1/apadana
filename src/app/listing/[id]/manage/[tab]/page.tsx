@@ -26,8 +26,8 @@ export default async function ManageListingPage(props: {
       inventory: true,
     },
   });
-  if (!res?.data?.success) {
-    throw res?.data?.error || new Error('Failed to get listing');
+  if (!res?.data?.listing) {
+    throw new Error('Failed to get listing');
   }
   const listing = res.data.listing;
 

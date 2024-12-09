@@ -14,8 +14,8 @@ export default async function CreateBookingPage(props: {
     id: Number(params.id),
     include: { inventory: true, owner: true, images: true },
   });
-  if (!res?.data?.success) {
-    throw res?.data?.error || new Error('Failed to get listing');
+  if (!res?.data?.listing) {
+    throw new Error('Failed to get listing');
   }
   const listing = res.data.listing;
   if (!listing) {

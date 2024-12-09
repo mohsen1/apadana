@@ -20,7 +20,7 @@ const loginSchema = z.object({
   password: z.string(),
 });
 
-const clientUserSchema = z.object({
+export const clientUserSchema = z.object({
   id: z.string(),
   email: z.string().email(),
   firstName: z.string().nullable(),
@@ -114,7 +114,6 @@ const signUpSchema = z.object({
 });
 
 const successfulSignUp = z.object({
-  success: z.literal(true),
   user: clientUserSchema,
 });
 
@@ -173,7 +172,6 @@ export const signUp = actionClient
     }
 
     return {
-      success: true,
       user: clientUser,
     };
   });
@@ -195,10 +193,10 @@ export const getCurrentUser = actionClient
   });
 
 export const logOut = actionClient
-  .outputSchema(z.object({ success: z.literal(true) }))
+  .outputSchema(z.object({ user: z.literal(null) }))
   .action(async () => {
     await deleteServerSession();
-    return { success: true };
+    return { user: null };
   });
 
 const requestPasswordResetSchema = z.object({

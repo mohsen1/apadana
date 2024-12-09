@@ -22,8 +22,8 @@ export async function Bookings({ listingId }: { listingId: number }) {
   const res = await getBookings({ listingId });
   const result = res?.data;
 
-  if (!result?.success) {
-    throw new Error(result?.error);
+  if (!result?.bookings) {
+    throw new Error('Failed to get bookings');
   }
 
   const bookings = result.bookings;
