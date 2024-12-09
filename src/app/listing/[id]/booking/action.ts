@@ -56,7 +56,19 @@ export const createBookingRequest = actionClient
       const { listingId, checkIn, checkOut, guests, pets, message } =
         parsedInput;
 
-      // Get the listing and host details
+      // Check date range validity
+      if (checkIn >= checkOut) {
+        throw new Error('Invalid date range');
+      }
+
+      // Ensure booking is at least one day
+      const diffInDays = Math.floor(
+        (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      if (diffInDays < 1) {
+        throw new Error('Booking must be at least one day');
+      }
+
       const listing = await prisma.listing.findUnique({
         where: { id: listingId },
         include: {
@@ -72,7 +84,6 @@ export const createBookingRequest = actionClient
         throw new Error('Listing or host not found');
       }
 
-      // Get guest details
       const guest = await prisma.user.findUnique({
         where: { id: String(ctx.userId) },
       });
@@ -81,18 +92,30 @@ export const createBookingRequest = actionClient
         throw new Error('Guest not found');
       }
 
+      // Fetch inventory for the requested dates
       const inventoryForDates = await prisma.listingInventory.findMany({
         where: {
+          listingId,
           date: {
             gte: checkIn,
-            lte: checkOut,
+            lt: checkOut,
           },
         },
       });
 
-      const totalPrice = inventoryForDates.reduce((acc, inventory) => {
-        return acc + inventory.price;
-      }, 0);
+      // Modified: Allow booking even if no inventory exists
+      if (inventoryForDates.length > 0) {
+        // Only check availability if inventory exists
+        const allDatesAvailable = inventoryForDates.every((i) => i.isAvailable);
+        if (!allDatesAvailable) {
+          throw new Error('One or more dates are not available');
+        }
+      }
+
+      const totalPrice = inventoryForDates.reduce(
+        (acc, inventory) => acc + inventory.price,
+        0,
+      );
 
       const bookingRequest = await prisma.bookingRequest.create({
         data: {
@@ -107,12 +130,12 @@ export const createBookingRequest = actionClient
         },
       });
 
-      // Send email to host
+      // Modified: Only attempt to send email if host has an email address
       const hostEmail = listing.owner.emailAddresses[0]?.emailAddress;
       if (hostEmail) {
         await sendBookingRequestEmail({
           hostEmail,
-          guestName: `${guest.firstName} ${guest.lastName}`,
+          guestName: `${guest.firstName ?? ''} ${guest.lastName ?? ''}`.trim(),
           listingTitle: listing.title,
           checkIn,
           checkOut,

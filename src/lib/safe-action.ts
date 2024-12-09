@@ -1,3 +1,4 @@
+import { Session, User } from '@prisma/client';
 import { createSafeActionClient } from 'next-safe-action';
 
 import { getUserInServer, setServerSession } from '@/lib/auth';
@@ -46,14 +47,22 @@ export const baseClient = createSafeActionClient({
   },
 });
 
-export const actionClient = baseClient.use(async ({ next }) => {
-  const user = await getUserInServer();
+export type SafeActionContext = {
+  user?: User | null;
+  userId?: string | null;
+  setSession: (session: Session) => void;
+};
 
-  return next({
-    ctx: {
-      user,
-      userId: user?.id ?? null,
-      setSession: setServerSession,
-    },
-  });
-});
+export const actionClient = baseClient.use<SafeActionContext>(
+  async ({ next }) => {
+    const user = await getUserInServer();
+
+    return next({
+      ctx: {
+        user,
+        userId: user?.id ?? null,
+        setSession: setServerSession,
+      },
+    });
+  },
+);

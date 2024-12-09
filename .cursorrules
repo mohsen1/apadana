@@ -9,6 +9,7 @@ General Rules:
 - Non-route handler code is in `src/lib`.
 - Use `pnpm` as the package manager.
 - We use Vitest for unit testing.
+- Use data-fns for date operations.
 
 Typescript Rules:
 
