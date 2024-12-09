@@ -82,7 +82,7 @@
     "@types/lodash": "^4.17.7",
     "@vercel/analytics": "^1.4.1",
     "@vercel/postgres": "^0.10.0",
-    "@vercel/speed-insights": "^1.0.12",
+    "@vercel/speed-insights": "^1.1.0",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
