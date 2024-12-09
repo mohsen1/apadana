@@ -15,6 +15,7 @@ jobs:
   run-e2es:
     name: Playwright
     runs-on: ubuntu-latest
+    if: github.event.deployment_status.state == 'success'
     steps:
       - name: Check if Deployment is successful
         id: check-deployment
