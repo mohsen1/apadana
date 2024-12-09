@@ -16,15 +16,15 @@ export default async function BookingRequestPage(props: {
     id: Number(params.bookingRequestId),
   });
 
-  if (!res?.data?.success) {
-    throw new Error(res?.data?.error || 'Failed to get booking request');
+  if (!res?.data?.updatedAt) {
+    throw new Error('Failed to get booking request');
   }
 
-  if (!res?.data?.data) {
+  if (!res?.data?.updatedAt) {
     return <NotFound title='Booking request not found' />;
   }
 
-  return <BookingRequestSent bookingRequest={res.data.data} />;
+  return <BookingRequestSent bookingRequest={res.data} />;
 }
 
 function BookingRequestSent({

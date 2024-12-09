@@ -18,8 +18,8 @@ export default async function ManageListingPageLayout(props: {
   const { id, tab } = params;
 
   const res = await getListing({ id: parseInt(id, 10) });
-  if (!res?.data?.success) {
-    throw res?.data?.error || new Error('Failed to get listing');
+  if (!res?.data?.listing) {
+    throw new Error('Failed to get listing');
   }
   const listing = res.data.listing;
 

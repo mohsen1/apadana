@@ -1,47 +1,57 @@
 'use server';
 
+import { z } from 'zod';
+
 import { sanitizeUserForClient } from '@/lib/auth/utils';
 import prisma from '@/lib/prisma/client';
-import { actionClient, UnauthorizedError } from '@/lib/safe-action';
+import {
+  actionClient,
+  ClientVisibleError,
+  UnauthorizedError,
+} from '@/lib/safe-action';
 
+import { clientUserSchema } from '@/app/auth/schema';
 import logger from '@/utils/logger';
 
 import { updateUserSchema } from './schema';
 
 export const updateUser = actionClient
   .schema(updateUserSchema)
+  .outputSchema(z.object({ user: clientUserSchema }))
   .action(async ({ parsedInput, ctx }) => {
-    try {
-      if (!ctx.userId) {
-        throw new UnauthorizedError();
-      }
-
-      const updatedUser = await prisma.user.update({
-        where: {
-          id: ctx.userId,
-        },
-        include: {
-          emailAddresses: true,
-          roles: true,
-          permissions: true,
-        },
-        data: {
-          ...parsedInput,
-          updatedAt: new Date(),
-        },
-      });
-
-      logger.info('User updated successfully', { userId: ctx.userId });
-
-      return { success: true, user: sanitizeUserForClient(updatedUser) };
-    } catch (error) {
-      logger.error('Error updating user', { error, userId: ctx.userId });
-      throw new Error('Failed to update user');
+    if (!ctx.userId) {
+      throw new UnauthorizedError();
     }
+
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: ctx.userId,
+      },
+      include: {
+        emailAddresses: true,
+        roles: true,
+        permissions: true,
+      },
+      data: {
+        ...parsedInput,
+        updatedAt: new Date(),
+      },
+    });
+
+    const user = sanitizeUserForClient(updatedUser);
+
+    if (!user) {
+      throw new ClientVisibleError('Failed to update user');
+    }
+
+    logger.info('User updated successfully', { userId: ctx.userId });
+
+    return { user };
   });
 
-export const deleteAccount = actionClient.action(async ({ ctx }) => {
-  try {
+export const deleteAccount = actionClient
+  .outputSchema(z.object({ user: z.literal(null) }))
+  .action(async ({ ctx }) => {
     if (!ctx.userId) {
       throw new UnauthorizedError();
     }
@@ -51,9 +61,6 @@ export const deleteAccount = actionClient.action(async ({ ctx }) => {
     });
 
     logger.info('Account deleted successfully', { userId: ctx.userId });
-    return { success: true };
-  } catch (error) {
-    logger.error('Error deleting account:', error);
-    throw new Error('Failed to delete account');
-  }
-});
+
+    return { user: null };
+  });

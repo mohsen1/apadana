@@ -46,7 +46,7 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
   const { execute: executeEditInventory, status: editInventoryStatus } =
     useAction(editInventory, {
       onSuccess: (result) => {
-        if (result.data?.success) {
+        if (result.data) {
           refreshInventory();
         }
       },

@@ -8,9 +8,7 @@ import { createListing } from '@/app/listing/create/action';
 import { TypedFormData } from '@/utils/formData';
 
 export type ServerResponse = {
-  success: boolean;
   listing?: Listing;
-  error?: string;
 };
 
 function validateFormData(
@@ -83,40 +81,30 @@ function validateFormData(
 export async function submitForm(
   formData: TypedFormData<Listing>,
 ): Promise<ServerResponse> {
-  try {
-    validateFormData(formData);
+  validateFormData(formData);
 
-    const user = await getUserInServer();
+  const user = await getUserInServer();
 
-    if (!user) {
-      return { success: false, error: 'User not authenticated' };
-    }
-
-    const res = await createListing({
-      title: formData.get('title'),
-      description: formData.get('description'),
-      propertyType: formData.get('propertyType'),
-      address: formData.get('address'),
-      amenities: formData.getAll('amenities'),
-      // @ts-expect-error todo
-      pricePerNight: parseFloat(formData.get('pricePerNight') || '0'),
-      // @ts-expect-error todo
-      minimumStay: parseInt(formData.get('minimumStay'), 10),
-      // @ts-expect-error todo
-      maximumGuests: parseInt(formData.get('maximumGuests')),
-      houseRules: formData.get('houseRules'),
-      latitude: formData.get('latitude') ?? 0,
-      longitude: formData.get('longitude') ?? 0,
-    });
-
-    if (!res?.data?.success) {
-      return { success: false, error: res?.data?.error };
-    }
-
-    return { success: true, listing: res.data.listing };
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error creating listing:', error);
-    return { success: false, error: 'Failed to create listing' };
+  if (!user) {
+    throw new Error('User not authenticated');
   }
+
+  const res = await createListing({
+    title: formData.get('title'),
+    description: formData.get('description'),
+    propertyType: formData.get('propertyType'),
+    address: formData.get('address'),
+    amenities: formData.getAll('amenities'),
+    // @ts-expect-error todo
+    pricePerNight: parseFloat(formData.get('pricePerNight') || '0'),
+    // @ts-expect-error todo
+    minimumStay: parseInt(formData.get('minimumStay'), 10),
+    // @ts-expect-error todo
+    maximumGuests: parseInt(formData.get('maximumGuests')),
+    houseRules: formData.get('houseRules'),
+    latitude: formData.get('latitude') ?? 0,
+    longitude: formData.get('longitude') ?? 0,
+  });
+
+  return { listing: res?.data?.listing };
 }

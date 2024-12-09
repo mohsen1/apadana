@@ -16,27 +16,28 @@ RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 
 # Install inotify-tools for file watching
 RUN apt-get update && apt-get install -y inotify-tools && rm -rf /var/lib/apt/lists/*
-# Set pnpm store directory
-RUN pnpm config set store-dir /root/.pnpm-store
 
-# update-notifier=false
+# Setup pnpm cache
+RUN mkdir -p /app/.pnpm-store
+ENV PNPM_HOME=/app/.pnpm-store
+
+# Configure pnpm
 RUN pnpm config set update-notifier false
-# node deprecation warnings off
 RUN pnpm config set node-deprecation-warnings false
-# Turn off Node.js warnings
 ENV NODE_OPTIONS=--no-warnings
 
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies with cache
-RUN --mount=type=cache,target=/root/.pnpm-store pnpm install --frozen-lockfile --ignore-scripts
+# Install dependencies with named cache
+RUN --mount=type=cache,target=/app/.pnpm-store,id=pnpm-store \
+  pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy the rest of the application
 COPY . .
 
-# Generate Prisma client
-RUN pnpm prisma:generate
+# Generate Prisma client with Next.js cache
+RUN --mount=type=cache,target=/app/.next/cache pnpm prisma:generate
 
 # Development stage
 FROM base AS dev

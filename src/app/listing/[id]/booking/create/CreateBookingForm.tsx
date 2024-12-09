@@ -61,10 +61,8 @@ export default function BookingPage({
 
   const { execute, status, result } = useAction(createBookingRequest, {
     onSuccess: (res) => {
-      if (res?.data?.success) {
-        router.push(
-          `/listing/${listing.id}/booking/request/${res.data?.data?.id}`,
-        );
+      if (res?.data?.id) {
+        router.push(`/listing/${listing.id}/booking/request/${res.data?.id}`);
       }
     },
   });
@@ -191,8 +189,10 @@ export default function BookingPage({
                   ? 'Sending...'
                   : 'Send your booking request'}
               </Button>
-              {result.data?.error ? (
-                <div className='text-red-500 w-full'>{result.data?.error}</div>
+              {result.serverError ? (
+                <div className='text-red-500 w-full'>
+                  {result.serverError.error}
+                </div>
               ) : null}
             </CardFooter>
           </Card>

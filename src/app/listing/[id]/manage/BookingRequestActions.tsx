@@ -19,7 +19,7 @@ export function BookingRequestActions({
   const { execute, status, input } = useAction(changeBookingRequestStatus, {
     onSuccess: (result) => {
       router.refresh();
-      if (result.data?.success && result.data?.status) {
+      if (result.data?.status) {
         onStatusChange(result?.data?.status);
       }
     },

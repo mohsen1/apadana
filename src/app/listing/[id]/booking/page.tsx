@@ -7,8 +7,8 @@ export default async function BookingPage(props: {
   const params = await props.params;
   const res = await getListing({ id: Number(params.id) });
 
-  if (!res?.data?.success) {
-    throw new Error(res?.data?.error);
+  if (!res?.data?.listing) {
+    throw new Error('Failed to get listing');
   }
 
   const listing = res?.data?.listing;

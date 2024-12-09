@@ -13,24 +13,12 @@ import {
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
 
+import {
+  clientUserSchema,
+  loginSchema,
+  successfulLogin,
+} from '@/app/auth/schema';
 import logger from '@/utils/logger';
-
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-});
-
-const clientUserSchema = z.object({
-  id: z.string(),
-  email: z.string().email(),
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
-  imageUrl: z.string().nullable(),
-});
-
-const successfulLogin = z.object({
-  user: clientUserSchema,
-});
 
 export const login = actionClient
   .schema(loginSchema)
@@ -114,7 +102,6 @@ const signUpSchema = z.object({
 });
 
 const successfulSignUp = z.object({
-  success: z.literal(true),
   user: clientUserSchema,
 });
 
@@ -173,7 +160,6 @@ export const signUp = actionClient
     }
 
     return {
-      success: true,
       user: clientUser,
     };
   });
@@ -195,10 +181,10 @@ export const getCurrentUser = actionClient
   });
 
 export const logOut = actionClient
-  .outputSchema(z.object({ success: z.literal(true) }))
+  .outputSchema(z.object({ user: z.literal(null) }))
   .action(async () => {
     await deleteServerSession();
-    return { success: true };
+    return { user: null };
   });
 
 const requestPasswordResetSchema = z.object({

@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 dotenv.config();
 
+const isTestingDev = process.env.PLAYWRIGHT_IS_TESTING_DEV === 'true';
+
 /**
  * Playwright by default will launch the server in production mode.
  * When writing and debugging e2e tests locally, it's useful to have the dev server or any other server
@@ -34,15 +36,24 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['html', { open: 'never', outputFolder: '.next/__e2e__reports__' }],
+    [
+      'html',
+      {
+        open: process.env.CI ? 'never' : 'on-failure',
+        outputFolder: '.next/__e2e__reports__',
+      },
+    ],
   ],
-  timeout: 30_000,
+
+  timeout: isTestingDev ? 60_000 : 30_000,
+  globalTimeout: isTestingDev ? 60_000 : 30_000,
 
   globalSetup: require.resolve('./e2e/global-setup.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
-
+    actionTimeout: isTestingDev ? 60_000 : 30_000,
+    navigationTimeout: isTestingDev ? 60_000 : 30_000,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: {
       mode: 'retain-on-failure',
@@ -50,16 +61,8 @@ export default defineConfig({
       screenshots: true,
       sources: true,
     },
+    video: isTestingDev ? 'on' : 'retain-on-failure',
   },
-  // get webServer() {
-  // if (process.env.CI) { return undefined; }
-  //   return {
-  //     command: `docker compose ps -q | grep -q . && nc -z localhost ${port} || (pnpm docker:prod:down && pnpm run docker:prod)`,
-  //     url: baseURL,
-  //     reuseExistingServer: true,
-  //     timeout: 120_000,
-  //   };
-  // },
 
   /* Configure projects for major browsers */
   projects: [

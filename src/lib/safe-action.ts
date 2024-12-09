@@ -21,21 +21,18 @@ export class UnauthorizedError extends Error {
   name = 'UnauthorizedError';
 }
 
-export type ActionResponse<T> = {
-  success: boolean;
-  error?: string;
-} & T;
-
 export const baseClient = createSafeActionClient({
   handleServerError: (error) => {
     if (process.env.NODE_ENV === 'development') {
       logger.error('Safe action error', { error });
     }
+
     if (error instanceof ClientVisibleError) {
       return {
         error: error.message,
       };
     }
+
     if (error instanceof UnauthorizedError) {
       return {
         error: error.message || 'Unauthorized',

@@ -34,11 +34,11 @@ export async function BookingRequests({ listing }: { listing: FullListing }) {
     },
   });
 
-  if (!res?.data?.success) {
-    throw new Error(res?.data?.error || 'Failed to fetch booking requests');
+  if (!res?.data) {
+    throw new Error('Failed to fetch booking requests');
   }
 
-  const bookingRequests = res.data.data;
+  const bookingRequests = res.data;
 
   if (!bookingRequests) {
     return <NotFound title='No bookings found' />;

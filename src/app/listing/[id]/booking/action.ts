@@ -1,5 +1,7 @@
 'use server';
 
+import { addDays, eachDayOfInterval } from 'date-fns';
+
 import { sendBookingRequestEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import {
@@ -7,135 +9,138 @@ import {
   GetBookingRequestSchema,
   GetBookingRequestsSchema,
 } from '@/lib/prisma/schema';
-import { actionClient } from '@/lib/safe-action';
+import {
+  actionClient,
+  ClientVisibleError,
+  UnauthorizedError,
+} from '@/lib/safe-action';
 
-import { assertError } from '@/utils';
+import logger from '@/utils/logger';
 
 export const getBookingRequest = actionClient
   .schema(GetBookingRequestSchema)
+  .outputSchema(GetBookingRequestSchema)
   .action(async ({ parsedInput, ctx }) => {
-    try {
-      const { id } = parsedInput;
-      const bookingRequest = await prisma.bookingRequest.findUnique({
-        where: {
-          id,
-          userId: String(ctx.userId),
-        },
-        include: {
-          listing: {
-            include: {
-              images: true,
-              owner: true,
-              inventory: true,
-            },
-          },
-          user: {
-            include: {
-              emailAddresses: true,
-            },
+    const { id } = parsedInput;
+    const bookingRequest = await prisma.bookingRequest.findUnique({
+      where: {
+        id,
+        userId: String(ctx.userId),
+      },
+      include: {
+        listing: {
+          include: {
+            images: true,
+            owner: true,
+            inventory: true,
           },
         },
-      });
-      return {
-        success: true,
-        data: bookingRequest,
-      };
-    } catch (error) {
-      assertError(error);
-      return {
-        success: false,
-        error: error.message,
-      };
+        user: {
+          include: {
+            emailAddresses: true,
+          },
+        },
+      },
+    });
+
+    if (!bookingRequest) {
+      throw new ClientVisibleError('Booking request not found');
     }
+
+    return bookingRequest;
   });
 
 export const createBookingRequest = actionClient
   .schema(CreateBookingRequestSchema)
   .action(async ({ parsedInput, ctx }) => {
-    try {
-      const { listingId, checkIn, checkOut, guests, pets, message } =
-        parsedInput;
+    const { listingId, checkIn, checkOut, guests, pets, message } = parsedInput;
 
-      // Check date range validity
-      if (checkIn >= checkOut) {
-        throw new Error('Invalid date range');
-      }
+    if (!ctx.user?.id) {
+      throw new UnauthorizedError('Guest not found');
+    }
 
-      // Ensure booking is at least one day
-      const diffInDays = Math.floor(
-        (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24),
-      );
-      if (diffInDays < 1) {
-        throw new Error('Booking must be at least one day');
-      }
-
-      const listing = await prisma.listing.findUnique({
-        where: { id: listingId },
-        include: {
-          owner: {
-            include: {
-              emailAddresses: true,
-            },
+    // Get listing and verify it exists and is published
+    const listing = await prisma.listing.findUnique({
+      where: { id: listingId },
+      select: {
+        id: true,
+        title: true,
+        published: true,
+        currency: true,
+        amenities: true,
+        owner: {
+          select: {
+            emailAddresses: true,
+            firstName: true,
+            lastName: true,
           },
         },
-      });
+      },
+    });
 
-      if (!listing || !listing.owner) {
-        throw new Error('Listing or host not found');
-      }
+    if (!listing) {
+      throw new ClientVisibleError('Listing or host not found');
+    }
 
-      const guest = await prisma.user.findUnique({
-        where: { id: String(ctx.userId) },
-      });
+    if (!listing.published) {
+      throw new ClientVisibleError('Listing is not published');
+    }
 
-      if (!guest) {
-        throw new Error('Guest not found');
-      }
+    // Validate date range
+    if (checkIn >= checkOut) {
+      throw new ClientVisibleError('Invalid date range');
+    }
 
-      // Fetch inventory for the requested dates
-      const inventoryForDates = await prisma.listingInventory.findMany({
-        where: {
-          listingId,
-          date: {
-            gte: checkIn,
-            lt: checkOut,
-          },
-        },
-      });
+    if (checkOut.getTime() - checkIn.getTime() < 24 * 60 * 60 * 1000) {
+      throw new ClientVisibleError('Booking must be for at least one day');
+    }
 
-      // Modified: Allow booking even if no inventory exists
-      if (inventoryForDates.length > 0) {
-        // Only check availability if inventory exists
-        const allDatesAvailable = inventoryForDates.every((i) => i.isAvailable);
-        if (!allDatesAvailable) {
-          throw new Error('One or more dates are not available');
-        }
-      }
+    // Get available dates and calculate total price
+    const dates = eachDayOfInterval({
+      start: checkIn,
+      end: addDays(checkOut, -1),
+    });
+    const inventory = await prisma.listingInventory.findMany({
+      where: {
+        listingId,
+        date: { in: dates },
+        isAvailable: true,
+      },
+    });
 
-      const totalPrice = inventoryForDates.reduce(
-        (acc, inventory) => acc + inventory.price,
-        0,
-      );
+    // Verify all dates are available
+    if (inventory.length !== dates.length) {
+      throw new ClientVisibleError('One or more dates are not available');
+    }
 
-      const bookingRequest = await prisma.bookingRequest.create({
-        data: {
-          listingId,
-          checkIn,
-          checkOut,
-          guests,
-          pets,
-          message,
-          totalPrice,
-          userId: String(ctx.userId),
-        },
-      });
+    const totalPrice = inventory.reduce((sum, inv) => sum + inv.price, 0);
 
-      // Modified: Only attempt to send email if host has an email address
-      const hostEmail = listing.owner.emailAddresses[0]?.emailAddress;
-      if (hostEmail) {
+    // Create booking request with the listing's current currency
+    const bookingRequest = await prisma.bookingRequest.create({
+      data: {
+        listingId,
+        userId: ctx.user.id,
+        checkIn,
+        checkOut,
+        guests,
+        pets,
+        message,
+        totalPrice,
+      },
+      include: {
+        listing: true,
+        user: true,
+      },
+    });
+
+    // Only attempt to send email if host has an email address
+    const hostEmail = listing.owner.emailAddresses[0]?.emailAddress;
+    if (hostEmail) {
+      try {
         await sendBookingRequestEmail({
           hostEmail,
-          guestName: `${guest.firstName ?? ''} ${guest.lastName ?? ''}`.trim(),
+          guestName:
+            `${ctx.user.firstName ?? ''} ${ctx.user.lastName ?? ''}`.trim(),
           listingTitle: listing.title,
           checkIn,
           checkOut,
@@ -143,50 +148,32 @@ export const createBookingRequest = actionClient
           totalPrice,
           currency: listing.currency,
         });
+      } catch (error) {
+        logger.error('Failed to send booking request email:', error);
+        // Continue even if email fails
       }
-
-      return {
-        success: true,
-        data: bookingRequest,
-      };
-    } catch (error) {
-      assertError(error);
-      return {
-        success: false,
-        error: error.message,
-      };
     }
+
+    return bookingRequest;
   });
 
 export const getBookingRequests = actionClient
   .schema(GetBookingRequestsSchema)
   .action(async ({ parsedInput, ctx }) => {
-    try {
-      const { take, skip, status, include } = parsedInput;
-      const bookingRequests = await prisma.bookingRequest.findMany({
-        take,
-        skip,
-        include: include || {
-          user: true,
-        },
-        where: {
-          status,
-          listing: {
-            ownerId: {
-              equals: String(ctx.userId),
-            },
+    const { take, skip, status, include } = parsedInput;
+    return prisma.bookingRequest.findMany({
+      take,
+      skip,
+      include: include || {
+        user: true,
+      },
+      where: {
+        status,
+        listing: {
+          ownerId: {
+            equals: String(ctx.userId),
           },
         },
-      });
-      return {
-        success: true,
-        data: bookingRequests,
-      };
-    } catch (error) {
-      assertError(error);
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
+      },
+    });
   });
