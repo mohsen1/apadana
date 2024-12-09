@@ -13,16 +13,21 @@ WORKDIR /app
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 
-# update-notifier=false
+# Configure pnpm
 RUN pnpm config set update-notifier false
-# node deprecation warnings off
 RUN pnpm config set node-deprecation-warnings false
-# Turn off Node.js warnings
 ENV NODE_OPTIONS=--no-warnings
 
-# Copy and install dependencies
+# Setup pnpm cache
+RUN mkdir -p /app/.pnpm-store
+ENV PNPM_HOME=/app/.pnpm-store
+
+# Copy package files first
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --ignore-scripts --ignore-scripts 
+
+# Install dependencies with named cache
+RUN --mount=type=cache,target=/app/.pnpm-store,id=pnpm-store \
+  pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .
@@ -30,11 +35,8 @@ COPY . .
 # Disable Next.js telemetry
 RUN pnpm exec next telemetry disable
 
-# Build the application
-ENV PRISMA_OUTPUT_DIR node_modules/.prisma/client
-ENV NODE_ENV production
-ENV NEXT_PUBLIC_DOMAIN localhost:3030
-RUN pnpm prisma:generate
+# Build with Next.js cache
+RUN --mount=type=cache,target=/app/.next/cache pnpm prisma:generate && pnpm build
 
 # Expose port and start the application
 EXPOSE 3030
