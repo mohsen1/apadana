@@ -38,7 +38,7 @@
     "test:watch": "dotenv -e .env.test -- vitest",
     "test:coverage": "dotenv -e .env.test -- vitest run --coverage",
     "e2e": "PORT=3030 playwright test --project=chromium",
-    "e2e:dev": "PORT=3000 playwright test --project=chromium",
+    "e2e:dev": "PORT=3000 PLAYWRIGHT_IS_TESTING_DEV=true playwright test --project=chromium",
     "e2e:ci": "playwright test",
     "e2e:prod": "BASE_URL=https://apadana.app playwright test --project=chromium",
     "format": "prettier -w .",

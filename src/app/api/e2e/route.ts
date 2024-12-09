@@ -2,6 +2,8 @@ import { setServerSession } from '@/lib/auth';
 import { SESSION_DURATION } from '@/lib/auth/constants';
 import prisma from '@/lib/prisma/client';
 
+import { assertError } from '@/utils';
+
 export const runtime = 'nodejs';
 
 export const dynamic = 'force-dynamic';
@@ -16,60 +18,67 @@ interface E2ECommand {
  * running in the e2e test environment.
  */
 export async function POST(request: Request) {
-  if (
-    process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' &&
-    process.env.NODE_ENV !== 'development'
-  ) {
-    return new Response('Not allowed', { status: 403 });
-  }
+  try {
+    if (
+      process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' &&
+      process.env.NODE_ENV !== 'development'
+    ) {
+      return new Response('Not allowed', { status: 403 });
+    }
 
-  const body: E2ECommand = await request.json();
+    const body: E2ECommand = await request.json();
 
-  const { command, args = {} } = body as E2ECommand;
+    const { command, args = {} } = body as E2ECommand;
 
-  if (!command) {
-    return new Response('No command provided', { status: 400 });
-  }
+    if (!command) {
+      return new Response('No command provided', { status: 400 });
+    }
 
-  switch (command) {
-    case 'login': {
-      const email = args.email ?? 'test@example.com';
-      const testUser = await prisma.user.findFirst({
-        where: {
-          emailAddresses: { some: { emailAddress: email } },
-        },
-      });
-      if (!testUser) {
-        return new Response('Test user not found', { status: 404 });
-      }
-
-      const session = await prisma.session.create({
-        data: {
-          userId: args.userId ? args.userId : testUser.id,
-          expiresAt: new Date(Date.now() + SESSION_DURATION.milliseconds()),
-        },
-      });
-
-      const cookie = await setServerSession(session);
-
-      return new Response(
-        JSON.stringify({
-          email,
-        }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            'Set-Cookie': cookie.toString(),
-            'Access-Control-Allow-Credentials': 'true',
-            'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_DOMAIN,
+    switch (command) {
+      case 'login': {
+        const email = args.email ?? 'test@example.com';
+        const testUser = await prisma.user.findFirst({
+          where: {
+            emailAddresses: { some: { emailAddress: email } },
           },
-        },
-      );
+        });
+        if (!testUser) {
+          return new Response('Test user not found', { status: 404 });
+        }
+
+        const session = await prisma.session.create({
+          data: {
+            userId: args.userId ? args.userId : testUser.id,
+            expiresAt: new Date(Date.now() + SESSION_DURATION.milliseconds()),
+          },
+        });
+
+        const cookie = await setServerSession(session);
+
+        return new Response(
+          JSON.stringify({
+            email,
+          }),
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+              'Set-Cookie': cookie.toString(),
+              'Access-Control-Allow-Credentials': 'true',
+              'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_DOMAIN,
+            },
+          },
+        );
+      }
+      default: {
+        return new Response(`Unknown command "${command}"`, { status: 400 });
+      }
     }
-    default: {
-      return new Response(`Unknown command "${command}"`, { status: 400 });
-    }
+  } catch (error) {
+    assertError(error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+    });
   }
 }
 
