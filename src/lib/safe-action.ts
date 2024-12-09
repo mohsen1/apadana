@@ -50,7 +50,7 @@ export const baseClient = createSafeActionClient({
 export type SafeActionContext = {
   user?: User | null;
   userId?: string | null;
-  setSession?: (session: Session) => void;
+  setSession: (session: Session) => void;
 };
 
 export const actionClient = baseClient.use<SafeActionContext>(
