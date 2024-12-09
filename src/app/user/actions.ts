@@ -10,7 +10,7 @@ import {
   UnauthorizedError,
 } from '@/lib/safe-action';
 
-import { clientUserSchema } from '@/app/auth/actions';
+import { clientUserSchema } from '@/app/auth/schema';
 import logger from '@/utils/logger';
 
 import { updateUserSchema } from './schema';
