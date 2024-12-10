@@ -13,6 +13,10 @@ const config: Config = {
         DEFAULT: '#010101',
         dark: '#f9f9f9',
       },
+      destructive: {
+        DEFAULT: '#ef4444',
+        dark: '#ef4444',
+      },
       border: {
         DEFAULT: '#e0e0e0',
         dark: '#262626',

@@ -46,7 +46,5 @@ EXPOSE 3000 6006 5555
 COPY docker-entrypoint.dev.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.dev.sh
 
-
-
 ENTRYPOINT ["docker-entrypoint.dev.sh"]
 CMD ["pnpm", "run", "dev"]

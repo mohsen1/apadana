@@ -3,7 +3,21 @@ import path from 'path';
 
 const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
-setup('authenticate', async ({ page, context }) => {
+const prodTestUser = {
+  email: 'me+apadana_prod_test@azimi.me',
+  password: 'nslr83ub9v8',
+};
+
+setup('authenticate', async ({ page, context, baseURL }) => {
+  if (baseURL?.includes('apadana.app')) {
+    await page.goto('/sign-in');
+    await page.getByLabel('Email').fill(prodTestUser.email);
+    await page.getByLabel('Password').fill(prodTestUser.password);
+
+    await page.getByRole('button', { name: 'Log in' }).click();
+    return;
+  }
+
   const response = await context.request.post('/api/e2e', {
     data: {
       command: 'login',

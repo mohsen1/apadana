@@ -24,8 +24,8 @@ export default function NotFound({
   backText?: string;
 }) {
   return (
-    <main className='flex-grow grid place-items-center'>
-      <section className='text-foreground grid place-items-center h-full'>
+    <main className='flex-grow grid place-items-center mt-10'>
+      <section className='text-foreground grid place-items-center h-full dark:text-foreground-dark'>
         <div className='layout flex flex-col items-center justify-center text-center'>
           <OctagonAlert
             size={100}
