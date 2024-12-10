@@ -3,7 +3,8 @@ default:
   help: Build the application
   depends:
     - prisma/generate
-  envFile: .env.local
+  envFile:
+    - .env.local
 
 storybook:
   command: storybook build

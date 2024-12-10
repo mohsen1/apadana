@@ -4,8 +4,8 @@ default:
 
 fix:
   steps:
-    - eslint src --fix
-    - pnpm script format run
+    - command: eslint src --fix
+    - script: format run
   help: Fix linting issues
 
 strict:

@@ -1,4 +1,5 @@
 default:
+  help: Start development server
   concurrently:
     - command: 'pnpm script dev next'
       prefix: 'blue.bold'
@@ -15,7 +16,8 @@ default:
   depends:
     - prisma/generate
     - migrate/dev
-  envFile: .env.local
+  envFile:
+    - .env.local
 
 next:
   command: next dev --turbo
@@ -24,18 +26,21 @@ next:
 prisma:
   command: prisma generate --no-hints --watch
   help: Watch and generate Prisma client
-  envFile: .env.local
-
-prisma:seed:
-  command: prisma db seed
-  help: Seed the database
-  envFile: .env.local
+  envFile:
+    - .env.local
+  subcommands:
+    seed:
+      command: prisma db seed
+      help: Seed the database
 
 storybook:
   command: storybook dev --quiet --port=6006 --no-open | grep -v -iE '^(info|warn)'
   help: Start Storybook development server
 
 studio:
-  command: nodemon --watch prisma/schema.prisma --exec 'prisma studio --browser none'
+  command: prisma studio --browser none
   help: Start Prisma Studio
-  envFile: .env
+  envFile:
+    - .env
+  watch:
+    - prisma/schema.prisma

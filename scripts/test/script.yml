@@ -1,22 +1,25 @@
 default:
   command: vitest run
   help: Run tests
-  envFile: .env.test
+  envFile:
+    - .env.test
 
 watch:
   command: vitest
   help: Run tests in watch mode
-  envFile: .env.test
+  envFile:
+    - .env.test
 
 coverage:
   command: vitest run --coverage
   help: Run tests with coverage
-  envFile: .env.test
+  envFile:
+    - .env.test
 
 ui:
   command: vitest --ui
   help: Run tests with UI
 
 cleanup:
-  command: docker-compose -f docker-compose.test.yml down
+  command: docker compose -f docker-compose.test.yml down
   help: Clean up test containers
