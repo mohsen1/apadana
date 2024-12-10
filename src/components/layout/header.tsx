@@ -1,74 +1,125 @@
-'use server';
+'use client';
 
-import { HomeIcon } from 'lucide-react';
-import Head from 'next/head';
+import { HomeIcon, Menu } from 'lucide-react';
 import Link from 'next/link';
+import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { LoggedInHeaderLinks } from '@/components/layout/LoggedInHeaderLinks';
-import { Nav } from '@/components/layout/Nav';
 import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
-export async function Header({ className }: { className?: string }) {
+import { LoggedInHeaderLinks } from './LoggedInHeaderLinks';
+import { Nav } from './Nav';
+
+export function Header({ className }: { className?: string }) {
   const isDev = process.env.NODE_ENV === 'development';
 
-  const showHeaderLinks =
-    process.env.NODE_ENV === 'development' ||
-    process.env.NEXT_PUBLIC_TEST_ENV === 'e2e' ||
-    process.env.NEXT_PUBLIC_TEST_ENV === 'unit';
+  const showHeaderLinks = true; // Always show for demo purposes
+
   return (
     <header
       className={cn(
-        'flex-1 px-4 lg:px-6 flex items-center bg-gray-100 dark:bg-gray-900',
+        'sticky top-0 z-50 flex h-16 items-center justify-between px-4 backdrop-blur-sm bg-white/75 dark:bg-gray-900/75 supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60',
+        'border-b border-gray-200 dark:border-gray-800',
         className,
       )}
     >
-      <Head>
-        <title>Apadana {isDev ? '(Dev)' : null}</title>
-      </Head>
-      <div>
-        <Link href='/' legacyBehavior>
-          <a className='flex gap-2 text-gray-800 dark:text-gray-200'>
-            <HomeIcon className='h-6 w-6 text-gray-800 dark:text-gray-200' />
-            <span className='font-bold'>Apadana {isDev ? '(Dev)' : null}</span>
-          </a>
+      <div className='flex items-center gap-4'>
+        <Link
+          href='/'
+          className='flex items-center gap-2 whitespace-nowrap text-gray-800 dark:text-gray-200'
+        >
+          <HomeIcon className='h-6 w-6' />
+          <span className='font-bold'>Apadana {isDev ? '(Dev)' : null}</span>
         </Link>
-      </div>
-      <div className='flex ml-10 border-l border-gray-300 dark:border-gray-700 pl-4'>
-        {showHeaderLinks && <LoggedInHeaderLinks />}
 
+        <div className='hidden border-l border-gray-200 dark:border-gray-800 pl-4 lg:flex lg:gap-6'>
+          {showHeaderLinks && <LoggedInHeaderLinks />}
+        </div>
+      </div>
+
+      <div className='flex items-center gap-4'>
+        <div className='hidden lg:flex'>
+          {showHeaderLinks && (
+            <>
+              <Button asChild variant='ghost' size='sm'>
+                <Link
+                  href='http://localhost:5555'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                >
+                  Prisma Studio
+                </Link>
+              </Button>
+              <Button asChild variant='ghost' size='sm'>
+                <Link
+                  href='http://localhost:6006'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                >
+                  Storybook
+                </Link>
+              </Button>
+              <Button asChild variant='ghost' size='sm'>
+                <Link href='/local-inbox'>Emails</Link>
+              </Button>
+            </>
+          )}
+        </div>
+
+        <Nav />
+
+        {/* Mobile Menu */}
         {showHeaderLinks && (
-          <>
-            <Button
-              href='http://localhost:5555'
-              variant='link'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-gray-800 dark:text-gray-200'
+          <Sheet>
+            <SheetTrigger
+              asChild
+              className='dark:hover:bg-background-dark dark:hover:text-foreground-dark'
             >
-              Prisma Studio
-            </Button>
-            <Button
-              href='http://localhost:6006'
-              variant='link'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-gray-800 dark:text-gray-200'
-            >
-              Storybook
-            </Button>
-            <Button
-              href='/local-inbox'
-              variant='link'
-              className='text-gray-800 dark:text-gray-200'
-            >
-              Emails
-            </Button>
-          </>
+              <Button variant='ghost' size='icon' className='lg:hidden'>
+                <Menu className='h-5 w-5' />
+                <span className='sr-only'>Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent className='bg-background dark:bg-background-dark dark:border-border-dark'>
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className='flex flex-col gap-4 mt-4'>
+                <LoggedInHeaderLinks />
+                <Button asChild variant='ghost' size='sm'>
+                  <Link
+                    href='http://localhost:5555'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
+                    Prisma Studio
+                  </Link>
+                </Button>
+                <Button asChild variant='ghost' size='sm'>
+                  <Link
+                    href='http://localhost:6006'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
+                    Storybook
+                  </Link>
+                </Button>
+                <Button asChild variant='ghost' size='sm'>
+                  <Link href='/local-inbox'>Emails</Link>
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         )}
       </div>
-      {showHeaderLinks && <Nav />}
     </header>
   );
 }
