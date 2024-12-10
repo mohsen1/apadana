@@ -37,11 +37,8 @@ export async function PUT(
   { params }: { params: Promise<{ path: string[] }> },
 ) {
   if (!isDevOrTestEnv) {
-    console.log('PUT request received but not in dev or test env');
     return new NextResponse('Forbidden', { status: 403 });
   }
-
-  console.log('PUT request received');
 
   try {
     const { path: pathParam } = await params;

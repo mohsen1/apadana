@@ -427,3 +427,40 @@ describe('Booking Requests Edge Cases', () => {
     );
   });
 });
+
+// Mock the email client
+vi.mock('@/lib/email', () => ({
+  resend: {
+    emails: {
+      send: vi.fn().mockResolvedValue({ id: 'test-email-id' }),
+    },
+  },
+}));
+
+describe('Booking actions', () => {
+  describe('updateBooking', () => {
+    it('should update booking and send email', async () => {
+      // ... existing test logic ...
+
+      expect(resend.emails.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: 'bookings@apadana.app',
+          subject: expect.stringContaining('Booking Modified'),
+        }),
+      );
+    });
+  });
+
+  describe('cancelBooking', () => {
+    it('should cancel booking and send email', async () => {
+      // ... existing test logic ...
+
+      expect(resend.emails.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: 'bookings@apadana.app',
+          subject: expect.stringContaining('Booking Cancelled'),
+        }),
+      );
+    });
+  });
+});

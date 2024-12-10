@@ -3,6 +3,7 @@
 import { addDays, eachDayOfInterval } from 'date-fns';
 import { z } from 'zod';
 
+import { resend } from '@/lib/email';
 import { sendBookingRequestEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import {
@@ -15,6 +16,8 @@ import {
   ClientVisibleError,
   UnauthorizedError,
 } from '@/lib/safe-action';
+
+import BookingAlterationEmail from '@/components/emails/BookingAlterationEmail';
 
 import logger from '@/utils/logger';
 
@@ -234,4 +237,109 @@ export const getBookingRequests = actionClient
         },
       },
     });
+  });
+
+export const updateBooking = actionClient
+  .schema(UpdateBookingSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    try {
+      const { bookingId, startDate, endDate } = parsedInput;
+
+      // Get the existing booking first
+      const existingBooking = await prisma.booking.findUnique({
+        where: { id: bookingId },
+        include: {
+          listingInventory: {
+            include: {
+              listing: true,
+            },
+          },
+          user: true,
+        },
+      });
+
+      if (!existingBooking) {
+        throw new Error('Booking not found');
+      }
+
+      // Update the booking
+      const updatedBooking = await prisma.booking.update({
+        where: { id: bookingId },
+        data: {
+          startDate,
+          endDate,
+        },
+        include: {
+          listing: true,
+          user: true,
+        },
+      });
+
+      // Send email notification
+      try {
+        await resend.emails.send({
+          from: 'bookings@apadana.app',
+          to: updatedBooking.user.email,
+          subject: `Booking Modified - ${updatedBooking.listing.title}`,
+          react: BookingAlterationEmail({
+            listingTitle: updatedBooking.listing.title,
+            startDate,
+            endDate,
+            guestName: updatedBooking.user.name,
+            alterationType: 'modified',
+            previousStartDate: existingBooking.startDate,
+            previousEndDate: existingBooking.endDate,
+          }),
+        });
+      } catch (error) {
+        logger.error('Failed to send booking modification email', error);
+      }
+
+      return { success: true, booking: updatedBooking };
+    } catch (error) {
+      logger.error('Failed to update booking', error);
+      throw error;
+    }
+  });
+
+export const cancelBooking = actionClient
+  .schema(cancelBookingSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    try {
+      const { bookingId } = parsedInput;
+
+      const booking = await prisma.booking.update({
+        where: { id: bookingId },
+        data: {
+          status: 'CANCELLED',
+        },
+        include: {
+          listing: true,
+          user: true,
+        },
+      });
+
+      // Send cancellation email
+      try {
+        await resend.emails.send({
+          from: 'bookings@apadana.app',
+          to: booking.user.email,
+          subject: `Booking Cancelled - ${booking.listing.title}`,
+          react: BookingAlterationEmail({
+            listingTitle: booking.listing.title,
+            startDate: booking.startDate,
+            endDate: booking.endDate,
+            guestName: booking.user.name,
+            alterationType: 'cancelled',
+          }),
+        });
+      } catch (error) {
+        logger.error('Failed to send booking cancellation email', error);
+      }
+
+      return { success: true, booking };
+    } catch (error) {
+      logger.error('Failed to cancel booking', error);
+      throw error;
+    }
   });
