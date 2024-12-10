@@ -1,0 +1,10 @@
+default:
+  command: next build
+  help: Build the application
+  depends:
+    - prisma/generate
+  envFile: .env.local
+
+storybook:
+  command: storybook build
+  help: Build Storybook

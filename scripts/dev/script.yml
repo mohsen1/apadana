@@ -1,0 +1,41 @@
+default:
+  concurrently:
+    - command: 'pnpm script dev next'
+      prefix: 'blue.bold'
+      label: next
+    - command: 'pnpm script dev prisma'
+      prefix: 'magenta.bold'
+      label: prisma
+    - command: 'pnpm script dev storybook'
+      prefix: 'green.bold'
+      label: storybook
+    - command: 'pnpm script dev studio'
+      prefix: 'yellow.bold'
+      label: studio
+  depends:
+    - prisma/generate
+    - migrate/dev
+  envFile: .env.local
+
+next:
+  command: next dev --turbo
+  help: Start Next.js development server
+
+prisma:
+  command: prisma generate --no-hints --watch
+  help: Watch and generate Prisma client
+  envFile: .env.local
+
+prisma:seed:
+  command: prisma db seed
+  help: Seed the database
+  envFile: .env.local
+
+storybook:
+  command: storybook dev --quiet --port=6006 --no-open | grep -v -iE '^(info|warn)'
+  help: Start Storybook development server
+
+studio:
+  command: nodemon --watch prisma/schema.prisma --exec 'prisma studio --browser none'
+  help: Start Prisma Studio
+  envFile: .env

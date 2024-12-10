@@ -15,6 +15,7 @@ Typescript Rules:
 
 - Use `assertError` to assert errors
 - Use modern syntax: ?. ?? #private AsyncIterators for..of and anything ES2022+
+- Use top level await
 
 Next.js Rules:
 

@@ -1,0 +1,13 @@
+generate:
+  command: prisma generate --no-hints
+  help: Generate Prisma client
+  envFile: .env.local
+
+watch:
+  command: prisma generate --no-hints --watch
+  help: Watch and generate Prisma client
+  envFile: .env.local
+
+deploy:
+  command: prisma migrate deploy
+  help: Deploy database migrations

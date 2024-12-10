@@ -1,0 +1,68 @@
+dev:
+  concurrently:
+    - command: 'pnpm script docker dev start'
+      prefix: 'blue.bold'
+      label: docker
+    - command: 'pnpm script prisma watch'
+      prefix: 'magenta.bold'
+      label: prisma
+  help: Start development environment with Docker
+  subcommands:
+    start:
+      command: docker-compose up --build --no-log-prefix --abort-on-container-exit
+    help: Start Docker containers for development
+    env:
+      DOCKER_BUILDKIT: '1'
+      COMPOSE_DOCKER_CLI_BUILD: '1'
+
+down:
+  command: docker-compose down
+  help: Stop and remove Docker containers
+
+clean:
+  steps:
+    - docker-compose down -v
+    - docker volume prune -f
+  help: Clean up Docker containers and volumes
+
+db:
+  command: docker-compose exec db psql -U admin -d apadana
+  help: Connect to PostgreSQL database
+
+rebuild:
+  steps:
+    - docker compose build --no-cache app
+    - docker compose up --no-log-prefix
+  help: Rebuild and start Docker containers
+  env:
+    DOCKER_BUILDKIT: '1'
+    COMPOSE_DOCKER_CLI_BUILD: '1'
+
+prune:
+  command: docker system prune -af --volumes
+  help: Remove all unused Docker data
+
+prod:
+  command: docker-compose -f docker-compose.prod.yml up --build --no-log-prefix
+  help: Start production environment
+  env:
+    DOCKER_BUILDKIT: '1'
+    COMPOSE_DOCKER_CLI_BUILD: '1'
+  subcommands:
+    down:
+      command: docker-compose -f docker-compose.prod.yml down
+      help: Stop production containers
+    logs:
+      command: docker-compose -f docker-compose.prod.yml logs -f
+      help: View production container logs
+    clean:
+      command: docker-compose -f docker-compose.prod.yml down -v
+      help: Clean up production containers and volumes
+    rebuild:
+      steps:
+        - docker-compose -f docker-compose.prod.yml build app_prod
+        - docker-compose -f docker-compose.prod.yml up -d app_prod
+      help: Rebuild and start production containers
+      env:
+        DOCKER_BUILDKIT: '1'
+        COMPOSE_DOCKER_CLI_BUILD: '1'

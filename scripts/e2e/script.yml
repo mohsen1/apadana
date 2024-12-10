@@ -1,0 +1,22 @@
+run:
+  command: playwright test --project=chromium
+  help: Run end-to-end tests
+  env:
+    PORT: '3030'
+
+dev:
+  command: playwright test --project=chromium
+  help: Run end-to-end tests in development mode
+  env:
+    PORT: '3000'
+    PLAYWRIGHT_IS_TESTING_DEV: 'true'
+
+ci:
+  command: playwright test
+  help: Run end-to-end tests in CI
+
+prod:
+  command: playwright test --project=chromium
+  help: Run end-to-end tests against production
+  env:
+    BASE_URL: https://apadana.app

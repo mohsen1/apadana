@@ -1,0 +1,13 @@
+default:
+  command: next lint
+  help: Lint code
+
+fix:
+  steps:
+    - eslint src --fix
+    - pnpm script format run
+  help: Fix linting issues
+
+strict:
+  command: eslint --max-warnings=0 src
+  help: Lint code with strict rules

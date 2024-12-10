@@ -1,0 +1,8 @@
+dev:
+  command: prisma migrate dev --name $(date +'%Y%m%d_%H%M%S')
+  help: Create and apply development migrations
+  envFile: .env.local
+
+prod:
+  command: prisma migrate deploy
+  help: Deploy production migrations

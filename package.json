@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "docker:dev": "concurrently \"pnpm docker:dev:start\" \"pnpm prisma:watch\" --kill-others-on-fail --handle-input --raw",
-    "docker:dev:start": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose up --build --no-log-prefix --abort-on-container-exit",
-    "docker:down": "docker-compose down",
+    "script": "tsx src/bin/script.mts",
+    "docker:dev": "pnpm script docker dev",
+    "docker:dev:start": "pnpm script docker dev:start",
+    "docker:down": "pnpm script docker down",
     "docker:clean": "docker-compose down -v && docker volume prune -f",
     "docker:db": "docker-compose exec db psql -U admin -d apadana",
     "docker:rebuild": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose build --no-cache app && docker compose up --no-log-prefix",
@@ -48,7 +49,8 @@
     "storybook": "storybook dev -p 6006 --quiet",
     "build-storybook": "storybook build",
     "test:ui": "vitest --ui",
-    "test:cleanup": "docker-compose -f docker-compose.test.yml down"
+    "test:cleanup": "docker-compose -f docker-compose.test.yml down",
+    "postinstall": "chmod +x src/bin/script.sh"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.705.0",
@@ -84,11 +86,14 @@
     "@vercel/postgres": "^0.10.0",
     "@vercel/speed-insights": "^1.1.0",
     "axios": "^1.7.9",
+    "chalk": "^5.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "commander": "^11.0.0",
     "date-fns": "^3.6.0",
     "date-fns-tz": "^3.2.0",
     "dotenv-cli": "^7.4.4",
+    "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.439.0",
     "next": "15.0.3",
@@ -110,6 +115,8 @@
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.19.2",
     "uvcanvas": "^0.2.2",
+    "yaml": "^2.3.1",
+    "yargs": "^17.7.2",
     "yet-another-react-lightbox": "^3.21.7",
     "zod": "^3.23.8"
   },
@@ -129,9 +136,11 @@
     "@testcontainers/postgresql": "^10.16.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.1",
     "@types/qs": "^6.9.17",
     "@types/react": "npm:types-react@19.0.0-rc.1",
+    "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.3.4",
@@ -181,5 +190,8 @@
   },
   "prisma": {
     "seed": "tsx --env-file .env.local prisma/seed.ts"
+  },
+  "bin": {
+    "script": "./src/bin/script.sh"
   }
 }

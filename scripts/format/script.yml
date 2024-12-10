@@ -1,0 +1,7 @@
+default:
+  command: prettier -w .
+  help: Format code
+
+check:
+  command: prettier -c .
+  help: Check code formatting

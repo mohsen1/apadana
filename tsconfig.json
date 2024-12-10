@@ -31,7 +31,11 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "prisma/**/*.ts"
+    "prisma/**/*.ts",
+    "src/lib/script-runner/cli.mts",
+    "src/lib/script-runner/runner.mts",
+    "src/lib/script-runner/types.mts",
+    "src/bin/script.mts"
   ],
   "exclude": ["node_modules", ".next"],
   "moduleResolution": ["node_modules", ".next", "node"]
