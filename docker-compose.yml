@@ -16,7 +16,6 @@ services:
       - app_node_modules:/app/node_modules
       - pnpm_store:/root/.pnpm-store
       - next_cache:/app/.next
-      - ./package.json:/app/package.json:delegated
     env_file:
       - .env.local
     environment:
@@ -25,24 +24,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 8G
-        reservations:
-          cpus: '1'
-          memory: 4G
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-        tag: '{{.Name}}'
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
 
   db:
     image: postgres:16
@@ -59,12 +40,6 @@ services:
       - POSTGRES_DB=apadana
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-        tag: '{{.Name}}'
     command:
       ['postgres', '-c', 'log_statement=none', '-c', 'log_min_messages=panic']
 

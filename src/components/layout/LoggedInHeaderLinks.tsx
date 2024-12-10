@@ -1,23 +1,20 @@
-'use server';
-
 import { Button } from '@/components/ui/button';
 
-import { getCurrentUser } from '@/app/auth/actions';
-
-export async function LoggedInHeaderLinks() {
-  const result = await getCurrentUser();
-  const user = result?.data?.user;
-
-  if (!user) {
-    null;
-  }
-
+export function LoggedInHeaderLinks() {
   return (
     <>
-      <Button href='/listing/create' variant='link'>
+      <Button
+        variant='link'
+        href='/create-listing'
+        className='text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
+      >
         Create Listing
       </Button>
-      <Button href='/listing' variant='link'>
+      <Button
+        variant='link'
+        href='/my-listings'
+        className='text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
+      >
         My Listings
       </Button>
     </>

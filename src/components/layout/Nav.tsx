@@ -1,37 +1,83 @@
 'use client';
 
+import { LogOut, Settings, User } from 'lucide-react';
+
 import { useAuth } from '@/hooks/use-auth';
 
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
-import type { ClientUser } from '@/contexts/auth-context';
+import { ClientUser } from '@/contexts/auth-context';
 
-const SignInButton = () => (
-  <Button variant='link' href='/sign-in'>
-    Sign In
-  </Button>
-);
-
-const UserButton = ({ user }: { user: ClientUser | null }) => (
-  <Button variant='link' href='/user'>
-    <span className='flex mr-2 items-center gap-2'>
-      Hello, {user?.firstName} {user?.lastName}
-    </span>
-    <Avatar>
-      <AvatarImage src={user?.imageUrl ?? ''} />
-    </Avatar>
-  </Button>
-);
+const UserButton = ({ user }: { user: ClientUser }) => {
+  const { signOut } = useAuth();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant='ghost'
+          size='sm'
+          className='flex items-center gap-2 dark:hover:bg-background-dark dark:hover:text-foreground-dark'
+        >
+          <span className='hidden sm:inline-flex'>
+            Hello, {user.firstName} {user.lastName}
+          </span>
+          <Avatar className='h-8 w-8'>
+            <AvatarImage src={user.imageUrl || ''} />
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className='w-56 bg-background border-border text-foreground dark:bg-background-dark dark:text-foreground-dark dark:border-border-dark'
+        align='end'
+      >
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem className='cursor-pointer' asChild>
+            <a href='/user'>
+              <User className='mr-2 h-4 w-4' />
+              Profile
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild className='cursor-pointer'>
+            <a href='/settings'>
+              <Settings className='mr-2 h-4 w-4' />
+              Settings
+            </a>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={signOut} className='cursor-pointer'>
+          <LogOut className='mr-2 h-4 w-4' />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 export function Nav() {
   const { user } = useAuth();
 
   return (
-    <nav className='ml-auto flex gap-4 sm:gap-6'>
-      {/* Hiding sign in button until launch */}
-      {user && <UserButton user={user} />}
-      {!user && <SignInButton />}
+    <nav className='flex items-center gap-4'>
+      {user ? (
+        <UserButton user={user} />
+      ) : (
+        <Button variant='default' size='sm' asChild>
+          <a href='/sign-in'>Sign In</a>
+        </Button>
+      )}
     </nav>
   );
 }

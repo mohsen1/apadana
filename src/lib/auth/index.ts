@@ -3,6 +3,8 @@ import { cookies } from 'next/headers';
 
 import prisma from '@/lib/prisma/client';
 
+import { Logger } from '@/utils/logger';
+
 import { SESSION_COOKIE_NAME } from './constants';
 
 export async function deleteServerSession() {
@@ -11,14 +13,20 @@ export async function deleteServerSession() {
 }
 
 export async function setServerSession(session: Session) {
+  const logger = new Logger('setServerSession');
   const { set: setCookie } = await cookies();
 
-  let vercelUrl = process.env.VERCEL_URL;
+  let vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
 
-  // eslint-disable-next-line no-console
-  console.log('process.env.VERCEL_URL', process.env.VERCEL_URL);
+  // TODO: Remove logging VERCEL_PROJECT_PRODUCTION_URL after testing
+  logger.log(
+    'process.env.VERCEL_PROJECT_PRODUCTION_URL',
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  );
 
-  if (!vercelUrl.startsWith('http://') && !vercelUrl.startsWith('https://')) {
+  if (!vercelUrl.includes('localhost:')) {
+    vercelUrl = `http://${vercelUrl}`;
+  } else {
     vercelUrl = `https://${vercelUrl}`;
   }
 
