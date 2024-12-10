@@ -17,6 +17,5 @@
       "main": true,
       "preview": true
     }
-  },
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./"
+  }
 }
