@@ -3,7 +3,8 @@ on:
   push:
     branches:
       - main
-  pull_request: {}
+  pull_request:
+    branches: ['main']
 
 concurrency:
   group: ${{ github.job }}-${{ github.ref }}
@@ -105,3 +106,8 @@ jobs:
           DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/apadana_test_ci'
           TEST_ENV: 'unit'
           VERCEL_URL: fake-vercel.com
+      - name: Don't cancel Vercel
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "::warning::Ensuring Vercel deployment continues"
+          fi
