@@ -15,10 +15,12 @@ const SignInButton = () => (
 
 const UserButton = ({ user }: { user: ClientUser | null }) => (
   <Button variant='link' href='/user'>
+    <span className='flex mr-2 items-center gap-2'>
+      Hello, {user?.firstName} {user?.lastName}
+    </span>
     <Avatar>
       <AvatarImage src={user?.imageUrl ?? ''} />
     </Avatar>
-    Hello, {user?.firstName} {user?.lastName}
   </Button>
 );
 
@@ -28,8 +30,8 @@ export function Nav() {
   return (
     <nav className='ml-auto flex gap-4 sm:gap-6'>
       {/* Hiding sign in button until launch */}
-      {!user && <SignInButton />}
       {user && <UserButton user={user} />}
+      {!user && <SignInButton />}
     </nav>
   );
 }

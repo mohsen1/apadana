@@ -1,12 +1,13 @@
 'use server';
 
 import { addDays, eachDayOfInterval } from 'date-fns';
+import { z } from 'zod';
 
 import { sendBookingRequestEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import {
   CreateBookingRequestSchema,
-  GetBookingRequestSchema,
+  getBookingRequestSchema,
   GetBookingRequestsSchema,
 } from '@/lib/prisma/schema';
 import {
@@ -18,36 +19,93 @@ import {
 import logger from '@/utils/logger';
 
 export const getBookingRequest = actionClient
-  .schema(GetBookingRequestSchema)
-  .outputSchema(GetBookingRequestSchema)
-  .action(async ({ parsedInput, ctx }) => {
-    const { id } = parsedInput;
-    const bookingRequest = await prisma.bookingRequest.findUnique({
-      where: {
-        id,
-        userId: String(ctx.userId),
-      },
-      include: {
-        listing: {
-          include: {
-            images: true,
-            owner: true,
-            inventory: true,
-          },
+  .schema(getBookingRequestSchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      const bookingRequest = await prisma.bookingRequest.findUnique({
+        where: { id: parsedInput.id },
+        include: {
+          listing: true,
+          user: true,
         },
-        user: {
-          include: {
-            emailAddresses: true,
-          },
-        },
-      },
-    });
+      });
 
-    if (!bookingRequest) {
-      throw new ClientVisibleError('Booking request not found');
+      return bookingRequest;
+    } catch (error) {
+      logger.error('Failed to get booking request:', error);
+      throw new Error('Failed to get booking request');
+    }
+  });
+
+// Schema for altering a booking request
+const alterBookingRequestSchema = z.object({
+  bookingRequestId: z.number(),
+  checkIn: z.date(),
+  checkOut: z.date(),
+  guestCount: z.number().min(1),
+  message: z.string().optional(),
+});
+
+export const alterBookingRequest = actionClient
+  .schema(alterBookingRequestSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    if (!ctx?.user?.id) {
+      throw new UnauthorizedError();
     }
 
-    return bookingRequest;
+    try {
+      const originalRequest = await prisma.bookingRequest.findUnique({
+        where: { id: parsedInput.bookingRequestId },
+        include: { listing: true },
+      });
+
+      if (!originalRequest) {
+        throw new ClientVisibleError('Original booking request not found');
+      }
+
+      if (originalRequest.userId !== ctx.user.id) {
+        throw new UnauthorizedError(
+          'Unauthorized to alter this booking request',
+        );
+      }
+
+      if (originalRequest.status !== 'PENDING') {
+        throw new ClientVisibleError(
+          'Cannot alter a booking that is not pending',
+        );
+      }
+
+      // Create new booking request as an alteration
+      const alteredRequest = await prisma.bookingRequest.create({
+        data: {
+          listingId: originalRequest.listingId,
+          userId: ctx.user.id,
+          checkIn: parsedInput.checkIn,
+          checkOut: parsedInput.checkOut,
+          guests: parsedInput.guestCount,
+          message: parsedInput.message ?? '',
+          status: 'PENDING',
+          alterationOf: originalRequest.id,
+          pets: originalRequest.pets, // Maintain original pets status
+          totalPrice: 0, // This should be calculated based on the new dates
+        },
+        include: {
+          listing: true,
+          user: true,
+        },
+      });
+
+      // Update original request status
+      await prisma.bookingRequest.update({
+        where: { id: originalRequest.id },
+        data: { status: 'ALTERED' },
+      });
+
+      return alteredRequest;
+    } catch (error) {
+      logger.error('Failed to alter booking request:', error);
+      throw error;
+    }
   });
 
 export const createBookingRequest = actionClient

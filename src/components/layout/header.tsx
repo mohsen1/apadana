@@ -20,7 +20,7 @@ export async function Header({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        'flex-1 px-4 lg:px-6 flex items-center bg-gray-100 dark:bg-gray-900',
+        'flex-1 px-4 py-2 lg:px-6 flex items-center bg-gray-100 dark:bg-gray-900',
         className,
       )}
     >

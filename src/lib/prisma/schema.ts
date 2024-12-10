@@ -93,45 +93,97 @@ export const EditListingImagesSchema = z.object({
 
 export type EditListingImages = z.infer<typeof EditListingImagesSchema>;
 
-export const CreateBookingRequestSchema = z.object({
-  listingId: z.number(),
-  checkIn: z.date(),
-  checkOut: z.date(),
-  guests: z.number(),
-  pets: z.boolean(),
-  message: z.string(),
-});
-
-export type CreateBookingRequest = z.infer<typeof CreateBookingRequestSchema>;
-
+// Schema for getting a booking request
 export const GetBookingRequestSchema = z.object({
   id: z.number(),
 });
 
 export type GetBookingRequest = z.infer<typeof GetBookingRequestSchema>;
 
-export const GetBookingRequestsSchema = z.object({
+// Schema for altering a booking request
+export const AlterBookingRequestSchema = z.object({
+  bookingRequestId: z.number(),
+  checkIn: z.date(),
+  checkOut: z.date(),
+  guestCount: z.number().min(1),
+  message: z.string().optional(),
+});
+
+export type AlterBookingRequest = z.infer<typeof AlterBookingRequestSchema>;
+
+// Schema for creating a booking request
+export const CreateBookingRequestSchema = z.object({
   listingId: z.number(),
+  checkIn: z.date(),
+  checkOut: z.date(),
+  guests: z.number().min(1),
+  message: z.string(),
+  pets: z.boolean(),
+});
+
+export type CreateBookingRequest = z.infer<typeof CreateBookingRequestSchema>;
+
+// Schema for getting booking requests
+export const GetBookingRequestsSchema = z.object({
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  status: z.nativeEnum(BookingRequestStatus).optional(),
   include: z
     .object({
       user: z.boolean().optional(),
       listing: z.boolean().optional(),
     })
     .optional(),
-  take: z
-    .number()
-    .optional()
-    .default(10)
-    .describe('Limit of how many booking requests to return'),
-  skip: z
-    .number()
-    .optional()
-    .default(0)
-    .describe('Offset of how many booking requests to skip'),
-  status: z.nativeEnum(BookingRequestStatus).optional(),
+});
+
+// Schema for getting a booking request
+export const getBookingRequestSchema = z.object({
+  id: z.number(),
 });
 
 export type GetBookingRequests = z.infer<typeof GetBookingRequestsSchema>;
+
+// Schema for booking request response
+export const BookingRequestResponseSchema = z.object({
+  data: z.object({
+    bookingRequest: z
+      .object({
+        id: z.number(),
+        userId: z.string(),
+        listingId: z.number(),
+        checkIn: z.date(),
+        checkOut: z.date(),
+        guests: z.number(),
+        status: z.nativeEnum(BookingRequestStatus),
+        message: z.string(),
+        pets: z.boolean(),
+        totalPrice: z.number(),
+        createdAt: z.date(),
+        updatedAt: z.date(),
+        alterationOf: z.number().nullable(),
+        listing: z
+          .object({
+            id: z.number(),
+            title: z.string(),
+            // Add other listing fields as needed
+          })
+          .optional(),
+        user: z
+          .object({
+            id: z.string(),
+            firstName: z.string().nullable(),
+            lastName: z.string().nullable(),
+            // Add other user fields as needed
+          })
+          .optional(),
+      })
+      .nullable(),
+  }),
+});
+
+export type BookingRequestResponse = z.infer<
+  typeof BookingRequestResponseSchema
+>;
 
 export const ChangeBookingRequestStatusSchema = z.object({
   bookingRequestId: z.string(),

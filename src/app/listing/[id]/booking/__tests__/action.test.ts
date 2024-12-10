@@ -13,7 +13,7 @@ import {
 } from '@/lib/safe-action';
 
 import {
-  createListing,
+  createTestListing,
   findOrCreateTestUser,
 } from '@/__tests__/setup/fixtures';
 import { clearDatabase } from '@/__tests__/setup/test-container';
@@ -60,7 +60,7 @@ describe('Booking Requests Actions', () => {
     otherUser = await findOrCreateTestUser('other@example.com');
 
     // Create a listing for the host
-    const listing = await createListing({ ownerId: hostUser.id });
+    const listing = await createTestListing({ ownerId: hostUser.id });
     listingId = listing.id;
   });
 
@@ -373,7 +373,7 @@ describe('Booking Requests Edge Cases', () => {
       lastName: 'Edge',
     });
 
-    const listing = await createListing({ ownerId: hostUser.id });
+    const listing = await createTestListing({ ownerId: hostUser.id });
     listingId = listing.id;
 
     // Set the action context to the guest user by default

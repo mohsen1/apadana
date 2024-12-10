@@ -3,6 +3,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      args:
+        - NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET}
+        - NEXT_PUBLIC_DOMAIN=${NEXT_PUBLIC_DOMAIN}
+        - NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION}
     ports:
       - '3000:3000'
       - '6006:6006'
@@ -17,6 +21,7 @@ services:
       - .env.local
     environment:
       - NEXT_SHARP_PATH=/app/node_modules/sharp
+      - NODE_ENV=development
     depends_on:
       db:
         condition: service_healthy
