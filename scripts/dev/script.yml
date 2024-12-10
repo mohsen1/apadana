@@ -1,16 +1,16 @@
 default:
   help: Start development server
   concurrently:
-    - command: 'pnpm script dev next'
+    - script: 'dev next'
       prefix: 'blue.bold'
       label: next
-    - command: 'pnpm script dev prisma'
+    - script: 'dev prisma'
       prefix: 'magenta.bold'
       label: prisma
-    - command: 'pnpm script dev storybook'
+    - script: 'dev storybook'
       prefix: 'green.bold'
       label: storybook
-    - command: 'pnpm script dev studio'
+    - script: 'dev studio'
       prefix: 'yellow.bold'
       label: studio
   depends:
