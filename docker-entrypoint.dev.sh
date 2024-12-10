@@ -1,9 +1,12 @@
 #!/bin/bash
 
+# Forward SIGTERM to child processes
+trap 'kill -TERM $PID' TERM INT
+
 # Function to install dependencies
 install_deps() {
     echo "📦 Installing dependencies..."
-    pnpm install
+    pnpm install --prefer-offline --frozen-lockfile --reporter=append-only
     pnpm prisma generate
     touch node_modules
 }
@@ -21,6 +24,17 @@ fi
         install_deps
     done
 ) &
+WATCH_PID=$!
 
 # Start the application with the passed command
-exec "$@"
+"$@" &
+PID=$!
+
+# Wait for either process to exit
+wait -n $PID $WATCH_PID
+
+# Kill both processes on exit
+kill $PID $WATCH_PID 2>/dev/null
+
+# Clean exit
+exit
