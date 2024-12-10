@@ -11,6 +11,7 @@ const schema = z.object({
 
   // Next
   VERCEL_URL: z.string(),
+  VERCEL_PROJECT_PRODUCTION_URL: z.string(),
   NEXT_PUBLIC_DOMAIN: z.string().url(),
 
   // S3 Upload
