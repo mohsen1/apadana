@@ -10,7 +10,7 @@ import {
   sendPasswordResetEmail,
   sendWelcomeEmail,
 } from '@/lib/email/send-email';
-import prisma from '@/lib/prisma/client';
+import prisma, { getUserPassword } from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
 
 import {
@@ -44,14 +44,16 @@ export const login = actionClient
       throw new ClientVisibleError('Invalid email or password');
     }
 
+    const hashedPassword = await getUserPassword(user.id);
+
     // Check if user exists and has password
-    if (!user.password) {
+    if (!hashedPassword) {
       throw new ClientVisibleError('Invalid email or password');
     }
 
     // Verify password
     const validPassword = await argon.verify(
-      user.password,
+      hashedPassword,
       parsedInput.password,
     );
     if (!validPassword) {
