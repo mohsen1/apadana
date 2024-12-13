@@ -14,7 +14,7 @@ export function CalendarButton(props: AriaButtonProps<'button'>) {
     <button
       {...mergeProps(buttonProps, focusProps)}
       ref={ref}
-      className={`p-2 rounded-full ${props.isDisabled ? 'text-foreground/30' : ''} ${
+      className={`p-2 rounded-full ${props.isDisabled ? '/30' : ''} ${
         !props.isDisabled ? 'hover:bg-sky-500/40 active:bg-sky-500/45' : ''
       } outline-none ${
         isFocusVisible ? 'ring-2 ring-offset-2 ring-sky-500/50' : ''

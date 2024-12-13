@@ -35,6 +35,12 @@ COPY . .
 # Generate Prisma client with Next.js cache
 RUN --mount=type=cache,target=/app/.next/cache pnpm prisma:generate
 
+ENV NODE_ENV=development
+ENV NEXT_PUBLIC_S3_UPLOAD_BUCKET=$NEXT_PUBLIC_S3_UPLOAD_BUCKET
+ENV NEXT_PUBLIC_DOMAIN=$NEXT_PUBLIC_DOMAIN
+ENV NEXT_PUBLIC_S3_UPLOAD_REGION=$NEXT_PUBLIC_S3_UPLOAD_REGION
+
+
 # Development stage
 FROM base AS dev
 

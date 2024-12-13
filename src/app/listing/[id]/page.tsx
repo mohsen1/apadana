@@ -4,7 +4,7 @@ import NotFound from '@/app/not-found';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const res = await getListing({ id: parseInt(params?.id, 10) });
+  const res = await getListing({ id: params?.id });
 
   if (!res?.data?.listing) {
     throw new Error('Failed to get listing');

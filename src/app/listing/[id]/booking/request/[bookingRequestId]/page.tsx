@@ -2,7 +2,7 @@ import { CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { PublicBookingRequest } from '@/lib/types';
+import { FullBookingRequest } from '@/lib/types';
 import { formatCurrency, formatHHMMDate, getLocale } from '@/lib/utils';
 
 import { getBookingRequest } from '@/app/listing/[id]/booking/action';
@@ -13,7 +13,7 @@ export default async function BookingRequestPage(props: {
 }) {
   const params = await props.params;
   const res = await getBookingRequest({
-    id: Number(params.bookingRequestId),
+    id: params.bookingRequestId,
   });
 
   if (!res?.data?.updatedAt) {
@@ -30,10 +30,10 @@ export default async function BookingRequestPage(props: {
 function BookingRequestSent({
   bookingRequest,
 }: {
-  bookingRequest: PublicBookingRequest;
+  bookingRequest: FullBookingRequest;
 }) {
   return (
-    <main className='flex-grow container mx-auto p-4 max-w-6xl grid grid-cols-1  lg:grid-cols-2 gap-8'>
+    <main className='flex-grow container mx-auto p-4 max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 place-content-center'>
       <div>
         <div className='flex items-center mt-8'>
           <CheckCircle2
@@ -105,7 +105,7 @@ function BookingRequestSent({
           <div>
             <Link href={`/listing/${bookingRequest.listing.id}`}>
               <Image
-                src={bookingRequest.listing.images[0].url}
+                src={bookingRequest.listing.images?.[0]?.url ?? ''}
                 alt={bookingRequest.listing.title}
                 className='w-full h-auto rounded-md'
                 width={400}

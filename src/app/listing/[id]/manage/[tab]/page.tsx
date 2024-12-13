@@ -19,7 +19,7 @@ export default async function ManageListingPage(props: {
   const searchParams = await props.searchParams;
   const params = await props.params;
   const res = await getListing({
-    id: Number.parseInt(params.id, 10),
+    id: params.id,
     include: {
       owner: true,
       images: true,

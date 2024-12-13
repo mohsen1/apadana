@@ -1,26 +1,25 @@
-// tests/getBookings.test.ts
-
 import { afterEach } from 'node:test';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import prisma from '@/lib/prisma/client';
-import {
-  // @ts-expect-error test
-  setSafeActionContext,
-} from '@/lib/safe-action';
 
 import { findOrCreateTestUser } from '@/__tests__/setup/fixtures';
 import { clearDatabase } from '@/__tests__/setup/test-container';
 
-import { getBookings } from '../action';
+vi.mock('@/lib/auth', () => ({
+  getUserInServer: vi.fn(),
+  setServerSession: vi.fn(),
+}));
 
-vi.mock('@/lib/safe-action');
+import { getUserInServer } from '@/lib/auth';
+
+import { getBookings } from '../action';
 
 describe('getBookings action', async () => {
   let userId: string;
   let otherUserId: string;
-  let listingId: number;
-  let otherListingId: number;
+  let listingId: string;
+  let otherListingId: string;
 
   beforeEach(async () => {
     // Clear DB first
@@ -34,9 +33,7 @@ describe('getBookings action', async () => {
     otherUserId = userB.id;
 
     // Set auth context for tests
-    await setSafeActionContext({
-      user: userA,
-    });
+    vi.mocked(getUserInServer).mockResolvedValue(userA);
 
     // Create listings
     const listingA = await prisma.listing.create({
@@ -151,38 +148,34 @@ describe('getBookings action', async () => {
 
   afterEach(async () => {
     await clearDatabase();
-    // Reset auth context
-    await setSafeActionContext(undefined);
   });
 
   test('fails when user is not authenticated', async () => {
-    await setSafeActionContext({ user: null });
+    vi.mocked(getUserInServer).mockResolvedValue(null);
 
     const result = await getBookings({
       listingId,
       take: 10,
       skip: 0,
     });
-    expect(result?.serverError?.error).toBe('User not found');
+    expect(result?.serverError?.error).toContain('Unauthorized');
   });
 
   test('fails if listing does not exist or user does not own it', async () => {
-    // Clear auth context first
-    await setSafeActionContext(undefined);
+    const userA = await findOrCreateTestUser('test@example.com');
+    vi.mocked(getUserInServer).mockResolvedValue(userA);
 
-    const noListingResult = await getBookings({ listingId: 9999999 });
-    expect(noListingResult?.serverError?.error).toBe(
-      'An unknown error occurred',
+    const noListingResult = await getBookings({ listingId: '9999999' });
+    expect(noListingResult?.serverError?.error).toContain(
+      'ClientVisibleError: Listing not found',
     );
 
     // Set auth context back
-    await setSafeActionContext({
-      user: { id: userId },
-    });
+    vi.mocked(getUserInServer).mockResolvedValue(userA);
 
     const otherListingResult = await getBookings({ listingId: otherListingId });
-    expect(otherListingResult?.serverError?.error).toBe(
-      'An unknown error occurred',
+    expect(otherListingResult?.serverError?.error).toContain(
+      'ClientVisibleError: Listing not found',
     );
   });
 
@@ -323,7 +316,9 @@ describe('getBookings action', async () => {
   });
 
   test('checks error messages return a string when listing is invalid', async () => {
-    const invalidResult = await getBookings({ listingId: 123456789 });
-    expect(invalidResult?.serverError?.error).toBe('An unknown error occurred');
+    const invalidResult = await getBookings({ listingId: '123456789' });
+    expect(invalidResult?.serverError?.error).toContain(
+      'ClientVisibleError: Listing not found',
+    );
   });
 });

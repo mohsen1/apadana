@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 export default function HomePage() {
   return (
     <div className='flex flex-col'>
-      <main className='flex-1'>
+      <main className='flex-1 grid place-content-center'>
         <section className='w-full py-8 md:py-18 lg:py-24 xl:py-32 relative'>
           <div className='absolute inset-0 z-0 opacity-10 overflow-hidden min-h-screen'>
             <Novatrix />
@@ -128,7 +128,7 @@ export default function HomePage() {
                     1
                   </div>
                   <h3 className='mt-4 text-xl font-bold'>Sign Up</h3>
-                  <p className='mt-2 text-foreground-muted'>
+                  <p className='mt-2 -muted'>
                     Create your account and provide details about your rental
                     property.
                   </p>
@@ -138,7 +138,7 @@ export default function HomePage() {
                     2
                   </div>
                   <h3 className='mt-4 text-xl font-bold'>Customize</h3>
-                  <p className='mt-2 text-foreground-muted'>
+                  <p className='mt-2 -muted'>
                     Choose your domain and customize your website with our
                     easy-to-use tools.
                   </p>
@@ -148,7 +148,7 @@ export default function HomePage() {
                     3
                   </div>
                   <h3 className='mt-4 text-xl font-bold'>Go Live</h3>
-                  <p className='mt-2 text-foreground-muted'>
+                  <p className='mt-2 -muted'>
                     Publish your site and start accepting direct bookings from
                     guests.
                   </p>
@@ -166,7 +166,7 @@ export default function HomePage() {
               <div className='grid gap-6 lg:grid-cols-3'>
                 <Card>
                   <CardContent className='mt-4'>
-                    <p className='text-foreground-muted'>
+                    <p className='-muted'>
                       "This platform has revolutionized how I manage my vacation
                       rental. The direct bookings and lack of fees have
                       significantly increased my profits."
@@ -178,7 +178,7 @@ export default function HomePage() {
                 </Card>
                 <Card>
                   <CardContent className='mt-4'>
-                    <p className='text-foreground-muted'>
+                    <p className='-muted'>
                       "The calendar sync feature is a game-changer. I no longer
                       worry about double bookings across different platforms."
                     </p>
@@ -189,7 +189,7 @@ export default function HomePage() {
                 </Card>
                 <Card>
                   <CardContent className='mt-4'>
-                    <p className='text-foreground-muted'>
+                    <p className='-muted'>
                       "Having my own website has given my rental a professional
                       edge. Guests love booking directly through our site."
                     </p>

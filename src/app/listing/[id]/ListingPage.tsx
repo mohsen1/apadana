@@ -88,7 +88,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
           {/* Listing Details */}
           <div className='md:col-span-2'>
-            <h1 className='text-4xl font-bold mb-2 text-foreground font-heading'>
+            <h1 className='text-4xl font-bold mb-2  font-heading'>
               {listingData.title}
             </h1>
             <p className='text-muted-foreground mb-4'>{listingData.address}</p>
@@ -138,7 +138,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
               ))}
             </div>
             {/* Host Information */}
-            <h2 className='text-2xl font-subheading font-semibold mb-4 text-foreground mt-8'>
+            <h2 className='text-2xl font-subheading font-semibold mb-4  mt-8'>
               Meet your host
             </h2>
             <div className='flex items-center mt-4'>
@@ -204,7 +204,10 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
                 />
                 <div className='grid grid-cols-[1fr_auto] gap-4 items-center my-4'>
                   <div>
-                    <span className='text-sm font-medium pr-1'>
+                    <span
+                      className='text-sm font-medium pr-1'
+                      suppressHydrationWarning
+                    >
                       {checkIn
                         .toDate(listingData.timeZone)
                         .toLocaleDateString(getLocale(), {

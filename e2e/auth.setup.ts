@@ -1,14 +1,9 @@
 import { BrowserContext, expect, Page, test as setup } from '@playwright/test';
 import path from 'path';
 
-const authFile = path.join(__dirname, '../playwright/.auth/user.json');
+import { prodE2eTestUser } from '@/app/api/e2e/route';
 
-export const prodE2eTestUser = {
-  firstName: 'E2E Test',
-  lastName: 'User',
-  email: 'test-user@e2e-testing.apadana.app',
-  password: 'nslr83ub9v8',
-};
+const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
 async function loginViaCommand(page: Page, context: BrowserContext) {
   const response = await context.request.post('/api/e2e', {

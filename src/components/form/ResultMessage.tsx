@@ -18,12 +18,16 @@ type ResultMessageProps = {
 };
 
 const ErrorMessage: React.FC<ErrorMessageProps> = ({ title, content }) => (
-  <div className='mt-4 text-sm text-gray-600 dark:text-gray-300'>
+  <div className='mt-4 text-sm text-gray-600'>
     <strong>{title}:</strong>{' '}
     {typeof content === 'string' ? (
-      content
+      <pre className='text-left whitespace-normal font-mono overflow-auto'>
+        {content}
+      </pre>
     ) : (
-      <pre>{JSON.stringify(content, null, 2)}</pre>
+      <pre className='text-left whitespace-normal font-mono'>
+        {JSON.stringify(content, null, 2)}
+      </pre>
     )}
   </div>
 );

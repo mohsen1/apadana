@@ -11,7 +11,7 @@ export default async function DeleteListingPage(props: {
   const params = await props.params;
   const listing = await prisma.listing.findUnique({
     where: {
-      id: parseInt(params.id),
+      id: params.id,
     },
   });
 

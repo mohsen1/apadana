@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { BookingRequest } from '@prisma/client';
 import { differenceInDays, format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import Image from 'next/image';
@@ -33,18 +34,25 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
-import { createBookingRequest } from '@/app/listing/[id]/booking/action';
+import {
+  alterBookingRequest,
+  createBookingRequest,
+} from '@/app/listing/[id]/booking/action';
 import { ImageGallery } from '@/app/listing/[id]/booking/create/ImageGallery';
+
+interface CreateBookingFormProps {
+  listing: PublicListing;
+  checkIn: Date;
+  checkOut: Date;
+  originalBookingRequest?: BookingRequest | null;
+}
 
 export default function BookingPage({
   listing,
   checkIn: initialCheckIn,
   checkOut: initialCheckOut,
-}: {
-  listing: PublicListing;
-  checkIn: Date;
-  checkOut: Date;
-}) {
+  originalBookingRequest,
+}: CreateBookingFormProps) {
   const router = useRouter();
   const { register, handleSubmit, getValues, formState } =
     useForm<CreateBookingRequest>({
@@ -68,14 +76,31 @@ export default function BookingPage({
   });
 
   const onSubmit = async (data: CreateBookingRequest) => {
-    execute({
-      listingId: listing.id,
-      checkIn: data.checkIn,
-      checkOut: data.checkOut,
-      guests: data.guests,
-      message: data.message,
-      pets: false,
-    });
+    if (originalBookingRequest) {
+      const result = await alterBookingRequest({
+        bookingRequestId: originalBookingRequest.id,
+        checkIn: data.checkIn,
+        checkOut: data.checkOut,
+        guestCount: data.guests,
+        message: data.message,
+      });
+      const alteredRequest = result?.data;
+
+      if (alteredRequest?.id) {
+        router.push(
+          `/listing/${listing.id}/booking/request/${alteredRequest.id}`,
+        );
+      }
+    } else {
+      execute({
+        listingId: listing.id,
+        checkIn: data.checkIn,
+        checkOut: data.checkOut,
+        guests: data.guests,
+        message: data.message,
+        pets: false,
+      });
+    }
   };
 
   const checkin = getValues('checkIn');

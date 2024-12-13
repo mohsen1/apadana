@@ -87,7 +87,7 @@ export default async function RootLayout({
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
             <ToastProvider>
               <Header className='h-16' />
-              <main className='flex-1 min-h-[calc(100vh-4rem)]'>
+              <main className='flex-1 min-h-[calc(100vh-4rem)] container mx-auto'>
                 {children}
               </main>
               <Footer className='mt-auto' />

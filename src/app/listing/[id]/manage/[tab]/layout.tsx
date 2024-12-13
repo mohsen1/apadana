@@ -1,7 +1,9 @@
+import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { getListing } from '@/app/listing/action';
@@ -17,7 +19,7 @@ export default async function ManageListingPageLayout(props: {
 
   const { id, tab } = params;
 
-  const res = await getListing({ id: parseInt(id, 10) });
+  const res = await getListing({ id });
   if (!res?.data?.listing) {
     throw new Error('Failed to get listing');
   }
@@ -39,6 +41,11 @@ export default async function ManageListingPageLayout(props: {
             className='inline object-cover mr-2'
           />
           <span>Manage "{listing.title.slice()}"</span>
+          <Button variant='outline' size='icon' className='ml-6'>
+            <Link href={`/listing/${id}`}>
+              <ArrowRight className='w-4 h-4' />
+            </Link>
+          </Button>
         </Link>
       </h1>
       <Tabs defaultValue={tab} className='space-y-4'>

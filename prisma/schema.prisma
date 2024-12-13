@@ -3,7 +3,7 @@
 
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-arm64-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+  binaryTargets = ["native"]
 }
 
 datasource db {
@@ -120,7 +120,7 @@ model UploadedPhoto {
   name String
 
   Listing   Listing? @relation(fields: [listingId], references: [id])
-  listingId Int?
+  listingId String?
 }
 
 /// Not a complete list of currencies, but a starting point
@@ -132,7 +132,7 @@ enum Currency {
 }
 
 model Listing {
-  id                Int                @id @default(autoincrement())
+  id                String             @id @default(cuid())
   title             String             @db.VarChar(255)
   slug              String             @default("") @db.VarChar(255)
   description       String             @db.Text
@@ -171,22 +171,29 @@ model Listing {
 model ListingInventory {
   id          Int      @id @default(autoincrement())
   listing     Listing  @relation(fields: [listingId], references: [id])
-  listingId   Int
+  listingId   String
   date        DateTime
   /// is this date available for booking
   isAvailable Boolean  @default(true)
   price       Float
   /// related booking for this date
   booking     Booking? @relation(fields: [bookingId], references: [id])
-  bookingId   Int?
+  bookingId   String?
 
   @@unique([listingId, date])
   @@index([date])
   @@index([bookingId])
 }
 
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
 model Booking {
-  id               Int                @id @default(autoincrement())
+  id               String             @id @default(cuid())
   user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String
   listingInventory ListingInventory[]
@@ -196,7 +203,8 @@ model Booking {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   bookingRequest   BookingRequest?    @relation(fields: [bookingRequestId], references: [id])
-  bookingRequestId Int?
+  bookingRequestId String?
+  status           BookingStatus      @default(PENDING)
 
   @@index([userId])
   @@index([bookingRequestId])
@@ -207,28 +215,36 @@ enum BookingRequestStatus {
   EXPIRED
   ACCEPTED
   REJECTED
+  ALTERED
 }
 
 model BookingRequest {
-  id         Int                  @id @default(autoincrement())
-  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String
-  listing    Listing              @relation(fields: [listingId], references: [id])
-  listingId  Int
-  message    String               @db.Text
-  checkIn    DateTime
-  checkOut   DateTime
-  guests     Int
-  status     BookingRequestStatus @default(PENDING)
-  pets       Boolean              @default(false)
-  createdAt  DateTime             @default(now())
-  updatedAt  DateTime             @updatedAt
-  Booking    Booking[]
+  id              String               @id @default(cuid())
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  listing         Listing              @relation(fields: [listingId], references: [id])
+  listingId       String
+  message         String               @db.Text
+  checkIn         DateTime
+  checkOut        DateTime
+  guests          Int
+  status          BookingRequestStatus @default(PENDING)
+  pets            Boolean              @default(false)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  Booking         Booking[]
   /// Total price for the booking request calculated from the listing price per night and the number of nights at the time of the booking request
-  totalPrice Float                @default(0)
+  totalPrice      Float                @default(0)
+  /// Reference to the original booking request if this is an alteration
+  alterationOf    String?
+  /// Reference to the original booking request
+  originalRequest BookingRequest?      @relation("BookingRequestAlterations", fields: [alterationOf], references: [id])
+  /// Alterations made to this booking request
+  alterations     BookingRequest[]     @relation("BookingRequestAlterations")
 
   @@index([listingId])
   @@index([userId])
+  @@index([alterationOf])
 }
 
 model Session {
