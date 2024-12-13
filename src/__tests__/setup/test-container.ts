@@ -1,5 +1,4 @@
-import { exec as nativeExec } from 'node:child_process';
-import { promisify } from 'node:util';
+import { execSync as exec } from 'node:child_process';
 
 import prisma from '@/lib/prisma/client';
 
@@ -7,7 +6,7 @@ import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename, 'warn');
-const exec = promisify(nativeExec);
+
 const composeFile = 'docker-compose.test.yml';
 
 function safeParse<T>(value: string): { value: string; parsed: T | null } {
@@ -35,25 +34,26 @@ async function waitForContainerHealthy(
   while (retries > 0) {
     try {
       logger.debug('Checking container status...');
-      const containerStatusResult = await exec(
+      const containerStatusResult = exec(
         `docker compose -f ${composeFile} ps --format json`,
         {
           env: process.env,
+          stdio: 'pipe',
         },
       );
 
       logger.debug(
         'Raw container status output:',
-        containerStatusResult.stdout,
+        containerStatusResult.toString(),
       );
       let { parsed: containers } = safeParse<
         { Service: string; State: string; Health: string }[]
-      >(containerStatusResult.stdout);
+      >(containerStatusResult.toString());
 
       if (!containers) {
         logger.error(
           'Failed to parse container status output:',
-          containerStatusResult.stdout,
+          containerStatusResult.toString(),
         );
         throw new Error('Failed to parse container status output');
       }
@@ -179,7 +179,7 @@ export async function setupTestContainer() {
 
       logger.info('Running database migrations on existing container');
       try {
-        await exec('pnpm prisma migrate deploy', {
+        exec('pnpm prisma migrate deploy', {
           env: process.env,
         });
       } catch (error) {
@@ -195,25 +195,25 @@ export async function setupTestContainer() {
 
       // Add explicit container removal only if health check fails
       logger.debug('Forcing removal of existing unhealthy test containers');
-      await exec(`docker compose -f ${composeFile} down --remove-orphans -v`, {
+      exec(`docker compose -f ${composeFile} down --remove-orphans -v`, {
         env: process.env,
       });
     }
 
     logger.debug('Building test containers');
-    await exec(`docker compose -f ${composeFile} build`, {
+    exec(`docker compose -f ${composeFile} build`, {
       env: process.env,
     });
 
     logger.log('⏳ Launching test container...');
-    await exec(`docker compose -f ${composeFile} up -d`, {
+    exec(`docker compose -f ${composeFile} up -d`, {
       env: process.env,
     });
 
     await waitForContainerHealthy(composeFile, 'postgres_test', 10, 1000);
 
     logger.info('Running database migrations');
-    await exec('pnpm prisma migrate deploy', {
+    exec('pnpm prisma migrate deploy', {
       env: process.env,
     });
 
@@ -235,7 +235,7 @@ export async function teardownTestContainer() {
   logger.info('Tearing down test database container...');
 
   try {
-    await exec(`docker compose -f ${composeFile} down`, {
+    exec(`docker compose -f ${composeFile} down`, {
       env: process.env,
     });
     logger.info('Test database container torn down successfully');

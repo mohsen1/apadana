@@ -23,7 +23,7 @@ import prisma from '@/lib/prisma/client';
 import {
   AlterBookingRequestSchema,
   CreateBookingRequestSchema,
-  getBookingRequestSchema,
+  GetBookingRequestSchema,
   GetBookingRequestsSchema,
 } from '@/lib/prisma/schema';
 import { getUserEmail } from '@/lib/prisma/utils';
@@ -42,39 +42,44 @@ import {
 import logger from '@/utils/logger';
 
 export const getBookingRequest = actionClient
-  .schema(getBookingRequestSchema)
-  .action(async ({ parsedInput }) => {
-    try {
-      const bookingRequest = await prisma.bookingRequest.findUnique({
-        where: { id: parsedInput.id },
-        include: {
-          listing: {
-            include: {
-              images: true,
-              owner: {
-                include: {
-                  emailAddresses: true,
-                },
+  .schema(GetBookingRequestSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    if (!ctx?.user?.id) {
+      throw new UnauthorizedError();
+    }
+
+    const bookingRequest = await prisma.bookingRequest.findUnique({
+      where: { id: parsedInput.id },
+      include: {
+        listing: {
+          include: {
+            images: true,
+            owner: {
+              include: {
+                emailAddresses: true,
               },
             },
           },
-          user: {
-            include: {
-              emailAddresses: true,
-            },
+        },
+        user: {
+          include: {
+            emailAddresses: true,
           },
         },
-      });
+      },
+    });
 
-      if (!bookingRequest) {
-        throw new ClientVisibleError('Booking request not found');
-      }
-
-      return bookingRequest;
-    } catch (error) {
-      logger.error('Failed to get booking request:', error);
-      throw new Error('Failed to get booking request');
+    if (!bookingRequest) {
+      throw new UnauthorizedError();
     }
+
+    if (bookingRequest.userId !== ctx.user.id) {
+      throw new UnauthorizedError(
+        'You are not authorized to view this booking request',
+      );
+    }
+
+    return bookingRequest;
   });
 
 /**
@@ -257,7 +262,11 @@ export const createBookingRequest = actionClient
 export const getBookingRequests = actionClient
   .schema(GetBookingRequestsSchema)
   .action(async ({ parsedInput, ctx }) => {
-    const { take, skip, status, include } = parsedInput;
+    if (!ctx?.userId) {
+      throw new UnauthorizedError();
+    }
+
+    const { take, skip, status, include, listingId } = parsedInput;
     return prisma.bookingRequest.findMany({
       take,
       skip,
@@ -265,12 +274,7 @@ export const getBookingRequests = actionClient
         user: true,
       },
       where: {
-        status,
-        listing: {
-          ownerId: {
-            equals: String(ctx.userId),
-          },
-        },
+        AND: [{ status }, { listingId }],
       },
     });
   });

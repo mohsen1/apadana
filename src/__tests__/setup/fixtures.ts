@@ -7,10 +7,7 @@ import {
 import { addDays } from 'date-fns';
 import _ from 'lodash';
 
-import { setSafeActionContext } from '@/lib/__mocks__/safe-action';
 import prisma from '@/lib/prisma';
-
-import { createBookingRequest } from '@/app/listing/[id]/booking/action';
 
 type UserCreateData = Partial<{
   firstName: string;
@@ -36,8 +33,15 @@ export async function findOrCreateTestUser(
     ...dataArg,
   };
 
+  const include = {
+    emailAddresses: true,
+    roles: true,
+    permissions: true,
+    externalAccounts: true,
+  };
+
   const existing = await prisma.user.findFirst({
-    include: { emailAddresses: true },
+    include,
     where: {
       emailAddresses: {
         some: {
@@ -50,7 +54,7 @@ export async function findOrCreateTestUser(
   if (!existing) {
     return prisma.user.create({
       data,
-      include: { emailAddresses: true },
+      include,
     });
   }
 
@@ -106,32 +110,31 @@ export async function createTestBookingRequest({
   pets = false,
   status = BookingRequestStatus.PENDING,
 }: CreateTestBookingRequestOptions): Promise<BookingRequest> {
-  const user = await prisma.user.findUniqueOrThrow({
-    where: { id: userId },
+  // Calculate total price (simplified for testing)
+  const listing = await prisma.listing.findUniqueOrThrow({
+    where: { id: listingId },
   });
 
-  setSafeActionContext({ user });
+  const daysCount = Math.ceil(
+    (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  const totalPrice = listing.pricePerNight * daysCount;
 
-  const result = await createBookingRequest({
-    listingId: String(listingId),
-    checkIn,
-    checkOut,
-    guests,
-    message,
-    pets,
+  return prisma.bookingRequest.create({
+    data: {
+      listingId,
+      userId,
+      checkIn,
+      checkOut,
+      guests,
+      message,
+      pets,
+      status,
+      totalPrice,
+    },
   });
+}
 
-  if (!result?.data) {
-    throw new Error('Failed to create test booking request');
-  }
-
-  // If a different status is requested, update it
-  if (status !== BookingRequestStatus.PENDING) {
-    return prisma.bookingRequest.update({
-      where: { id: result.data.id },
-      data: { status },
-    });
-  }
-
-  return result.data;
+export async function createTestBooking() {
+  throw new Error('Not implemented');
 }

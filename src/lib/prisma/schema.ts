@@ -93,7 +93,7 @@ export type EditListingImages = z.infer<typeof EditListingImagesSchema>;
 
 // Schema for getting a booking request
 export const GetBookingRequestSchema = z.object({
-  id: z.number(),
+  id: z.string(),
 });
 
 export type GetBookingRequest = z.infer<typeof GetBookingRequestSchema>;
@@ -133,11 +133,6 @@ export const GetBookingRequestsSchema = z.object({
       listing: z.boolean().optional(),
     })
     .optional(),
-});
-
-// Schema for getting a booking request
-export const getBookingRequestSchema = z.object({
-  id: z.string(),
 });
 
 export type GetBookingRequests = z.infer<typeof GetBookingRequestsSchema>;

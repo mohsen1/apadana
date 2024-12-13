@@ -25,7 +25,7 @@ export const getBookings = actionClient
   .schema(GetBookingsSchema)
   .action(async ({ parsedInput, ctx: { userId } }) => {
     if (!userId) {
-      throw new ClientVisibleError('User not found');
+      throw new UnauthorizedError();
     }
 
     // Verify that the listing exists and is owned by the user
@@ -37,7 +37,9 @@ export const getBookings = actionClient
     });
 
     if (!listing) {
-      throw new Error('Listing not found or you do not have access to it');
+      throw new ClientVisibleError(
+        'Listing not found or you do not have access to it',
+      );
     }
 
     // Fetch all bookings associated with the listing

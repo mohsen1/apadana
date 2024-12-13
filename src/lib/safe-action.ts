@@ -24,8 +24,13 @@ export class UnauthorizedError extends Error {
 
 export const baseClient = createSafeActionClient({
   handleServerError: (error) => {
-    if (process.env.NODE_ENV === 'development') {
-      logger.error('Safe action error', error.stack);
+    if (
+      process.env.NODE_ENV === 'development' ||
+      process.env.NODE_ENV === 'test'
+    ) {
+      if (process.env.NODE_ENV === 'development') {
+        logger.error('Safe action error', error.stack);
+      }
       return { error: stripAnsi(error.stack ?? '') };
     }
 
