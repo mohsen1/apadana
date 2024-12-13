@@ -87,7 +87,7 @@ export async function createTestListing(
 
 interface CreateTestBookingRequestOptions {
   userId: string;
-  listingId: number;
+  listingId: string;
   checkIn?: Date;
   checkOut?: Date;
   guests?: number;
@@ -113,7 +113,7 @@ export async function createTestBookingRequest({
   setSafeActionContext({ user });
 
   const result = await createBookingRequest({
-    listingId,
+    listingId: String(listingId),
     checkIn,
     checkOut,
     guests,

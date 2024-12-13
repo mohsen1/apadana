@@ -1,6 +1,7 @@
 import resend from '@/lib/email/resend';
 
 import { BookingRequestEmail } from '@/components/emails/booking-request-email';
+import BookingAlterationEmail from '@/components/emails/BookingAlterationEmail';
 import { EarlyAccessEmail } from '@/components/emails/early-access-email';
 import { PasswordResetEmail } from '@/components/emails/password-reset-email';
 import WelcomeEmail from '@/components/emails/welcome-email';
@@ -68,6 +69,41 @@ export async function sendBookingRequestEmail({
   } catch (error) {
     throw new Error('Failed to send email notification');
   }
+}
+
+export interface BookingAlterationEmailProps {
+  hostEmail: string;
+  guestName: string;
+  listingTitle: string;
+  startDate: Date;
+  endDate: Date;
+  alterationType?: 'modified' | 'cancelled';
+}
+
+export async function sendBookingAlterationEmail(
+  props: BookingAlterationEmailProps,
+) {
+  const {
+    hostEmail,
+    guestName,
+    listingTitle,
+    startDate,
+    endDate,
+    alterationType = 'modified',
+  } = props;
+
+  return sendEmail({
+    email: hostEmail,
+    subject: `Booking ${alterationType === 'cancelled' ? 'Cancelled' : 'Modified'} - ${listingTitle}`,
+    from: 'Apadana <bookings@apadana.app>',
+    react: BookingAlterationEmail({
+      listingTitle,
+      startDate,
+      endDate,
+      guestName,
+      alterationType,
+    }),
+  });
 }
 
 /**

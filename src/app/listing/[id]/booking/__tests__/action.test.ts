@@ -5,6 +5,7 @@ import { BookingRequestStatus, User } from '@prisma/client';
 import { eachDayOfInterval } from 'date-fns';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import resend from '@/lib/email/resend';
 import { sendBookingRequestEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import {
@@ -35,7 +36,7 @@ describe('Booking Requests Actions', () => {
   let guestUser: User;
   let hostUser: User;
   let otherUser: User;
-  let listingId: number;
+  let listingId: string;
   let hostId: string;
   const currency = 'USD';
 
@@ -94,7 +95,7 @@ describe('Booking Requests Actions', () => {
       }
 
       const result = await createBookingRequest({
-        listingId,
+        listingId: listingId,
         checkIn,
         checkOut,
         guests: 2,
@@ -123,7 +124,7 @@ describe('Booking Requests Actions', () => {
     test('fails if listing not found', async () => {
       await setSafeActionContext({ user: guestUser });
       const result = await createBookingRequest({
-        listingId: 999999,
+        listingId: '999999',
         checkIn: new Date('2030-01-01'),
         checkOut: new Date('2030-01-02'),
         guests: 2,
@@ -183,7 +184,7 @@ describe('Booking Requests Actions', () => {
   });
 
   describe('getBookingRequest', () => {
-    let bookingRequestId: number;
+    let bookingRequestId: string;
 
     beforeEach(async () => {
       const br = await prisma.bookingRequest.create({
@@ -205,7 +206,7 @@ describe('Booking Requests Actions', () => {
       await setSafeActionContext({ user: guestUser });
       const result = await getBookingRequest({ id: bookingRequestId });
       expect(result?.data?.id).toBe(bookingRequestId);
-      expect(result?.data?.listing?.id).toBe(listingId);
+      expect(result?.data?.listingId).toBe(listingId);
     });
 
     test('returns error if user does not own the booking request', async () => {
@@ -216,7 +217,7 @@ describe('Booking Requests Actions', () => {
 
     test('returns error if booking request not found', async () => {
       await setSafeActionContext({ user: guestUser });
-      const result = await getBookingRequest({ id: 999999 });
+      const result = await getBookingRequest({ id: '999999' });
       expect(result?.serverError?.error).toBe('Booking request not found');
     });
 
@@ -269,7 +270,7 @@ describe('Booking Requests Actions', () => {
       const results = await getBookingRequests({
         take: 10,
         skip: 0,
-        listingId,
+        listingId: String(listingId),
         status: 'PENDING',
       });
 
@@ -283,20 +284,24 @@ describe('Booking Requests Actions', () => {
       const result = await getBookingRequests({
         take: 10,
         skip: 0,
-        listingId,
+        listingId: String(listingId),
       });
       expect(result?.data?.length).toBeGreaterThanOrEqual(3);
     });
 
     test('respects pagination', async () => {
       await setSafeActionContext({ user: hostUser });
-      const result = await getBookingRequests({ take: 1, skip: 0, listingId });
+      const result = await getBookingRequests({
+        take: 1,
+        skip: 0,
+        listingId: String(listingId),
+      });
       expect(result?.data?.length).toBe(1);
 
       const result2 = await getBookingRequests({
         take: 1,
         skip: 1,
-        listingId,
+        listingId: String(listingId),
       });
       expect(result2?.data?.length).toBe(1);
       expect(result2?.data?.[0]?.id).not.toBe(result?.data?.[0]?.id);
@@ -321,14 +326,18 @@ describe('Booking Requests Actions', () => {
       const result = await getBookingRequests({
         take: 10,
         skip: 0,
-        listingId,
+        listingId: String(listingId),
       });
       expect(result?.data?.length).toBe(0);
     });
 
     test('fails gracefully if user not provided', async () => {
       await setSafeActionContext({ user: null });
-      const result = await getBookingRequests({ take: 10, skip: 0, listingId });
+      const result = await getBookingRequests({
+        take: 10,
+        skip: 0,
+        listingId: String(listingId),
+      });
       // The query depends on userId to filter listings by ownerId, but if not defined, it might return an empty set or fail.
       // In this code, it won't throw an error, just no results since ownerId = undefined won't match any listing.
       expect(result?.data?.length).toBe(0);
@@ -336,14 +345,18 @@ describe('Booking Requests Actions', () => {
 
     test('includes user by default, can override with include option', async () => {
       await setSafeActionContext({ user: hostUser });
-      const result = await getBookingRequests({ take: 10, skip: 0, listingId });
+      const result = await getBookingRequests({
+        take: 10,
+        skip: 0,
+        listingId: String(listingId),
+      });
       expect(result?.data?.[0]?.user).toBeDefined();
 
       await setSafeActionContext(undefined);
       const resultNoInclude = await getBookingRequests({
         take: 10,
         skip: 0,
-        listingId,
+        listingId: String(listingId),
         include: { user: false },
       });
       expect(resultNoInclude?.data?.[0]?.user).toBeUndefined();
@@ -359,7 +372,7 @@ vi.mock('@/lib/email/send-email', () => ({
 describe('Booking Requests Edge Cases', () => {
   let guestUser: User;
   let hostUser: User;
-  let listingId: number;
+  let listingId: string;
 
   beforeEach(async () => {
     await setSafeActionContext(undefined);
@@ -439,7 +452,7 @@ vi.mock('@/lib/email', () => ({
 
 describe('Booking actions', () => {
   describe('updateBooking', () => {
-    it('should update booking and send email', async () => {
+    test('should update booking and send email', async () => {
       // ... existing test logic ...
 
       expect(resend.emails.send).toHaveBeenCalledWith(
@@ -452,7 +465,7 @@ describe('Booking actions', () => {
   });
 
   describe('cancelBooking', () => {
-    it('should cancel booking and send email', async () => {
+    test('should cancel booking and send email', async () => {
       // ... existing test logic ...
 
       expect(resend.emails.send).toHaveBeenCalledWith(

@@ -18,7 +18,7 @@ import {
 
 import { getBookings } from '@/app/listing/[id]/manage/action';
 
-export async function Bookings({ listingId }: { listingId: number }) {
+export async function Bookings({ listingId }: { listingId: string }) {
   const res = await getBookings({ listingId });
   const result = res?.data;
 

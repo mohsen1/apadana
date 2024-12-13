@@ -19,8 +19,8 @@ vi.mock('@/lib/safe-action');
 describe('getBookings action', async () => {
   let userId: string;
   let otherUserId: string;
-  let listingId: number;
-  let otherListingId: number;
+  let listingId: string;
+  let otherListingId: string;
 
   beforeEach(async () => {
     // Clear DB first
@@ -170,7 +170,7 @@ describe('getBookings action', async () => {
     // Clear auth context first
     await setSafeActionContext(undefined);
 
-    const noListingResult = await getBookings({ listingId: 9999999 });
+    const noListingResult = await getBookings({ listingId: '9999999' });
     expect(noListingResult?.serverError?.error).toBe(
       'An unknown error occurred',
     );
@@ -323,7 +323,7 @@ describe('getBookings action', async () => {
   });
 
   test('checks error messages return a string when listing is invalid', async () => {
-    const invalidResult = await getBookings({ listingId: 123456789 });
+    const invalidResult = await getBookings({ listingId: '123456789' });
     expect(invalidResult?.serverError?.error).toBe('An unknown error occurred');
   });
 });

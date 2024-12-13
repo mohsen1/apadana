@@ -1,8 +1,6 @@
 import { BookingRequestStatus } from '@prisma/client';
 import { z } from 'zod';
 
-// TODO: use code generators for this
-
 export const UploadImageSchema = z.object({
   url: z.string(),
   key: z.string(),
@@ -37,12 +35,12 @@ export const BaseListingSchema = z.object({
 });
 
 export const GetListingSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   include: z
     .object({
-      inventory: z.boolean().optional(),
-      owner: z.boolean().optional(),
-      images: z.boolean().optional(),
+      images: z.boolean(),
+      inventory: z.boolean(),
+      owner: z.boolean(),
     })
     .optional(),
 });
@@ -65,7 +63,7 @@ export const GetListingsSchema = z.object({
 export const EditListingSchema = BaseListingSchema.omit({ images: true })
   .partial()
   .extend({
-    id: z.number(),
+    id: z.string(),
   });
 
 export const CreateListingSchema = BaseListingSchema.extend({});
@@ -73,13 +71,13 @@ export const CreateListingSchema = BaseListingSchema.extend({});
 export type CreateListing = z.infer<typeof CreateListingSchema>;
 
 export const EditInventorySchema = z.object({
-  listingId: z.number(),
+  listingId: z.string(),
   inventory: z.array(
     z.object({
       date: z.coerce.date(),
       isAvailable: z.boolean().optional().default(true),
       price: z.number(),
-      bookingId: z.number().nullable().optional(),
+      bookingId: z.string().nullable().optional(),
     }),
   ),
 });
@@ -87,7 +85,7 @@ export const EditInventorySchema = z.object({
 export type EditInventory = z.infer<typeof EditInventorySchema>;
 
 export const EditListingImagesSchema = z.object({
-  listingId: z.number(),
+  listingId: z.string(),
   images: z.array(UploadImageSchema),
 });
 
@@ -102,10 +100,10 @@ export type GetBookingRequest = z.infer<typeof GetBookingRequestSchema>;
 
 // Schema for altering a booking request
 export const AlterBookingRequestSchema = z.object({
-  bookingRequestId: z.number(),
+  bookingRequestId: z.string(),
   checkIn: z.date(),
   checkOut: z.date(),
-  guestCount: z.number().min(1),
+  guestCount: z.number(),
   message: z.string().optional(),
 });
 
@@ -113,12 +111,12 @@ export type AlterBookingRequest = z.infer<typeof AlterBookingRequestSchema>;
 
 // Schema for creating a booking request
 export const CreateBookingRequestSchema = z.object({
-  listingId: z.number(),
+  listingId: z.string(),
   checkIn: z.date(),
   checkOut: z.date(),
-  guests: z.number().min(1),
-  message: z.string(),
+  guests: z.number(),
   pets: z.boolean(),
+  message: z.string(),
 });
 
 export type CreateBookingRequest = z.infer<typeof CreateBookingRequestSchema>;
@@ -128,6 +126,7 @@ export const GetBookingRequestsSchema = z.object({
   take: z.number().optional(),
   skip: z.number().optional(),
   status: z.nativeEnum(BookingRequestStatus).optional(),
+  listingId: z.string().optional(),
   include: z
     .object({
       user: z.boolean().optional(),
@@ -138,7 +137,7 @@ export const GetBookingRequestsSchema = z.object({
 
 // Schema for getting a booking request
 export const getBookingRequestSchema = z.object({
-  id: z.number(),
+  id: z.string(),
 });
 
 export type GetBookingRequests = z.infer<typeof GetBookingRequestsSchema>;
@@ -195,17 +194,9 @@ export type ChangeBookingRequestStatus = z.infer<
 >;
 
 export const GetBookingsSchema = z.object({
-  listingId: z.number(),
-  take: z
-    .number()
-    .optional()
-    .default(10)
-    .describe('Limit of how many bookings to return'),
-  skip: z
-    .number()
-    .optional()
-    .default(0)
-    .describe('Offset of how many bookings to skip'),
+  listingId: z.string(),
+  take: z.number().optional().default(10),
+  skip: z.number().optional().default(0),
 });
 
 export type GetBookings = z.infer<typeof GetBookingsSchema>;

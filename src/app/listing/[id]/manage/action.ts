@@ -1,5 +1,6 @@
 'use server';
 
+import { BookingRequestStatus } from '@prisma/client';
 import { format, parse } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { z } from 'zod';
@@ -288,7 +289,7 @@ export const changeBookingRequestStatus = actionClient
   .schema(ChangeBookingRequestStatusSchema)
   .outputSchema(
     z.object({
-      status: z.enum(['PENDING', 'EXPIRED', 'ACCEPTED', 'REJECTED']),
+      status: z.nativeEnum(BookingRequestStatus),
       listing: GetListingSchema,
     }),
   )
@@ -300,14 +301,14 @@ export const changeBookingRequestStatus = actionClient
 
       const bookingRequest = await prisma.bookingRequest.findUnique({
         where: {
-          id: Number(bookingRequestId),
+          id: bookingRequestId,
         },
         include: {
           listing: true,
         },
       });
 
-      if (!bookingRequest || bookingRequest.listing.ownerId !== userId) {
+      if (!bookingRequest || bookingRequest.listingId !== userId) {
         throw new ClientVisibleError(
           'Booking request not found or you are not the owner of the listing',
         );
@@ -319,14 +320,17 @@ export const changeBookingRequestStatus = actionClient
         // Update the booking request status
         await prisma.bookingRequest.update({
           where: {
-            id: Number(bookingRequestId),
+            id: bookingRequestId,
           },
           data: {
             status,
           },
         });
 
-        if (status === 'ACCEPTED' && previousStatus !== 'ACCEPTED') {
+        if (
+          status === BookingRequestStatus.ACCEPTED &&
+          previousStatus !== BookingRequestStatus.ACCEPTED
+        ) {
           // Create a booking
           const booking = await prisma.booking.create({
             data: {
@@ -397,7 +401,10 @@ export const changeBookingRequestStatus = actionClient
               totalPrice,
             },
           });
-        } else if (previousStatus === 'ACCEPTED' && status !== 'ACCEPTED') {
+        } else if (
+          previousStatus === BookingRequestStatus.ACCEPTED &&
+          status !== BookingRequestStatus.ACCEPTED
+        ) {
           // Cancel the booking
           const booking = await prisma.booking.findFirst({
             where: {

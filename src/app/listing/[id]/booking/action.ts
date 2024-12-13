@@ -1,16 +1,32 @@
 'use server';
 
-import { addDays, eachDayOfInterval } from 'date-fns';
-import { z } from 'zod';
+/**
+ * @fileoverview
+ * Actions for booking requests and bookings. This file include the following actions:
+ *
+ * - Get a booking request
+ * - Alter a booking request
+ * - Create a booking request
+ * - Get booking requests
+ * - Update a booking
+ * - Cancel a booking
+ */
 
-import { resend } from '@/lib/email';
-import { sendBookingRequestEmail } from '@/lib/email/send-email';
+import { addDays, eachDayOfInterval } from 'date-fns';
+
+import resend from '@/lib/email/resend';
+import {
+  sendBookingAlterationEmail,
+  sendBookingRequestEmail,
+} from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import {
+  AlterBookingRequestSchema,
   CreateBookingRequestSchema,
   getBookingRequestSchema,
   GetBookingRequestsSchema,
 } from '@/lib/prisma/schema';
+import { getUserEmail } from '@/lib/prisma/utils';
 import {
   actionClient,
   ClientVisibleError,
@@ -19,6 +35,10 @@ import {
 
 import BookingAlterationEmail from '@/components/emails/BookingAlterationEmail';
 
+import {
+  CancelBookingSchema,
+  UpdateBookingSchema,
+} from '@/app/listing/[id]/booking/schema';
 import logger from '@/utils/logger';
 
 export const getBookingRequest = actionClient
@@ -28,10 +48,27 @@ export const getBookingRequest = actionClient
       const bookingRequest = await prisma.bookingRequest.findUnique({
         where: { id: parsedInput.id },
         include: {
-          listing: true,
-          user: true,
+          listing: {
+            include: {
+              images: true,
+              owner: {
+                include: {
+                  emailAddresses: true,
+                },
+              },
+            },
+          },
+          user: {
+            include: {
+              emailAddresses: true,
+            },
+          },
         },
       });
+
+      if (!bookingRequest) {
+        throw new ClientVisibleError('Booking request not found');
+      }
 
       return bookingRequest;
     } catch (error) {
@@ -40,17 +77,14 @@ export const getBookingRequest = actionClient
     }
   });
 
-// Schema for altering a booking request
-const alterBookingRequestSchema = z.object({
-  bookingRequestId: z.number(),
-  checkIn: z.date(),
-  checkOut: z.date(),
-  guestCount: z.number().min(1),
-  message: z.string().optional(),
-});
-
+/**
+ * Alter a booking request
+ *
+ * This action creates a new booking request as an alteration of the original booking request
+ * and updates the original booking request to be altered
+ */
 export const alterBookingRequest = actionClient
-  .schema(alterBookingRequestSchema)
+  .schema(AlterBookingRequestSchema)
   .action(async ({ parsedInput, ctx }) => {
     if (!ctx?.user?.id) {
       throw new UnauthorizedError();
@@ -89,8 +123,8 @@ export const alterBookingRequest = actionClient
           message: parsedInput.message ?? '',
           status: 'PENDING',
           alterationOf: originalRequest.id,
-          pets: originalRequest.pets, // Maintain original pets status
-          totalPrice: 0, // This should be calculated based on the new dates
+          pets: originalRequest.pets,
+          totalPrice: 0,
         },
         include: {
           listing: true,
@@ -111,6 +145,11 @@ export const alterBookingRequest = actionClient
     }
   });
 
+/**
+ * Create a booking request
+ *
+ * This action creates a new booking request and sends an email to the host
+ */
 export const createBookingRequest = actionClient
   .schema(CreateBookingRequestSchema)
   .action(async ({ parsedInput, ctx }) => {
@@ -120,20 +159,12 @@ export const createBookingRequest = actionClient
       throw new UnauthorizedError('Guest not found');
     }
 
-    // Get listing and verify it exists and is published
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
-      select: {
-        id: true,
-        title: true,
-        published: true,
-        currency: true,
-        amenities: true,
+      include: {
         owner: {
-          select: {
+          include: {
             emailAddresses: true,
-            firstName: true,
-            lastName: true,
           },
         },
       },
@@ -218,6 +249,11 @@ export const createBookingRequest = actionClient
     return bookingRequest;
   });
 
+/**
+ * Get booking requests
+ *
+ * This action gets booking requests based on the provided filters
+ */
 export const getBookingRequests = actionClient
   .schema(GetBookingRequestsSchema)
   .action(async ({ parsedInput, ctx }) => {
@@ -239,19 +275,27 @@ export const getBookingRequests = actionClient
     });
   });
 
+/**
+ * Update a booking
+ *
+ * This action updates a booking and sends an email to the host
+ */
 export const updateBooking = actionClient
   .schema(UpdateBookingSchema)
-  .action(async ({ parsedInput, ctx }) => {
+  .action(async ({ parsedInput }) => {
     try {
       const { bookingId, startDate, endDate } = parsedInput;
 
-      // Get the existing booking first
       const existingBooking = await prisma.booking.findUnique({
         where: { id: bookingId },
         include: {
           listingInventory: {
             include: {
-              listing: true,
+              listing: {
+                include: {
+                  owner: true,
+                },
+              },
             },
           },
           user: true,
@@ -262,34 +306,50 @@ export const updateBooking = actionClient
         throw new Error('Booking not found');
       }
 
-      // Update the booking
       const updatedBooking = await prisma.booking.update({
         where: { id: bookingId },
         data: {
-          startDate,
-          endDate,
+          checkIn: startDate,
+          checkOut: endDate,
         },
         include: {
-          listing: true,
-          user: true,
+          bookingRequest: {
+            include: {
+              user: true,
+            },
+          },
+          listingInventory: {
+            include: {
+              listing: {
+                include: {
+                  owner: true,
+                },
+              },
+            },
+          },
+          user: {
+            include: {
+              emailAddresses: true,
+            },
+          },
         },
       });
 
+      const hostEmail = getUserEmail(updatedBooking?.user);
+
+      if (!hostEmail) {
+        throw new ClientVisibleError('Host email not found');
+      }
+
       // Send email notification
       try {
-        await resend.emails.send({
-          from: 'bookings@apadana.app',
-          to: updatedBooking.user.email,
-          subject: `Booking Modified - ${updatedBooking.listing.title}`,
-          react: BookingAlterationEmail({
-            listingTitle: updatedBooking.listing.title,
-            startDate,
-            endDate,
-            guestName: updatedBooking.user.name,
-            alterationType: 'modified',
-            previousStartDate: existingBooking.startDate,
-            previousEndDate: existingBooking.endDate,
-          }),
+        await sendBookingAlterationEmail({
+          hostEmail,
+          guestName:
+            `${updatedBooking.user.firstName ?? ''} ${updatedBooking.user.lastName ?? ''}`.trim(),
+          listingTitle: updatedBooking.listingInventory[0].listing.title,
+          startDate: updatedBooking.checkIn,
+          endDate: updatedBooking.checkOut,
         });
       } catch (error) {
         logger.error('Failed to send booking modification email', error);
@@ -302,9 +362,14 @@ export const updateBooking = actionClient
     }
   });
 
+/**
+ * Cancel a booking
+ *
+ * This action cancels a booking and sends an email to the guest
+ */
 export const cancelBooking = actionClient
-  .schema(cancelBookingSchema)
-  .action(async ({ parsedInput, ctx }) => {
+  .schema(CancelBookingSchema)
+  .action(async ({ parsedInput }) => {
     try {
       const { bookingId } = parsedInput;
 
@@ -314,25 +379,37 @@ export const cancelBooking = actionClient
           status: 'CANCELLED',
         },
         include: {
-          listing: true,
-          user: true,
+          listingInventory: {
+            include: {
+              listing: true,
+            },
+          },
+          user: {
+            include: {
+              emailAddresses: true,
+            },
+          },
         },
       });
 
       // Send cancellation email
       try {
-        await resend.emails.send({
-          from: 'bookings@apadana.app',
-          to: booking.user.email,
-          subject: `Booking Cancelled - ${booking.listing.title}`,
-          react: BookingAlterationEmail({
-            listingTitle: booking.listing.title,
-            startDate: booking.startDate,
-            endDate: booking.endDate,
-            guestName: booking.user.name,
-            alterationType: 'cancelled',
-          }),
-        });
+        const userEmail = getUserEmail(booking.user);
+        if (userEmail) {
+          await resend.emails.send({
+            from: 'bookings@apadana.app',
+            to: userEmail,
+            subject: `Booking Cancelled - ${booking.listingInventory[0].listing.title}`,
+            react: BookingAlterationEmail({
+              listingTitle: booking.listingInventory[0].listing.title,
+              startDate: booking.checkIn,
+              endDate: booking.checkOut,
+              guestName:
+                `${booking.user.firstName ?? ''} ${booking.user.lastName ?? ''}`.trim(),
+              alterationType: 'cancelled',
+            }),
+          });
+        }
       } catch (error) {
         logger.error('Failed to send booking cancellation email', error);
       }

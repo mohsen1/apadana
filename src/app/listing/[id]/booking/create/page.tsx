@@ -18,7 +18,7 @@ export default async function CreateBookingPage(props: {
 
   // Get the listing
   const res = await getListing({
-    id: Number(params.id),
+    id: params.id,
     include: { inventory: true, owner: true, images: true },
   });
 
@@ -35,7 +35,7 @@ export default async function CreateBookingPage(props: {
   let originalBookingRequest = null;
   if (searchParams.alterBookingRequestId) {
     const bookingRequestRes = await getBookingRequest({
-      id: Number(searchParams.alterBookingRequestId),
+      id: searchParams.alterBookingRequestId,
     });
     const bookingRequest = bookingRequestRes?.data;
 

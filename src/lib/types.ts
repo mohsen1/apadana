@@ -35,6 +35,7 @@ export type PublicListing = Listing & {
 export type FullBookingRequest = BookingRequest & {
   listing: Listing & {
     owner: FullUser;
+    images: UploadedPhoto[];
   };
   user: FullUser;
 };

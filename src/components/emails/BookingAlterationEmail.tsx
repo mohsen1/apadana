@@ -51,10 +51,12 @@ export default function BookingAlterationEmail({
           ) : (
             <>
               <Text>Your booking for {listingTitle} has been modified.</Text>
-              <Text>
-                Previous dates: {formatDate(previousStartDate!)} to{' '}
-                {formatDate(previousEndDate!)}
-              </Text>
+              {previousStartDate && previousEndDate && (
+                <Text>
+                  Previous dates: {formatDate(previousStartDate)} to{' '}
+                  {formatDate(previousEndDate)}
+                </Text>
+              )}
               <Text>
                 New dates: {formatDate(startDate)} to {formatDate(endDate)}
               </Text>
