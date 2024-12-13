@@ -90,7 +90,7 @@ export function CalendarCell({
         >
           <div
             className={cn(
-              'text-center w-[2rem] h-[2rem] text[1rem] p-2 flex items-center justify-center text-foreground/80',
+              'text-center w-[2rem] h-[2rem] text[1rem] p-2 flex items-center justify-center /80',
               {
                 'bg-ring/90 text-background rounded-full ': isToday,
                 // Some crazy CSS magic to have a cross line over the cell date

@@ -24,7 +24,7 @@ export function CalendarGrid({
 
   return (
     <table {...gridProps} cellPadding='0' className='flex-1 w-full'>
-      <thead {...headerProps} className='text-foreground/80'>
+      <thead {...headerProps} className='/80'>
         <tr className='grid grid-cols-7 w-full text-muted-foreground'>
           {weekDays.map((day, index) => (
             <th key={index}>{day}</th>

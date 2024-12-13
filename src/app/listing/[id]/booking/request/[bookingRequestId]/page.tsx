@@ -33,7 +33,7 @@ function BookingRequestSent({
   bookingRequest: FullBookingRequest;
 }) {
   return (
-    <main className='flex-grow container mx-auto p-4 max-w-6xl grid grid-cols-1  lg:grid-cols-2 gap-8'>
+    <main className='flex-grow container mx-auto p-4 max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 place-content-center'>
       <div>
         <div className='flex items-center mt-8'>
           <CheckCircle2

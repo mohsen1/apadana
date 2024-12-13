@@ -147,9 +147,9 @@ export const BookingRequestResponseSchema = z.object({
   data: z.object({
     bookingRequest: z
       .object({
-        id: z.number(),
+        id: z.string(),
         userId: z.string(),
-        listingId: z.number(),
+        listingId: z.string(),
         checkIn: z.date(),
         checkOut: z.date(),
         guests: z.number(),
@@ -159,10 +159,10 @@ export const BookingRequestResponseSchema = z.object({
         totalPrice: z.number(),
         createdAt: z.date(),
         updatedAt: z.date(),
-        alterationOf: z.number().nullable(),
+        alterationOf: z.string().nullable(),
         listing: z
           .object({
-            id: z.number(),
+            id: z.string(),
             title: z.string(),
             // Add other listing fields as needed
           })

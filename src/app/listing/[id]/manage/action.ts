@@ -308,7 +308,7 @@ export const changeBookingRequestStatus = actionClient
         },
       });
 
-      if (!bookingRequest || bookingRequest.listingId !== userId) {
+      if (!bookingRequest || bookingRequest.listing.ownerId !== userId) {
         throw new ClientVisibleError(
           'Booking request not found or you are not the owner of the listing',
         );

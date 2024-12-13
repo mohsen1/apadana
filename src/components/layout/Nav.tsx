@@ -26,7 +26,7 @@ const UserButton = ({ user }: { user: ClientUser }) => {
         <Button
           variant='ghost'
           size='sm'
-          className='flex items-center gap-2 dark:hover:bg-background-dark dark:hover:text-foreground-dark'
+          className='flex items-center gap-2 dark:hover:bg-background-dark dark:hover:-dark'
         >
           <span className='hidden sm:inline-flex'>
             Hello, {user.firstName} {user.lastName}
@@ -37,7 +37,7 @@ const UserButton = ({ user }: { user: ClientUser }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className='w-56 bg-background border-border text-foreground dark:bg-background-dark dark:text-foreground-dark dark:border-border-dark'
+        className='w-56 bg-background border-border  dark:bg-background-dark dark:-dark dark:border-border-dark'
         align='end'
       >
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
@@ -68,16 +68,17 @@ const UserButton = ({ user }: { user: ClientUser }) => {
 
 export function Nav() {
   const { user } = useAuth();
+  const isProd = process.env.NODE_ENV === 'production';
 
   return (
     <nav className='flex items-center gap-4'>
       {user ? (
         <UserButton user={user} />
-      ) : (
+      ) : !isProd ? (
         <Button variant='default' size='sm' asChild>
           <a href='/sign-in'>Sign In</a>
         </Button>
-      )}
+      ) : null}
     </nav>
   );
 }

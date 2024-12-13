@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
       { hostname: 'utfs.io' },
       { hostname: 'apadana.app' },
       { hostname: 'localhost' },
+      { hostname: 'avatars.githubusercontent.com' },
       {
         hostname: `${process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.amazonaws.com`,
       },

@@ -337,7 +337,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                 <Tooltip>
                   <TooltipTrigger className='absolute right-2 top-1/2 transform -translate-y-1/2'>
                     <LocateFixed
-                      className='cursor-pointer text-muted-foreground hover:text-foreground'
+                      className='cursor-pointer text-muted-foreground hover:'
                       onClick={handleFetchCurrentLocation}
                     />
                   </TooltipTrigger>
@@ -359,7 +359,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
               <span className='text-red-500'>{errors.address}</span>
             )}
             {predictions.length > 0 && (
-              <ul className='absolute z-10 w-full bg-background border rounded-md mt-1 shadow-lg'>
+              <ul className='absolute z-10 w-full border border-border/15 rounded-md mt-1 shadow-lg'>
                 {predictions.map((prediction, index) => (
                   <li
                     key={prediction.place_id}

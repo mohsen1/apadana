@@ -322,7 +322,11 @@ export const updateBooking = actionClient
             include: {
               listing: {
                 include: {
-                  owner: true,
+                  owner: {
+                    include: {
+                      emailAddresses: true,
+                    },
+                  },
                 },
               },
             },
@@ -335,7 +339,9 @@ export const updateBooking = actionClient
         },
       });
 
-      const hostEmail = getUserEmail(updatedBooking?.user);
+      const hostEmail = getUserEmail(
+        updatedBooking?.listingInventory?.at(0)?.listing?.owner,
+      );
 
       if (!hostEmail) {
         throw new ClientVisibleError('Host email not found');

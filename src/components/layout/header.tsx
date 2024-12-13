@@ -5,6 +5,7 @@ import Link from 'next/link';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,9 +20,8 @@ import { LoggedInHeaderLinks } from './LoggedInHeaderLinks';
 import { Nav } from './Nav';
 
 export function Header({ className }: { className?: string }) {
+  const { user } = useAuth();
   const isDev = process.env.NODE_ENV === 'development';
-
-  const showHeaderLinks = true; // Always show for demo purposes
 
   return (
     <header
@@ -40,14 +40,16 @@ export function Header({ className }: { className?: string }) {
           <span className='font-bold'>Apadana {isDev ? '(Dev)' : null}</span>
         </Link>
 
-        <div className='hidden border-l border-gray-200 dark:border-gray-800 pl-4 lg:flex lg:gap-6'>
-          {showHeaderLinks && <LoggedInHeaderLinks />}
-        </div>
+        {user && (
+          <div className='hidden border-l border-gray-200 dark:border-gray-800 pl-4 lg:flex lg:gap-6'>
+            <LoggedInHeaderLinks />
+          </div>
+        )}
       </div>
 
       <div className='flex items-center gap-4'>
         <div className='hidden lg:flex'>
-          {showHeaderLinks && (
+          {isDev && (
             <>
               <Button asChild variant='ghost' size='sm'>
                 <Link
@@ -77,48 +79,51 @@ export function Header({ className }: { className?: string }) {
         <Nav />
 
         {/* Mobile Menu */}
-        {showHeaderLinks && (
-          <Sheet>
-            <SheetTrigger
-              asChild
-              className='dark:hover:bg-background-dark dark:hover:text-foreground-dark'
-            >
-              <Button variant='ghost' size='icon' className='lg:hidden'>
-                <Menu className='h-5 w-5' />
-                <span className='sr-only'>Toggle menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent className='bg-background dark:bg-background-dark dark:border-border-dark'>
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-              </SheetHeader>
-              <div className='flex flex-col gap-4 mt-4'>
-                <LoggedInHeaderLinks />
-                <Button asChild variant='ghost' size='sm'>
-                  <Link
-                    href='http://localhost:5555'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    Prisma Studio
-                  </Link>
-                </Button>
-                <Button asChild variant='ghost' size='sm'>
-                  <Link
-                    href='http://localhost:6006'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    Storybook
-                  </Link>
-                </Button>
-                <Button asChild variant='ghost' size='sm'>
-                  <Link href='/local-inbox'>Emails</Link>
-                </Button>
-              </div>
-            </SheetContent>
-          </Sheet>
-        )}
+
+        <Sheet>
+          <SheetTrigger
+            asChild
+            className='dark:hover:bg-background-dark dark:hover:-dark'
+          >
+            <Button variant='ghost' size='icon' className='lg:hidden'>
+              <Menu className='h-5 w-5' />
+              <span className='sr-only'>Toggle menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent className='bg-background dark:bg-background-dark dark:border-border-dark'>
+            <SheetHeader>
+              <SheetTitle>Menu</SheetTitle>
+            </SheetHeader>
+            <div className='flex flex-col gap-4 mt-4'>
+              <LoggedInHeaderLinks />
+              {isDev && (
+                <>
+                  <Button asChild variant='ghost' size='sm'>
+                    <Link
+                      href='http://localhost:5555'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                    >
+                      Prisma Studio
+                    </Link>
+                  </Button>
+                  <Button asChild variant='ghost' size='sm'>
+                    <Link
+                      href='http://localhost:6006'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                    >
+                      Storybook
+                    </Link>
+                  </Button>
+                  <Button asChild variant='ghost' size='sm'>
+                    <Link href='/local-inbox'>Emails</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );

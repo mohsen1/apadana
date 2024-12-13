@@ -84,7 +84,7 @@ function PropertyTypeRadioButton({
         'flex flex-col items-center justify-center gap-2 space-x-2 p-4 rounded-md border-2 border-transparent cursor-pointer',
         'min-w-36',
         {
-          'border-foreground': getValues('propertyType') === value,
+          'border-border': getValues('propertyType') === value,
         },
       )}
     >

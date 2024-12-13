@@ -1,5 +1,6 @@
 import { Session, User } from '@prisma/client';
 import { createSafeActionClient } from 'next-safe-action';
+import stripAnsi from 'strip-ansi';
 
 import { getUserInServer, setServerSession } from '@/lib/auth';
 
@@ -24,7 +25,8 @@ export class UnauthorizedError extends Error {
 export const baseClient = createSafeActionClient({
   handleServerError: (error) => {
     if (process.env.NODE_ENV === 'development') {
-      logger.error('Safe action error', { error });
+      logger.error('Safe action error', error.stack);
+      return { error: stripAnsi(error.stack ?? '') };
     }
 
     if (error instanceof ClientVisibleError) {
