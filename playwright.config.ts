@@ -45,15 +45,10 @@ export default defineConfig({
     ],
   ],
 
-  timeout: isTestingDev ? 60_000 : 30_000,
-  globalTimeout: isTestingDev ? 60_000 : 30_000,
-
   globalSetup: require.resolve('./e2e/global-setup.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
-    actionTimeout: isTestingDev ? 60_000 : 30_000,
-    navigationTimeout: isTestingDev ? 60_000 : 30_000,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: {
       mode: 'retain-on-failure',

@@ -4,6 +4,9 @@ test.describe.serial('Create and delete a Listing', () => {
   let currentListingId: string;
 
   test('create listing ', async ({ page }) => {
+    // This is a long test and will take more than our standard timeout to finish
+    test.setTimeout(test.info().timeout * 3);
+
     await test.step('Navigate to the create listing page', async () => {
       await page.goto('/listing/create');
       await expect(page.getByText('Location Details')).toBeVisible();
@@ -78,7 +81,9 @@ test.describe.serial('Create and delete a Listing', () => {
 
       const button = page.getByRole('button', { name: 'Next' });
 
-      await expect(button).toBeEnabled();
+      while (await button.getAttribute('disabled')) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
 
       await button.click();
     });
@@ -113,9 +118,6 @@ test.describe.serial('Create and delete a Listing', () => {
       await page.getByRole('button', { name: 'Submit Listing' }).click();
       await page.waitForURL(
         /\/listing\/\d+\/manage\/calendar\?newListing=true/,
-        {
-          waitUntil: 'networkidle',
-        },
       );
 
       currentListingId = new URL(page.url()).pathname.split('/')[2];

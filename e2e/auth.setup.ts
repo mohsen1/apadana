@@ -1,23 +1,16 @@
-import { expect, test as setup } from '@playwright/test';
+import { BrowserContext, expect, Page, test as setup } from '@playwright/test';
 import path from 'path';
 
 const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
-const prodTestUser = {
-  email: 'me+apadana_prod_test@azimi.me',
+export const prodE2eTestUser = {
+  firstName: 'E2E Test',
+  lastName: 'User',
+  email: 'test-user@e2e-testing.apadana.app',
   password: 'nslr83ub9v8',
 };
 
-setup('authenticate', async ({ page, context, baseURL }) => {
-  if (baseURL?.includes('apadana.app')) {
-    await page.goto('/sign-in');
-    await page.getByLabel('Email').fill(prodTestUser.email);
-    await page.getByLabel('Password').fill(prodTestUser.password);
-
-    await page.getByRole('button', { name: 'Log in' }).click();
-    return;
-  }
-
+async function loginViaCommand(page: Page, context: BrowserContext) {
   const response = await context.request.post('/api/e2e', {
     data: {
       command: 'login',
@@ -32,11 +25,34 @@ setup('authenticate', async ({ page, context, baseURL }) => {
   // Verify that the cookies are set
   const cookies = await page.context().cookies();
   expect(cookies.length).toBeGreaterThan(0);
+}
+
+async function deleteAllE2eListings(context: BrowserContext) {
+  await context.request.post('/api/e2e', {
+    data: {
+      command: 'delete-all-e2e-listings',
+    },
+  });
+}
+
+setup('authenticate', async ({ page, context, baseURL }) => {
+  await deleteAllE2eListings(context);
+
+  if (baseURL?.includes('apadana.app')) {
+    await page.goto('/sign-in');
+    await page.getByLabel('Email').fill(prodE2eTestUser.email);
+    await page.getByLabel('Password').fill(prodE2eTestUser.password);
+
+    await page.getByRole('button', { name: 'Log in', exact: true }).click();
+    await page.waitForURL('/');
+  } else {
+    await loginViaCommand(page, context);
+  }
 
   await page.goto('/');
 
   // Verify that the user-specific link is visible
-  await expect(page.getByRole('link', { name: /Hello, .*?/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Hello, .*?/ })).toBeVisible();
 
   // Save the authenticated state
   await page.context().storageState({ path: authFile });
