@@ -86,8 +86,6 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: apadana_test_ci
-          RESEND_API_KEY: re123_fake_RESEND_API_KEY
-          GOOGLE_MAPS_API_KEY: fake_GOOGLE_MAPS_API_KEY
         ports:
           - 5432:5432
         options: >-
@@ -108,6 +106,8 @@ jobs:
           DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/apadana_test_ci'
           TEST_ENV: 'unit'
           VERCEL_URL: fake-vercel.com
+          RESEND_API_KEY: re123_fake_RESEND_API_KEY
+          GOOGLE_MAPS_API_KEY: fake_GOOGLE_MAPS_API_KEY
       - name: Don't cancel Vercel
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
