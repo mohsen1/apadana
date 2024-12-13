@@ -20,45 +20,41 @@ type UserCreateData = Partial<{
   };
 }>;
 
+const userIncludeRelations: Prisma.UserInclude = {
+  emailAddresses: true,
+  externalAccounts: true,
+  roles: true,
+  permissions: true,
+} as const;
+
+export type TestUser = Prisma.UserGetPayload<{
+  include: typeof userIncludeRelations;
+}>;
+
 export async function findOrCreateTestUser(
-  emailAddress: string,
-  dataArg: UserCreateData = {},
-) {
-  const data = {
-    firstName: 'Test',
-    lastName: 'User',
-    emailAddresses: {
-      create: [{ emailAddress, isPrimary: true }],
-    },
-    ...dataArg,
-  };
+  email: string,
+  data?: UserCreateData,
+): Promise<TestUser> {
+  const user = await prisma.user.findFirst({
+    where: { emailAddresses: { some: { emailAddress: email } } },
+    include: userIncludeRelations,
+  });
 
-  const include = {
-    emailAddresses: true,
-    roles: true,
-    permissions: true,
-    externalAccounts: true,
-  };
+  if (user) return user;
 
-  const existing = await prisma.user.findFirst({
-    include,
-    where: {
+  // Create new user if not found
+  return await prisma.user.create({
+    data: {
+      ...data,
       emailAddresses: {
-        some: {
-          emailAddress,
+        create: {
+          emailAddress: email,
+          isPrimary: true,
         },
       },
     },
+    include: userIncludeRelations,
   });
-
-  if (!existing) {
-    return prisma.user.create({
-      data,
-      include,
-    });
-  }
-
-  return existing;
 }
 
 export async function createTestListing(

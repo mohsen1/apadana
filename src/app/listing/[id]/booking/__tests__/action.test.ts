@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 // tests/bookingRequestsActions.test.ts
 
-import { BookingRequestStatus, User } from '@prisma/client';
+import { BookingRequestStatus } from '@prisma/client';
 import { eachDayOfInterval } from 'date-fns';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -11,6 +11,7 @@ import prisma from '@/lib/prisma/client';
 import {
   createTestListing,
   findOrCreateTestUser,
+  TestUser,
 } from '@/__tests__/setup/fixtures';
 import { clearDatabase } from '@/__tests__/setup/test-container';
 
@@ -33,9 +34,9 @@ import { getUserInServer } from '@/lib/auth';
 describe('Booking Requests Actions', () => {
   let userId: string;
   // let user: User;
-  let guestUser: User;
-  let hostUser: User;
-  let otherUser: User;
+  let guestUser: TestUser;
+  let hostUser: TestUser;
+  let otherUser: TestUser;
   let listingId: string;
   let hostId: string;
 
@@ -354,8 +355,8 @@ vi.mock('@/lib/email/send-email', () => ({
 }));
 
 describe('Booking Requests Edge Cases', () => {
-  let guestUser: User;
-  let hostUser: User;
+  let guestUser: TestUser;
+  let hostUser: TestUser;
   let listingId: string;
 
   beforeEach(async () => {
