@@ -1,3 +1,5 @@
+import { prodE2eTestUser } from 'e2e/auth.setup';
+
 import { setServerSession } from '@/lib/auth';
 import { SESSION_DURATION } from '@/lib/auth/constants';
 import prisma from '@/lib/prisma/client';
@@ -8,8 +10,13 @@ export const runtime = 'nodejs';
 
 export const dynamic = 'force-dynamic';
 
-interface E2ECommand {
-  command: string;
+export enum E2ECommand {
+  LOGIN = 'login',
+  DELETE_ALL_E2E_LISTINGS = 'delete-all-e2e-listings',
+}
+
+interface E2ERequest {
+  command: E2ECommand;
   args?: Record<string, string>;
 }
 
@@ -26,16 +33,16 @@ export async function POST(request: Request) {
       return new Response('Not allowed', { status: 403 });
     }
 
-    const body: E2ECommand = await request.json();
+    const body: E2ERequest = await request.json();
 
-    const { command, args = {} } = body as E2ECommand;
+    const { command, args = {} } = body as E2ERequest;
 
     if (!command) {
       return new Response('No command provided', { status: 400 });
     }
 
     switch (command) {
-      case 'login': {
+      case E2ECommand.LOGIN: {
         const email = args.email ?? 'test@example.com';
         const testUser = await prisma.user.findFirst({
           where: {
@@ -68,6 +75,21 @@ export async function POST(request: Request) {
               'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_DOMAIN,
             },
           },
+        );
+      }
+      case E2ECommand.DELETE_ALL_E2E_LISTINGS: {
+        await prisma.listing.deleteMany({
+          where: {
+            owner: {
+              emailAddresses: { some: { emailAddress: prodE2eTestUser.email } },
+            },
+          },
+        });
+        return new Response(
+          JSON.stringify({
+            message: 'All E2E listings deleted',
+          }),
+          { status: 200 },
         );
       }
       default: {

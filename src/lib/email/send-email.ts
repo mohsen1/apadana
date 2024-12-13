@@ -3,6 +3,30 @@ import resend from '@/lib/email/resend';
 import { BookingRequestEmail } from '@/components/emails/booking-request-email';
 import { EarlyAccessEmail } from '@/components/emails/early-access-email';
 import { PasswordResetEmail } from '@/components/emails/password-reset-email';
+import WelcomeEmail from '@/components/emails/welcome-email';
+
+function sendEmail({
+  email,
+  subject,
+  from,
+  react,
+}: {
+  email: string;
+  subject: string;
+  from: string;
+  react: React.ReactNode;
+}) {
+  if (email.includes('@e2e-testing.apadana.app')) {
+    return;
+  }
+
+  return resend.emails.send({
+    from,
+    to: email,
+    subject,
+    react,
+  });
+}
 
 /**
  * Send a booking request email to the host when a guest requests a booking.
@@ -27,10 +51,10 @@ export async function sendBookingRequestEmail({
   currency: string;
 }) {
   try {
-    await resend.emails.send({
-      from: 'Apadana Bookings <bookings@apadana.app>',
-      to: hostEmail,
+    await sendEmail({
+      email: hostEmail,
       subject: `New Booking Request: ${listingTitle}`,
+      from: 'Apadana <bookings@apadana.app>',
       react: BookingRequestEmail({
         guestName,
         listingTitle,
@@ -59,12 +83,12 @@ export async function sendEarlyAccessEmail(email: string) {
 }
 
 // TODO: Implement sendWelcomeEmail
-export async function sendWelcomeEmail(email: string) {
+export async function sendWelcomeEmail(email: string, name: string) {
   return resend.emails.send({
     from: 'Apadana <onboarding@apadana.app>',
     to: email,
     subject: 'Welcome to the app',
-    html: '<p>Welcome to the app</p>',
+    react: WelcomeEmail({ name }),
   });
 }
 

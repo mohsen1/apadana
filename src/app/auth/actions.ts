@@ -152,7 +152,7 @@ export const signUp = actionClient
     await ctx.setSession(user.sessions[0]);
 
     // Send welcome email
-    await sendWelcomeEmail(parsedInput.email);
+    await sendWelcomeEmail(parsedInput.email, parsedInput.firstName);
 
     const clientUser = sanitizeUserForClient(user);
     if (!clientUser) {
