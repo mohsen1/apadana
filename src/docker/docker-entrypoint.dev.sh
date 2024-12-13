@@ -5,7 +5,7 @@ trap 'kill -TERM $PID' TERM INT
 
 # Function to install dependencies
 install_deps() {
-    echo "📦 Installing dependencies..."
+
     pnpm install --prefer-offline --frozen-lockfile --reporter=append-only
     pnpm prisma generate
     touch node_modules

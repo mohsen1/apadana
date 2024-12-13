@@ -3,18 +3,18 @@
   "version": "0.1.1",
   "private": true,
   "scripts": {
-    "docker:dev": "docker-compose down && concurrently \"npm run docker:dev:start\" \"pnpm prisma:watch\" --kill-others-on-fail --handle-input --raw --signal SIGTERM",
-    "docker:dev:start": "docker compose up --build --no-log-prefix",
-    "docker:down": "docker-compose down",
-    "docker:clean": "docker-compose down -v && docker volume prune -f",
-    "docker:db": "docker-compose exec db psql -U admin -d apadana",
-    "docker:rebuild": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose build --no-cache app && docker compose up --no-log-prefix",
+    "docker:dev": "pnpm run docker:down && concurrently \"npm run docker:dev:start\" \"pnpm prisma:watch\" --kill-others-on-fail --raw --signal SIGTERM",
+    "docker:dev:start": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose -f src/docker/docker-compose.dev.yml up --build --no-log-prefix",
+    "docker:down": "docker-compose -f src/docker/docker-compose.dev.yml down",
+    "docker:clean": "docker-compose -f src/docker/docker-compose.dev.yml down -v && docker volume prune -f",
+    "docker:db": "docker-compose -f src/docker/docker-compose.dev.yml exec db psql -U admin -d apadana",
+    "docker:rebuild": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose -f src/docker/docker-compose.dev.yml build --no-cache app && docker compose -f src/docker/docker-compose.dev.yml up --no-log-prefix",
     "docker:prune": "docker system prune -af --volumes",
-    "docker:prod": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f docker-compose.prod.yml up --build --no-log-prefix",
-    "docker:prod:down": "docker-compose -f docker-compose.prod.yml down",
-    "docker:prod:logs": "docker-compose -f docker-compose.prod.yml logs -f",
-    "docker:prod:clean": "docker-compose -f docker-compose.prod.yml down -v",
-    "docker:prod:rebuild": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f docker-compose.prod.yml build app_prod && docker-compose -f docker-compose.prod.yml up -d app_prod",
+    "docker:prod": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f src/docker/docker-compose.prod.yml up --build --no-log-prefix",
+    "docker:prod:down": "docker-compose -f src/docker/docker-compose.prod.yml down",
+    "docker:prod:logs": "docker-compose -f src/docker/docker-compose.prod.yml logs -f",
+    "docker:prod:clean": "docker-compose -f src/docker/docker-compose.prod.yml down -v",
+    "docker:prod:rebuild": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f src/docker/docker-compose.prod.yml build app_prod && docker-compose -f src/docker/docker-compose.prod.yml up -d app_prod",
     "predev": "pnpm prisma:generate && pnpm migrate:dev",
     "dev": "dotenv -e .env.local -- concurrently --color --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold\" npm:dev:*",
     "dev:next": "next dev --turbo",
@@ -183,5 +183,18 @@
   },
   "prisma": {
     "seed": "tsx --env-file .env.local prisma/seed.ts"
+  },
+  "postcss": {
+    "plugins": {
+      "tailwindcss": {},
+      "autoprefixer": {}
+    }
+  },
+  "prettier": {
+    "arrowParens": "always",
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "tabWidth": 2,
+    "semi": true
   }
 }
