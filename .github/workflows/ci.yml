@@ -86,7 +86,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: apadana_test_ci
-          RESEND_API_KEY: fake_RESEND_API_KEY
+          RESEND_API_KEY: re123_fake_RESEND_API_KEY
           GOOGLE_MAPS_API_KEY: fake_GOOGLE_MAPS_API_KEY
         ports:
           - 5432:5432
