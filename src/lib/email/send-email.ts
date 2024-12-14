@@ -66,7 +66,7 @@ export async function sendBookingRequestEmail({
         currency,
       }),
     });
-  } catch (error) {
+  } catch {
     throw new Error('Failed to send email notification');
   }
 }

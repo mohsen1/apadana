@@ -12,7 +12,7 @@ async function loginViaCommand(page: Page, context: BrowserContext) {
     },
   });
 
-  const body = await response.json();
+  const body = (await response.json()) as { email: string };
 
   // Verify the response is successful
   expect(body.email).toBeTruthy();

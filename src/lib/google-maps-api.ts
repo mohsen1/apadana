@@ -7,12 +7,16 @@ const API_BASE_URL = 'https://maps.googleapis.com/maps/api';
  * @param lng - The longitude to fetch the time zone for.
  * @returns The time zone ID for the given latitude and longitude.
  */
-export async function getTimeZone(lat: number, lng: number) {
+export async function getTimeZone(lat: number, lng: number): Promise<string> {
   const timestamp = Math.floor(Date.now() / 1000);
   const timeZoneUrl = `${API_BASE_URL}/timezone/json`;
   const url = `${timeZoneUrl}?location=${lat},${lng}&timestamp=${timestamp}&key=${GOOGLE_MAPS_API_KEY}`;
   const response = await fetch(url);
-  const data = await response.json();
+  const data = (await response.json()) as {
+    status: string;
+    timeZoneId: string;
+    error_message: string;
+  };
 
   if (data.status === 'OK') {
     return data.timeZoneId;

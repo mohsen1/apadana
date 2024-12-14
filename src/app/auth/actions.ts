@@ -75,7 +75,7 @@ export const login = actionClient
       throw new Error('Primary email not found');
     }
 
-    await ctx.setSession(session);
+    ctx.setSession(session);
 
     const clientUser = sanitizeUserForClient(user);
 
@@ -149,7 +149,7 @@ export const signUp = actionClient
       },
     });
 
-    await ctx.setSession(user.sessions[0]);
+    ctx.setSession(user.sessions[0]);
 
     // Send welcome email
     await sendWelcomeEmail(parsedInput.email, parsedInput.firstName);

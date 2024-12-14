@@ -13,7 +13,7 @@ function safeParse<T>(value: string): { value: string; parsed: T | null } {
   try {
     return {
       value,
-      parsed: JSON.parse(value),
+      parsed: JSON.parse(value) as T,
     };
   } catch (error) {
     assertError(error);
@@ -191,7 +191,7 @@ export async function setupTestContainer() {
         throw error; // Re-throw to trigger container teardown
       }
       return;
-    } catch (error) {
+    } catch {
       logger.debug(
         'Container not running or not healthy, proceeding with setup',
       );

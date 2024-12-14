@@ -1,5 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-console */
+/* eslint-disable 
+  no-console,
+  @typescript-eslint/no-explicit-any, 
+  @typescript-eslint/no-unsafe-return, 
+  @typescript-eslint/no-unsafe-argument
+*/
 
 import path from 'path';
 

@@ -175,7 +175,7 @@ export default function CreateListingForm() {
       try {
         const parsedData = CreateListingSchema.partial().parse(formData);
         reset(parsedData);
-      } catch (error) {
+      } catch {
         router.replace(`?step=${FormStep.LocationDetails}`);
         reset(defaultValues);
       }
@@ -221,13 +221,13 @@ export default function CreateListingForm() {
         setShowLoading(true);
       }, 500);
 
-      handleSubmit(
-        async (data) => {
+      return handleSubmit(
+        (data) => {
           updateUrlParams({
             formData: data,
             step: currentStep,
           });
-          await execute(data);
+          execute(data);
           clearTimeout(loadingTimeout);
           setShowLoading(false);
         },

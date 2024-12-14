@@ -7,7 +7,7 @@ import {
   Marker,
   useLoadScript,
 } from '@react-google-maps/api';
-import { Loader2, LocateFixed } from 'lucide-react'; // Import the LocateFixed icon
+import { Loader2, LocateFixed } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -93,7 +93,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     }
 
     const service = new google.maps.places.AutocompleteService();
-    service.getPlacePredictions(
+    return service.getPlacePredictions(
       {
         input: value,
         types: ['address'],
@@ -128,21 +128,24 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     setActivePredictionIndex(-1);
 
     const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ placeId: prediction.place_id }, (results, status) => {
-      if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-        const location = results[0].geometry?.location;
-        if (location) {
-          const lat = location.lat();
-          const lng = location.lng();
-          if (typeof lat === 'number' && typeof lng === 'number') {
-            setSelectedLocation({ lat, lng });
-            setMapCenter({ lat, lng });
-            setMapZoom(14); // Default zoom level
-            onLocationChange?.(lat, lng);
+    return geocoder.geocode(
+      { placeId: prediction.place_id },
+      (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+          const location = results[0].geometry?.location;
+          if (location) {
+            const lat = location.lat();
+            const lng = location.lng();
+            if (typeof lat === 'number' && typeof lng === 'number') {
+              setSelectedLocation({ lat, lng });
+              setMapCenter({ lat, lng });
+              setMapZoom(14); // Default zoom level
+              onLocationChange?.(lat, lng);
+            }
           }
         }
-      }
-    });
+      },
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -163,7 +166,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           activePredictionIndex >= 0 &&
           activePredictionIndex < predictions.length
         ) {
-          handleSelectPrediction(predictions[activePredictionIndex]);
+          return handleSelectPrediction(predictions[activePredictionIndex]);
         }
       } else if (e.key === 'Escape') {
         setPredictions([]);
@@ -187,7 +190,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
           // Reverse geocode to get address
           const geocoder = new google.maps.Geocoder();
-          geocoder.geocode(
+          return geocoder.geocode(
             { location: { lat: latitude, lng: longitude } },
             (results, status) => {
               setIsFetchingCurrentLocation(false);

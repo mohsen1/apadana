@@ -38,7 +38,7 @@ export const validateEnvironmentVariables = _.memoize(() => {
 
   if (!result.success) {
     const messages = Object.entries(result.error.flatten().fieldErrors)
-      .map(([key, value]) => `    ${key}: ${value}`)
+      .map(([key, value]) => `    ${key}: ${value?.join(', ')}`)
       .join('\n');
     throw new Error(`Invalid environment variables:\n${messages}`);
   }
@@ -47,9 +47,8 @@ export const validateEnvironmentVariables = _.memoize(() => {
 type EnvironmentVariables = z.infer<typeof schema>;
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface ProcessEnv extends EnvironmentVariables {}
   }
 }

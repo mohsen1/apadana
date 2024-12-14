@@ -32,9 +32,9 @@ export async function POST(request: Request) {
       return new Response('Not allowed', { status: 403 });
     }
 
-    const body: E2ERequest = await request.json();
+    const body = (await request.json()) as E2ERequest;
 
-    const { command, args = {} } = body as E2ERequest;
+    const { command, args = {} } = body;
 
     if (!command) {
       return new Response('No command provided', { status: 400 });
@@ -92,7 +92,9 @@ export async function POST(request: Request) {
         );
       }
       default: {
-        return new Response(`Unknown command "${command}"`, { status: 400 });
+        return new Response(`Unknown command "${command as string}"`, {
+          status: 400,
+        });
       }
     }
   } catch (error) {

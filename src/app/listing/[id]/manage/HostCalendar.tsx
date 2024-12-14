@@ -47,7 +47,7 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
     useAction(editInventory, {
       onSuccess: (result) => {
         if (result.data) {
-          refreshInventory();
+          return refreshInventory();
         }
       },
       onError: (error) => {
@@ -237,7 +237,7 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
                       if (!range) {
                         return;
                       }
-                      onSubmit(range);
+                      return onSubmit(range);
                     }}
                   >
                     <RefreshCcw
