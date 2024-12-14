@@ -1,9 +1,7 @@
 import { BrowserContext, expect, Page, test as setup } from '@playwright/test';
-import path from 'path';
 
 import { prodE2eTestUser } from '@/e2e/fixtures/users';
-
-const authFile = path.join(__dirname, '../playwright/.auth/user.json');
+import { storageState } from '@/e2e/playwright.config';
 
 async function loginViaCommand(page: Page, context: BrowserContext) {
   const response = await context.request.post('/api/e2e', {
@@ -50,5 +48,5 @@ setup('authenticate', async ({ page, context, baseURL }) => {
   await expect(page.getByRole('button', { name: /Hello, .*?/ })).toBeVisible();
 
   // Save the authenticated state
-  await page.context().storageState({ path: authFile });
+  await page.context().storageState({ path: storageState });
 });

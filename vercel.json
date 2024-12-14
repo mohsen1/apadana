@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "buildCommand": "sh src/scripts/build-vercel.sh",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next"
+}
