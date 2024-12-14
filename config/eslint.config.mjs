@@ -10,12 +10,12 @@ import globals from 'globals';
 export default [
   {
     ignores: [
-      '**/dist/**', 
-      '**/out/**', 
+      '**/dist/**',
+      '**/out/**',
       '**/build/**',
       '**/e2e/.next/**',
       '**/__mocks__/**',
-      '**/node_modules/**'
+      '**/node_modules/**',
     ],
   },
   {
@@ -27,8 +27,8 @@ export default [
         sourceType: 'module',
         project: './tsconfig.json',
         ecmaFeatures: {
-          jsx: true
-        }
+          jsx: true,
+        },
       },
       globals: {
         ...globals.browser,
@@ -40,8 +40,8 @@ export default [
         google: 'readable',
         Image: 'readable',
         process: 'readable',
-        Buffer: 'readable'
-      }
+        Buffer: 'readable',
+      },
     },
     settings: {
       react: {
@@ -52,7 +52,7 @@ export default [
       '@typescript-eslint': tsPlugin,
       'simple-import-sort': simpleImportSort,
       'unused-imports': unusedImports,
-      'react': reactPlugin,
+      react: reactPlugin,
       '@next/next': nextPlugin,
     },
     rules: {
@@ -87,23 +87,29 @@ export default [
       '@typescript-eslint/no-unsafe-call': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
       '@typescript-eslint/no-unsafe-return': 'warn',
-      '@typescript-eslint/no-floating-promises': ['warn', {
-        ignoreVoid: true,
-        ignoreIIFE: true
-      }],
+      '@typescript-eslint/no-floating-promises': [
+        'warn',
+        {
+          ignoreVoid: true,
+          ignoreIIFE: true,
+        },
+      ],
       '@typescript-eslint/no-misused-promises': [
         'warn',
         {
-          checksVoidReturn: false
-        }
+          checksVoidReturn: false,
+        },
       ],
       '@typescript-eslint/require-await': 'off',
-      '@typescript-eslint/restrict-template-expressions': ['warn', {
-        allowNumber: true,
-        allowBoolean: true,
-        allowAny: true,
-        allowNullish: true,
-      }],
+      '@typescript-eslint/restrict-template-expressions': [
+        'warn',
+        {
+          allowNumber: true,
+          allowBoolean: true,
+          allowAny: true,
+          allowNullish: true,
+        },
+      ],
       '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
       '@typescript-eslint/no-unsafe-enum-comparison': 'off',
       '@typescript-eslint/await-thenable': 'warn',
@@ -117,15 +123,18 @@ export default [
           'ts-check': false,
         },
       ],
-      '@typescript-eslint/no-empty-interface': ['error', {
-        allowSingleExtends: true
-      }],
+      '@typescript-eslint/no-empty-interface': [
+        'error',
+        {
+          allowSingleExtends: true,
+        },
+      ],
 
       // General rules
       'no-console': 'warn',
       'no-unused-vars': 'off',
       'no-undef': ['error', { typeof: true }],
-      
+
       // Import sorting
       'simple-import-sort/imports': [
         'warn',
