@@ -3,6 +3,17 @@ services:
     build:
       context: ../..
       dockerfile: src/docker/Dockerfile.prod
+      args:
+        - RESEND_API_KEY=${RESEND_API_KEY:-re_1234567890_invalid_key}
+        - VERCEL_URL=${VERCEL_URL:-localhost:3030}
+        - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-invalid_maps_key}
+        - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
+        - VERCEL_PROJECT_PRODUCTION_URL=${VERCEL_PROJECT_PRODUCTION_URL:-https://apadana.app}
+        - NEXT_PUBLIC_DOMAIN=${NEXT_PUBLIC_DOMAIN:-localhost:3030}
+        - NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET:-invalid_bucket}
+        - NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION:-invalid_region}
+        - S3_UPLOAD_KEY=${S3_UPLOAD_KEY:-invalid_key}
+        - S3_UPLOAD_SECRET=${S3_UPLOAD_SECRET:-invalid_secret}
     ports:
       - '3030:3030'
     environment:
