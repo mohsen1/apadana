@@ -4,9 +4,15 @@ import { defineConfig, devices } from '@playwright/test';
  * https://github.com/motdotla/dotenv
  */
 import dotenv from 'dotenv';
+import path from 'node:path';
 dotenv.config();
 
 const isTestingDev = process.env.PLAYWRIGHT_IS_TESTING_DEV === 'true';
+
+export const storageState = path.join(
+  process.cwd(),
+  '.cache/__e2e__auth/state.json',
+);
 
 /**
  * Playwright by default will launch the server in production mode.
@@ -25,7 +31,7 @@ const baseURL = process.env.BASE_URL || localUrl;
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './e2e',
+  testDir: path.join(process.cwd(), 'src/e2e'),
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -45,7 +51,7 @@ export default defineConfig({
     ],
   ],
 
-  globalSetup: require.resolve('./e2e/global-setup.ts'),
+  globalSetup: path.join(process.cwd(), 'src/e2e/global-setup.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
@@ -66,7 +72,7 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/user.json',
+        storageState,
       },
       dependencies: ['setup'],
     },

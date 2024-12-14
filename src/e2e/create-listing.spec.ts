@@ -77,7 +77,7 @@ test.describe.serial('Create and delete a Listing', () => {
 
     await test.step('Upload images and verify upload', async () => {
       const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(['e2e/fixtures/photo-1.jpg']);
+      await fileInput.setInputFiles(['src/e2e/fixtures/photo-1.jpg']);
 
       const button = page.getByRole('button', { name: 'Next' });
 

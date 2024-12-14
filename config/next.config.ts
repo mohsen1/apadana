@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
       { hostname: 'apadana.app' },
       { hostname: 'localhost' },
       { hostname: 'avatars.githubusercontent.com' },
+      { hostname: 'apadana-uploads.s3.us-east-1.amazonaws.com' },
       {
         hostname: `${process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.amazonaws.com`,
       },
