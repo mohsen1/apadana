@@ -23,7 +23,17 @@ const config: StorybookConfig = {
           {
             loader: 'postcss-loader',
             options: {
-              implementation: require('postcss'),
+              postcssOptions: {
+                plugins: [
+                  [
+                    require('tailwindcss'),
+                    {
+                      config: './config/tailwind.config.ts',
+                    },
+                  ],
+                  require('autoprefixer'),
+                ],
+              },
             },
           },
         ],

@@ -7,7 +7,7 @@ import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename, 'warn');
 
-const composeFile = 'docker-compose.test.yml';
+const composeFile = 'src/docker/docker-compose.test.yml';
 
 function safeParse<T>(value: string): { value: string; parsed: T | null } {
   try {
@@ -177,10 +177,13 @@ export async function setupTestContainer() {
       logger.info('Cleaning database schema before migrations');
       await cleanDatabaseSchema();
 
-      logger.info('Running database migrations on existing container');
+      logger.info('Running database migrations on existing container', {
+        cwd: process.cwd(),
+      });
       try {
-        exec('pnpm prisma migrate deploy', {
+        exec('pnpm prisma migrate deploy --schema=src/prisma/schema.prisma', {
           env: process.env,
+          cwd: process.cwd(),
         });
       } catch (error) {
         assertError(error);
@@ -213,8 +216,9 @@ export async function setupTestContainer() {
     await waitForContainerHealthy(composeFile, 'postgres_test', 10, 1000);
 
     logger.info('Running database migrations');
-    exec('pnpm prisma migrate deploy', {
+    exec('pnpm prisma migrate deploy --schema=src/prisma/schema.prisma', {
       env: process.env,
+      cwd: process.cwd(),
     });
 
     logger.debug('Verifying DATABASE_URL is set:', process.env.DATABASE_URL);

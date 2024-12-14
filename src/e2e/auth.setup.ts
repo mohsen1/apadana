@@ -1,7 +1,7 @@
 import { BrowserContext, expect, Page, test as setup } from '@playwright/test';
 import path from 'path';
 
-import { prodE2eTestUser } from '@/app/api/e2e/route';
+import { prodE2eTestUser } from '@/e2e/fixtures/users';
 
 const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 

@@ -71,15 +71,11 @@ You will need access to the following services to run the development environmen
    ```bash
    curl -fsSL https://get.pnpm.io/install.sh | bash
    ```
-3. Install [Vercel CLI](https://vercel.com/docs/cli) (v3.1.0 or higher)
-   ```bash
-   pnpm install -g vercel
-   ```
-4. Install [Docker](https://www.docker.com/get-started)
+3. Install [Docker](https://www.docker.com/get-started)
    ```bash
    sudo apt-get install -y docker
    ```
-5. Install [Git](https://git-scm.com/downloads)
+4. Install [Git](https://git-scm.com/downloads)
    ```bash
    sudo apt-get install -y git
    ```
@@ -109,21 +105,17 @@ Use **pnpm** to install the dependencies.
 pnpm install
 ```
 
-### 5. Create a `.env.local` file
-
-Running this command will create a `.env.local` file with the environment variables for the development environment.
-
-```bash
-vercel env pull
-```
-
-### 6. Run the development server
+### 5. Run the development server
 
 This will start all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in Docker containers:
 
 ```bash
 pnpm docker:dev
 ```
+
+The development environment includes default values for all required environment variables, so you can start developing right away.
+
+Production environment variables are stored in Vercel dashboard.
 
 Navigate to [localhost:3000](http://localhost:3000) to see the development website.
 

@@ -2,18 +2,12 @@ import { setServerSession } from '@/lib/auth';
 import { SESSION_DURATION } from '@/lib/auth/constants';
 import prisma from '@/lib/prisma/client';
 
+import { prodE2eTestUser } from '@/e2e/fixtures/users';
 import { assertError } from '@/utils';
 
 export const runtime = 'nodejs';
 
 export const dynamic = 'force-dynamic';
-
-export const prodE2eTestUser = {
-  firstName: 'E2E Test',
-  lastName: 'User',
-  email: 'test-user@e2e-testing.apadana.app',
-  password: 'nslr83ub9v8',
-};
 
 export enum E2ECommand {
   LOGIN = 'login',

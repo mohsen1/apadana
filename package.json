@@ -3,52 +3,52 @@
   "version": "0.1.1",
   "private": true,
   "scripts": {
-    "docker:dev": "docker-compose down && concurrently \"npm run docker:dev:start\" \"pnpm prisma:watch\" --kill-others-on-fail --handle-input --raw --signal SIGTERM",
-    "docker:dev:start": "docker compose up --build --no-log-prefix",
-    "docker:down": "docker-compose down",
-    "docker:clean": "docker-compose down -v && docker volume prune -f",
-    "docker:db": "docker-compose exec db psql -U admin -d apadana",
-    "docker:rebuild": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose build --no-cache app && docker compose up --no-log-prefix",
+    "docker:dev": "pnpm run docker:down && concurrently \"pnpm run docker:dev:start\" \"pnpm run prisma:watch\" --kill-others --success=first --raw",
+    "docker:dev:start": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose -f src/docker/docker-compose.dev.yml up --build --no-log-prefix",
+    "docker:down": "docker-compose -f src/docker/docker-compose.dev.yml down",
+    "docker:clean": "docker-compose -f src/docker/docker-compose.dev.yml down -v && docker volume prune -f",
+    "docker:db": "docker-compose -f src/docker/docker-compose.dev.yml exec db psql -U admin -d apadana",
+    "docker:rebuild": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose -f src/docker/docker-compose.dev.yml build --no-cache app && docker compose -f src/docker/docker-compose.dev.yml up --no-log-prefix",
     "docker:prune": "docker system prune -af --volumes",
-    "docker:prod": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f docker-compose.prod.yml up --build --no-log-prefix",
-    "docker:prod:down": "docker-compose -f docker-compose.prod.yml down",
-    "docker:prod:logs": "docker-compose -f docker-compose.prod.yml logs -f",
-    "docker:prod:clean": "docker-compose -f docker-compose.prod.yml down -v",
-    "docker:prod:rebuild": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f docker-compose.prod.yml build app_prod && docker-compose -f docker-compose.prod.yml up -d app_prod",
+    "docker:prod": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f src/docker/docker-compose.prod.yml up --build --no-log-prefix",
+    "docker:prod:down": "docker-compose -f src/docker/docker-compose.prod.yml down",
+    "docker:prod:logs": "docker-compose -f src/docker/docker-compose.prod.yml logs -f",
+    "docker:prod:clean": "docker-compose -f src/docker/docker-compose.prod.yml down -v",
+    "docker:prod:rebuild": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f src/docker/docker-compose.prod.yml build app_prod && docker-compose -f src/docker/docker-compose.prod.yml up -d app_prod",
     "predev": "pnpm prisma:generate && pnpm migrate:dev",
-    "dev": "dotenv -e .env.local -- concurrently --color --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold\" npm:dev:*",
+    "dev": "concurrently --color --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold\" npm:dev:*",
     "dev:next": "next dev --turbo",
-    "dev:prisma": "dotenv -e .env.local -- prisma generate --no-hints --watch",
-    "dev:prisma:seed": "dotenv -e .env.local -- prisma db seed",
-    "dev:storybook": "storybook dev --quiet --port=6006 --no-open | grep -v -iE '^(info|warn)'",
-    "dev:studio": "nodemon --watch prisma/schema.prisma --exec 'dotenv -e .env -- prisma studio --browser none'",
-    "migrate:dev": "dotenv -e .env.local -- prisma migrate deploy",
-    "migrate:prod": "prisma migrate deploy",
-    "prisma:generate": "dotenv -e .env.local -- prisma generate --no-hints",
-    "prisma:watch": "pnpm prisma generate --watch",
-    "prisma:migrate:deploy": "prisma migrate deploy",
-    "build": "dotenv -e .env.local -- prisma generate --no-hints && dotenv -e .env.local -- next build",
+    "dev:prisma": "prisma generate --schema=src/prisma/schema.prisma --no-hints --watch",
+    "dev:prisma:seed": "prisma db seed",
+    "dev:storybook": "storybook dev --quiet --port=6006 --no-open | grep -v -iE 'info|warn' | grep -v '^$'",
+    "dev:studio": "nodemon --watch prisma/schema.prisma --exec 'prisma studio --schema=src/prisma/schema.prisma --browser none'",
+    "migrate:dev": "prisma migrate deploy --schema=src/prisma/schema.prisma",
+    "migrate:prod": "prisma migrate deploy --schema=src/prisma/schema.prisma",
+    "prisma:generate": "prisma generate --schema=src/prisma/schema.prisma --no-hints",
+    "prisma:watch": "pnpm prisma generate --schema=src/prisma/schema.prisma --watch",
+    "prisma:migrate:deploy": "prisma migrate deploy --schema=src/prisma/schema.prisma",
+    "build": "prisma generate --schema=src/prisma/schema.prisma --no-hints && next build",
     "start": "next start",
     "fix": "pnpm lint:fix && pnpm format",
-    "lint": "next lint",
-    "lint:fix": "eslint src --fix && pnpm format",
-    "lint:strict": "eslint --max-warnings=0 src",
+    "lint": "eslint src --config=config/eslint.config.js",
+    "lint:fix": "eslint src --fix --config=config/eslint.config.js && pnpm format",
+    "lint:strict": "eslint --max-warnings=0 --config=config/eslint.config.js src",
     "typecheck": "pnpm prisma:generate && tsc --noEmit --incremental false",
-    "test": "dotenv -e .env.test -- vitest run",
-    "test:watch": "dotenv -e .env.test -- vitest",
-    "test:coverage": "dotenv -e .env.test -- vitest run --coverage",
-    "e2e": "PORT=3030 playwright test --project=chromium",
-    "e2e:dev": "PORT=3000 PLAYWRIGHT_IS_TESTING_DEV=true playwright test --project=chromium",
-    "e2e:ci": "playwright test",
-    "e2e:prod": "BASE_URL=https://apadana.app playwright test --project=chromium",
+    "test": "vitest run --config=config/vitest.config.ts",
+    "test:watch": "vitest --config=config/vitest.config.ts",
+    "test:coverage": "vitest run --coverage --config=config/vitest.config.ts",
+    "test:ui": "vitest --ui --config=config/vitest.config.ts",
+    "e2e": "PORT=3030 playwright test --project=chromium --config=src/e2e/playwright.config.ts",
+    "e2e:dev": "PORT=3000 PLAYWRIGHT_IS_TESTING_DEV=true playwright test --project=chromium --config=src/e2e/playwright.config.ts",
+    "e2e:ci": "playwright test --config=src/e2e/playwright.config.ts",
+    "e2e:prod": "BASE_URL=https://apadana.app playwright test --project=chromium --config=src/e2e/playwright.config.ts",
     "format": "prettier -w .",
     "format:check": "prettier -c .",
-    "postbuild": "next-sitemap --config next-sitemap.config.js",
+    "postbuild": "next-sitemap --config config/next-sitemap.config.js",
     "prepare": "husky install",
     "storybook": "storybook dev -p 6006 --quiet",
     "build-storybook": "storybook build",
-    "test:ui": "vitest --ui",
-    "test:cleanup": "docker-compose -f docker-compose.test.yml down"
+    "test:cleanup": "docker-compose -f src/docker/docker-compose.test.yml down"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.705.0",
@@ -89,7 +89,6 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "date-fns-tz": "^3.2.0",
-    "dotenv-cli": "^7.4.4",
     "lodash": "^4.17.21",
     "lucide-react": "^0.439.0",
     "next": "15.0.3",
@@ -168,7 +167,7 @@
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
       "pnpm prisma:generate",
-      "eslint --max-warnings=0",
+      "eslint --max-warnings=0 --config=config/eslint.config.js",
       "prettier -w"
     ],
     "**/*.{json,css,scss,md,webmanifest}": [
@@ -182,6 +181,21 @@
     }
   },
   "prisma": {
-    "seed": "tsx --env-file .env.local prisma/seed.ts"
+    "seed": "tsx src/prisma/seed.ts"
+  },
+  "postcss": {
+    "plugins": {
+      "tailwindcss": {
+        "config": "config/tailwind.config.ts"
+      },
+      "autoprefixer": {}
+    }
+  },
+  "prettier": {
+    "arrowParens": "always",
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "tabWidth": 2,
+    "semi": true
   }
 }

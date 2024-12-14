@@ -1,6 +1,5 @@
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { validateEnvironmentVariables } from 'environment-variables';
 import { Metadata } from 'next';
 import * as React from 'react';
 
@@ -17,6 +16,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { getCurrentUser } from '@/app/auth/actions';
 import { siteConfig } from '@/constant/config';
 import { AuthProvider } from '@/contexts/auth-context';
+import { validateEnvironmentVariables } from '@/utils/environment-variables';
 
 import { fontHeading, fontSans, fontSubheading } from './fonts';
 export const metadata: Metadata = {

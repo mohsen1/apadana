@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: ['main']
 
-concurrency:
-  group: ${{ github.job }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build:
     name: Build
@@ -26,7 +22,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .next/cache
-          key: ${{ runner.os }}-next-${{ hashFiles('next.config.js', 'package.json', 'pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-next-${{ hashFiles('config/next.config.ts', 'package.json', 'pnpm-lock.yaml') }}
 
       - name: Build
         run: pnpm run build
@@ -76,7 +72,7 @@ jobs:
       - run: pnpm run format:check
 
   test:
-    name: Run jest
+    name: Run Vitest
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:

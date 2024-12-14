@@ -58,25 +58,16 @@ e2e/uploads/
 
 # Do not allow new files in root
 .*
-total 1568
-!Dockerfile.dev
-!Dockerfile.prod
+
+# Files that *are* allowed in root
 !README.md
 !components.json
-!docker-compose.prod.yml
-!docker-compose.yml
-!docker-entrypoint.dev.sh
-!environment-variables.ts
 !jest.config.ts
 !jest.setup.ts
-!next-env.d.ts
 !next-sitemap.config.js
 !next.config.ts
 !package.json
 !playwright.config.ts
 !pnpm-lock.yaml
-!postcss.config.js
-!renovate.json
 !tailwind.config.ts
 !tsconfig.json
-!vercel.json

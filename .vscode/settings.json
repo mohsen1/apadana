@@ -20,6 +20,8 @@
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "files.exclude": {
     "build": true,
+    "node_modules": true,
+    ".pnpm-store": true,
     "out": true,
     ".next": true,
     ".swc": true,
@@ -27,6 +29,8 @@
   },
   "search.exclude": {
     "build": true,
+    "node_modules": true,
+    ".pnpm-store": true,
     "out": true,
     ".next": true,
     ".swc": true,
