@@ -14,7 +14,7 @@ runs:
     - name: Setup node
       uses: actions/setup-node@v3
       with:
-        node-version: 20
+        node-version: 22
         cache: 'pnpm'
 
     - name: Install dependencies
@@ -22,5 +22,5 @@ runs:
       shell: bash
 
     - name: Generate Prisma client
-      run: pnpm prisma generate
+      run: pnpm prisma generate --schema=src/prisma/schema.prisma
       shell: bash
