@@ -15,7 +15,10 @@ function validateFormData(
   formData: TypedFormData<Listing>,
 ): formData is TypedFormData<Required<Listing>> {
   const errors: Record<string, string> = {};
-  const validatedData: Partial<Required<Listing>> = {};
+  const validatedData: Record<
+    string,
+    string | number | string[] | boolean | Date
+  > = {};
 
   // Define required fields
   const requiredFields: (keyof Listing)[] = [
@@ -30,12 +33,11 @@ function validateFormData(
 
   // Validate required fields
   for (const field of requiredFields) {
-    const value = formData.get(field);
-    if (!value) {
+    const value = formData.get<typeof field>(field);
+    if (value === null || value === undefined) {
       errors[field] = `${field} is required`;
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      validatedData[field] = value as any;
+      validatedData[field] = value;
     }
   }
 
@@ -59,14 +61,14 @@ function validateFormData(
   // Handle optional fields
   const amenities = formData.getAll('amenities');
   if (amenities.length > 0) {
-    validatedData.amenities = amenities as string[];
+    validatedData.amenities = amenities;
   } else {
     validatedData.amenities = [];
   }
 
   const houseRules = formData.get('houseRules');
   if (houseRules) {
-    validatedData.houseRules = houseRules as string;
+    validatedData.houseRules = houseRules;
   } else {
     validatedData.houseRules = '';
   }

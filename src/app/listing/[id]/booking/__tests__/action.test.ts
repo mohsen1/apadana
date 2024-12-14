@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 // tests/bookingRequestsActions.test.ts
 
 import { BookingRequestStatus } from '@prisma/client';

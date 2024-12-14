@@ -93,7 +93,7 @@ export function SignupForm() {
 
       // Redirect to the dashboard or home page
       router.push('/');
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Something went wrong. Please try again.',

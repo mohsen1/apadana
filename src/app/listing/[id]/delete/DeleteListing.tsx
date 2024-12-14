@@ -40,7 +40,7 @@ export function DeleteListing({ listing }: { listing: Listing }) {
       className='max-w-4xl mx-auto pt-12 p-6 space-y-8 flex-grow'
       onSubmit={(e) => {
         e.preventDefault();
-        handleSubmit((data) => {
+        return handleSubmit((data) => {
           execute({
             id: String(data.id),
           });

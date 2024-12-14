@@ -83,7 +83,7 @@ function SignInPage() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              handleSubmit(execute)(e);
+              return handleSubmit(execute)(e);
             }}
             className='space-y-4'
           >

@@ -12,7 +12,7 @@ import { useState } from 'react';
  * @param props - The props to pass to the component.
  * @returns A React component that renders the email.
  */
-export function ReactEmailStoryRenderer<C extends React.ElementType>({
+export async function ReactEmailStoryRenderer<C extends React.ElementType>({
   Component,
   props,
 }: {
@@ -20,7 +20,7 @@ export function ReactEmailStoryRenderer<C extends React.ElementType>({
   props: React.ComponentProps<C>;
 }) {
   const [html, setHtml] = useState('');
-  render(<Component {...props} />).then((html) => {
+  await render(<Component {...props} />).then((html) => {
     setHtml(html);
   });
   return (

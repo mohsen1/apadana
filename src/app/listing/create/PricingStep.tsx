@@ -22,7 +22,7 @@ export function PricingStep() {
           {...register('pricePerNight', {
             required: true,
             min: 0,
-            setValueAs: (value) => Number.parseInt(value, 10),
+            setValueAs: (value: string) => Number.parseInt(value, 10),
           })}
         />
         {errors.pricePerNight && (
@@ -37,7 +37,7 @@ export function PricingStep() {
           {...register('minimumStay', {
             required: true,
             min: 1,
-            setValueAs: (value) => Number.parseInt(value, 10),
+            setValueAs: (value: string) => Number.parseInt(value, 10),
           })}
         />
         {errors.minimumStay && (
@@ -54,7 +54,7 @@ export function PricingStep() {
           {...register('maximumGuests', {
             required: true,
             min: 1,
-            setValueAs: (value) => Number.parseInt(value, 10),
+            setValueAs: (value: string) => Number.parseInt(value, 10),
           })}
         />
         {errors.maximumGuests && (

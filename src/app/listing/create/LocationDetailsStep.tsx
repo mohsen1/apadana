@@ -16,7 +16,7 @@ export function LocationDetailsStep() {
 
   const handleAddressChange = (newAddress: string) => {
     setValue('address', newAddress, { shouldValidate: true });
-    trigger('address');
+    return trigger('address');
   };
 
   const handleLocationChange = (lat: number, lng: number) => {

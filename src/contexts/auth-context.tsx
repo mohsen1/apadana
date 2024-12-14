@@ -36,7 +36,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   }, []);
 
   useEffect(() => {
-    fetchUser();
+    void fetchUser();
   }, [fetchUser]);
 
   const value: AuthContextValue = {

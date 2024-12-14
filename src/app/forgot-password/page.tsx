@@ -95,7 +95,7 @@ function ForgotPasswordForm() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleSubmit(requestPasswordResetAction)(e);
+            return handleSubmit(requestPasswordResetAction)(e);
           }}
           className='space-y-4'
         >
