@@ -23,7 +23,7 @@ COPY package.json ./
 RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm install --frozen-lockfile --offline
 
 # Copy prisma schema and generate client
-COPY prisma ./prisma
+COPY src/prisma ./src/prisma
 RUN --mount=type=cache,target=/app/.next/cache pnpm prisma:generate
 
 # Copy source code
