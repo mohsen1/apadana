@@ -86,7 +86,7 @@ jobs:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
       - name: Upload Playwright Test Report
-        if: always() && hashFiles('.next/playwright-html-report/**') != ''
+        if: always() && hashFiles('.next/playwrigh-report/**') != ''
         id: upload-results
         uses: shallwefootball/s3-upload-action@master
         with:

@@ -7,8 +7,6 @@ import dotenv from 'dotenv';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import logger from '@/utils/logger';
-
 dotenv.config();
 
 const isTestingDev = process.env.PLAYWRIGHT_IS_TESTING_DEV === 'true';
@@ -79,7 +77,6 @@ export default defineConfig({
       // Learn more about this here:
       // https://vercel.com/docs/security/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation
       if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET !== undefined) {
-        logger.info('Using Vercel automation bypass secret');
         return {
           'x-vercel-protection-bypass':
             process.env.VERCEL_AUTOMATION_BYPASS_SECRET,
