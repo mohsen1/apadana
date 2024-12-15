@@ -93,9 +93,7 @@ jobs:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_bucket: apadana-e2e
-          source_dir: |
-            .next/playwright-html-report
-            .next/playwright-json-report.json
+          source_dir: '.next/playwright-report'
           destination_dir: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Find PR number
@@ -128,7 +126,7 @@ jobs:
             const htmlReportUrl = locations.find(url => url.endsWith('index.html'));
 
             // Read the JSON report
-            const jsonReport = require('/Users/mohsen/code/apadana/.next/playwright-json-report.json');
+            const jsonReport = require('/Users/mohsen/code/apadana/.next/playwright-report/json/report.json');
             const stats = jsonReport.stats;
 
             // Calculate test statistics

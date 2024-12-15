@@ -25,10 +25,20 @@ const baseURL = process.env.BASE_URL || localUrl;
 const htmlReportFolder = path.join(
   process.cwd(),
   '.next',
-  'playwright-html-report',
+  'playwright-report',
+  'html',
+);
+const jsonReportFolder = path.join(
+  process.cwd(),
+  '.next',
+  'playwright-report',
+  'json',
 );
 if (!fs.existsSync(htmlReportFolder)) {
   fs.mkdirSync(htmlReportFolder, { recursive: true });
+}
+if (!fs.existsSync(jsonReportFolder)) {
+  fs.mkdirSync(jsonReportFolder, { recursive: true });
 }
 
 /**
@@ -56,11 +66,7 @@ export default defineConfig({
     [
       'json',
       {
-        outputFile: path.join(
-          process.cwd(),
-          '.next',
-          'playwright-json-report.json',
-        ),
+        outputFile: path.join(jsonReportFolder, 'report.json'),
       },
     ],
   ],
