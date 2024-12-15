@@ -1,6 +1,7 @@
 {
   "version": 2,
   "buildCommand": "sh src/scripts/build-vercel.sh",
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- ./",
   "devCommand": "pnpm dev",
   "installCommand": "pnpm install",
   "framework": "nextjs",
