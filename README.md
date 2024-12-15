@@ -117,7 +117,7 @@ The development environment includes default values for all required environment
 
 Production environment variables are stored in Vercel dashboard.
 
-Navigate to [localhost:3000](http://localhost:3000) to see the development website.
+Navigate to [http://localhost:3000](http://localhost:3000) to see the development website.
 
 To stop the services:
 
