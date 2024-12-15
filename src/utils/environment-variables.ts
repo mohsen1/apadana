@@ -7,6 +7,11 @@ import { createLogger } from '@/utils/logger';
 const logger = createLogger(__filename);
 
 const schema = z.object({
+  // Node Environment
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
+
   // Google Maps
   GOOGLE_MAPS_API_KEY: z.string(),
 
