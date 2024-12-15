@@ -49,7 +49,7 @@ export default defineConfig({
       'html',
       {
         open: process.env.CI ? 'never' : 'on-failure',
-        outputFolder: '.next/__e2e__reports__',
+        outputFolder: 'test-results/html-report',
       },
     ],
   ],
