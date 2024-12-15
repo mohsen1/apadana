@@ -2,9 +2,6 @@ import { BrowserContext, expect, Page, test as setup } from '@playwright/test';
 
 import { prodE2eTestUser } from '@/e2e/fixtures/users';
 import { storageState } from '@/e2e/playwright.config';
-import { createLogger } from '@/utils/logger';
-
-const logger = createLogger(__filename);
 
 async function loginViaCommand(page: Page, context: BrowserContext) {
   const response = await context.request.post('/api/e2e', {
@@ -34,8 +31,7 @@ async function deleteAllE2eListings(context: BrowserContext) {
 setup('authenticate', async ({ page, context, baseURL }) => {
   await deleteAllE2eListings(context);
 
-  logger.info('Base URL:', baseURL);
-  if (baseURL?.includes('apadana.app')) {
+  if (baseURL?.includes('apadana.app') || baseURL?.includes('.vercel.app')) {
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(prodE2eTestUser.email);
     await page.getByLabel('Password').fill(prodE2eTestUser.password);
