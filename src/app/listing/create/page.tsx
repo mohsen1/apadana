@@ -39,10 +39,8 @@ function LoadingFallback() {
 
 export default function CreateListingPage() {
   return (
-    <div className='container py-10'>
-      <Suspense fallback={<LoadingFallback />}>
-        <CreateListingForm />
-      </Suspense>
-    </div>
+    <Suspense fallback={<LoadingFallback />}>
+      <CreateListingForm />
+    </Suspense>
   );
 }
