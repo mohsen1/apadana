@@ -71,7 +71,7 @@ export async function POST(request: Request) {
               'Content-Type': 'application/json',
               'Set-Cookie': cookie.toString(),
               'Access-Control-Allow-Credentials': 'true',
-              'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_DOMAIN,
+              'Access-Control-Allow-Origin': '*',
             },
           },
         );
