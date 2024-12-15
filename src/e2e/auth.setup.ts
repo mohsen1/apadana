@@ -41,12 +41,10 @@ setup('authenticate', async ({ page, context, baseURL }) => {
     await page.getByLabel('Password').fill(prodE2eTestUser.password);
 
     await page.getByRole('button', { name: 'Log in', exact: true }).click();
-    await page.waitForURL('/');
   } else {
     await loginViaCommand(page, context);
+    await page.goto('/');
   }
-
-  await page.goto('/');
 
   // Verify that the user-specific link is visible
   await expect(page.getByRole('button', { name: /Hello, .*?/ })).toBeVisible();

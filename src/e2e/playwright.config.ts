@@ -4,6 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
  * https://github.com/motdotla/dotenv
  */
 import dotenv from 'dotenv';
+import fs from 'node:fs';
 import path from 'node:path';
 
 import logger from '@/utils/logger';
@@ -30,6 +31,15 @@ const port = process.env.PORT || '3030';
 const localUrl = `http://localhost:${port}`;
 const baseURL = process.env.BASE_URL || localUrl;
 
+const htmlReportFolder = path.join(
+  process.cwd(),
+  'test-results',
+  'html-report',
+);
+if (!fs.existsSync(htmlReportFolder)) {
+  fs.mkdirSync(htmlReportFolder, { recursive: true });
+}
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -49,7 +59,7 @@ export default defineConfig({
       'html',
       {
         open: process.env.CI ? 'never' : 'on-failure',
-        outputFolder: 'test-results/html-report',
+        outputFolder: htmlReportFolder,
       },
     ],
   ],
