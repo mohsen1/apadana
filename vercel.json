@@ -1,4 +1,5 @@
 {
+  "$schema": "https://vercel.com/docs/build-tools/vercel.json",
   "version": 2,
   "buildCommand": "sh src/scripts/build-vercel.sh",
   "ignoreCommand": "git diff HEAD^ HEAD --quiet -- ./",
