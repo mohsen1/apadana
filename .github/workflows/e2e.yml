@@ -84,15 +84,16 @@ jobs:
         env:
           BASE_URL: ${{ steps.check-deployment.outputs.deployment_url }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+
       - name: Upload Playwright Test Report
-        if: always() && hashFiles('test-results/**') != ''
+        if: always() && hashFiles('.next/playwright-html-report/**') != ''
         id: upload-results
         uses: shallwefootball/s3-upload-action@master
         with:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_bucket: apadana-e2e
-          source_dir: test-results
+          source_dir: .next/playwright-html-report
           destination_dir: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Find PR number

@@ -18,23 +18,14 @@ export const storageState = path.join(
   '.cache/__e2e__auth/state.json',
 );
 
-/**
- * Playwright by default will launch the server in production mode.
- * When writing and debugging e2e tests locally, it's useful to have the dev server or any other server
- * that is already running instead.
- * This variable is used to determine whether to run the dev server or not.
- *
- * This variable is used in the e2e:debug package.json script
- */
-
 const port = process.env.PORT || '3030';
 const localUrl = `http://localhost:${port}`;
 const baseURL = process.env.BASE_URL || localUrl;
 
 const htmlReportFolder = path.join(
   process.cwd(),
-  'test-results',
-  'html-report',
+  '.next',
+  'playwright-html-report',
 );
 if (!fs.existsSync(htmlReportFolder)) {
   fs.mkdirSync(htmlReportFolder, { recursive: true });
