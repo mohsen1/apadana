@@ -3,7 +3,7 @@
   "buildCommand": "sh src/scripts/build-vercel.sh",
   "ignoreCommand": "git diff HEAD^ HEAD --quiet -- ./",
   "devCommand": "pnpm dev",
-  "installCommand": "pnpm run preinstall && pnpm install",
+  "installCommand": "pnpm install",
   "framework": "nextjs",
   "outputDirectory": ".next"
 }
