@@ -80,10 +80,10 @@ jobs:
 
       - name: Run E2E Tests
         id: test-run
-        run: echo ok
+        run: pnpm run e2e:ci
         env:
           BASE_URL: ${{ steps.check-deployment.outputs.deployment_url }}
-
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
       - name: Upload Playwright Test Report
         if: always() && hashFiles('test-results/**') != ''
         id: upload-results
