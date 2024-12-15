@@ -53,6 +53,16 @@ export default defineConfig({
         outputFolder: htmlReportFolder,
       },
     ],
+    [
+      'json',
+      {
+        outputFile: path.join(
+          process.cwd(),
+          '.next',
+          'playwright-json-report.json',
+        ),
+      },
+    ],
   ],
 
   globalSetup: path.join(process.cwd(), 'src/e2e/global-setup.ts'),

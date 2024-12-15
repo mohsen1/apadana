@@ -93,7 +93,9 @@ jobs:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_bucket: apadana-e2e
-          source_dir: .next/playwright-html-report
+          source_dir: |
+            .next/playwright-html-report
+            .next/playwright-json-report.json
           destination_dir: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Find PR number
@@ -119,27 +121,38 @@ jobs:
         with:
           script: |
             const testStatus = '${{ steps.test-run.outcome }}';
-            const baseUrl = 'https://apadana-e2e.s3.amazonaws.com/${{ github.sha }}';
+            const deploymentUrl = '${{ steps.check-deployment.outputs.deployment_url }}';
             const locations = '${{ steps.upload-results.outputs.object_locations }}'.split(',');
 
-            // Format artifacts links
-            const artifactLinks = locations
-              .filter(url => url) // Remove empty strings
-              .map(url => {
-                const fileName = url.split('/').pop();
-                const type = url.includes('video.webm') ? '📹 Video' :
-                            url.includes('trace.zip') ? '🔍 Trace' :
-                            url.includes('.last-run.json') ? '📄 Results' : '📎 Artifact';
-                return `- [${type}](${url})`;
-              })
-              .join('\n');
+            // Find the HTML report URL
+            const htmlReportUrl = locations.find(url => url.endsWith('index.html'));
+
+            // Read the JSON report
+            const jsonReport = require('/Users/mohsen/code/apadana/.next/playwright-json-report.json');
+            const stats = jsonReport.stats;
+
+            // Calculate test statistics
+            const total = stats.expected + stats.unexpected;
+            const passed = stats.expected;
+            const failed = stats.unexpected;
+            const skipped = stats.skipped;
+            const duration = Math.round(stats.duration / 1000); // Convert to seconds
+
+            // Format duration
+            const minutes = Math.floor(duration / 60);
+            const seconds = duration % 60;
+            const durationStr = `${minutes}m ${seconds}s`;
 
             const statusEmoji = testStatus === 'success' ? '✅' : '❌';
             const comment = `## E2E Test Results ${statusEmoji}\n\n` +
-                          `**Status:** ${testStatus}\n` +
-                          `**Commit:** ${context.sha}\n` +
-                          `**Environment:** ${process.env.BASE_URL}\n\n` +
-                          `### Test Artifacts\n${artifactLinks}\n\n` +
+                          `Ran[${deploymentUrl}](${deploymentUrl}) ` +
+                          `for ${durationStr}\n\n` +
+                          `### Summary\n` +
+                          `- Total: ${total}\n` +
+                          `- Passed: ${passed} ✅\n` +
+                          `- Failed: ${failed} ${failed > 0 ? '❌' : ''}\n` +
+                          `- Skipped: ${skipped} ${skipped > 0 ? '⏭️' : ''}\n\n` +
+                          `[View Full Report](${htmlReportUrl})\n\n` +
                           `<sub>Updated at: ${new Date().toISOString()}</sub>`;
 
             // Try to find existing comment
@@ -155,7 +168,6 @@ jobs:
             );
 
             if (botComment) {
-              // Update existing comment
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -163,7 +175,6 @@ jobs:
                 body: comment
               });
             } else {
-              // Create new comment
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
