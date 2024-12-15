@@ -92,7 +92,7 @@ jobs:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_bucket: apadana-e2e
-          source_dir: .test-results
+          source_dir: test-results
           destination_dir: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Set details link
