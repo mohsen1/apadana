@@ -1,5 +1,9 @@
+import { createLogger } from '@/utils/logger';
+
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 const API_BASE_URL = 'https://maps.googleapis.com/maps/api';
+
+const logger = createLogger(__filename);
 
 /**
  * Fetches the time zone for a given latitude and longitude using the Google Maps API.
@@ -8,6 +12,13 @@ const API_BASE_URL = 'https://maps.googleapis.com/maps/api';
  * @returns The time zone ID for the given latitude and longitude.
  */
 export async function getTimeZone(lat: number, lng: number): Promise<string> {
+  if (!GOOGLE_MAPS_API_KEY) {
+    logger.error(
+      'GOOGLE_MAPS_API_KEY is not set, falling back to user timezone',
+    );
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+
   const timestamp = Math.floor(Date.now() / 1000);
   const timeZoneUrl = `${API_BASE_URL}/timezone/json`;
   const url = `${timeZoneUrl}?location=${lat},${lng}&timestamp=${timestamp}&key=${GOOGLE_MAPS_API_KEY}`;

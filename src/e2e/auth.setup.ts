@@ -31,7 +31,7 @@ async function deleteAllE2eListings(context: BrowserContext) {
 setup('authenticate', async ({ page, context, baseURL }) => {
   await deleteAllE2eListings(context);
 
-  if (baseURL?.includes('apadana.app')) {
+  if (baseURL?.includes('apadana.app') || baseURL?.includes('.vercel.app')) {
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(prodE2eTestUser.email);
     await page.getByLabel('Password').fill(prodE2eTestUser.password);

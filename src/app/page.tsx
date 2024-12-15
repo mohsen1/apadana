@@ -16,13 +16,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 export default function HomePage() {
   return (
     <div className='flex flex-col'>
-      <main className='flex-1 grid place-content-center'>
+      <div className='flex-1 grid place-content-center grid-cols-[1fr]'>
         <section className='w-full py-8 md:py-18 lg:py-24 xl:py-32 relative'>
-          <div className='absolute inset-0 z-0 opacity-10 overflow-hidden min-h-screen'>
+          <div
+            className='absolute inset-0 z-0 opacity-10 overflow-hidden min-h-screen w-full'
+            id='bg-canvas'
+          >
             <Novatrix />
           </div>
           <div className='relative z-10  top-0'>
-            <div className='container px-4 md:px-6 mx-auto max-w-6xl'>
+            <div className='w-full px-4 md:px-6 mx-auto max-w-6xl'>
               <div className='flex flex-col items-center space-y-4 text-center'>
                 <div className='space-y-2'>
                   <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl'>
@@ -298,7 +301,7 @@ export default function HomePage() {
             </div>
           </section>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
