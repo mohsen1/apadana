@@ -62,10 +62,10 @@ export const useFileUploader = (
       process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET;
     const NEXT_PUBLIC_S3_UPLOAD_REGION =
       process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
-    const NEXT_PUBLIC_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
 
     if (isDevOrTestEnv) {
-      return `http://${NEXT_PUBLIC_DOMAIN}/api/fake-upload/${key}`;
+      const port = process.env.PORT || 3000;
+      return `http://localhost:${port}/api/fake-upload/${key}`;
     }
 
     return `https://${NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.${NEXT_PUBLIC_S3_UPLOAD_REGION}.amazonaws.com/${key}`;

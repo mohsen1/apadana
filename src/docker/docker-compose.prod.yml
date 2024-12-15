@@ -9,7 +9,6 @@ services:
         - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-invalid_maps_key}
         - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
         - VERCEL_PROJECT_PRODUCTION_URL=${VERCEL_PROJECT_PRODUCTION_URL:-https://apadana.app}
-        - NEXT_PUBLIC_DOMAIN=${NEXT_PUBLIC_DOMAIN:-localhost:3030}
         - NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET:-invalid_bucket}
         - NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION:-invalid_region}
         - S3_UPLOAD_KEY=${S3_UPLOAD_KEY:-invalid_key}
@@ -20,7 +19,6 @@ services:
       - PORT=3030
       - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
       - NODE_ENV=production
-      - NEXT_PUBLIC_DOMAIN=${NEXT_PUBLIC_DOMAIN:-localhost:3030}
       - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
       - NEXT_TELEMETRY_DISABLED=1
       - NEXT_SHARP_PATH=/app/node_modules/sharp

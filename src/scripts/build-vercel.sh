@@ -13,10 +13,6 @@ variables=(
   S3_UPLOAD_SECRET
 )
 
-# set the domain to the vercel url. this value is dynamic and changes on each deploy depending on the environment
-
-export NEXT_PUBLIC_DOMAIN="https://$VERCEL_URL"
-
 for variable in "${variables[@]}"; do
   if [ -z "${!variable}" ]; then
     echo "$variable is not set"

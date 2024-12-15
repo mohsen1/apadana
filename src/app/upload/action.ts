@@ -32,19 +32,16 @@ const getUploadSignedUrl = actionClient
   .schema(inputSchema)
   .outputSchema(outputSchema)
   .action(async ({ parsedInput }) => {
-    const {
-      NEXT_PUBLIC_S3_UPLOAD_REGION,
-      S3_UPLOAD_KEY,
-      NEXT_PUBLIC_DOMAIN,
-      S3_UPLOAD_SECRET,
-    } = process.env;
+    const { NEXT_PUBLIC_S3_UPLOAD_REGION, S3_UPLOAD_KEY, S3_UPLOAD_SECRET } =
+      process.env;
 
     if (isDevOrTestEnv) {
       // Return fake signed URLs for e2e testing
       const urls = parsedInput.files.map((file) => {
         const fileExtension = file.filename.split('.').pop() ?? '';
         const key = `fake_upload_${crypto.randomUUID()}.${fileExtension}`;
-        const url = `http://${NEXT_PUBLIC_DOMAIN}/api/fake-upload/${key}`;
+        const port = process.env.PORT || 3000;
+        const url = `http://localhost:${port}/api/fake-upload/${key}`;
 
         return { url, key };
       });

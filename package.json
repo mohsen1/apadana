@@ -2,6 +2,9 @@
   "name": "apadana",
   "version": "0.1.1",
   "private": true,
+  "engines": {
+    "node": ">=20.11.0 <=21"
+  },
   "scripts": {
     "docker:dev": "pnpm run docker:down && concurrently \"pnpm run docker:dev:start\" \"pnpm run prisma:watch\" --kill-others --success=first --raw",
     "docker:dev:start": "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose -f src/docker/docker-compose.dev.yml up --build --no-log-prefix",
