@@ -104,8 +104,45 @@ jobs:
           VERCEL_URL: fake-vercel.com
           RESEND_API_KEY: re123_fake_RESEND_API_KEY
           GOOGLE_MAPS_API_KEY: fake_GOOGLE_MAPS_API_KEY
-      - name: Don't cancel Vercel
+
+  fix-and-commit:
+    name: Fix and commit code style
+    needs: [lint, typecheck, prettier]
+    runs-on: ubuntu-latest
+    # Only run this job on pull requests
+    if: github.event_name == 'pull_request'
+
+    permissions:
+      # Required for pushing commits
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Configure Git
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "::warning::Ensuring Vercel deployment continues"
-          fi
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Run fixes
+        run: pnpm run fix
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push if changed
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git add -A
+          git commit -m "style: automatically fix code style issues"
+          git push
