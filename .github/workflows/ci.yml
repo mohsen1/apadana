@@ -76,13 +76,15 @@ jobs:
 
   fix-and-commit:
     name: Fix and commit code style
-    needs: [lint, typecheck, prettier]
+    needs: [lint, prettier]
     runs-on: ubuntu-latest
-    # Only run this job on pull requests
-    if: github.event_name == 'pull_request'
+    # Only run this job on pull requests and when lint or prettier fails
+    if: |
+      github.event_name == 'pull_request' && 
+      failure() && 
+      contains(needs.*.result, 'failure')
 
     permissions:
-      # Required for pushing commits
       contents: write
       pull-requests: write
 
