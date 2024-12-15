@@ -125,9 +125,25 @@ jobs:
             // Find the HTML report URL
             const htmlReportUrl = locations.find(url => url.endsWith('index.html'));
 
-            // Read the JSON report
-            const jsonReport = require('/Users/mohsen/code/apadana/.next/playwright-report/json/report.json');
-            const stats = jsonReport.stats;
+            let stats = {
+              expected: 0,
+              unexpected: 0,
+              skipped: 0,
+              duration: 0
+            };
+
+            try {
+              // Use fs to read the JSON report from the correct path
+              const fs = require('fs');
+              const reportPath = `${process.env.GITHUB_WORKSPACE}/.next/playwright-report/report.json`;
+              
+              if (fs.existsSync(reportPath)) {
+                const jsonReport = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+                stats = jsonReport.stats;
+              }
+            } catch (error) {
+              console.log('Could not read test report:', error);
+            }
 
             // Calculate test statistics
             const total = stats.expected + stats.unexpected;
@@ -143,14 +159,14 @@ jobs:
 
             const statusEmoji = testStatus === 'success' ? '✅' : '❌';
             const comment = `## E2E Test Results ${statusEmoji}\n\n` +
-                          `Ran[${deploymentUrl}](${deploymentUrl}) ` +
+                          `Ran tests on [${deploymentUrl}](${deploymentUrl}) ` +
                           `for ${durationStr}\n\n` +
                           `### Summary\n` +
                           `- Total: ${total}\n` +
                           `- Passed: ${passed} ✅\n` +
                           `- Failed: ${failed} ${failed > 0 ? '❌' : ''}\n` +
                           `- Skipped: ${skipped} ${skipped > 0 ? '⏭️' : ''}\n\n` +
-                          `[View Full Report](${htmlReportUrl})\n\n` +
+                          (htmlReportUrl ? `[View Full Report](${htmlReportUrl})\n\n` : '') +
                           `<sub>Updated at: ${new Date().toISOString()}</sub>`;
 
             // Try to find existing comment
