@@ -55,6 +55,17 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
+    get extraHTTPHeaders(): Record<string, string> {
+      // Learn more about this here:
+      // https://vercel.com/docs/security/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation
+      if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET !== undefined) {
+        return {
+          'x-vercel-protection-bypass':
+            process.env.VERCEL_AUTOMATION_BYPASS_SECRET,
+        };
+      }
+      return {};
+    },
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: {
       mode: 'retain-on-failure',
