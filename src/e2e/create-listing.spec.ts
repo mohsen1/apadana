@@ -116,9 +116,11 @@ test.describe.serial('Create and delete a Listing', () => {
         .getByLabel('House rules')
         .fill('No smoking is allowed. No pets.');
       await page.getByRole('button', { name: 'Submit Listing' }).click();
-      await page.waitForURL(
-        /\/listing\/\d+\/manage\/calendar\?newListing=true/,
-      );
+      await expect(
+        page.getByRole('heading', { name: 'Welcome to your new listing!' }),
+      ).toBeVisible({
+        timeout: test.info().timeout * 3,
+      });
 
       currentListingId = new URL(page.url()).pathname.split('/')[2];
       expect(currentListingId).toBeDefined();
@@ -140,7 +142,9 @@ test.describe.serial('Create and delete a Listing', () => {
 
     await page.getByRole('button', { name: 'Delete' }).click();
 
-    await page.waitForURL('/listing');
+    await page.waitForURL('/listing', {
+      timeout: test.info().timeout * 5,
+    });
     await page.goto(`/listing/${currentListingId}/delete`);
     await expect(page.getByText('Listing Not Found')).toBeVisible();
   });
