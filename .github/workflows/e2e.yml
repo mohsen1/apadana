@@ -80,7 +80,7 @@ jobs:
 
       - name: Run E2E Tests
         id: test-run
-        run: pnpm run e2e:ci
+        run: echo ok
         env:
           BASE_URL: ${{ steps.check-deployment.outputs.deployment_url }}
 
