@@ -24,7 +24,6 @@ for variable in "${variables[@]}"; do
   fi
 done
 
-pnpm install
 pnpm prisma generate --no-hints --schema=src/prisma/schema.prisma
 pnpm prisma migrate deploy --schema=src/prisma/schema.prisma
 pnpm next build

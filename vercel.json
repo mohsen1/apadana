@@ -1,10 +1,9 @@
 {
-  "$schema": "https://vercel.com/docs/build-tools/vercel.json",
   "version": 2,
   "buildCommand": "sh src/scripts/build-vercel.sh",
   "ignoreCommand": "git diff HEAD^ HEAD --quiet -- ./",
   "devCommand": "pnpm dev",
-  "installCommand": "pnpm install",
+  "installCommand": "pnpm run preinstall && pnpm install",
   "framework": "nextjs",
   "outputDirectory": ".next"
 }
