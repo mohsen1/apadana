@@ -14,7 +14,9 @@ services:
         condition: service_healthy
     networks:
       - apadana_network
-    # restart: unless-stopped
+    restart: unless-stopped
+    command: >
+      sh -c "echo '' && echo '' && echo '' && echo '⚡️ Now you can access https://apadana.dev.local and https://apadana.prod.local' && echo '' && echo '' && echo '' && nginx -g 'daemon off;'"
 
   app_dev:
     container_name: app_dev
@@ -55,11 +57,8 @@ services:
     networks:
       - apadana_network
     healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'echo "Starting health check..." && wget --spider -S --no-check-certificate http://localhost:3000/api/health 2>&1 | tee /dev/stderr | grep -q "HTTP/.*200" && echo "Health check passed" || (echo "Health check failed" && exit 1)',
-        ]
+      # make sure it is built and running
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3000']
       interval: 10s
       timeout: 5s
       retries: 100
@@ -122,6 +121,8 @@ services:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=apadana
+      - POSTGRES_LOGGING=error
+    command: ['postgres', '-c', 'log_min_messages=error']
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
     networks:
@@ -140,6 +141,8 @@ services:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=apadana
+      - POSTGRES_LOGGING=error
+    command: ['postgres', '-c', 'log_min_messages=error']
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
     networks:
@@ -152,6 +155,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: apadana_test
+      POSTGRES_LOGGING: error
+    command: ['postgres', '-c', 'log_min_messages=error']
     ports:
       - '5434:5432'
     healthcheck:
