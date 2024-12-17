@@ -23,10 +23,10 @@ class TestData {
       throw new Error('TestData has been disposed');
     }
 
+    const secret = process.env.E2E_TESTING_SECRET;
+
     const response = await this.#context.post('/api/e2e', {
-      headers: {
-        'x-e2e-testing-secret': process.env.E2E_TESTING_SECRET,
-      },
+      headers: secret ? { 'x-e2e-testing-secret': secret } : {},
       data: { command, args: args ?? {} },
     });
 

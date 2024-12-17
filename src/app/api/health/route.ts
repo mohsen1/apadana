@@ -10,6 +10,8 @@ export async function GET() {
     // Test query to check DB connection
     await prisma.$queryRaw`SELECT 1`;
 
+    console.log('Database health check passed');
+
     return NextResponse.json(
       { status: 'healthy', database: 'connected' },
       { status: 200 },

@@ -5,6 +5,7 @@
   @typescript-eslint/no-unsafe-argument
 */
 
+import chalk from 'chalk';
 import path from 'path';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
@@ -54,7 +55,7 @@ export class Logger {
 
   #applyPrefix(messages: any[]) {
     if (this.#prefix) {
-      messages.unshift(`[${this.#prefix}]`);
+      messages.unshift(chalk.gray(`[${this.#prefix}]`));
     }
     return messages;
   }

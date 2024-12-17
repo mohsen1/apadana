@@ -1,0 +1,175 @@
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    ports:
+      - '443:443'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      app_dev:
+        condition: service_healthy
+      app_prod:
+        condition: service_healthy
+    networks:
+      - apadana_network
+    # restart: unless-stopped
+
+  app_dev:
+    container_name: app_dev
+    build:
+      context: ../..
+      dockerfile: src/docker/Dockerfile.dev
+    expose:
+      - '3000'
+      - '6006'
+      - '5555'
+    volumes:
+      - ../../src:/app/src
+      - ../../public:/app/public
+      - ../../prisma:/app/prisma
+      - ../../config:/app/config
+      - ../../package.json:/app/package.json
+      - ../../pnpm-lock.yaml:/app/pnpm-lock.yaml
+      - app_node_modules:/app/node_modules
+      - pnpm_store:/root/.pnpm-store
+      - next_cache:/app/.next
+    environment:
+      - NEXT_SHARP_PATH=/app/node_modules/sharp
+      - NODE_ENV=development
+      - VERCEL_URL=apadana.dev.local
+      - VERCEL_PROJECT_PRODUCTION_URL=apadana.dev.local
+      - DATABASE_URL=postgresql://admin:admin@db_dev:5432/apadana
+      - NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET:-dev-bucket}
+      - NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION:-us-east-1}
+      - S3_UPLOAD_KEY=${S3_UPLOAD_KEY:-fake_s3_key_for_dev}
+      - S3_UPLOAD_SECRET=${S3_UPLOAD_SECRET:-fake_s3_secret_for_dev}
+      - RESEND_API_KEY=${RESEND_API_KEY:-re_1234567890_fake_key_for_dev}
+      - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_dev}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-fake_maps_key_for_dev}
+      - HOST=apadana.dev.local
+    depends_on:
+      db_dev:
+        condition: service_healthy
+    networks:
+      - apadana_network
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'echo "Starting health check..." && wget --spider -S --no-check-certificate http://localhost:3000/api/health 2>&1 | tee /dev/stderr | grep -q "HTTP/.*200" && echo "Health check passed" || (echo "Health check failed" && exit 1)',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 100
+      start_period: 10s
+
+  app_prod:
+    container_name: app_prod
+    build:
+      context: ../..
+      dockerfile: src/docker/Dockerfile.prod
+      args:
+        - RESEND_API_KEY=${RESEND_API_KEY:-re_1234567890_invalid_key}
+        - VERCEL_URL=apadana.prod.local
+        - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
+        - VERCEL_PROJECT_PRODUCTION_URL=apadana.prod.local
+        - NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET:-invalid_bucket}
+        - NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION:-invalid_region}
+        - S3_UPLOAD_KEY=${S3_UPLOAD_KEY:-invalid_key}
+        - S3_UPLOAD_SECRET=${S3_UPLOAD_SECRET:-invalid_secret}
+        - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
+        - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-invalid_maps_key}
+    expose:
+      - '3030'
+    environment:
+      - PORT=3030
+      - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
+      - NODE_ENV=production
+      - VERCEL_URL=apadana.prod.local
+      - HOST=apadana.prod.local
+      - VERCEL_PROJECT_PRODUCTION_URL=apadana.prod.local
+      - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-invalid_maps_key}
+    depends_on:
+      db_prod:
+        condition: service_healthy
+    networks:
+      - apadana_network
+    command:
+      - pnpm
+      - next:start
+    healthcheck:
+      test:
+        ['CMD', 'wget', '--spider', '-q', 'http://localhost:3030/api/health']
+      interval: 10s
+      timeout: 5s
+      retries: 100
+      start_period: 10s
+
+  db_dev:
+    container_name: db_dev
+    image: postgres:16.6
+    expose:
+      - '5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U admin -d apadana']
+      interval: 1s
+      timeout: 1s
+      retries: 30
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=apadana
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - apadana_network
+
+  db_prod:
+    image: postgres:16.6
+    expose:
+      - '5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U admin -d apadana']
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=apadana
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - apadana_network
+
+  db_test:
+    container_name: db_test
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: apadana_test
+    ports:
+      - '5434:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: 'no'
+    stop_signal: SIGINT
+    stop_grace_period: 1m
+
+networks:
+  apadana_network:
+    driver: bridge
+
+volumes:
+  app_node_modules:
+  pnpm_store:
+  next_cache:
+  postgres_data_dev:
+  postgres_data_prod:

@@ -110,7 +110,7 @@ pnpm install
 This will start all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in Docker containers:
 
 ```bash
-pnpm docker:dev
+pnpm start
 ```
 
 The development environment includes default values for all required environment variables, so you can start developing right away.

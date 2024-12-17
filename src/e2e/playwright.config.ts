@@ -78,14 +78,14 @@ export default defineConfig({
       const headers: Record<string, string> = {};
       // Learn more about this here:
       // https://vercel.com/docs/security/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation
-      if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET !== undefined) {
+      if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET) {
         headers['x-vercel-protection-bypass'] =
           process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
       }
 
       // This is used to authenticate the e2e tests with the API in production
       // without this value /api/e2e will reject the request
-      if (process.env.E2E_TESTING_SECRET !== undefined) {
+      if (process.env.E2E_TESTING_SECRET) {
         headers['x-e2e-testing-secret'] = process.env.E2E_TESTING_SECRET;
       }
 

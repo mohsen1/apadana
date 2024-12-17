@@ -16,3 +16,7 @@ test-results
 # Don't ignore these files
 !docker-entrypoint.dev.sh
 !.env.local
+
+# Ignore all config files in the src/docker directory
+src/docker/Dockerfile.*
+src/docker/docker-compose.yml

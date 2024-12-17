@@ -1,4 +1,6 @@
 import { NextConfig } from 'next';
+import { createServer } from 'https';
+import { readFileSync } from 'fs';
 
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.NEXT_PUBLIC_TEST_ENV === 'e2e',
@@ -67,6 +69,18 @@ const nextConfig: NextConfig = {
     fileLoaderRule.exclude = /\.svg$/i;
 
     return config;
+  },
+
+  // Add HTTPS server configuration
+  server: {
+    https:
+      process.env.NODE_ENV === 'development'
+        ? {
+            key: readFileSync(process.env.HTTPS_KEY_FILE || ''),
+            cert: readFileSync(process.env.HTTPS_CERT_FILE || ''),
+          }
+        : undefined,
+    hostname: process.env.HOST || 'localhost',
   },
 };
 
