@@ -59,6 +59,13 @@ e2e/uploads/
 # Do not allow new files in root
 .*
 
+# Not top level directories
+!*.github
+!*.github/workflows
+!*.husky
+!*.storybook
+!*.vscode
+
 # Files that *are* allowed in root
 !README.md
 !components.json
@@ -71,3 +78,6 @@ e2e/uploads/
 !pnpm-lock.yaml
 !tailwind.config.ts
 !tsconfig.json
+
+# LLMs
+repo-content.md

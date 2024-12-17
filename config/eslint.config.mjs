@@ -19,7 +19,7 @@ export default [
     ],
   },
   {
-    files: ['src/**/*.{js,jsx,ts,tsx}'],
+    files: ['src/**/*.{js,jsx,mjs,ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {

@@ -1,0 +1,61 @@
+name: PR DB Branching
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+jobs:
+  pr_db_branching:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Make scripts executable
+        run: chmod +x ./src/scripts/*.sh
+
+      - name: Determine action
+        id: determine_action
+        run: |
+          action=$(./src/scripts/determine_action.sh "${{ github.event.action }}")
+          echo "$action" >> $GITHUB_OUTPUT
+
+      - name: Get PR number
+        id: pr_number
+        run: echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+
+      - name: Create DB for PR
+        if: steps.determine_action.outputs.action == 'create'
+        id: create_db
+        env:
+          PR_NUMBER: ${{ steps.pr_number.outputs.pr_number }}
+          SNAPSHOT_IDENTIFIER: apadana-prod-snapshot
+          MASTER_USERNAME: mohsenazimi
+          MASTER_PASSWORD: ${{ secrets.DB_MASTER_PASSWORD }}
+        run: |
+          out=$(./src/scripts/create_db.sh)
+          echo "$out"
+          echo "$out" | grep db_url | cut -d= -f2 >> $GITHUB_OUTPUT
+
+      - name: Run migrations
+        if: steps.determine_action.outputs.action == 'create'
+        env:
+          DB_URL: ${{ steps.create_db.outputs.db_url }}
+        run: ./src/scripts/run_migrations.sh
+
+      - name: Delete PR DB
+        if: steps.determine_action.outputs.action == 'delete'
+        env:
+          PR_NUMBER: ${{ steps.pr_number.outputs.pr_number }}
+        run: ./src/scripts/delete_db.sh
