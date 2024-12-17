@@ -33,6 +33,9 @@ const schema = z.object({
 
   // Testing
   NEXT_PUBLIC_TEST_ENV: z.enum(['e2e', 'local']).optional(),
+
+  // E2E
+  E2E_TESTING_SECRET: z.string().min(20).max(60),
 });
 
 /**

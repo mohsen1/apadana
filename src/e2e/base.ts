@@ -1,7 +1,93 @@
-import { Page, test as baseTest } from '@playwright/test';
+import { Prisma, User } from '@prisma/client';
+import { BrowserContext, APIRequestContext } from '@playwright/test';
+import _ from 'lodash';
 
-interface CurrentListing {
-  id: string | undefined;
+import { Page, test as baseTest } from '@playwright/test';
+import { Command, CommandArgs, CommandResponse } from '@/app/api/e2e/route';
+
+class TestData {
+  #context: APIRequestContext;
+  #baseURL: string;
+  #disposed = false;
+
+  constructor(context: APIRequestContext, baseURL: string) {
+    this.#context = context;
+    this.#baseURL = baseURL;
+  }
+
+  async #runCommand<T extends Command>(
+    command: T,
+    args?: CommandArgs<T>,
+  ): Promise<CommandResponse<T>> {
+    if (this.#disposed) {
+      throw new Error('TestData has been disposed');
+    }
+
+    const response = await this.#context.post('/api/e2e', {
+      headers: {
+        'x-e2e-testing-secret': process.env.E2E_TESTING_SECRET,
+      },
+      data: { command, args: args ?? {} },
+    });
+
+    if (response.status() !== 200) {
+      throw new Error(
+        `Failed to run command ${command}: ${response.statusText()}`,
+      );
+    }
+
+    return (await response.json()) as CommandResponse<T>;
+  }
+
+  async dispose() {
+    await this.#context.dispose();
+    this.#disposed = true;
+  }
+
+  createUser(email: string, password: string) {
+    return this.#runCommand('createUser', { email, password });
+  }
+
+  /**
+   * Logs in a user and adds the session cookie to the page
+   * @param email - The email of the user to log in
+   * @param page - The page to add the session cookie to
+   * @returns The response from the login command
+   */
+  async login(email: string, page: Page) {
+    const response = await this.#runCommand('login', { email });
+
+    const url = new URL(this.#baseURL);
+    const isLocalhost =
+      url.hostname.startsWith('localhost') ||
+      url.hostname.startsWith('127.0.0.1');
+
+    const cookieData = {
+      name: response.cookieName,
+      value: response.sessionId,
+      expires: Math.floor(new Date(response.sessionExpiresAt).getTime() / 1000),
+      httpOnly: true,
+      path: isLocalhost ? undefined : '/',
+      secure: !isLocalhost,
+      domain: isLocalhost ? undefined : `.${url.hostname}`,
+      url: isLocalhost ? `http://${url.hostname}:${url.port}` : undefined,
+    };
+
+    await page.context().addCookies([cookieData]);
+    return response;
+  }
+
+  createListing(listing: Prisma.ListingCreateInput) {
+    return this.#runCommand('createListing', listing);
+  }
+
+  deleteListing(id: string) {
+    return this.#runCommand('deleteListing', { id });
+  }
+
+  deleteAllE2eListings() {
+    return this.#runCommand('deleteAllE2eListings');
+  }
 }
 
 interface TestExtensions {
@@ -11,13 +97,23 @@ interface TestExtensions {
   page: Page;
 
   /**
-   * The current listing that is being tested
+   * The test data object that is extended with the createListing method
    */
-  currentListing: CurrentListing;
+  data: TestData;
 }
 
 export const test = baseTest.extend<TestExtensions>({
-  currentListing: { id: undefined },
+  data: async ({ playwright, baseURL }, use) => {
+    if (!baseURL) {
+      throw new Error('baseURL is required');
+    }
+
+    // Create a dedicated API request context
+    const apiContext = await playwright.request.newContext();
+    const data = new TestData(apiContext, baseURL);
+    await use(data);
+    await data.dispose();
+  },
 });
 
 export const expect = test.expect;

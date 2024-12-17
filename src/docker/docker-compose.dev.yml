@@ -29,6 +29,7 @@ services:
       - S3_UPLOAD_KEY=${S3_UPLOAD_KEY:-fake_s3_key_for_dev}
       - S3_UPLOAD_SECRET=${S3_UPLOAD_SECRET:-fake_s3_secret_for_dev}
       - RESEND_API_KEY=${RESEND_API_KEY:-re_1234567890_fake_key_for_dev}
+      - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_dev}
     depends_on:
       db:
         condition: service_healthy

@@ -33,6 +33,7 @@ services:
       - S3_UPLOAD_KEY=${S3_UPLOAD_KEY:-invalid_key}
       - S3_UPLOAD_SECRET=${S3_UPLOAD_SECRET:-invalid_secret}
       - RESEND_API_KEY=${RESEND_API_KEY:-re_1234567890_invalid_key}
+      - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
     depends_on:
       db_prod:
         condition: service_healthy

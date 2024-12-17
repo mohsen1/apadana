@@ -1,48 +1,23 @@
-import { BrowserContext, expect, Page, test as setup } from '@playwright/test';
-
-import { prodE2eTestUser } from '@/e2e/fixtures/users';
+import { prodE2eTestHostUser } from '@/e2e/fixtures/data';
 import { storageState } from '@/e2e/playwright.config';
-import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+import { test as setup, expect } from './base';
 
-async function loginViaCommand(page: Page, context: BrowserContext) {
-  const response = await context.request.post('/api/e2e', {
-    data: {
-      command: 'login',
-    },
-  });
-
-  const body = (await response.json()) as { email: string };
-
-  // Verify the response is successful
-  expect(body.email).toBeTruthy();
-
-  // Verify that the cookies are set
-  const cookies = await page.context().cookies();
-  expect(cookies.length).toBeGreaterThan(0);
-}
-
-async function deleteAllE2eListings(context: BrowserContext) {
-  await context.request.post('/api/e2e', {
-    data: {
-      command: 'delete-all-e2e-listings',
-    },
-  });
-}
-
-setup('authenticate', async ({ page, context, baseURL }) => {
-  await deleteAllE2eListings(context);
-  logger.info('Base URL:', baseURL);
+setup('authenticate', async ({ page, baseURL, data }) => {
+  await data.deleteAllE2eListings();
 
   if (baseURL?.includes('apadana.app') || baseURL?.includes('.vercel.app')) {
     await page.goto('/sign-in');
-    await page.getByLabel('Email').fill(prodE2eTestUser.email);
-    await page.getByLabel('Password').fill(prodE2eTestUser.password);
+    await page.getByLabel('Email').fill(prodE2eTestHostUser.email);
+    await page.getByLabel('Password').fill(prodE2eTestHostUser.password);
 
     await page.getByRole('button', { name: 'Log in', exact: true }).click();
   } else {
-    await loginViaCommand(page, context);
+    await data.createUser(
+      prodE2eTestHostUser.email,
+      prodE2eTestHostUser.password,
+    );
+    await data.login(prodE2eTestHostUser.email, page);
     await page.goto('/');
   }
 

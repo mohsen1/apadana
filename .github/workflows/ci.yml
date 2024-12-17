@@ -73,6 +73,7 @@ jobs:
           VERCEL_URL: fake-vercel.com
           RESEND_API_KEY: re123_fake_RESEND_API_KEY
           GOOGLE_MAPS_API_KEY: fake_GOOGLE_MAPS_API_KEY
+          E2E_TESTING_SECRET: fake_E2E_TESTING_SECRET
 
   fix-and-commit:
     name: Fix and commit code style

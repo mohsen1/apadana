@@ -44,6 +44,7 @@ if (!fs.existsSync(jsonReportFolder)) {
  */
 export default defineConfig({
   testDir: path.join(process.cwd(), 'src/e2e'),
+  testMatch: '**/*.spec.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -74,15 +75,21 @@ export default defineConfig({
   use: {
     baseURL,
     get extraHTTPHeaders(): Record<string, string> {
+      const headers: Record<string, string> = {};
       // Learn more about this here:
       // https://vercel.com/docs/security/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation
       if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET !== undefined) {
-        return {
-          'x-vercel-protection-bypass':
-            process.env.VERCEL_AUTOMATION_BYPASS_SECRET,
-        };
+        headers['x-vercel-protection-bypass'] =
+          process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
       }
-      return {};
+
+      // This is used to authenticate the e2e tests with the API in production
+      // without this value /api/e2e will reject the request
+      if (process.env.E2E_TESTING_SECRET !== undefined) {
+        headers['x-e2e-testing-secret'] = process.env.E2E_TESTING_SECRET;
+      }
+
+      return headers;
     },
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: {

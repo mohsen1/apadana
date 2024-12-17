@@ -123,7 +123,7 @@ jobs:
             const locations = '${{ steps.upload-results.outputs.object_locations }}'.split(',');
 
             // Find the HTML report URL
-            const htmlReportUrl = locations.find(url => url.endsWith('index.html'));
+            const htmlReportUrl = locations.find(url => url.endsWith('html/index.html'));
 
             let stats = {
               expected: 0,

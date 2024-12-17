@@ -1,23 +1,59 @@
 import { setServerSession } from '@/lib/auth';
-import { SESSION_DURATION } from '@/lib/auth/constants';
+import { SESSION_COOKIE_NAME, SESSION_DURATION } from '@/lib/auth/constants';
 import prisma from '@/lib/prisma/client';
 
-import { prodE2eTestUser } from '@/e2e/fixtures/users';
+import { prodE2eTestHostUser } from '@/e2e/fixtures/data';
 import { assertError } from '@/utils';
+import { Prisma } from '@prisma/client';
 
 export const runtime = 'nodejs';
 
 export const dynamic = 'force-dynamic';
 
-export enum E2ECommand {
-  LOGIN = 'login',
-  DELETE_ALL_E2E_LISTINGS = 'delete-all-e2e-listings',
-}
+export type RequestBody =
+  | {
+      command: 'createUser';
+      args: { email: string; password: string };
+      response: { userId: string };
+    }
+  | {
+      command: 'login';
+      args: { email: string; userId?: string };
+      response: {
+        email: string;
+        userId: string;
+        sessionId: string;
+        sessionExpiresAt: string;
+        cookieName: string;
+      };
+    }
+  | {
+      command: 'deleteAllE2eListings';
+      args: {};
+      response: { message: string };
+    }
+  | {
+      command: 'createListing';
+      args: Prisma.ListingCreateInput;
+      response: { listingId: string };
+    }
+  | {
+      command: 'deleteListing';
+      args: { id: string };
+      response: { message: string };
+    };
 
-interface E2ERequest {
-  command: E2ECommand;
-  args?: Record<string, string>;
-}
+export type Command = RequestBody['command'];
+
+export type CommandArgs<T extends Command> = Extract<
+  RequestBody,
+  { command: T }
+>['args'];
+
+export type CommandResponse<T extends Command> = Extract<
+  RequestBody,
+  { command: T }
+>['response'];
 
 /**
  * E2E API route. This is only available in the development environment and while
@@ -29,20 +65,56 @@ export async function POST(request: Request) {
       process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' &&
       process.env.NODE_ENV !== 'development'
     ) {
-      return new Response('Not allowed', { status: 403 });
+      const headers = request.headers;
+
+      if (
+        headers.get('x-e2e-testing-secret') !== process.env.E2E_TESTING_SECRET
+      ) {
+        return new Response('Not allowed', { status: 403 });
+      }
     }
 
-    const body = (await request.json()) as E2ERequest;
+    const body = (await request.json()) as RequestBody;
 
-    const { command, args = {} } = body;
-
-    if (!command) {
+    if (!body.command) {
       return new Response('No command provided', { status: 400 });
     }
 
-    switch (command) {
-      case E2ECommand.LOGIN: {
-        const email = args.email ?? 'test@example.com';
+    switch (body.command) {
+      case 'createUser': {
+        // First find user by email
+        const existingUser = await prisma.user.findFirst({
+          where: {
+            emailAddresses: { some: { emailAddress: body.args.email } },
+          },
+        });
+
+        if (existingUser) {
+          // If user exists, just return their ID
+          return new Response(JSON.stringify({ userId: existingUser.id }), {
+            status: 200,
+          });
+        }
+
+        // If user doesn't exist, create a new one
+        const newUser = await prisma.user.create({
+          data: {
+            emailAddresses: {
+              create: { emailAddress: body.args.email },
+            },
+            password: body.args.password,
+            firstName: 'Test',
+            lastName: 'User',
+          },
+        });
+
+        return new Response(JSON.stringify({ userId: newUser.id }), {
+          status: 200,
+        });
+      }
+
+      case 'login': {
+        const email = body.args?.email ?? 'test@example.com';
         const testUser = await prisma.user.findFirst({
           where: {
             emailAddresses: { some: { emailAddress: email } },
@@ -54,33 +126,43 @@ export async function POST(request: Request) {
 
         const session = await prisma.session.create({
           data: {
-            userId: args.userId ? args.userId : testUser.id,
+            userId: body.args.userId ?? testUser.id,
             expiresAt: new Date(Date.now() + SESSION_DURATION.milliseconds()),
           },
         });
 
-        const cookie = await setServerSession(session);
+        await setServerSession(session);
+
+        const sessionId = session.id;
+        const sessionExpiresAt = session.expiresAt.toISOString();
+        const cookieName = SESSION_COOKIE_NAME;
 
         return new Response(
           JSON.stringify({
             email,
+            userId: testUser.id,
+            sessionId,
+            sessionExpiresAt,
+            cookieName,
           }),
           {
             status: 200,
             headers: {
               'Content-Type': 'application/json',
-              'Set-Cookie': cookie.toString(),
               'Access-Control-Allow-Credentials': 'true',
               'Access-Control-Allow-Origin': '*',
             },
           },
         );
       }
-      case E2ECommand.DELETE_ALL_E2E_LISTINGS: {
+
+      case 'deleteAllE2eListings': {
         await prisma.listing.deleteMany({
           where: {
             owner: {
-              emailAddresses: { some: { emailAddress: prodE2eTestUser.email } },
+              emailAddresses: {
+                some: { emailAddress: prodE2eTestHostUser.email },
+              },
             },
           },
         });
@@ -91,8 +173,30 @@ export async function POST(request: Request) {
           { status: 200 },
         );
       }
+
+      case 'createListing': {
+        const listing = await prisma.listing.create({
+          data: body.args,
+        });
+        return new Response(
+          JSON.stringify({
+            listingId: listing.id,
+          }),
+          { status: 200 },
+        );
+      }
+
+      case 'deleteListing': {
+        await prisma.listing.delete({
+          where: { id: body.args.id },
+        });
+        return new Response(JSON.stringify({ message: 'Listing deleted' }), {
+          status: 200,
+        });
+      }
+
       default: {
-        return new Response(`Unknown command "${command as string}"`, {
+        return new Response(`Unknown command`, {
           status: 400,
         });
       }
