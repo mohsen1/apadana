@@ -4,21 +4,42 @@ import { defineConfig, devices } from '@playwright/test';
  * https://github.com/motdotla/dotenv
  */
 import dotenv from 'dotenv';
+import _ from 'lodash';
 import fs from 'node:fs';
 import path from 'node:path';
+import { z } from 'zod';
 
 dotenv.config();
 
-const isTestingDev = process.env.PLAYWRIGHT_IS_TESTING_DEV === 'true';
+// Validate environment variables. Run only once to avoid running the validation
+// on every test run.
+_.memoize(() => {
+  const processEnvSchema = z.object({
+    BASE_URL: z.string().url().describe('The base URL of the app.'),
+    E2E_TESTING_SECRET: z
+      .string()
+      .min(20)
+      .max(60)
+      .describe('The secret used to authenticate the /api/e2e route.'),
+  });
+
+  const processEnv = processEnvSchema.safeParse(process.env);
+
+  if (!processEnv.success) {
+    throw new Error(
+      `Invalid environment variables:\n${Object.entries(
+        processEnv.error.flatten().fieldErrors ?? {},
+      )
+        .map(([key, value]) => `${key}: ${value?.join(', ')}`)
+        .join('\n')}`,
+    );
+  }
+})();
 
 export const storageState = path.join(
   process.cwd(),
   '.cache/__e2e__auth/state.json',
 );
-
-const port = process.env.PORT || '3030';
-const localUrl = `http://localhost:${port}`;
-const baseURL = process.env.BASE_URL || localUrl;
 
 const htmlReportFolder = path.join(
   process.cwd(),
@@ -73,7 +94,7 @@ export default defineConfig({
   globalSetup: path.join(process.cwd(), 'src/e2e/global-setup.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL,
+    baseURL: process.env.BASE_URL,
     get extraHTTPHeaders(): Record<string, string> {
       const headers: Record<string, string> = {};
       // Learn more about this here:
@@ -98,7 +119,11 @@ export default defineConfig({
       screenshots: true,
       sources: true,
     },
-    video: isTestingDev ? 'on' : 'retain-on-failure',
+    video: process.env.CI ? 'retain-on-failure' : 'on',
+    ignoreHTTPSErrors: true,
+    launchOptions: {
+      args: ['--ignore-certificate-errors'],
+    },
   },
 
   /* Configure projects for major browsers */

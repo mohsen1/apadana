@@ -2,7 +2,6 @@ import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 
-import { isDevOrTestEnv } from '@/utils/environment';
 import logger from '@/utils/logger';
 
 export const runtime = 'nodejs';
@@ -11,7 +10,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
-  if (!isDevOrTestEnv) {
+  if (process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e') {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
@@ -36,7 +35,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
-  if (!isDevOrTestEnv) {
+  if (process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e') {
     return new NextResponse('Forbidden', { status: 403 });
   }
 

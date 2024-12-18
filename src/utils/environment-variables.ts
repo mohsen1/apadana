@@ -20,7 +20,6 @@ const schema = z.object({
 
   // Next
   VERCEL_URL: z.string(),
-  VERCEL_PROJECT_PRODUCTION_URL: z.string(),
 
   // S3 Upload
   NEXT_PUBLIC_S3_UPLOAD_BUCKET: z.string(),

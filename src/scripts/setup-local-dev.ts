@@ -1,8 +1,9 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
-import { createLogger } from '@/utils/logger';
 import sudoPrompt from 'sudo-prompt';
 import { promisify } from 'util';
+
+import { createLogger } from '@/utils/logger';
 
 const sudoExec = promisify<string, Parameters<typeof sudoPrompt.exec>[1]>(
   sudoPrompt.exec,
@@ -14,9 +15,9 @@ const HOSTS_FILE = '/etc/hosts';
 
 async function setupLocalDomains() {
   const certDir = 'src/docker/certs';
-  // Add early exit check
   const certFile = `${certDir}/cert.pem`;
   const keyFile = `${certDir}/key.pem`;
+  const rootCAFile = `${certDir}/rootCA.pem`;
 
   try {
     if (fs.existsSync(certFile) && fs.existsSync(keyFile)) {
@@ -66,16 +67,22 @@ async function setupLocalDomains() {
     });
 
     // Create certificates directory if it doesn't exist
-    const certDir = 'src/docker/certs';
     if (!fs.existsSync(certDir)) {
       fs.mkdirSync(certDir, { recursive: true });
     }
 
-    // Generate certificates for domains
+    // Generate certificates for domains with root CA
     logger.info('Generating certificates...');
     execSync(
       `cd ${certDir} && ${mkcertPath} -cert-file cert.pem -key-file key.pem ${DOMAINS.join(' ')}`,
     );
+
+    // Copy root CA certificate
+    const caPath = execSync('mkcert -CAROOT').toString().trim();
+    fs.copyFileSync(`${caPath}/rootCA.pem`, rootCAFile);
+
+    // Set proper permissions for certificate files
+    execSync(`chmod 644 ${certFile} ${keyFile} ${rootCAFile}`);
 
     // Update /etc/hosts file
     logger.info('Updating /etc/hosts...');
@@ -99,10 +106,14 @@ async function setupLocalDomains() {
     }
 
     logger.info('Local development environment setup complete! ✨');
+    logger.info('Root CA certificate available at:', rootCAFile);
   } catch (error) {
     logger.error('Error setting up local development environment:', error);
     process.exit(1);
   }
 }
 
-setupLocalDomains();
+setupLocalDomains().catch((error) => {
+  logger.error('Error setting up local development environment:', error);
+  process.exit(1);
+});

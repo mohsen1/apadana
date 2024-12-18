@@ -7,6 +7,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
+      - ./certs/rootCA.pem:/usr/local/share/ca-certificates/rootCA.crt:ro
     depends_on:
       app_dev:
         condition: service_healthy
@@ -16,7 +17,19 @@ services:
       - apadana_network
     restart: unless-stopped
     command: >
-      sh -c "echo '' && echo '' && echo '' && echo '⚡️ Now you can access https://apadana.dev.local and https://apadana.prod.local' && echo '' && echo '' && echo '' && nginx -g 'daemon off;'"
+      sh -c "
+        echo '' && 
+        echo '' && 
+        echo '' && 
+        echo '⚡️ Now you can access https://apadana.dev.local' && 
+        echo '  and                 https://apadana.prod.local' && 
+        echo '' && 
+        echo '' && 
+        echo '' && 
+        nginx -g 'daemon off;' > /dev/null 2>&1
+      "
+    logging:
+      driver: 'none'
 
   app_dev:
     container_name: app_dev
@@ -40,8 +53,7 @@ services:
     environment:
       - NEXT_SHARP_PATH=/app/node_modules/sharp
       - NODE_ENV=development
-      - VERCEL_URL=apadana.dev.local
-      - VERCEL_PROJECT_PRODUCTION_URL=apadana.dev.local
+      - VERCEL_URL=dev.apadana.local
       - DATABASE_URL=postgresql://admin:admin@db_dev:5432/apadana
       - NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET:-dev-bucket}
       - NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION:-us-east-1}
@@ -50,7 +62,8 @@ services:
       - RESEND_API_KEY=${RESEND_API_KEY:-re_1234567890_fake_key_for_dev}
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_dev}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-fake_maps_key_for_dev}
-      - HOST=apadana.dev.local
+      - HOST=dev.apadana.local
+      - NEXT_PUBLIC_TEST_ENV=e2e
     depends_on:
       db_dev:
         condition: service_healthy
@@ -71,9 +84,8 @@ services:
       dockerfile: src/docker/Dockerfile.prod
       args:
         - RESEND_API_KEY=${RESEND_API_KEY:-re_1234567890_invalid_key}
-        - VERCEL_URL=apadana.prod.local
+        - VERCEL_URL=prod.apadana.local
         - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
-        - VERCEL_PROJECT_PRODUCTION_URL=apadana.prod.local
         - NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET:-invalid_bucket}
         - NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION:-invalid_region}
         - S3_UPLOAD_KEY=${S3_UPLOAD_KEY:-invalid_key}
@@ -86,11 +98,11 @@ services:
       - PORT=3030
       - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
       - NODE_ENV=production
-      - VERCEL_URL=apadana.prod.local
-      - HOST=apadana.prod.local
-      - VERCEL_PROJECT_PRODUCTION_URL=apadana.prod.local
+      - VERCEL_URL=prod.apadana.local
+      - HOST=prod.apadana.local
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-invalid_maps_key}
+      - NEXT_PUBLIC_TEST_ENV=e2e
     depends_on:
       db_prod:
         condition: service_healthy

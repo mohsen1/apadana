@@ -135,68 +135,60 @@ pnpm docker:clean
 
 All commands can be run using `pnpm run <command>` or just `pnpm <command>` for most commands.
 
-### Docker Commands (Preferred)
+### Main Commands
 
-- `docker:dev` - Starts all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in Docker containers
+- `start` - Sets up local environment and starts all services using Docker Compose
+- `dev` - Runs all development services concurrently
+- `build` - Generates Prisma client and builds Next.js application
+- `fix` - Runs ESLint with auto-fix and formats code
+
+### Docker Commands
+
+- `docker:prune` - Removes all unused Docker resources (containers, networks, volumes)
+- `docker:clean` - Stops containers and removes all volumes
 - `docker:down` - Stops all Docker containers
-- `docker:clean` - Stops containers and removes all volumes. Deletes the database.
-- `docker:rebuild` - Rebuilds the app container without cache and starts services
-- `docker:prune` - Removes all unused Docker resources (containers, networks, volumes). Useful for a fresh start.
-- `docker:prod` - Starts production Docker environment locally for testing
-- `docker:prod:down` - Stops production Docker environment
-- `docker:prod:logs` - Shows logs from production Docker environment
-- `docker:prod:clean` - Stops production environment and removes volumes
-- `docker:prod:rebuild` - Rebuilds and restarts the production app container. This can be run while `docker:prod` script is running. It will save you time vs. building from scratch. Useful for e2e testing.
 
 ### Development Commands
 
-Most of these commands are used by the `docker:dev` command. You should prefer using the `docker:dev` command instead.
-
-- `dev` - Starts all development services concurrently
 - `dev:next` - Starts Next.js development server with Turbo
+- `dev:storybook` - Starts Storybook development server
 - `dev:prisma` - Watches Prisma schema for changes
 - `dev:prisma:seed` - Seeds the database
-- `dev:storybook` - Starts Storybook development server
-- `dev:studio` - Starts Prisma Studio
+- `dev:prisma:studio` - Starts Prisma Studio with auto-reload
 
 ### Database Commands
 
-Beside `migrate:dev`, you should use the `docker:*` commands to manage the database.
-
-- `migrate:dev` - Runs database migrations in development
-- `migrate:prod` - Deploys database migrations in production (CI/CD only)
 - `prisma:generate` - Generates Prisma client
 - `prisma:watch` - Watches for Prisma schema changes
+- `prisma:migrate` - Deploys database migrations
 
 ### Testing Commands
 
 - `test` - Runs Vitest unit tests
 - `test:watch` - Runs Vitest tests in watch mode
-- `e2e` - Runs Playwright E2E tests in Chromium against production environment started with `docker:prod` command
+- `test:coverage` - Runs tests with coverage report
+- `test:ui` - Runs Vitest with UI interface
+- `test:cleanup` - Cleans up test Docker containers
+- `e2e` - Runs Playwright tests against local production environment
 - `e2e:dev` - Runs E2E tests against development environment
 - `e2e:ci` - Runs Playwright tests in CI environment
-- `e2e:prod` - Runs E2E tests against production environment live on [https://apadana.app](https://apadana.app)
+- `e2e:prod` - Runs E2E tests against production environment
 
-### Code Quality Command
+### Code Quality Commands
 
-- `fix` - Runs ESLint with auto-fix and formats code
 - `lint` - Runs ESLint
-- `lint:strict` - Runs ESLint with zero warnings allowed. Used in CI/CD pipeline.
-- `typecheck` - Runs TypeScript type checking
+- `lint:strict` - Runs ESLint with zero warnings allowed
 - `format` - Formats code using Prettier
-- `format:check` - Checks code formatting. Used in CI/CD pipeline.
-
-### Build & Deploy Commands
-
-- `build` - Generates Prisma client and builds Next.js application
-- `start` - Starts the production Next.js server
-- `postbuild` - Generates sitemap after build
+- `format:check` - Checks code formatting
+- `typecheck` - Runs TypeScript type checking
 
 ### Other Commands
 
 - `prepare` - Installs Husky git hooks
 - `storybook` - Starts Storybook development server
 - `build-storybook` - Builds Storybook for production
+- `postbuild` - Generates sitemap after build
+- `setup:local` - Sets up local development environment
 
 ## Technology Stack Overview
 
