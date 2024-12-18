@@ -63,17 +63,12 @@ export type CommandResponse<T extends Command> = Extract<
  */
 export async function POST(request: Request) {
   try {
-    if (
-      process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' &&
-      process.env.NODE_ENV !== 'development'
-    ) {
-      const headers = request.headers;
+    const headers = request.headers;
 
-      if (
-        headers.get('x-e2e-testing-secret') !== process.env.E2E_TESTING_SECRET
-      ) {
-        return new Response('Not allowed', { status: 403 });
-      }
+    if (
+      headers.get('x-e2e-testing-secret') !== process.env.E2E_TESTING_SECRET
+    ) {
+      return new Response('Not allowed', { status: 403 });
     }
 
     const body = (await request.json()) as RequestBody;
