@@ -71,3 +71,4 @@ e2e/uploads/
 !pnpm-lock.yaml
 !tailwind.config.ts
 !tsconfig.json
+!.vscode/*
