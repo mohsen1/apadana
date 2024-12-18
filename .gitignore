@@ -66,3 +66,6 @@ e2e/uploads/
 !package.json
 !pnpm-lock.yaml
 !tsconfig.json
+!.storybook/
+!.vscode/
+!.husky/
