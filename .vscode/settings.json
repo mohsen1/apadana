@@ -12,7 +12,6 @@
     "source.organizeImports": "explicit"
   },
   "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  // Tailwind CSS Autocomplete, add more if used in projects
   "tailwindCSS.classAttributes": [
     "class",
     "className",
