@@ -2,10 +2,6 @@ import dotenv from 'dotenv';
 import _ from 'lodash';
 import { z } from 'zod';
 
-import { createLogger } from '@/utils/logger';
-
-const logger = createLogger(__filename);
-
 const schema = z.object({
   // Node Environment
   NODE_ENV: z
@@ -45,8 +41,6 @@ const schema = z.object({
 export const validateEnvironmentVariables = _.memoize(() => {
   dotenv.config();
   const result = schema.safeParse(process.env);
-
-  logger.info('DATABASE_URL:', process.env.DATABASE_URL);
 
   if (!result.success) {
     const messages = Object.entries(result.error.flatten().fieldErrors)

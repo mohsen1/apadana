@@ -6,6 +6,7 @@ import prisma from '@/lib/prisma/client';
 
 import { prodE2eTestHostUser } from '@/e2e/fixtures/data';
 import { assertError } from '@/utils';
+import { createLogger } from '@/utils/logger';
 
 export const runtime = 'nodejs';
 
@@ -62,12 +63,13 @@ export type CommandResponse<T extends Command> = Extract<
  * running in the e2e test environment.
  */
 export async function POST(request: Request) {
+  const logger = createLogger('api/e2e/POST');
+
   try {
     const headers = request.headers;
+    const secret = headers.get('x-e2e-testing-secret');
 
-    if (
-      headers.get('x-e2e-testing-secret') !== process.env.E2E_TESTING_SECRET
-    ) {
+    if (secret !== process.env.E2E_TESTING_SECRET) {
       return new Response('Not allowed', { status: 403 });
     }
 
@@ -200,6 +202,7 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     assertError(error);
+    logger.error(error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
     });

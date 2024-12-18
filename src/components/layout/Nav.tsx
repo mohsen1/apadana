@@ -28,8 +28,8 @@ const UserButton = ({ user }: { user: ClientUser }) => {
           size='sm'
           className='flex items-center gap-2 dark:hover:bg-background-dark dark:hover:-dark'
         >
-          <span className='hidden sm:inline-flex'>
-            Hello, {user.firstName} {user.lastName}
+          <span data-testid='nav-user-name' className='hidden sm:inline-flex'>
+            {user.firstName} {user.lastName}
           </span>
           <Avatar className='h-8 w-8'>
             <AvatarImage src={user.imageUrl || ''} />

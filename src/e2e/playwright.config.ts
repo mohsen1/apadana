@@ -104,12 +104,6 @@ export default defineConfig({
           process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
       }
 
-      // This is used to authenticate the e2e tests with the API in production
-      // without this value /api/e2e will reject the request
-      if (process.env.E2E_TESTING_SECRET) {
-        headers['x-e2e-testing-secret'] = process.env.E2E_TESTING_SECRET;
-      }
-
       return headers;
     },
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */

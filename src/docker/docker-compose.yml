@@ -92,8 +92,7 @@ services:
         - NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION:-invalid_region}
         - S3_UPLOAD_KEY=${S3_UPLOAD_KEY:-invalid_key}
         - S3_UPLOAD_SECRET=${S3_UPLOAD_SECRET:-invalid_secret}
-        - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
-        - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-invalid_maps_key}
+        - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
     expose:
       - '3030'
     env_file:
@@ -105,16 +104,14 @@ services:
       - VERCEL_URL=prod.apadana.local
       - HOST=prod.apadana.local
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
-      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-invalid_maps_key}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
       - NEXT_PUBLIC_TEST_ENV=e2e
     depends_on:
       db_prod:
         condition: service_healthy
     networks:
       - apadana_network
-    command:
-      - pnpm
-      - next:start
+    command: sh -c "pnpm prisma:migrate && pnpm prisma db seed && pnpm next:start"
     healthcheck:
       test:
         ['CMD', 'wget', '--spider', '-q', 'http://localhost:3030/api/health']
