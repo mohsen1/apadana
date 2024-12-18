@@ -30,6 +30,8 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.js",
+    "**/*.mjs",
     ".next/types/**/*.ts",
     "src/prisma/**/*.ts"
   ],
