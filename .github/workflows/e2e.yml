@@ -84,6 +84,7 @@ jobs:
         env:
           BASE_URL: ${{ steps.check-deployment.outputs.deployment_url }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          E2E_TESTING_SECRET: ${{ secrets.E2E_TESTING_SECRET }}
 
       - name: Upload Playwright Test Report
         if: always() && hashFiles('.next/playwright-report/**') != ''
