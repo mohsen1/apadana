@@ -61,6 +61,7 @@ e2e/uploads/
 
 # Files that *are* allowed in root
 !README.md
+!.gitignore
 !components.json
 !jest.config.ts
 !jest.setup.ts
