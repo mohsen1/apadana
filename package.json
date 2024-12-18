@@ -19,7 +19,7 @@
     "prisma:watch": "pnpm prisma generate --schema=src/prisma/schema.prisma --watch",
     "prisma:migrate": "prisma migrate deploy --schema=src/prisma/schema.prisma",
     "build": "prisma generate --schema=src/prisma/schema.prisma --no-hints && next build",
-    "fix": "pnpm lint:fix --fix && pnpm format",
+    "fix": "pnpm lint --fix && pnpm format",
     "lint": "eslint --config=config/eslint.config.mjs",
     "lint:strict": "eslint --max-warnings=0 --config=config/eslint.config.mjs",
     "format": "prettier -w .",
