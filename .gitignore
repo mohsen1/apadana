@@ -63,13 +63,6 @@ e2e/uploads/
 !README.md
 !.gitignore
 !components.json
-!jest.config.ts
-!jest.setup.ts
-!next-sitemap.config.js
-!next.config.ts
 !package.json
-!playwright.config.ts
 !pnpm-lock.yaml
-!tailwind.config.ts
 !tsconfig.json
-!.vscode/*
