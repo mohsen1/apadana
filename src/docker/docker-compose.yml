@@ -50,6 +50,8 @@ services:
       - app_node_modules:/app/node_modules
       - pnpm_store:/root/.pnpm-store
       - next_cache:/app/.next
+    env_file:
+      - ../../.env.local
     environment:
       - NEXT_SHARP_PATH=/app/node_modules/sharp
       - NODE_ENV=development
@@ -94,6 +96,8 @@ services:
         - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-invalid_maps_key}
     expose:
       - '3030'
+    env_file:
+      - ../../.env.local
     environment:
       - PORT=3030
       - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana

@@ -39,8 +39,7 @@ const getUploadSignedUrl = actionClient
       const urls = parsedInput.files.map((file) => {
         const fileExtension = file.filename.split('.').pop() ?? '';
         const key = `fake_upload_${crypto.randomUUID()}.${fileExtension}`;
-        const port = process.env.PORT || 3000;
-        const url = `http://localhost:${port}/api/e2e/upload/${key}`;
+        const url = `/api/e2e/upload/${key}`;
 
         return { url, key };
       });

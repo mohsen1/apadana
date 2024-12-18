@@ -8,9 +8,6 @@ test.describe.serial('Create and delete a Listing', () => {
   });
 
   test('create listing ', async ({ page }) => {
-    // This is a long test and will take more than our standard timeout to finish
-    test.setTimeout(test.info().timeout * 3);
-
     await test.step('Navigate to the create listing page', async () => {
       await page.goto('/listing/create');
       await expect(page.getByText('Location Details')).toBeVisible();

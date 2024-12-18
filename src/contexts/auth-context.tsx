@@ -2,7 +2,9 @@
 
 import { createContext, useCallback, useEffect, useState } from 'react';
 
-import { ClientUser, getCurrentUser, logOut } from '@/app/auth/actions';
+import { ClientUser } from '@/app/auth/actions';
+import { assertError } from '@/utils';
+import { createLogger } from '@/utils/logger';
 
 export type { ClientUser };
 
@@ -23,16 +25,30 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children, initialUser }: AuthProviderProps) {
+  const logger = createLogger('AuthProvider');
   const [user, setUser] = useState<ClientUser | null>(initialUser ?? null);
 
   const fetchUser = useCallback(async () => {
-    const result = await getCurrentUser();
-    setUser(result?.data?.user ?? null);
+    try {
+      const res = await fetch('/api/auth/user');
+      if (!res.ok) throw new Error('Failed to fetch user');
+      const data = (await res.json()) as { user: ClientUser | null };
+      setUser(data.user);
+    } catch (error) {
+      assertError(error);
+      logger.error('Error fetching user in AuthProvider:', error);
+      setUser(null);
+    }
   }, []);
 
   const signOut = useCallback(async () => {
-    await logOut();
-    setUser(null);
+    try {
+      const res = await fetch('/api/auth/logout', { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to log out');
+      setUser(null);
+    } catch (error) {
+      logger.error('Error logging out in AuthProvider:', error);
+    }
   }, []);
 
   useEffect(() => {

@@ -1,8 +1,9 @@
-import { expect, test } from '../base';
 import {
   prodE2eTestHostUser,
   prodE2eTestListing_usa_1,
 } from '@/e2e/fixtures/data';
+
+import { expect, test } from '../base';
 
 test.describe.serial('Delete the listing', async () => {
   let currentListingId: string;

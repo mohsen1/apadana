@@ -7,9 +7,9 @@
     "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
   },
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "explicit"
+    "source.fixAll": "always",
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "never"
   },
   "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "tailwindCSS.classAttributes": [

@@ -12,7 +12,10 @@ const logger = createLogger(__filename);
  * @returns The time zone ID for the given latitude and longitude.
  */
 export async function getTimeZone(lat: number, lng: number): Promise<string> {
-  if (!GOOGLE_MAPS_API_KEY) {
+  if (
+    !GOOGLE_MAPS_API_KEY ||
+    GOOGLE_MAPS_API_KEY.startsWith('fake_maps_key_')
+  ) {
     logger.error(
       'GOOGLE_MAPS_API_KEY is not set, falling back to user timezone',
     );

@@ -63,8 +63,7 @@ export const useFileUploader = (
       process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
 
     if (process.env.NEXT_PUBLIC_TEST_ENV === 'e2e') {
-      const port = process.env.PORT || 3000;
-      return `http://localhost:${port}/api/e2e/upload/${key}`;
+      return `/api/e2e/upload/${key}`;
     }
 
     return `https://${NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.${NEXT_PUBLIC_S3_UPLOAD_REGION}.amazonaws.com/${key}`;

@@ -1,7 +1,7 @@
 import { prodE2eTestHostUser } from '@/e2e/fixtures/data';
 import { storageState } from '@/e2e/playwright.config';
 
-import { test as setup, expect } from './base';
+import { expect, test as setup } from './base';
 
 setup('authenticate', async ({ page, baseURL, data }) => {
   await data.deleteAllE2eListings();

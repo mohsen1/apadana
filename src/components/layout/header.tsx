@@ -2,7 +2,6 @@
 
 import { HomeIcon, Menu } from 'lucide-react';
 import Link from 'next/link';
-import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
@@ -53,7 +52,7 @@ export function Header({ className }: { className?: string }) {
             <>
               <Button asChild variant='ghost' size='sm'>
                 <Link
-                  href='http://localhost:5555'
+                  href='/__dev-only__/prisma-studio'
                   target='_blank'
                   rel='noopener noreferrer'
                 >
@@ -62,7 +61,7 @@ export function Header({ className }: { className?: string }) {
               </Button>
               <Button asChild variant='ghost' size='sm'>
                 <Link
-                  href='http://localhost:6006'
+                  href='/__dev-only__/storybook'
                   target='_blank'
                   rel='noopener noreferrer'
                 >
@@ -100,7 +99,7 @@ export function Header({ className }: { className?: string }) {
                 <>
                   <Button asChild variant='ghost' size='sm'>
                     <Link
-                      href='http://localhost:5555'
+                      href='/__dev-only__/prisma-studio'
                       target='_blank'
                       rel='noopener noreferrer'
                     >
@@ -109,7 +108,7 @@ export function Header({ className }: { className?: string }) {
                   </Button>
                   <Button asChild variant='ghost' size='sm'>
                     <Link
-                      href='http://localhost:6006'
+                      href='/__dev-only__/storybook'
                       target='_blank'
                       rel='noopener noreferrer'
                     >

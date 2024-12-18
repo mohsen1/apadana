@@ -1,8 +1,6 @@
-import { Prisma, User } from '@prisma/client';
-import { BrowserContext, APIRequestContext } from '@playwright/test';
-import _ from 'lodash';
+import { APIRequestContext, Page, test as baseTest } from '@playwright/test';
+import { Prisma } from '@prisma/client';
 
-import { Page, test as baseTest } from '@playwright/test';
 import { Command, CommandArgs, CommandResponse } from '@/app/api/e2e/route';
 
 class TestData {
@@ -58,19 +56,15 @@ class TestData {
     const response = await this.#runCommand('login', { email });
 
     const url = new URL(this.#baseURL);
-    const isLocalhost =
-      url.hostname.startsWith('localhost') ||
-      url.hostname.startsWith('127.0.0.1');
 
     const cookieData = {
       name: response.cookieName,
       value: response.sessionId,
       expires: Math.floor(new Date(response.sessionExpiresAt).getTime() / 1000),
       httpOnly: true,
-      path: isLocalhost ? undefined : '/',
-      secure: !isLocalhost,
-      domain: isLocalhost ? undefined : `.${url.hostname}`,
-      url: isLocalhost ? `http://${url.hostname}:${url.port}` : undefined,
+      path: '/',
+      secure: true,
+      domain: url.hostname,
     };
 
     await page.context().addCookies([cookieData]);

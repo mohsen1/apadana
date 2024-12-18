@@ -1,6 +1,6 @@
-import { NextConfig } from 'next';
-import { createServer } from 'https';
 import { readFileSync } from 'fs';
+import { NextConfig } from 'next';
+import type webpack from 'webpack';
 
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.NEXT_PUBLIC_TEST_ENV === 'e2e',
@@ -16,7 +16,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { hostname: 'utfs.io' },
       { hostname: 'apadana.app' },
-      { hostname: 'localhost' },
       { hostname: 'avatars.githubusercontent.com' },
       { hostname: 'apadana-uploads.s3.us-east-1.amazonaws.com' },
       {
@@ -39,13 +38,20 @@ const nextConfig: NextConfig = {
     },
   },
 
-  webpack(config) {
+  webpack(config: webpack.Configuration) {
     // Grab the existing rule that handles SVG imports
-    const fileLoaderRule = config.module.rules.find((rule: { test: RegExp }) =>
-      rule.test?.test?.('.svg'),
-    );
+    const fileLoaderRule: webpack.RuleSetRule | undefined =
+      config.module?.rules?.find(
+        (rule) =>
+          typeof rule === 'object' &&
+          rule != null &&
+          'test' in rule &&
+          rule.test != null &&
+          rule.test instanceof RegExp &&
+          rule.test?.test?.('.svg'),
+      ) as webpack.RuleSetRule | undefined;
 
-    config.module.rules.push(
+    config?.module?.rules?.push(
       // Reapply the existing rule, but only for svg imports ending in ?url
       {
         ...fileLoaderRule,
@@ -66,7 +72,9 @@ const nextConfig: NextConfig = {
     );
 
     // Modify the file loader rule to ignore *.svg, since we have it handled now.
-    fileLoaderRule.exclude = /\.svg$/i;
+    if (fileLoaderRule != null) {
+      fileLoaderRule.exclude = /\.svg$/i;
+    }
 
     return config;
   },
@@ -80,7 +88,7 @@ const nextConfig: NextConfig = {
             cert: readFileSync(process.env.HTTPS_CERT_FILE || ''),
           }
         : undefined,
-    hostname: process.env.HOST || 'localhost',
+    hostname: process.env.HOST,
   },
 };
 

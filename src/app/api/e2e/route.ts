@@ -1,10 +1,11 @@
+import { Prisma } from '@prisma/client';
+
 import { setServerSession } from '@/lib/auth';
 import { SESSION_COOKIE_NAME, SESSION_DURATION } from '@/lib/auth/constants';
 import prisma from '@/lib/prisma/client';
 
 import { prodE2eTestHostUser } from '@/e2e/fixtures/data';
 import { assertError } from '@/utils';
-import { Prisma } from '@prisma/client';
 
 export const runtime = 'nodejs';
 
@@ -29,6 +30,7 @@ export type RequestBody =
     }
   | {
       command: 'deleteAllE2eListings';
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
       args: {};
       response: { message: string };
     }
