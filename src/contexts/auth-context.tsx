@@ -2,8 +2,7 @@
 
 import { createContext, useCallback, useEffect, useState } from 'react';
 
-import { ClientUser } from '@/app/auth/actions';
-import { assertError } from '@/utils';
+import { ClientUser, getCurrentUser } from '@/app/auth/actions';
 import { createLogger } from '@/utils/logger';
 
 export type { ClientUser };
@@ -29,16 +28,8 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   const [user, setUser] = useState<ClientUser | null>(initialUser ?? null);
 
   const fetchUser = useCallback(async () => {
-    try {
-      const res = await fetch('/api/auth/user');
-      if (!res.ok) throw new Error('Failed to fetch user');
-      const data = (await res.json()) as { user: ClientUser | null };
-      setUser(data.user);
-    } catch (error) {
-      assertError(error);
-      logger.error('Error fetching user in AuthProvider:', error);
-      setUser(null);
-    }
+    const result = await getCurrentUser();
+    setUser(result?.data?.user ?? null);
   }, []);
 
   const signOut = useCallback(async () => {
