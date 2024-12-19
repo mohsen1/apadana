@@ -65,7 +65,7 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Install Playwright Browsers
-        uses: ./.github/actions/setup/playwright
+        uses: ./.github/actions/playwright
 
       - name: Run E2E Tests
         id: test-run
