@@ -94,6 +94,7 @@ jobs:
             const comment = `### E2E Tests ${statusEmoji}\n\n` +
               `Running tests against [${deploymentUrl}](${deploymentUrl})...\n\n`;
 
+            // Try to find existing comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -147,7 +148,7 @@ jobs:
           script: |
             const testStatus = '${{ steps.test-run.outcome }}';
             const deploymentUrl = '${{ steps.check-deployment.outputs.deployment_url }}';
-            const locations = ${{ steps.upload-results.outputs.object_locations }};
+            const locations = ${{ steps.upload-results.outputs.object_locations }} || [];
 
             // Find the HTML report URL
             const htmlReportUrl = locations.find(url => url.endsWith('html/index.html'));
