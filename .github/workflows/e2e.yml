@@ -153,22 +153,18 @@ jobs:
             const skipped = stats.skipped;
             const duration = Math.round(stats.duration / 1000); // Convert to seconds
 
-            // Format duration
             const minutes = Math.floor(duration / 60);
             const seconds = duration % 60;
             const durationStr = `${minutes}m ${seconds}s`;
+            const isSuccess = testStatus === 'success'; 
+            const statusEmoji = isSuccess ? '✅' : '❌';
 
-            const statusEmoji = testStatus === 'success' ? '✅' : '❌';
-            const comment = `## E2E Test Results ${statusEmoji}\n\n` +
-                          `Ran tests on [${deploymentUrl}](${deploymentUrl}) ` +
-                          `for ${durationStr}\n\n` +
-                          `### Summary\n` +
-                          `- Total: ${total}\n` +
-                          `- Passed: ${passed} ✅\n` +
-                          `- Failed: ${failed} ${failed > 0 ? '❌' : ''}\n` +
-                          `- Skipped: ${skipped} ${skipped > 0 ? '⏭️' : ''}\n\n` +
-                          (htmlReportUrl ? `[View Full Report](${htmlReportUrl})\n\n` : '') +
-                          `<sub>Updated at: ${new Date().toISOString()}</sub>`;
+            // Shortened comment content
+            const comment = `### E2E Tests ${statusEmoji}\n\n` +
+              `Deployed: [${deploymentUrl}](${deploymentUrl})\n\n` +
+              `${passed} passed, ${failed} failed, ${skipped} skipped of ${total} tests, in ${durationStr}\n\n` +
+              (htmlReportUrl ? `[View Full Report](${htmlReportUrl})\n\n` : '') +
+              `<sub>Updated at: ${new Date().toISOString()}</sub>`;
 
             // Try to find existing comment
             const { data: comments } = await github.rest.issues.listComments({
@@ -179,7 +175,7 @@ jobs:
 
             const botComment = comments.find(comment => 
               comment.user.type === 'Bot' && 
-              comment.body.includes('E2E Test Results')
+              comment.body.includes('E2E Tests')
             );
 
             if (botComment) {
