@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { actionClient } from '@/lib/safe-action';
 
+import { shouldUseFakeUploads } from '@/app/upload/constants';
 import logger from '@/utils/logger';
 
 const inputSchema = z.object({
@@ -34,7 +35,7 @@ const getUploadSignedUrl = actionClient
     const { NEXT_PUBLIC_S3_UPLOAD_REGION, S3_UPLOAD_KEY, S3_UPLOAD_SECRET } =
       process.env;
 
-    if (process.env.NEXT_PUBLIC_TEST_ENV === 'e2e') {
+    if (shouldUseFakeUploads) {
       // Return fake signed URLs for e2e testing
       const urls = parsedInput.files.map((file) => {
         const fileExtension = file.filename.split('.').pop() ?? '';

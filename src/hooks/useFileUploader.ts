@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 import { getUploadSignedUrl } from '@/app/upload/action';
+import { shouldUseFakeUploads } from '@/app/upload/constants';
 import { assertError } from '@/utils';
 
 export interface FileUploadState {
@@ -62,7 +63,7 @@ export const useFileUploader = (
     const NEXT_PUBLIC_S3_UPLOAD_REGION =
       process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
 
-    if (process.env.NEXT_PUBLIC_TEST_ENV === 'e2e') {
+    if (shouldUseFakeUploads) {
       return `/api/e2e/upload/${key}`;
     }
 

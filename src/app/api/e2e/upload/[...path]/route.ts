@@ -2,6 +2,7 @@ import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 
+import { shouldUseFakeUploads } from '@/app/upload/constants';
 import logger from '@/utils/logger';
 
 export const runtime = 'nodejs';
@@ -10,7 +11,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
-  if (process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e') {
+  if (!shouldUseFakeUploads) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
@@ -35,7 +36,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
-  if (process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e') {
+  if (!shouldUseFakeUploads) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
