@@ -191,5 +191,3 @@ jobs:
                 body: comment
               });
             }
-        env:
-          PR_NUMBER: ${{ steps.find-pr.outputs.pr_number }}
