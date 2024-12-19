@@ -8,6 +8,13 @@ const schema = z.object({
     .enum(['development', 'production', 'test'])
     .default('development'),
 
+  // Apple
+  APPLE_CLIENT_ID: z.string(),
+  APPLE_CLIENT_SECRET: z.string(),
+  APPLE_TEAM_ID: z.string(),
+  APPLE_KEY_ID: z.string(),
+  APPLE_PRIVATE_KEY: z.string(),
+
   // Google Maps
   GOOGLE_MAPS_API_KEY: z.string(),
 
