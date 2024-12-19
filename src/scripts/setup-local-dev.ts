@@ -21,90 +21,74 @@ async function setupLocalDomains() {
 
   try {
     if (fs.existsSync(certFile) && fs.existsSync(keyFile)) {
-      // Check hosts file
       const hostsContent = fs.readFileSync(HOSTS_FILE, 'utf8');
       const allDomainsExist = DOMAINS.every((domain) =>
         hostsContent.includes(domain),
       );
-
       if (allDomainsExist) {
         logger.info('Local development environment already set up! ✨');
         return;
       }
     }
 
-    // Check if running on macOS
-    const platform = process.platform;
-    if (platform !== 'darwin') {
+    if (process.platform !== 'darwin') {
+      // TODO: Add support for Linux in setup-local-dev.ts.
+      //       Windows will be supported via WSL.
       logger.error('This script is only supported on macOS');
       process.exit(1);
     }
 
-    // Get mkcert binary path
-    const mkcertPath =
-      execSync('brew --prefix mkcert').toString().trim() + '/bin/mkcert';
-
-    // Install mkcert if not already installed
     try {
-      execSync('brew info mkcert');
+      execSync('brew list mkcert');
     } catch {
       logger.info('Installing mkcert...');
       execSync('brew install mkcert');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    // Install nss if not already installed (for Firefox support)
+    const mkcertPath =
+      execSync('brew --prefix mkcert').toString().trim() + '/bin/mkcert';
+    if (!fs.existsSync(mkcertPath)) {
+      throw new Error(`mkcert binary not found at ${mkcertPath}`);
+    }
+
     try {
-      execSync('brew info nss');
+      execSync('brew list nss');
     } catch {
       logger.info('Installing nss for Firefox support...');
       execSync('brew install nss');
     }
 
-    // Initialize mkcert
-    logger.info('Initializing mkcert...');
-    await sudoExec(`${mkcertPath} -install`, {
-      name: 'Setting up local development environment with SSL',
+    logger.info('Initializing and generating certificates...');
+
+    if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
+    const caPath = execSync(`${mkcertPath} -CAROOT`).toString().trim();
+
+    const needHostsUpdate = !DOMAINS.every((d) => {
+      const content = fs.readFileSync(HOSTS_FILE, 'utf8');
+      return content.includes(d);
     });
 
-    // Create certificates directory if it doesn't exist
-    if (!fs.existsSync(certDir)) {
-      fs.mkdirSync(certDir, { recursive: true });
-    }
+    const entries = needHostsUpdate
+      ? `\\n# Apadana local domains\\n${DOMAINS.map((d) => `127.0.0.1 ${d}`).join('\\n')}`
+      : '';
 
-    // Generate certificates for domains with root CA
-    logger.info('Generating certificates...');
-    execSync(
-      `cd ${certDir} && ${mkcertPath} -cert-file cert.pem -key-file key.pem ${DOMAINS.join(' ')}`,
-    );
-
-    // Copy root CA certificate
-    const caPath = execSync('mkcert -CAROOT').toString().trim();
-    fs.copyFileSync(`${caPath}/rootCA.pem`, rootCAFile);
-
-    // Set proper permissions for certificate files
-    execSync(`chmod 644 ${certFile} ${keyFile} ${rootCAFile}`);
-
-    // Update /etc/hosts file
-    logger.info('Updating /etc/hosts...');
-    const hostsContent = fs.readFileSync(HOSTS_FILE, 'utf8');
-    let needsUpdate = false;
-
-    DOMAINS.forEach((domain) => {
-      if (!hostsContent.includes(domain)) {
-        needsUpdate = true;
+    const commands = `
+      ${mkcertPath} -install &&
+      cd ${certDir} && ${mkcertPath} -cert-file cert.pem -key-file key.pem ${DOMAINS.join(' ')} &&
+      cp "${caPath}/rootCA.pem" "${rootCAFile}" &&
+      chmod 644 "${certFile}" "${keyFile}" "${rootCAFile}"${
+        needHostsUpdate ? ` && sh -c 'echo "${entries}" >> ${HOSTS_FILE}'` : ''
       }
-    });
+    `;
 
-    if (needsUpdate) {
-      const entries = DOMAINS.map((domain) => `127.0.0.1 ${domain}`).join('\n');
-      execSync(
-        `sudo sh -c 'echo "\n# Apadana local domains\n${entries}" >> ${HOSTS_FILE}'`,
-      );
-      logger.info('Updated /etc/hosts successfully');
-    } else {
-      logger.info('Hosts file already contains required entries');
-    }
+    await sudoExec(commands, { name: 'LocalDevSetup' });
 
+    logger.info(
+      needHostsUpdate
+        ? 'Updated /etc/hosts successfully'
+        : 'Hosts file already contains required entries',
+    );
     logger.info('Local development environment setup complete! ✨');
     logger.info('Root CA certificate available at:', rootCAFile);
   } catch (error) {
