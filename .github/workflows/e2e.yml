@@ -121,7 +121,7 @@ jobs:
           script: |
             const testStatus = '${{ steps.test-run.outcome }}';
             const deploymentUrl = '${{ steps.check-deployment.outputs.deployment_url }}';
-            const locations = '${{ steps.upload-results.outputs.object_locations }}'.split(',');
+            const locations = ${{ steps.upload-results.outputs.object_locations }};
 
             // Find the HTML report URL
             const htmlReportUrl = locations.find(url => url.endsWith('html/index.html'));

@@ -14,7 +14,7 @@ test.describe('Signup Page', () => {
     await expect(page.getByText(/First name is required/i)).toBeVisible();
     await expect(page.getByText(/Last name is required/i)).toBeVisible();
     await expect(page.getByText(/Invalid email address/i)).toBeVisible();
-    await expect(page.getByText(/Password is required/i)).toBeVisible();
+    await expect(page.getByText('Password must be at least 8')).toBeVisible();
   });
 
   test('shows error when passwords do not match', async ({ page }) => {
