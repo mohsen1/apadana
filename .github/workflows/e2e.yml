@@ -85,10 +85,11 @@ jobs:
             }
 
       - name: Update comment with test running state
-        if: always() && steps.find-pr.outputs.pr_number
+        if: steps.check-deployment.outputs.deployment_url && steps.find-pr.outputs.pr_number
         uses: actions/github-script@v7
         with:
           script: |
+            const deploymentUrl = '${{ steps.check-deployment.outputs.deployment_url }}';
             const statusEmoji = '🔄';
             const comment = `### E2E Tests ${statusEmoji}\n\n` +
               `Running tests against [${deploymentUrl}](${deploymentUrl})...\n\n`;
