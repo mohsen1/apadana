@@ -76,7 +76,7 @@ function ForgotPasswordForm() {
           </p>
         </CardContent>
         <CardFooter className='justify-center'>
-          <Link href='/sign-in' className='text-primary hover:underline'>
+          <Link href='/signin' className='text-primary hover:underline'>
             Return to sign in
           </Link>
         </CardFooter>
@@ -125,7 +125,7 @@ function ForgotPasswordForm() {
       <CardFooter className='justify-center'>
         <p className='text-sm text-muted-foreground'>
           Remember your password?{' '}
-          <Link href='/sign-in' className='text-primary hover:underline'>
+          <Link href='/signin' className='text-primary hover:underline'>
             Sign in
           </Link>
         </p>

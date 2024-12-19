@@ -143,7 +143,7 @@ function SignUpForm() {
           <p className='text-sm text-gray-600 dark:text-gray-400'>
             Already have an account?{' '}
             <Link
-              href='/sign-in'
+              href='/signin'
               className='text-blue-600 dark:text-blue-400 hover:underline'
             >
               Log in

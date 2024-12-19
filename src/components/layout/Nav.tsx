@@ -76,7 +76,7 @@ export function Nav() {
         <UserButton user={user} />
       ) : !isProd ? (
         <Button variant='default' size='sm' asChild>
-          <a href='/sign-in'>Sign In</a>
+          <a href='/signin'>Sign In</a>
         </Button>
       ) : null}
     </nav>

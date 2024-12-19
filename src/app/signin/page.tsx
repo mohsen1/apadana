@@ -24,7 +24,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 
 import { login } from '@/app/auth/actions';
-import { AppleLogo, GoogleLogo } from '@/app/sign-in/logos';
+import { AppleLogo, GoogleLogo } from '@/app/signin/logos';
 
 // Match the schema from actions.ts
 const loginSchema = z.object({

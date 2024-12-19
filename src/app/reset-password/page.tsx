@@ -72,7 +72,7 @@ function ResetPasswordForm() {
         title: 'Password Reset Successful',
         description: 'You can now sign in with your new password.',
       });
-      router.push('/sign-in');
+      router.push('/signin');
     } catch (error) {
       toast({
         title: 'Error',
