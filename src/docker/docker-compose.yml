@@ -66,6 +66,10 @@ services:
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-fake_maps_key_for_dev}
       - HOST=dev.apadana.local
       - NEXT_PUBLIC_TEST_ENV=e2e
+      - APPLE_TEAM_ID: ${APPLE_TEAM_ID:-fake_apple_team_id_for_dev}
+      - APPLE_KEY_ID: ${APPLE_KEY_ID:-fake_apple_key_id_for_dev}
+      - APPLE_CLIENT_ID: ${APPLE_CLIENT_ID:-fake_apple_client_id_for_dev}
+      - APPLE_PRIVATE_KEY: ${APPLE_PRIVATE_KEY:-fake_apple_private_key_for_dev}
     depends_on:
       db_dev:
         condition: service_healthy
@@ -106,6 +110,10 @@ services:
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
       - NEXT_PUBLIC_TEST_ENV=e2e
+      - APPLE_TEAM_ID: ${APPLE_TEAM_ID:-fake_apple_team_id_for_prod}
+      - APPLE_KEY_ID: ${APPLE_KEY_ID:-fake_apple_key_id_for_prod}
+      - APPLE_CLIENT_ID: ${APPLE_CLIENT_ID:-fake_apple_client_id_for_prod}
+      - APPLE_PRIVATE_KEY: ${APPLE_PRIVATE_KEY:-fake_apple_private_key_for_prod}
     depends_on:
       db_prod:
         condition: service_healthy

@@ -11,6 +11,10 @@ variables=(
   NEXT_PUBLIC_S3_UPLOAD_REGION
   S3_UPLOAD_KEY
   S3_UPLOAD_SECRET
+  APPLE_TEAM_ID
+  APPLE_KEY_ID
+  APPLE_CLIENT_ID
+  APPLE_PRIVATE_KEY
 )
 
 for variable in "${variables[@]}"; do
