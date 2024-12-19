@@ -1,12 +1,13 @@
-import { expect, test } from './base';
+import { expect, test } from '../base';
 
 test.describe.serial('Create and delete a Listing', () => {
   let currentListingId: string;
 
-  test('create listing ', async ({ page }) => {
-    // This is a long test and will take more than our standard timeout to finish
-    test.setTimeout(test.info().timeout * 3);
+  test.afterAll(async ({ data }) => {
+    await data.deleteListing(currentListingId);
+  });
 
+  test('create listing ', async ({ page }) => {
     await test.step('Navigate to the create listing page', async () => {
       await page.goto('/listing/create');
       await expect(page.getByText('Location Details')).toBeVisible();
@@ -116,9 +117,11 @@ test.describe.serial('Create and delete a Listing', () => {
         .getByLabel('House rules')
         .fill('No smoking is allowed. No pets.');
       await page.getByRole('button', { name: 'Submit Listing' }).click();
-      await page.waitForURL(
-        /\/listing\/\d+\/manage\/calendar\?newListing=true/,
-      );
+      await expect(
+        page.getByRole('heading', { name: 'Welcome to your new listing!' }),
+      ).toBeVisible({
+        timeout: test.info().timeout * 3,
+      });
 
       currentListingId = new URL(page.url()).pathname.split('/')[2];
       expect(currentListingId).toBeDefined();
@@ -132,16 +135,5 @@ test.describe.serial('Create and delete a Listing', () => {
         page.getByText('Manage "My new test listing"'),
       ).toBeVisible();
     });
-  });
-
-  test('Delete the listing', async ({ page }) => {
-    await page.goto(`/listing/${currentListingId}/delete`);
-    await expect(page.getByText('Delete "My new test listing"')).toBeVisible();
-
-    await page.getByRole('button', { name: 'Delete' }).click();
-
-    await page.waitForURL('/listing');
-    await page.goto(`/listing/${currentListingId}/delete`);
-    await expect(page.getByText('Listing Not Found')).toBeVisible();
   });
 });

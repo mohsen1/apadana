@@ -3,8 +3,6 @@ import { cookies } from 'next/headers';
 
 import prisma from '@/lib/prisma/client';
 
-import { Logger } from '@/utils/logger';
-
 import { SESSION_COOKIE_NAME } from './constants';
 
 export async function deleteServerSession() {
@@ -13,36 +11,13 @@ export async function deleteServerSession() {
 }
 
 export async function setServerSession(session: Session) {
-  const logger = new Logger('setServerSession');
   const { set: setCookie } = await cookies();
-
-  let vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-
-  // TODO: Remove logging VERCEL_PROJECT_PRODUCTION_URL after testing
-  logger.log(
-    'process.env.VERCEL_PROJECT_PRODUCTION_URL',
-    process.env.VERCEL_PROJECT_PRODUCTION_URL,
-  );
-
-  if (!vercelUrl.includes('localhost:')) {
-    vercelUrl = `http://${vercelUrl}`;
-  } else {
-    vercelUrl = `https://${vercelUrl}`;
-  }
-
-  const publicUrl = new URL(vercelUrl);
-  const secure = publicUrl.protocol === 'https:';
-  const domain =
-    publicUrl.hostname === 'localhost' || publicUrl.hostname === '127.0.0.1'
-      ? undefined
-      : `.${publicUrl.hostname}`;
 
   return setCookie(SESSION_COOKIE_NAME, session.id, {
     path: '/',
     expires: session.expiresAt,
     httpOnly: true,
-    domain,
-    secure,
+    secure: true,
   });
 }
 

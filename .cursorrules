@@ -10,6 +10,7 @@ General Rules:
 - Use `pnpm` as the package manager.
 - We use Vitest for unit testing.
 - Use data-fns for date operations.
+- prefer `import _ from 'lodash'` over destructuring
 
 Typescript Rules:
 

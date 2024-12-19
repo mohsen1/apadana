@@ -2,11 +2,12 @@ import dotenv from 'dotenv';
 import _ from 'lodash';
 import { z } from 'zod';
 
-import { createLogger } from '@/utils/logger';
-
-const logger = createLogger(__filename);
-
 const schema = z.object({
+  // Node Environment
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
+
   // Google Maps
   GOOGLE_MAPS_API_KEY: z.string(),
 
@@ -15,7 +16,6 @@ const schema = z.object({
 
   // Next
   VERCEL_URL: z.string(),
-  VERCEL_PROJECT_PRODUCTION_URL: z.string(),
 
   // S3 Upload
   NEXT_PUBLIC_S3_UPLOAD_BUCKET: z.string(),
@@ -28,6 +28,9 @@ const schema = z.object({
 
   // Testing
   NEXT_PUBLIC_TEST_ENV: z.enum(['e2e', 'local']).optional(),
+
+  // E2E
+  E2E_TESTING_SECRET: z.string().min(20).max(60).optional(),
 });
 
 /**
@@ -38,8 +41,6 @@ const schema = z.object({
 export const validateEnvironmentVariables = _.memoize(() => {
   dotenv.config();
   const result = schema.safeParse(process.env);
-
-  logger.info('DATABASE_URL:', process.env.DATABASE_URL);
 
   if (!result.success) {
     const messages = Object.entries(result.error.flatten().fieldErrors)

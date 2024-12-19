@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { test } from './base';
+import { test } from '../base';
 
 test('has title', async ({ page }) => {
   await page.goto('/');

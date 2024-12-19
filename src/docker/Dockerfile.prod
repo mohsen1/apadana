@@ -1,6 +1,6 @@
-FROM node:20.18.0-slim AS base
+FROM node:20.18.0-slim AS builder
 
-RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y python3 make g++ wget grep && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 
@@ -10,7 +10,7 @@ RUN pnpm config set store-dir /home/node/.pnpm-store \
   && pnpm config set node-deprecation-warnings false
 ENV NODE_OPTIONS=--no-warnings
 
-FROM base AS deps
+FROM builder AS deps
 
 # Fetch dependencies first (caching based solely on pnpm-lock.yaml)
 COPY pnpm-lock.yaml ./
@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm fetch
 COPY package.json ./
 RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm install --frozen-lockfile --offline
 
-FROM base AS build
+FROM builder AS build
 COPY --from=deps /app/node_modules /app/node_modules
 COPY . .
 
@@ -33,8 +33,6 @@ ARG GOOGLE_MAPS_API_KEY
 ENV GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
-ARG VERCEL_PROJECT_PRODUCTION_URL
-ENV VERCEL_PROJECT_PRODUCTION_URL=${VERCEL_PROJECT_PRODUCTION_URL}
 ARG NEXT_PUBLIC_S3_UPLOAD_BUCKET
 ENV NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET}
 ARG NEXT_PUBLIC_S3_UPLOAD_REGION
@@ -49,6 +47,6 @@ RUN --mount=type=cache,target=/app/.next/cache pnpm prisma:generate
 RUN pnpm exec next telemetry disable
 RUN --mount=type=cache,target=/app/.next/cache pnpm build
 
-FROM base AS final
+FROM builder AS final
 COPY --from=build /app /app
 EXPOSE 3030

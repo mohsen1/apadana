@@ -1,5 +1,6 @@
 import { FullConfig } from '@playwright/test';
+import _ from 'lodash';
 
-function globalSetup(_config: FullConfig) {}
+async function globalSetup(_config: FullConfig) {}
 
 export default globalSetup;

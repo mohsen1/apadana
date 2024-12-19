@@ -1,23 +1,26 @@
-import { Page, test as baseTest } from '@playwright/test';
+import { test as baseTest } from '@playwright/test';
 
-interface CurrentListing {
-  id: string | undefined;
-}
+import { TestData } from '@/e2e/test-data';
 
 interface TestExtensions {
   /**
-   * The page object that is extended with the signIn method
+   * The test data object that is extended with the createListing method
    */
-  page: Page;
-
-  /**
-   * The current listing that is being tested
-   */
-  currentListing: CurrentListing;
+  data: TestData;
 }
 
 export const test = baseTest.extend<TestExtensions>({
-  currentListing: { id: undefined },
+  data: async ({ playwright, baseURL }, use) => {
+    if (!baseURL) {
+      throw new Error('baseURL is required');
+    }
+
+    // Create a dedicated API request context
+    const apiContext = await playwright.request.newContext();
+    const data = new TestData(apiContext, baseURL);
+    await use(data);
+    await data.dispose();
+  },
 });
 
 export const expect = test.expect;

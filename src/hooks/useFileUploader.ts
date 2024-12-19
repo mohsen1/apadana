@@ -1,8 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 
 import { getUploadSignedUrl } from '@/app/upload/action';
+import { shouldUseFakeUploads } from '@/app/upload/constants';
 import { assertError } from '@/utils';
-import { isDevOrTestEnv } from '@/utils/environment';
 
 export interface FileUploadState {
   /**
@@ -63,9 +63,8 @@ export const useFileUploader = (
     const NEXT_PUBLIC_S3_UPLOAD_REGION =
       process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
 
-    if (isDevOrTestEnv) {
-      const port = process.env.PORT || 3000;
-      return `http://localhost:${port}/api/fake-upload/${key}`;
+    if (shouldUseFakeUploads) {
+      return `/api/e2e/upload/${key}`;
     }
 
     return `https://${NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.${NEXT_PUBLIC_S3_UPLOAD_REGION}.amazonaws.com/${key}`;

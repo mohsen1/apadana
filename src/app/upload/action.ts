@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import { actionClient } from '@/lib/safe-action';
 
-import { isDevOrTestEnv } from '@/utils/environment';
+import { shouldUseFakeUploads } from '@/app/upload/constants';
 import logger from '@/utils/logger';
 
 const inputSchema = z.object({
@@ -35,13 +35,12 @@ const getUploadSignedUrl = actionClient
     const { NEXT_PUBLIC_S3_UPLOAD_REGION, S3_UPLOAD_KEY, S3_UPLOAD_SECRET } =
       process.env;
 
-    if (isDevOrTestEnv) {
+    if (shouldUseFakeUploads) {
       // Return fake signed URLs for e2e testing
       const urls = parsedInput.files.map((file) => {
         const fileExtension = file.filename.split('.').pop() ?? '';
         const key = `fake_upload_${crypto.randomUUID()}.${fileExtension}`;
-        const port = process.env.PORT || 3000;
-        const url = `http://localhost:${port}/api/fake-upload/${key}`;
+        const url = `/api/e2e/upload/${key}`;
 
         return { url, key };
       });

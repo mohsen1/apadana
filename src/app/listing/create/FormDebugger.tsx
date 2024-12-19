@@ -15,7 +15,7 @@ function FormDebugger() {
 
   if (
     (typeof window !== 'undefined' &&
-      !window.location.hostname.toLowerCase().includes('localhost')) ||
+      window.location.hostname.toLowerCase().endsWith('apadana.local')) ||
     !isVisible
   ) {
     return null;

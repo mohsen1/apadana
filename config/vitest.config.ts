@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
     globals: true,
-    setupFiles: ['./src/__tests__/setup/vitest.setup.ts'],
+    setupFiles: ['dotenv/config', './src/__tests__/setup/vitest.setup.ts'],
     globalSetup: ['./src/__tests__/setup/vitest.global.setup.ts'],
     include: ['**/*.test.ts', '**/*.test.tsx'],
     exclude: ['**/node_modules/**', '**/dist/**'],

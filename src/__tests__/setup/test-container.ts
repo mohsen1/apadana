@@ -1,13 +1,13 @@
 import { execSync as exec } from 'node:child_process';
 
-import prisma from '@/lib/prisma/client';
+import prisma from '@/lib/prisma';
 
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename, 'warn');
 
-const composeFile = 'src/docker/docker-compose.test.yml';
+const composeFile = 'src/docker/docker-compose.yml';
 
 function safeParse<T>(value: string): { value: string; parsed: T | null } {
   try {
@@ -151,87 +151,44 @@ async function cleanDatabaseSchema() {
 export async function setupTestContainer() {
   logger.info('Setting up test database container...');
 
-  const POSTGRES_USER = 'postgres';
-  const POSTGRES_PASSWORD = 'postgres';
-  const POSTGRES_DB = 'apadana_test';
-  const POSTGRES_PORT = '5434';
-  const DATABASE_URL = `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PORT}/${POSTGRES_DB}`;
-
-  Object.assign(process.env, {
-    POSTGRES_USER,
-    POSTGRES_PASSWORD,
-    POSTGRES_DB,
-    POSTGRES_PORT,
-    DATABASE_URL,
-  });
-
   try {
     // Check if container is already running and healthy
     try {
-      await waitForContainerHealthy(composeFile, 'postgres_test', 1, 1000);
-      logger.log(
-        'ℹ️ Test container is already running and healthy, skipping setup',
-      );
+      await waitForContainerHealthy(composeFile, 'db_test', 1, 1000);
+      logger.log('ℹ️ Test container is already running and healthy');
 
       // Clean the schema before running migrations
-      logger.info('Cleaning database schema before migrations');
       await cleanDatabaseSchema();
 
-      logger.info('Running database migrations on existing container', {
+      logger.info('Running database migrations on existing container');
+      exec('pnpm prisma migrate deploy --schema=src/prisma/schema.prisma', {
+        env: process.env,
         cwd: process.cwd(),
       });
-      try {
-        exec('pnpm prisma migrate deploy --schema=src/prisma/schema.prisma', {
-          env: process.env,
-          cwd: process.cwd(),
-        });
-      } catch (error) {
-        assertError(error);
-        logger.error('Failed to run database migrations:', error);
-        throw error; // Re-throw to trigger container teardown
-      }
       return;
     } catch {
-      logger.debug(
-        'Container not running or not healthy, proceeding with setup',
-      );
+      logger.debug('Container not running or not healthy, starting it up');
 
-      // Add explicit container removal only if health check fails
-      logger.debug('Forcing removal of existing unhealthy test containers');
-      exec(`docker compose -f ${composeFile} down --remove-orphans -v`, {
+      // Start only the test database container
+      logger.log('⏳ Launching test container...');
+      exec(`docker compose -f ${composeFile} up db_test -d`, {
         env: process.env,
       });
-    }
 
-    logger.debug('Building test containers');
-    exec(`docker compose -f ${composeFile} build`, {
-      env: process.env,
-    });
+      await waitForContainerHealthy(composeFile, 'db_test', 10, 1000);
 
-    logger.log('⏳ Launching test container...');
-    exec(`docker compose -f ${composeFile} up -d`, {
-      env: process.env,
-    });
-
-    await waitForContainerHealthy(composeFile, 'postgres_test', 10, 1000);
-
-    logger.info('Running database migrations');
-    exec('pnpm prisma migrate deploy --schema=src/prisma/schema.prisma', {
-      env: process.env,
-      cwd: process.cwd(),
-    });
-
-    logger.debug('Verifying DATABASE_URL is set:', process.env.DATABASE_URL);
-    if (!process.env.DATABASE_URL) {
-      throw new Error('DATABASE_URL not set after setup');
+      logger.info('Running database migrations');
+      exec('pnpm prisma migrate deploy --schema=src/prisma/schema.prisma', {
+        env: process.env,
+        cwd: process.cwd(),
+      });
     }
 
     logger.info('Test database container setup complete');
   } catch (error) {
     assertError(error);
     logger.error('Failed to setup test container:', error);
-    await teardownTestContainer();
-    throw error;
+    throw error; // Don't tear down on failure
   }
 }
 
