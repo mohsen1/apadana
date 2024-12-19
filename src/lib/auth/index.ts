@@ -13,13 +13,10 @@ export async function deleteServerSession() {
 export async function setServerSession(session: Session) {
   const { set: setCookie } = await cookies();
 
-  const publicUrl = new URL(`https://${process.env.VERCEL_URL}`);
-
   return setCookie(SESSION_COOKIE_NAME, session.id, {
     path: '/',
     expires: session.expiresAt,
     httpOnly: true,
-    domain: publicUrl.hostname,
     secure: true,
   });
 }
