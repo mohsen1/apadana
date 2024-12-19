@@ -13,7 +13,7 @@ export function openGraph({
   description,
   // TODO: Change this to the actual logo
   //       add /og API route
-  logo = 'https://apadana.app/images/logo.jpg',
+  logo = 'https://apadana.app/images/logo.png',
 }: OpenGraphType): string {
   const ogLogo = encodeURIComponent(logo);
   const ogSiteName = encodeURIComponent(siteName.trim());

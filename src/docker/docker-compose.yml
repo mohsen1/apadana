@@ -66,6 +66,8 @@ services:
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-fake_maps_key_for_dev}
       - HOST=dev.apadana.local
       - NEXT_PUBLIC_TEST_ENV=e2e
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-fake_google_client_id_for_dev}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-fake_google_client_secret_for_dev}
     depends_on:
       db_dev:
         condition: service_healthy
@@ -106,6 +108,8 @@ services:
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
       - NEXT_PUBLIC_TEST_ENV=e2e
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-fake_google_client_id_for_prod}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-fake_google_client_secret_for_prod}
     depends_on:
       db_prod:
         condition: service_healthy

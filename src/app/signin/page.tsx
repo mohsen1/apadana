@@ -141,9 +141,11 @@ function SignInPage() {
           <Separator className='my-4' />
 
           <div className='space-y-2'>
-            <Button variant='outline' className='w-full'>
-              <GoogleLogo />
-              Log in with Google
+            <Button variant='outline' className='w-full' asChild>
+              <Link href='/api/auth/google'>
+                <GoogleLogo />
+                Log in with Google
+              </Link>
             </Button>
             <Button variant='outline' className='w-full'>
               <AppleLogo />

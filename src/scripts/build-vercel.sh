@@ -11,6 +11,8 @@ variables=(
   NEXT_PUBLIC_S3_UPLOAD_REGION
   S3_UPLOAD_KEY
   S3_UPLOAD_SECRET
+  GOOGLE_CLIENT_ID
+  GOOGLE_CLIENT_SECRET
 )
 
 for variable in "${variables[@]}"; do

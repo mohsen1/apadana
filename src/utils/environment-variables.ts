@@ -11,6 +11,10 @@ const schema = z.object({
   // Google Maps
   GOOGLE_MAPS_API_KEY: z.string(),
 
+  // Google OAuth
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+
   // Database
   DATABASE_URL: z.string().url(),
 
@@ -54,7 +58,8 @@ type EnvironmentVariables = z.infer<typeof schema>;
 
 declare global {
   namespace NodeJS {
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface ProcessEnv extends EnvironmentVariables {}
+    interface ProcessEnv extends EnvironmentVariables {
+      [key: string]: never;
+    }
   }
 }

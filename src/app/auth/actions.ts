@@ -240,7 +240,7 @@ export const requestPasswordReset = actionClient
       });
 
       // Generate reset link
-      const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken.token}`;
+      const resetLink = `https://${process.env.VERCEL_URL}/reset-password?token=${resetToken.token}`;
 
       // Send reset email
       await sendPasswordResetEmail(parsedInput.email, resetLink);

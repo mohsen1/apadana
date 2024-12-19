@@ -1,6 +1,7 @@
 'use client';
 
-import { HomeIcon, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
@@ -35,7 +36,14 @@ export function Header({ className }: { className?: string }) {
           href='/'
           className='flex items-center gap-2 whitespace-nowrap text-gray-800 dark:text-gray-200'
         >
-          <HomeIcon className='h-6 w-6' />
+          <div className='w-6 h-6'>
+            <Image
+              src='/images/logo.png'
+              alt='Apadana Logo'
+              width={24}
+              height={24}
+            />
+          </div>
           <span className='font-bold'>Apadana {isDev ? '(Dev)' : null}</span>
         </Link>
 
