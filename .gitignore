@@ -69,3 +69,4 @@ e2e/uploads/
 !.storybook/
 !.vscode/
 !.husky/
+!.github

@@ -64,19 +64,8 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      - name: Cache Playwright Browsers
-        id: playwright-cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/ms-playwright
-          # Cache key based on Playwright version and OS
-          key: playwright-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            playwright-${{ runner.os }}-
-
       - name: Install Playwright Browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps
+        uses: ./.github/actions/setup/playwright
 
       - name: Run E2E Tests
         id: test-run
@@ -125,44 +114,12 @@ jobs:
 
             // Find the HTML report URL
             const htmlReportUrl = locations.find(url => url.endsWith('html/index.html'));
-
-            let stats = {
-              expected: 0,
-              unexpected: 0,
-              skipped: 0,
-              duration: 0
-            };
-
-            try {
-              // Use fs to read the JSON report from the correct path
-              const fs = require('fs');
-              const reportPath = `${process.env.GITHUB_WORKSPACE}/.next/playwright-report/report.json`;
-              
-              if (fs.existsSync(reportPath)) {
-                const jsonReport = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-                stats = jsonReport.stats;
-              }
-            } catch (error) {
-              console.log('Could not read test report:', error);
-            }
-
-            // Calculate test statistics
-            const total = stats.expected + stats.unexpected;
-            const passed = stats.expected;
-            const failed = stats.unexpected;
-            const skipped = stats.skipped;
-            const duration = Math.round(stats.duration / 1000); // Convert to seconds
-
-            const minutes = Math.floor(duration / 60);
-            const seconds = duration % 60;
-            const durationStr = `${minutes}m ${seconds}s`;
             const isSuccess = testStatus === 'success'; 
             const statusEmoji = isSuccess ? '✅' : '❌';
 
             // Shortened comment content
             const comment = `### E2E Tests ${statusEmoji}\n\n` +
-              `Deployed: [${deploymentUrl}](${deploymentUrl})\n\n` +
-              `${passed} passed, ${failed} failed, ${skipped} skipped of ${total} tests, in ${durationStr}\n\n` +
+              `Ran against [${deploymentUrl}](${deploymentUrl})\n\n` +
               (htmlReportUrl ? `[View Full Report](${htmlReportUrl})\n\n` : '') +
               `<sub>Updated at: ${new Date().toISOString()}</sub>`;
 
