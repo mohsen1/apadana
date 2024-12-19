@@ -42,3 +42,7 @@ Backend Rules:
     // ...
   });
   ```
+
+  Testing Rules:
+
+- import playwright test and expect from 'base'

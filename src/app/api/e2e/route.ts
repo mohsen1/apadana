@@ -19,6 +19,11 @@ export type RequestBody =
       response: { userId: string };
     }
   | {
+      command: 'deleteUser';
+      args: { email: string };
+      response: { message: string };
+    }
+  | {
       command: 'login';
       args: { email: string; userId?: string };
       response: {
@@ -108,6 +113,25 @@ export async function POST(request: Request) {
         });
 
         return new Response(JSON.stringify({ userId: newUser.id }), {
+          status: 200,
+        });
+      }
+
+      case 'deleteUser': {
+        const user = await prisma.user.findFirst({
+          where: {
+            emailAddresses: { some: { emailAddress: body.args.email } },
+          },
+        });
+        if (!user) {
+          return new Response(JSON.stringify({ message: 'User not found' }), {
+            status: 200,
+          });
+        }
+        await prisma.user.delete({
+          where: { id: user.id },
+        });
+        return new Response(JSON.stringify({ message: 'User deleted' }), {
           status: 200,
         });
       }

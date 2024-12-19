@@ -46,6 +46,10 @@ export class TestData {
     return this.#runCommand('createUser', { email, password });
   }
 
+  deleteUser(email: string) {
+    return this.#runCommand('deleteUser', { email });
+  }
+
   /**
    * Logs in a user and adds the session cookie to the page
    * @param email - The email of the user to log in
