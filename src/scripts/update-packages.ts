@@ -120,6 +120,17 @@ async function runTests() {
   }
 
   try {
+    logger.info(chalk.bold.blue('\n🔍 Running ESLint checks...'));
+    await execCommand('pnpm', ['lint:strict']);
+    logger.info(chalk.bold.green('✅ ESLint checks passed'));
+  } catch (error) {
+    assertError(error);
+    logger.error(chalk.bold.red('\n❌ ESLint checks failed:'));
+    logger.error(chalk.red(error.message));
+    process.exit(1);
+  }
+
+  try {
     logger.info(chalk.bold.blue('\n🧪 Running unit tests...'));
     await execCommand('pnpm', ['test']);
   } catch (error) {
@@ -251,7 +262,7 @@ async function updatePackageGroup(
     }
 
     await execCommand('git', ['add', 'package.json', 'pnpm-lock.yaml']);
-    await execCommand('git', ['commit', '-m', commitMessage]);
+    await execCommand('git', ['commit', '-m', commitMessage, '--no-verify']);
 
     logger.info(
       chalk.bold.green(
@@ -303,8 +314,10 @@ async function main() {
     // Group updates based on patterns
     const { groups, ungrouped } = groupPackageUpdates(updates);
 
-    // Process grouped updates
-    for (const [groupName, groupUpdates] of groups) {
+    // Process grouped updates, largest group first
+    for (const [groupName, groupUpdates] of [...groups].sort(
+      ([, a], [, b]) => b.length - a.length,
+    )) {
       await updatePackageGroup(groupUpdates, groupName);
     }
 
