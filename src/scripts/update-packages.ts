@@ -305,9 +305,11 @@ function generatePRSummary(results: UpdateResult[]): string {
   const summary = [
     '# Package Updates Summary',
     '',
+    'Automated script to update dependencies has generated this PR',
+    '',
     '## Overview',
     '',
-    '| Package(s) | Update Type | From | To | Status |',
+    '| Package(s) | Update Type | From | To  | Status |',
     '|------------|-------------|------|-----|--------|',
   ];
 
@@ -315,15 +317,16 @@ function generatePRSummary(results: UpdateResult[]): string {
     const allPassed = result.testResults.every((t) => t.passed);
     const status = allPassed ? '✅ All Passed' : '⚠️ Some Tests Failed';
     summary.push(
-      `| ${result.groupName || result.packageName} | ${result.updateType} | ${result.fromVersion} | ${result.toVersion} | ${status} |`,
+      `| \`${result.groupName || result.packageName}\` | ${result.updateType.toUpperCase()} | \`${result.fromVersion}\` | \`${result.toVersion}\` | ${status} |`,
     );
   }
 
-  summary.push('', '## Detailed Test Results', '');
+  summary.push('', '', '## Detailed Test Results', '');
 
   for (const result of results) {
+    if (result.testResults.length === 0) continue;
     summary.push(
-      `### ${result.groupName || result.packageName}`,
+      `### \`${result.groupName || result.packageName}\``,
       '',
       '| Test Type | Status | Error |',
       '|-----------|--------|-------|',
@@ -331,7 +334,7 @@ function generatePRSummary(results: UpdateResult[]): string {
 
     for (const test of result.testResults) {
       summary.push(
-        `| ${test.type} | ${test.passed ? '✅ Passed' : '❌ Failed'} | ${test.error ? `\`\`\`\n${test.error}\n\`\`\`` : 'N/A'} |`,
+        `| \`${test.type}\` | ${test.passed ? '✅ Passed' : '❌ Failed'} |  ${test.error ? `<details><summary>Click to expand error</summary>\n\n<pre>${test.error.slice(0, 1000)}</pre>\n\n</details>` : '--'} |`,
       );
     }
     summary.push('');
