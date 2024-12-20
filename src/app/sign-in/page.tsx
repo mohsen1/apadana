@@ -12,10 +12,15 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 
 import { login } from '@/app/auth/actions';
 
@@ -61,9 +66,16 @@ function SignInPage() {
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
-      <Card className={cn('w-full max-w-md shadow-lg', hasErrored && 'shadow-red-500')}>
+      <Card
+        className={cn(
+          'w-full max-w-md shadow-lg',
+          hasErrored && 'shadow-red-500',
+        )}
+      >
         <CardHeader>
-          <CardTitle className='text-2xl font-bold text-center'>Login to your account</CardTitle>
+          <CardTitle className='text-2xl font-bold text-center'>
+            Login to your account
+          </CardTitle>
         </CardHeader>
         <CardContent className='space-y-4'>
           <form
@@ -81,7 +93,9 @@ function SignInPage() {
                 {...register('email')}
                 aria-invalid={!!errors.email}
               />
-              {errors.email && <p className='text-sm text-red-500'>{errors.email.message}</p>}
+              {errors.email && (
+                <p className='text-sm text-red-500'>{errors.email.message}</p>
+              )}
             </div>
             <div className='space-y-2'>
               <Label htmlFor='password'>Password</Label>
@@ -92,7 +106,11 @@ function SignInPage() {
                 {...register('password')}
                 aria-invalid={!!errors.password}
               />
-              {errors.password && <p className='text-sm text-red-500'>{errors.password.message}</p>}
+              {errors.password && (
+                <p className='text-sm text-red-500'>
+                  {errors.password.message}
+                </p>
+              )}
             </div>
             {failedAttempts >= 2 && (
               <div className='text-sm text-center'>
@@ -104,7 +122,11 @@ function SignInPage() {
                 </Link>
               </div>
             )}
-            {hasErrored && <p className='text-sm text-red-500'>{result?.serverError?.error}</p>}
+            {hasErrored && (
+              <p className='text-sm text-red-500'>
+                {result?.serverError?.error}
+              </p>
+            )}
             <Button
               type='submit'
               className='w-full'
@@ -113,13 +135,14 @@ function SignInPage() {
               {status === 'executing' ? 'Logging in...' : 'Log in'}
             </Button>
           </form>
-
-          <Separator className='my-4' />
         </CardContent>
         <CardFooter className='justify-center'>
           <p className='text-sm text-gray-600 dark:text-gray-400'>
             Don't have an account?{' '}
-            <Link href='/signup' className='text-blue-600 dark:text-blue-400 hover:underline'>
+            <Link
+              href='/signup'
+              className='text-blue-600 dark:text-blue-400 hover:underline'
+            >
               Sign up
             </Link>
           </p>
