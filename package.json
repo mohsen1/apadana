@@ -38,7 +38,8 @@
     "storybook": "storybook dev -p 6006 --quiet",
     "build-storybook": "storybook build",
     "test:cleanup": "docker-compose -f src/docker/docker-compose.test.yml down",
-    "setup:local": "tsx src/scripts/setup-local-dev.ts"
+    "setup:local": "tsx src/scripts/setup-local-dev.ts",
+    "update-packages": "tsx src/scripts/update-packages.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.705.0",
@@ -163,7 +164,7 @@
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
       "pnpm prisma:generate",
-      "eslint --max-warnings=0 --config=config/eslint.config.mjs",
+      "eslint --max-warnings=0 --config=config/eslint.config.mjs --fix",
       "prettier -w"
     ],
     "**/*.{json,css,scss,md,webmanifest}": [

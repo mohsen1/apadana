@@ -13,8 +13,6 @@ export default [
       '**/dist/**',
       '**/out/**',
       '**/build/**',
-      '**/e2e/.next/**',
-      '**/__mocks__/**',
       '**/node_modules/**',
     ],
   },
