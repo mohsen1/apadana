@@ -6,21 +6,12 @@ import { Loader2, SaveIcon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Controller, useForm } from 'react-hook-form';
 
-import {
-  EditListingImages,
-  EditListingImagesSchema,
-} from '@/lib/prisma/schema';
+import { EditListingImages, EditListingImagesSchema } from '@/lib/prisma/schema';
 
 import { DisappearingComponent } from '@/components/DisappearingComponent';
 import { ImageUploader } from '@/components/image-uploader';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { editListingImages } from '@/app/listing/[id]/manage/action';
 
@@ -65,9 +56,7 @@ export function EditPhotos({ listing }: EditPhotosProps) {
                 <ImageUploader
                   initialImages={listing.images}
                   onChange={(images) => {
-                    const optimistic = images.some((image) =>
-                      image.key.startsWith('optimistic-'),
-                    );
+                    const optimistic = images.some((image) => image.key.startsWith('optimistic-'));
                     if (!optimistic) {
                       field.onChange(images);
                     }
@@ -76,9 +65,7 @@ export function EditPhotos({ listing }: EditPhotosProps) {
               )}
             />
             {errors.images && (
-              <div className='text-red-500 dark:text-red-400'>
-                {errors.images.message}
-              </div>
+              <div className='text-red-500 dark:text-red-400'>{errors.images.message}</div>
             )}
           </div>
           <div className='flex justify-start items-center'>

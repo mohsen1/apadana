@@ -1,17 +1,8 @@
 'use client';
-import {
-  createCalendar,
-  getLocalTimeZone,
-  today as getToday,
-} from '@internationalized/date';
+import { createCalendar, getLocalTimeZone, today as getToday } from '@internationalized/date';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
-import {
-  AriaRangeCalendarProps,
-  DateValue,
-  useLocale,
-  useRangeCalendar,
-} from 'react-aria';
+import { AriaRangeCalendarProps, DateValue, useLocale, useRangeCalendar } from 'react-aria';
 import { useRangeCalendarState } from 'react-stately';
 
 import { RangeValue } from '@/utils/types';
@@ -49,8 +40,11 @@ export function Calendar({
   });
 
   const ref = useRef<HTMLDivElement>(null);
-  const { calendarProps, prevButtonProps, nextButtonProps, title } =
-    useRangeCalendar(props, state, ref);
+  const { calendarProps, prevButtonProps, nextButtonProps, title } = useRangeCalendar(
+    props,
+    state,
+    ref,
+  );
 
   return (
     <div {...calendarProps} className='w-full'>
@@ -67,11 +61,7 @@ export function Calendar({
           <ChevronRight size={36} />
         </CalendarButton>
       </div>
-      <CalendarGrid
-        state={state}
-        getCellContent={getCellContent}
-        border={border}
-      />
+      <CalendarGrid state={state} getCellContent={getCellContent} border={border} />
     </div>
   );
 }

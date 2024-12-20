@@ -35,19 +35,10 @@ export default function Error({
     <main className='flex-grow grid place-items-center'>
       <section className=''>
         <div className='layout flex flex-col items-center justify-center text-center'>
-          <RiAlarmWarningFill
-            size={60}
-            className='drop-shadow-glow animate-flicker'
-          />
-          <h1 className='mt-8 text-4xl md:text-6xl'>
-            Oops, something went wrong!
-          </h1>
+          <RiAlarmWarningFill size={60} className='drop-shadow-glow animate-flicker' />
+          <h1 className='mt-8 text-4xl md:text-6xl'>Oops, something went wrong!</h1>
           <ErrorRender error={error} />
-          <Button
-            variant='outline'
-            onClick={reset}
-            className={`mt-4 ${buttonColor}`}
-          >
+          <Button variant='outline' onClick={reset} className={`mt-4 ${buttonColor}`}>
             Try again
           </Button>
         </div>
@@ -62,11 +53,7 @@ function ErrorRender({ error }: { error: Error & { digest?: string } }) {
       <pre className='text-red-500 text-left py-8 max-w-screen-lg overflow-x-auto'>
         {error.stack}
       </pre>
-      {error.digest && (
-        <pre className='text-red-500 text-left py-8 '>
-          Digest: {error.digest}
-        </pre>
-      )}
+      {error.digest && <pre className='text-red-500 text-left py-8 '>Digest: {error.digest}</pre>}
     </div>
   );
 }

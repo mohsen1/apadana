@@ -12,10 +12,7 @@ import {
 
 import { amenitiesList } from '@/shared/ameneties';
 
-const amenitiesToIcons: Record<
-  (typeof amenitiesList)[number],
-  typeof WifiIcon
-> = {
+const amenitiesToIcons: Record<(typeof amenitiesList)[number], typeof WifiIcon> = {
   'Wi-Fi': WifiIcon,
   Kitchen: CookingPot,
   'Free parking': CarIcon,

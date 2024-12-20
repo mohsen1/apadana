@@ -113,8 +113,7 @@ services:
       - apadana_network
     command: sh -c "pnpm prisma:migrate && pnpm prisma db seed && pnpm next:start"
     healthcheck:
-      test:
-        ['CMD', 'wget', '--spider', '-q', 'http://localhost:3030/api/health']
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3030/api/health']
       interval: 10s
       timeout: 5s
       retries: 100

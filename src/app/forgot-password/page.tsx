@@ -10,13 +10,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -48,15 +42,12 @@ function ForgotPasswordForm() {
     },
   });
 
-  const { execute: requestPasswordResetAction } = useAction(
-    requestPasswordReset,
-    {
-      onSuccess() {
-        setSubmittedEmail(getValues('email'));
-        setIsSubmitted(true);
-      },
+  const { execute: requestPasswordResetAction } = useAction(requestPasswordReset, {
+    onSuccess() {
+      setSubmittedEmail(getValues('email'));
+      setIsSubmitted(true);
     },
-  );
+  });
 
   if (isSubmitted) {
     return (
@@ -65,14 +56,11 @@ function ForgotPasswordForm() {
           <div className='flex justify-center mb-4'>
             <CheckCircle2 className='h-12 w-12 text-green-500' />
           </div>
-          <CardTitle className='text-2xl font-bold text-center'>
-            Check your email
-          </CardTitle>
+          <CardTitle className='text-2xl font-bold text-center'>Check your email</CardTitle>
         </CardHeader>
         <CardContent>
           <p className='text-center text-muted-foreground'>
-            If an account exists for {submittedEmail}, you will receive a
-            password reset link.
+            If an account exists for {submittedEmail}, you will receive a password reset link.
           </p>
         </CardContent>
         <CardFooter className='justify-center'>
@@ -87,9 +75,7 @@ function ForgotPasswordForm() {
   return (
     <Card className='w-full max-w-md shadow-lg'>
       <CardHeader>
-        <CardTitle className='text-2xl font-bold text-center'>
-          Reset Password
-        </CardTitle>
+        <CardTitle className='text-2xl font-bold text-center'>Reset Password</CardTitle>
       </CardHeader>
       <CardContent>
         <form
@@ -101,14 +87,8 @@ function ForgotPasswordForm() {
         >
           <div className='space-y-2'>
             <Label htmlFor='email'>Email</Label>
-            <Input
-              {...register('email')}
-              type='email'
-              placeholder='Enter your email'
-            />
-            {errors.email && (
-              <p className='text-sm text-destructive'>{errors.email.message}</p>
-            )}
+            <Input {...register('email')} type='email' placeholder='Enter your email' />
+            {errors.email && <p className='text-sm text-destructive'>{errors.email.message}</p>}
           </div>
           <Button className='w-full' type='submit' disabled={isSubmitting}>
             {isSubmitting ? (

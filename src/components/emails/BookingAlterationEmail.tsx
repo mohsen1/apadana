@@ -1,12 +1,4 @@
-import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Text,
-} from '@react-email/components';
+import { Body, Container, Head, Heading, Html, Preview, Text } from '@react-email/components';
 import { format } from 'date-fns';
 
 interface BookingAlterationEmailProps {
@@ -45,16 +37,15 @@ export default function BookingAlterationEmail({
 
           {alterationType === 'cancelled' ? (
             <Text>
-              Your booking for {listingTitle} from {formatDate(startDate)} to{' '}
-              {formatDate(endDate)} has been cancelled.
+              Your booking for {listingTitle} from {formatDate(startDate)} to {formatDate(endDate)}{' '}
+              has been cancelled.
             </Text>
           ) : (
             <>
               <Text>Your booking for {listingTitle} has been modified.</Text>
               {previousStartDate && previousEndDate && (
                 <Text>
-                  Previous dates: {formatDate(previousStartDate)} to{' '}
-                  {formatDate(previousEndDate)}
+                  Previous dates: {formatDate(previousStartDate)} to {formatDate(previousEndDate)}
                 </Text>
               )}
               <Text>
@@ -63,9 +54,7 @@ export default function BookingAlterationEmail({
             </>
           )}
 
-          <Text>
-            If you have any questions, please contact support@apadana.app
-          </Text>
+          <Text>If you have any questions, please contact support@apadana.app</Text>
         </Container>
       </Body>
     </Html>

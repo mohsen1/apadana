@@ -31,11 +31,7 @@ function SidebarButton({
   );
 }
 
-export default function UserLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function UserLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -43,22 +39,14 @@ export default function UserLayout({
       {/* Sidebar */}
       <div className='w-64 min-w-64 border-r border-gray-200 dark:border-gray-800 p-6'>
         <h1 className='text-2xl font-semibold'>Account</h1>
-        <p className='text-sm text-muted-foreground mt-1'>
-          Manage your account info.
-        </p>
+        <p className='text-sm text-muted-foreground mt-1'>Manage your account info.</p>
 
         <div className='mt-8 space-y-2'>
-          <SidebarButton
-            href='/user/profile'
-            isActive={pathname === '/user/profile'}
-          >
+          <SidebarButton href='/user/profile' isActive={pathname === '/user/profile'}>
             <User className='mr-2 h-4 w-4' />
             Profile
           </SidebarButton>
-          <SidebarButton
-            href='/user/security'
-            isActive={pathname === '/user/security'}
-          >
+          <SidebarButton href='/user/security' isActive={pathname === '/user/security'}>
             <Shield className={cn('mr-2 h-4 w-4')} />
             Security
           </SidebarButton>

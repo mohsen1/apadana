@@ -1,3 +1,4 @@
+// @ts-check
 import js from '@eslint/js';
 import nextPlugin from '@next/eslint-plugin-next';
 import reactPlugin from 'eslint-plugin-react';
@@ -5,21 +6,27 @@ import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import unusedImports from 'eslint-plugin-unused-imports';
+import prettierPlugin from 'eslint-plugin-prettier';
+import prettier from 'eslint-config-prettier';
 import globals from 'globals';
+import { createRequire } from 'module';
 
-export default [
+const require = createRequire(import.meta.url);
+
+
+/** @type {import('eslint').Linter.Config[]} */
+const config = [
   {
     ignores: [
       '**/dist/**',
       '**/out/**',
       '**/build/**',
       '**/e2e/.next/**',
-      '**/__mocks__/**',
       '**/node_modules/**',
     ],
   },
   {
-    files: ['{src,config}/**/*.{js,jsx,ts,tsx}'],
+    files: ['{src,config,__mocks__}/**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -54,13 +61,18 @@ export default [
       'unused-imports': unusedImports,
       react: reactPlugin,
       '@next/next': nextPlugin,
+      prettier: prettierPlugin,
     },
     rules: {
+      // Prettier configuration
+      'prettier/prettier': ['error', require('../package.json').prettier],
+
       // Core Recommended ESLint configs
       ...js.configs.recommended.rules,
       ...reactPlugin.configs.recommended.rules,
       ...nextPlugin.configs.recommended.rules,
       ...tsPlugin.configs.recommended.rules,
+      ...prettier.rules,
 
       // React specific rules
       'react/react-in-jsx-scope': 'off',
@@ -166,3 +178,5 @@ export default [
     },
   },
 ];
+
+export default config;

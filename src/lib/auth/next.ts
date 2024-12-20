@@ -39,9 +39,7 @@ export async function verifyAccess(protection: AuthProtection) {
 
   if (protection.roles) {
     const userRoles = user?.roles.map((r) => r.role) ?? [];
-    const hasRole =
-      _.intersection(protection.roles, userRoles).length ===
-      protection.roles.length;
+    const hasRole = _.intersection(protection.roles, userRoles).length === protection.roles.length;
 
     if (!hasRole) {
       logger.warn(`Role requirement not met`, {

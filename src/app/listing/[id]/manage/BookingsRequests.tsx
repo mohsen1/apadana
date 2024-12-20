@@ -5,13 +5,7 @@ import { FullListing } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -48,9 +42,7 @@ export async function BookingRequests({ listing }: { listing: FullListing }) {
     <Card className='box-shadow-none border-none'>
       <CardHeader>
         <CardTitle>Booking Requests</CardTitle>
-        <CardDescription>
-          View current and past booking requests
-        </CardDescription>
+        <CardDescription>View current and past booking requests</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -81,34 +73,25 @@ export async function BookingRequests({ listing }: { listing: FullListing }) {
                       </AvatarFallback>
                     </Avatar>
                     <span>
-                      {bookingRequest.user.firstName}{' '}
-                      {bookingRequest.user.lastName}
+                      {bookingRequest.user.firstName} {bookingRequest.user.lastName}
                     </span>
                   </div>
                 </TableCell>
                 <TableCell>
                   {bookingRequest.checkIn.toLocaleDateString()}
                   <div className='text-muted-foreground'>
-                    Arriving in{' '}
-                    {differenceInDays(bookingRequest.checkIn, new Date()) + 1}{' '}
-                    days
+                    Arriving in {differenceInDays(bookingRequest.checkIn, new Date()) + 1} days
                   </div>
                 </TableCell>
                 <TableCell>
                   {bookingRequest.checkOut.toLocaleDateString()}
                   <div className='text-muted-foreground'>
-                    Staying for{' '}
-                    {differenceInDays(
-                      bookingRequest.checkOut,
-                      bookingRequest.checkIn,
-                    )}{' '}
+                    Staying for {differenceInDays(bookingRequest.checkOut, bookingRequest.checkIn)}{' '}
                     nights
                   </div>
                 </TableCell>
                 <TableCell>{bookingRequest.guests}</TableCell>
-                <TableCell>
-                  {formatCurrency(bookingRequest.totalPrice, listing.currency)}
-                </TableCell>
+                <TableCell>{formatCurrency(bookingRequest.totalPrice, listing.currency)}</TableCell>
                 <TableCell>
                   <BookingRequestStatusBadge status={bookingRequest.status} />
                 </TableCell>

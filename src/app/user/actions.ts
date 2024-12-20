@@ -4,11 +4,7 @@ import { z } from 'zod';
 
 import { sanitizeUserForClient } from '@/lib/auth/utils';
 import prisma from '@/lib/prisma/client';
-import {
-  actionClient,
-  ClientVisibleError,
-  UnauthorizedError,
-} from '@/lib/safe-action';
+import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
 
 import { clientUserSchema } from '@/app/auth/schema';
 import logger from '@/utils/logger';

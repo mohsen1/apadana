@@ -34,34 +34,23 @@ async function waitForContainerHealthy(
   while (retries > 0) {
     try {
       logger.debug('Checking container status...');
-      const containerStatusResult = exec(
-        `docker compose -f ${composeFile} ps --format json`,
-        {
-          env: process.env,
-          stdio: 'pipe',
-        },
-      );
+      const containerStatusResult = exec(`docker compose -f ${composeFile} ps --format json`, {
+        env: process.env,
+        stdio: 'pipe',
+      });
 
-      logger.debug(
-        'Raw container status output:',
+      logger.debug('Raw container status output:', containerStatusResult.toString());
+      let { parsed: containers } = safeParse<{ Service: string; State: string; Health: string }[]>(
         containerStatusResult.toString(),
       );
-      let { parsed: containers } = safeParse<
-        { Service: string; State: string; Health: string }[]
-      >(containerStatusResult.toString());
 
       if (!containers) {
-        logger.error(
-          'Failed to parse container status output:',
-          containerStatusResult.toString(),
-        );
+        logger.error('Failed to parse container status output:', containerStatusResult.toString());
         throw new Error('Failed to parse container status output');
       }
 
       if (!Array.isArray(containers)) {
-        logger.debug(
-          'Received a single container object, converting to array.',
-        );
+        logger.debug('Received a single container object, converting to array.');
         containers = [containers];
       }
 
@@ -74,17 +63,12 @@ async function waitForContainerHealthy(
       }
 
       const targetContainer = containers.find(
-        (c: { Service: string; State: string; Health: string }) =>
-          c.Service === serviceName,
+        (c: { Service: string; State: string; Health: string }) => c.Service === serviceName,
       );
       if (!targetContainer || targetContainer.State !== 'running') {
-        logger.info(
-          `Container "${serviceName}" not running yet. Retries left: ${retries - 1}`,
-        );
+        logger.info(`Container "${serviceName}" not running yet. Retries left: ${retries - 1}`);
       } else if (targetContainer.Health !== 'healthy') {
-        logger.info(
-          `Container "${serviceName}" not healthy yet. Retries left: ${retries - 1}`,
-        );
+        logger.info(`Container "${serviceName}" not healthy yet. Retries left: ${retries - 1}`);
       } else {
         logger.debug(`Container "${serviceName}" is running and healthy.`);
         return;
@@ -95,9 +79,7 @@ async function waitForContainerHealthy(
         logger.debug(`Waiting ${retryTimeout}ms before re-checking...`);
         await new Promise((resolve) => setTimeout(resolve, retryTimeout));
       } else {
-        throw new Error(
-          `"${serviceName}" container not healthy after all retries`,
-        );
+        throw new Error(`"${serviceName}" container not healthy after all retries`);
       }
     } catch (error) {
       assertError(error);

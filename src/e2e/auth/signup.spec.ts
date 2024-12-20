@@ -5,9 +5,7 @@ test.describe('Signup Page', () => {
     await page.context().clearCookies();
   });
 
-  test('shows validation errors for empty form submission', async ({
-    page,
-  }) => {
+  test('shows validation errors for empty form submission', async ({ page }) => {
     await page.goto('/signup');
     await page.getByRole('button', { name: 'Sign Up', exact: true }).click();
 
@@ -31,10 +29,7 @@ test.describe('Signup Page', () => {
     await expect(page.getByText(/Passwords don't match/i)).toBeVisible();
   });
 
-  test('successfully creates account with valid information', async ({
-    page,
-    data,
-  }) => {
+  test('successfully creates account with valid information', async ({ page, data }) => {
     await data.deleteUser('john.doe@apadana.app');
     await page.goto('/signup');
     await page.getByPlaceholder('John', { exact: true }).fill('John');

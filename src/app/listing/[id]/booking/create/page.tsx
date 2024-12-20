@@ -50,9 +50,7 @@ export default async function CreateBookingPage(props: {
   const { checkIn, checkOut } = searchParams;
 
   // Use original booking dates if altering and no dates provided
-  let checkInDate = checkIn
-    ? new Date(checkIn)
-    : originalBookingRequest?.checkIn || today;
+  let checkInDate = checkIn ? new Date(checkIn) : originalBookingRequest?.checkIn || today;
   let checkOutDate = checkOut
     ? new Date(checkOut)
     : originalBookingRequest?.checkOut || twoDaysFromNow;
@@ -79,15 +77,10 @@ export default async function CreateBookingPage(props: {
     });
 
     if (originalBookingRequest) {
-      searchParams.set(
-        'alterBookingRequestId',
-        originalBookingRequest.id.toString(),
-      );
+      searchParams.set('alterBookingRequestId', originalBookingRequest.id.toString());
     }
 
-    return redirect(
-      `/listing/${params.id}/booking/create?${searchParams.toString()}`,
-    );
+    return redirect(`/listing/${params.id}/booking/create?${searchParams.toString()}`);
   }
 
   return (

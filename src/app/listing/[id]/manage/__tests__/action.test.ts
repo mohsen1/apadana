@@ -166,9 +166,7 @@ describe('getBookings action', async () => {
     vi.mocked(getUserInServer).mockResolvedValue(userA);
 
     const noListingResult = await getBookings({ listingId: '9999999' });
-    expect(noListingResult?.serverError?.error).toContain(
-      'ClientVisibleError: Listing not found',
-    );
+    expect(noListingResult?.serverError?.error).toContain('ClientVisibleError: Listing not found');
 
     // Set auth context back
     vi.mocked(getUserInServer).mockResolvedValue(userA);
@@ -218,9 +216,7 @@ describe('getBookings action', async () => {
     const result = await getBookings({ listingId });
     const bookings = result?.data?.bookings;
     expect(
-      bookings?.every((b) =>
-        b.listingInventory.every((inv) => inv.listingId === listingId),
-      ),
+      bookings?.every((b) => b.listingInventory.every((inv) => inv.listingId === listingId)),
     ).toBe(true);
   });
 
@@ -317,8 +313,6 @@ describe('getBookings action', async () => {
 
   test('checks error messages return a string when listing is invalid', async () => {
     const invalidResult = await getBookings({ listingId: '123456789' });
-    expect(invalidResult?.serverError?.error).toContain(
-      'ClientVisibleError: Listing not found',
-    );
+    expect(invalidResult?.serverError?.error).toContain('ClientVisibleError: Listing not found');
   });
 });

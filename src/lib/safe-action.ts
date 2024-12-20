@@ -24,10 +24,7 @@ export class UnauthorizedError extends Error {
 
 export const baseClient = createSafeActionClient({
   handleServerError: (error) => {
-    if (
-      process.env.NODE_ENV === 'development' ||
-      process.env.NODE_ENV === 'test'
-    ) {
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       if (process.env.NODE_ENV === 'development') {
         logger.error('Safe action error', error.stack);
       }
@@ -57,16 +54,14 @@ export type SafeActionContext = {
   setSession: (session: Session) => void;
 };
 
-export const actionClient = baseClient.use<SafeActionContext>(
-  async ({ next }) => {
-    const user = await getUserInServer();
+export const actionClient = baseClient.use<SafeActionContext>(async ({ next }) => {
+  const user = await getUserInServer();
 
-    return next({
-      ctx: {
-        user,
-        userId: user?.id ?? null,
-        setSession: setServerSession,
-      },
-    });
-  },
-);
+  return next({
+    ctx: {
+      user,
+      userId: user?.id ?? null,
+      setSession: setServerSession,
+    },
+  });
+});

@@ -33,8 +33,7 @@ export default function WelcomeEmail({
 
             <Section className='my-8'>
               <Text className='text-gray-700 mb-4'>
-                Thank you for creating an account with Apadana. We're excited to
-                have you on board!
+                Thank you for creating an account with Apadana. We're excited to have you on board!
               </Text>
 
               <Text className='text-gray-700 mb-4'>With Apadana, you can:</Text>
@@ -47,8 +46,7 @@ export default function WelcomeEmail({
               </ul>
 
               <Text className='text-gray-700 mb-6'>
-                To get started, simply click the button below to log in to your
-                account:
+                To get started, simply click the button below to log in to your account:
               </Text>
 
               <Link
@@ -60,8 +58,8 @@ export default function WelcomeEmail({
             </Section>
 
             <Text className='text-gray-600 text-sm mt-8'>
-              If you have any questions or need assistance, please don't
-              hesitate to contact our support team at{' '}
+              If you have any questions or need assistance, please don't hesitate to contact our
+              support team at{' '}
               <Link href='mailto:support@apadana.app' className='text-blue-600'>
                 support@apadana.app
               </Link>

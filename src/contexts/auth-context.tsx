@@ -14,9 +14,7 @@ interface AuthContextValue {
   setUser: (user: ClientUser | null) => void;
 }
 
-export const AuthContext = createContext<AuthContextValue | undefined>(
-  undefined,
-);
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 interface AuthProviderProps {
   children: React.ReactNode;

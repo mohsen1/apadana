@@ -1,11 +1,4 @@
-import {
-  Calendar,
-  CheckCircle,
-  Globe,
-  MessageCircle,
-  RefreshCw,
-  ShieldCheck,
-} from 'lucide-react';
+import { Calendar, CheckCircle, Globe, MessageCircle, RefreshCw, ShieldCheck } from 'lucide-react';
 import * as React from 'react';
 import { Novatrix } from 'uvcanvas';
 
@@ -32,9 +25,9 @@ export default function HomePage() {
                     Your Rental, Your Website, Your Way
                   </h1>
                   <p className='mx-auto max-w-[700px] text-gray-600 md:text-xl dark:text-gray-300'>
-                    Create your own website for your short-term rental in
-                    minutes. Get direct bookings, manage your calendar, and
-                    communicate with guests - all without extra fees.
+                    Create your own website for your short-term rental in minutes. Get direct
+                    bookings, manage your calendar, and communicate with guests - all without extra
+                    fees.
                   </p>
                 </div>
                 <div className='space-x-4'>
@@ -55,8 +48,8 @@ export default function HomePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    Easily manage your listing's availability and sync with
-                    other platforms like Airbnb and VRBO.
+                    Easily manage your listing's availability and sync with other platforms like
+                    Airbnb and VRBO.
                   </CardContent>
                 </Card>
                 <Card>
@@ -67,8 +60,8 @@ export default function HomePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    Get your own domain (e.g., 123mainst.com) for a professional
-                    and memorable online presence.
+                    Get your own domain (e.g., 123mainst.com) for a professional and memorable
+                    online presence.
                   </CardContent>
                 </Card>
                 <Card>
@@ -79,8 +72,7 @@ export default function HomePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    Communicate securely with potential guests directly through
-                    your website.
+                    Communicate securely with potential guests directly through your website.
                   </CardContent>
                 </Card>
                 <Card>
@@ -91,8 +83,7 @@ export default function HomePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    Ensure guest trustworthiness with our built-in identity
-                    verification system.
+                    Ensure guest trustworthiness with our built-in identity verification system.
                   </CardContent>
                 </Card>
                 <Card>
@@ -103,8 +94,8 @@ export default function HomePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    Keep your availability up-to-date across all platforms with
-                    automatic calendar syncing.
+                    Keep your availability up-to-date across all platforms with automatic calendar
+                    syncing.
                   </CardContent>
                 </Card>
                 <Card>
@@ -115,8 +106,8 @@ export default function HomePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    Receive payments directly from guests without any additional
-                    fees cutting into your profits.
+                    Receive payments directly from guests without any additional fees cutting into
+                    your profits.
                   </CardContent>
                 </Card>
               </div>
@@ -132,8 +123,7 @@ export default function HomePage() {
                   </div>
                   <h3 className='mt-4 text-xl font-bold'>Sign Up</h3>
                   <p className='mt-2 -muted'>
-                    Create your account and provide details about your rental
-                    property.
+                    Create your account and provide details about your rental property.
                   </p>
                 </div>
                 <div className='flex flex-col items-center text-center'>
@@ -142,8 +132,7 @@ export default function HomePage() {
                   </div>
                   <h3 className='mt-4 text-xl font-bold'>Customize</h3>
                   <p className='mt-2 -muted'>
-                    Choose your domain and customize your website with our
-                    easy-to-use tools.
+                    Choose your domain and customize your website with our easy-to-use tools.
                   </p>
                 </div>
                 <div className='flex flex-col items-center text-center'>
@@ -152,8 +141,7 @@ export default function HomePage() {
                   </div>
                   <h3 className='mt-4 text-xl font-bold'>Go Live</h3>
                   <p className='mt-2 -muted'>
-                    Publish your site and start accepting direct bookings from
-                    guests.
+                    Publish your site and start accepting direct bookings from guests.
                   </p>
                 </div>
               </div>
@@ -170,35 +158,28 @@ export default function HomePage() {
                 <Card>
                   <CardContent className='mt-4'>
                     <p className='-muted'>
-                      "This platform has revolutionized how I manage my vacation
-                      rental. The direct bookings and lack of fees have
-                      significantly increased my profits."
+                      "This platform has revolutionized how I manage my vacation rental. The direct
+                      bookings and lack of fees have significantly increased my profits."
                     </p>
-                    <p className='mt-4 font-bold'>
-                      - Sarah T., Beach House Owner
-                    </p>
+                    <p className='mt-4 font-bold'>- Sarah T., Beach House Owner</p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className='mt-4'>
                     <p className='-muted'>
-                      "The calendar sync feature is a game-changer. I no longer
-                      worry about double bookings across different platforms."
+                      "The calendar sync feature is a game-changer. I no longer worry about double
+                      bookings across different platforms."
                     </p>
-                    <p className='mt-4 font-bold'>
-                      - Michael R., City Apartment Host
-                    </p>
+                    <p className='mt-4 font-bold'>- Michael R., City Apartment Host</p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className='mt-4'>
                     <p className='-muted'>
-                      "Having my own website has given my rental a professional
-                      edge. Guests love booking directly through our site."
+                      "Having my own website has given my rental a professional edge. Guests love
+                      booking directly through our site."
                     </p>
-                    <p className='mt-4 font-bold'>
-                      - Emma L., Mountain Cabin Owner
-                    </p>
+                    <p className='mt-4 font-bold'>- Emma L., Mountain Cabin Owner</p>
                   </CardContent>
                 </Card>
               </div>
@@ -290,8 +271,8 @@ export default function HomePage() {
                     Ready to Take Control of Your Rental?
                   </h2>
                   <p className='mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400'>
-                    Start managing your short-term rental your way. Create your
-                    website, get direct bookings, and maximize your profits.
+                    Start managing your short-term rental your way. Create your website, get direct
+                    bookings, and maximize your profits.
                   </p>
                 </div>
                 <div className='space-x-4'>

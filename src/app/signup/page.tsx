@@ -12,13 +12,7 @@ import { z } from 'zod';
 import { useAuth } from '@/hooks/use-auth';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -67,9 +61,7 @@ function SignUpForm() {
     <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
       <Card className='w-full max-w-md shadow-lg'>
         <CardHeader>
-          <CardTitle className='text-2xl font-bold text-center'>
-            Sign Up for an account
-          </CardTitle>
+          <CardTitle className='text-2xl font-bold text-center'>Sign Up for an account</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(execute)} className='space-y-4'>
@@ -78,63 +70,37 @@ function SignUpForm() {
                 <Label htmlFor='firstName'>First Name</Label>
                 <Input {...register('firstName')} placeholder='John' />
                 {errors.firstName && (
-                  <p className='text-sm text-red-500'>
-                    {errors.firstName.message}
-                  </p>
+                  <p className='text-sm text-red-500'>{errors.firstName.message}</p>
                 )}
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='lastName'>Last Name</Label>
                 <Input {...register('lastName')} placeholder='Doe' />
                 {errors.lastName && (
-                  <p className='text-sm text-red-500'>
-                    {errors.lastName.message}
-                  </p>
+                  <p className='text-sm text-red-500'>{errors.lastName.message}</p>
                 )}
               </div>
             </div>
             <div className='space-y-2'>
               <Label htmlFor='email'>Email</Label>
-              <Input
-                {...register('email')}
-                type='email'
-                placeholder='john.doe@example.com'
-              />
-              {errors.email && (
-                <p className='text-sm text-red-500'>{errors.email.message}</p>
-              )}
+              <Input {...register('email')} type='email' placeholder='john.doe@example.com' />
+              {errors.email && <p className='text-sm text-red-500'>{errors.email.message}</p>}
             </div>
             <div className='space-y-2'>
               <Label htmlFor='password'>Password</Label>
               <Input {...register('password')} type='password' />
-              {errors.password && (
-                <p className='text-sm text-red-500'>
-                  {errors.password.message}
-                </p>
-              )}
+              {errors.password && <p className='text-sm text-red-500'>{errors.password.message}</p>}
             </div>
             <div className='space-y-2'>
               <Label htmlFor='confirmPassword'>Confirm Password</Label>
               <Input {...register('confirmPassword')} type='password' />
               {errors.confirmPassword && (
-                <p className='text-sm text-red-500'>
-                  {errors.confirmPassword.message}
-                </p>
+                <p className='text-sm text-red-500'>{errors.confirmPassword.message}</p>
               )}
             </div>
-            {hasErrored && (
-              <p className='text-sm text-destructive'>
-                {result?.serverError?.error}
-              </p>
-            )}
-            <Button
-              className='w-full'
-              type='submit'
-              disabled={status === 'executing'}
-            >
-              {status === 'executing' && (
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-              )}
+            {hasErrored && <p className='text-sm text-destructive'>{result?.serverError?.error}</p>}
+            <Button className='w-full' type='submit' disabled={status === 'executing'}>
+              {status === 'executing' && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
               Sign Up
             </Button>
           </form>
@@ -142,10 +108,7 @@ function SignUpForm() {
         <CardFooter className='justify-center'>
           <p className='text-sm text-gray-600 dark:text-gray-400'>
             Already have an account?{' '}
-            <Link
-              href='/sign-in'
-              className='text-blue-600 dark:text-blue-400 hover:underline'
-            >
+            <Link href='/sign-in' className='text-blue-600 dark:text-blue-400 hover:underline'>
               Log in
             </Link>
           </p>

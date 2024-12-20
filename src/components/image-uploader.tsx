@@ -46,8 +46,9 @@ const SortableImage = ({
   onDelete: (key: string) => void;
   isCover: boolean;
 }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: fileState.key ?? '' });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: fileState.key ?? '',
+  });
 
   const onDeleteCb = useCallback(() => {
     if (!fileState.key) {
@@ -113,27 +114,20 @@ const SortableImage = ({
   );
 };
 
-export const ImageUploader = ({
-  initialImages,
-  onChange,
-  onError,
-}: ImageUploaderProps) => {
-  const { fileStates, removeFile, handleFileSelect } = useFileUploader(
-    (files) => {
-      const images = files
-        .filter(
-          (file): file is Required<FileUploadState> =>
-            file.status === 'success' && file.key !== undefined,
-        )
-        .map((file) => ({
-          key: file.key,
-          name: file.file.name,
-          url: file.uploadedUrl,
-        }));
-      onChange(images);
-    },
-    onError,
-  );
+export const ImageUploader = ({ initialImages, onChange, onError }: ImageUploaderProps) => {
+  const { fileStates, removeFile, handleFileSelect } = useFileUploader((files) => {
+    const images = files
+      .filter(
+        (file): file is Required<FileUploadState> =>
+          file.status === 'success' && file.key !== undefined,
+      )
+      .map((file) => ({
+        key: file.key,
+        name: file.file.name,
+        url: file.uploadedUrl,
+      }));
+    onChange(images);
+  }, onError);
   const [orderedImages, setOrderedImages] = useState<FileUploadState[]>([
     ...fileStates,
     ...(initialImages ?? []).map((image) => ({
@@ -196,9 +190,7 @@ export const ImageUploader = ({
       >
         <SortableContext
           items={orderedImages
-            .filter(
-              (img): img is Required<FileUploadState> => img.key !== undefined,
-            )
+            .filter((img): img is Required<FileUploadState> => img.key !== undefined)
             .map((img) => img.key)}
           strategy={rectSwappingStrategy}
         >
@@ -219,9 +211,7 @@ export const ImageUploader = ({
                 <div className='flex place-content-center relative w-full h-full bg-gray-100 dark:bg-gray-800'>
                   <div className='flex flex-col items-center justify-center'>
                     <PlusIcon className='w-10 h-10 text-gray-500 dark:text-gray-400' />
-                    <p className='text-gray-500 dark:text-gray-400'>
-                      Add Photos
-                    </p>
+                    <p className='text-gray-500 dark:text-gray-400'>Add Photos</p>
                   </div>
                 </div>
               </div>

@@ -27,10 +27,7 @@ export default function NotFound({
     <main className='flex-grow grid place-items-center mt-10  grid place-content-center'>
       <section className=' grid place-items-center h-full dark:-dark'>
         <div className='layout flex flex-col items-center justify-center text-center'>
-          <OctagonAlert
-            size={100}
-            className='drop-shadow-glow animate-flicker text-destructive'
-          />
+          <OctagonAlert size={100} className='drop-shadow-glow animate-flicker text-destructive' />
           <h1 className='mt-8 text-4xl md:text-6xl'>{title}</h1>
           <p className='mt-4 -muted'>{message}</p>
           <Button href={backUrl} variant='outline' className='mt-8'>

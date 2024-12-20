@@ -1,9 +1,6 @@
 import { expect, vi } from 'vitest';
 
-import {
-  createTestListing,
-  findOrCreateTestUser,
-} from '@/__tests__/setup/fixtures';
+import { createTestListing, findOrCreateTestUser } from '@/__tests__/setup/fixtures';
 import { clearDatabase } from '@/__tests__/setup/test-container';
 
 vi.mock('@/lib/email/send-email', () => ({

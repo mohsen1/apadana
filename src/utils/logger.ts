@@ -21,10 +21,7 @@ export class Logger {
   #level: LogLevel = 'debug';
   #prefix: string | undefined;
 
-  constructor(
-    prefix: string | undefined = undefined,
-    level: LogLevel = 'debug',
-  ) {
+  constructor(prefix: string | undefined = undefined, level: LogLevel = 'debug') {
     this.#prefix = prefix;
     this.#level = level;
   }
@@ -91,13 +88,7 @@ export class Logger {
 export function createLogger(filePath: string, level: LogLevel = 'debug') {
   const fileName = path.basename(filePath);
 
-  const commonFileNames = [
-    'index.ts',
-    'index.tsx',
-    'index.js',
-    'index.jsx',
-    'action.ts',
-  ];
+  const commonFileNames = ['index.ts', 'index.tsx', 'index.js', 'index.jsx', 'action.ts'];
 
   if (commonFileNames.includes(fileName)) {
     return new Logger(`${path.dirname(filePath)}/${fileName}`);

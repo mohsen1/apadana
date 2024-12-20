@@ -19,41 +19,19 @@ export function BasicInfoStep() {
       <div>
         <Label htmlFor='title'>Listing Title</Label>
         <Input id='title' {...register('title', { required: true })} />
-        {errors.title && (
-          <span className='text-red-500'>This field is required</span>
-        )}
+        {errors.title && <span className='text-red-500'>This field is required</span>}
       </div>
       <div>
         <Label htmlFor='description'>Description</Label>
-        <Textarea
-          id='description'
-          {...register('description', { required: true })}
-        />
-        {errors.description && (
-          <span className='text-red-500'>This field is required</span>
-        )}
+        <Textarea id='description' {...register('description', { required: true })} />
+        {errors.description && <span className='text-red-500'>This field is required</span>}
       </div>
       <div>
         <Label>Property Type</Label>
-        <RadioGroup
-          defaultValue='apartment'
-          className='flex py-4 justify-between gap-4'
-        >
-          <PropertyTypeRadioButton
-            value='apartment'
-            Icon={BuildingIcon}
-            label='Apartment'
-          />
-          <PropertyTypeRadioButton
-            value='house'
-            Icon={HomeIcon}
-            label='House'
-          />
-          <PropertyTypeRadioButton
-            value='unique'
-            Icon={CableCar}
-            label='Unique space'
-          />
+        <RadioGroup defaultValue='apartment' className='flex py-4 justify-between gap-4'>
+          <PropertyTypeRadioButton value='apartment' Icon={BuildingIcon} label='Apartment' />
+          <PropertyTypeRadioButton value='house' Icon={HomeIcon} label='House' />
+          <PropertyTypeRadioButton value='unique' Icon={CableCar} label='Unique space' />
         </RadioGroup>
       </div>
     </div>

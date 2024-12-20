@@ -26,8 +26,7 @@ export function WelcomeToNewListing() {
       />
       <h1 className='text-2xl font-semibold'>Welcome to your new listing!</h1>
       <p className='text-sm '>
-        You can now start adding your listing details and setting up your
-        availability and pricing.
+        You can now start adding your listing details and setting up your availability and pricing.
       </p>
     </div>
   );

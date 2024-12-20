@@ -6,9 +6,7 @@ import { EarlyAccessEmail } from './early-access-email';
 
 const meta: Meta<typeof EarlyAccessEmail> = {
   title: 'Emails/EarlyAccessEmail',
-  render: (args) => (
-    <ReactEmailStoryRenderer Component={EarlyAccessEmail} props={args} />
-  ),
+  render: (args) => <ReactEmailStoryRenderer Component={EarlyAccessEmail} props={args} />,
   parameters: {
     layout: 'centered',
   },
