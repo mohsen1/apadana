@@ -141,6 +141,17 @@ async function updatePackage(
       `Type: ${updateType} update`,
     ].join('\n');
 
+    // if not diff skip
+    const diff = await execCommand('git', [
+      'diff',
+      'package.json',
+      'pnpm-lock.yaml',
+    ]);
+    if (diff.stdout.trim() === '') {
+      logger.info(chalk.bold.yellow(`\n🔍 No changes for ${packageName}`));
+      return true;
+    }
+
     await execCommand('git', ['add', 'package.json', 'pnpm-lock.yaml']);
     await execCommand('git', ['commit', '-m', commitMessage]);
 
@@ -179,7 +190,7 @@ interface PackageUpdate {
 
 async function main() {
   try {
-    logger.info(chalk.bold.blue('��� Checking for outdated packages...'));
+    logger.info(chalk.bold.blue('🔍 Checking for outdated packages...'));
     const outdatedOutput = await execCommand('pnpm', ['outdated', '--json'], {
       allowFailure: true,
     });
