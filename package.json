@@ -125,7 +125,7 @@
     "@testcontainers/postgresql": "^10.16.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.2",
     "@types/qs": "^6.9.17",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/webpack": "^5.28.5",

@@ -13,10 +13,6 @@ const PACKAGE_GROUPS = [
     pattern: /^@radix-ui\//,
   },
   {
-    name: 'React Query',
-    pattern: /^@tanstack\/(react-query|query-core)/,
-  },
-  {
     name: 'Prisma',
     pattern: /^@prisma\/|^prisma$/,
   },
