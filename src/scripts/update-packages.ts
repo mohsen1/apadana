@@ -7,6 +7,58 @@ import { Logger } from '@/utils/logger';
 
 const logger = new Logger('', 'debug');
 
+const PACKAGE_GROUPS = [
+  {
+    name: 'Radix UI',
+    pattern: /^@radix-ui\//,
+  },
+  {
+    name: 'React Query',
+    pattern: /^@tanstack\/(react-query|query-core)/,
+  },
+  {
+    name: 'Prisma',
+    pattern: /^@prisma\/|^prisma$/,
+  },
+  {
+    name: 'Shadcn UI',
+    pattern: /^@\/components\/ui\//,
+  },
+  {
+    name: 'DND Kit',
+    pattern: /^@dnd-kit\//,
+  },
+  {
+    name: 'DefinitlyTyped',
+    pattern: /^@types\//,
+  },
+  {
+    name: 'Storybook',
+    pattern: /^@storybook\//,
+  },
+  {
+    name: 'React',
+    pattern: /^@react\//,
+  },
+  {
+    name: 'ESLint',
+    pattern: /eslint/,
+  },
+  {
+    name: 'Vercel',
+    pattern: /@vercel\//,
+  },
+] as const;
+
+interface PackageUpdate {
+  packageName: string;
+  current: string;
+  latest: string;
+  wanted: string;
+  isDeprecated: boolean;
+  dependencyType: string;
+}
+
 async function execCommand(
   command: string,
   args: string[],
@@ -116,25 +168,69 @@ function getUpdateType(
   }
 }
 
-async function updatePackage(
-  packageName: string,
-  currentVersion: string,
-  version: string,
+function findPackageGroup(packageName: string) {
+  return PACKAGE_GROUPS.find((group) => group.pattern.test(packageName));
+}
+
+function groupPackageUpdates(updates: PackageUpdate[]) {
+  const groups = new Map<string, PackageUpdate[]>();
+  const ungrouped: PackageUpdate[] = [];
+
+  for (const update of updates) {
+    const group = findPackageGroup(update.packageName);
+    if (group) {
+      const existing = groups.get(group.name) || [];
+      groups.set(group.name, [...existing, update]);
+    } else {
+      ungrouped.push(update);
+    }
+  }
+
+  return {
+    groups,
+    ungrouped,
+  };
+}
+
+async function updatePackageGroup(
+  updates: PackageUpdate[],
+  groupName?: string,
 ) {
-  logger.info(chalk.bold.cyan(`\n📦 Updating ${packageName} to ${version}`));
+  logger.info(
+    chalk.bold.cyan(
+      `\n📦 Updating ${updates.length} packages: ${updates.map((u) => u.packageName).join(', ')}`,
+    ),
+  );
 
   try {
-    await execCommand('pnpm', ['add', `${packageName}@${version}`]);
+    // Install all packages in the group
+    for (const update of updates) {
+      await execCommand('pnpm', [
+        'add',
+        `${update.packageName}@${update.latest}`,
+      ]);
+    }
 
     logger.info(chalk.bold.yellow('\n🧪 Running tests...'));
     await runTests();
 
-    const updateType = getUpdateType(currentVersion, version);
+    // Use the highest severity update type for the group
+    const updateType = updates.reduce(
+      (highest, update) => {
+        const type = getUpdateType(update.current, update.latest);
+        if (type === 'major') return 'major';
+        if (type === 'minor' && highest === 'patch') return 'minor';
+        return highest;
+      },
+      'patch' as 'major' | 'minor' | 'patch',
+    );
 
     const commitMessage = [
-      `chore(deps): ${updateType} update ${packageName} from ${currentVersion} to ${version}`,
+      groupName
+        ? `chore(deps): ${updateType} update ${groupName} packages`
+        : `chore(deps): ${updateType} update ${updates[0].packageName}`,
       '',
-      `Updates ${packageName} from ${currentVersion} to version ${version}`,
+      ...updates.map((u) => `- ${u.packageName}: ${u.current} → ${u.latest}`),
       '',
       'Testing: All tests passed ✅',
       '',
@@ -148,7 +244,9 @@ async function updatePackage(
       'pnpm-lock.yaml',
     ]);
     if (diff.stdout.trim() === '') {
-      logger.info(chalk.bold.yellow(`\n🔍 No changes for ${packageName}`));
+      logger.info(
+        chalk.bold.yellow(`\n🔍 No changes for ${updates[0].packageName}`),
+      );
       return true;
     }
 
@@ -157,13 +255,15 @@ async function updatePackage(
 
     logger.info(
       chalk.bold.green(
-        `\n✅ Successfully updated ${packageName} to ${version}`,
+        `\n✅ Successfully updated ${updates[0].packageName} to ${updates[0].latest}`,
       ),
     );
     return true;
   } catch (error) {
     assertError(error);
-    logger.error(chalk.bold.red(`\n❌ Failed to update ${packageName}:`));
+    logger.error(
+      chalk.bold.red(`\n❌ Failed to update ${updates[0].packageName}:`),
+    );
     logger.error(chalk.red(error.message));
 
     logger.info(chalk.bold.yellow('\n↩️ Rolling back changes...'));
@@ -180,33 +280,37 @@ async function updatePackage(
   }
 }
 
-interface PackageUpdate {
-  current: string;
-  latest: string;
-  wanted: string;
-  isDeprecated: boolean;
-  dependencyType: string;
-}
-
 async function main() {
   try {
     logger.info(chalk.bold.blue('🔍 Checking for outdated packages...'));
     const outdatedOutput = await execCommand('pnpm', ['outdated', '--json'], {
       allowFailure: true,
     });
-    const updates = (await JSON.parse(outdatedOutput.stdout)) as Record<
-      string,
-      PackageUpdate
-    >;
+    const updates = Object.entries(
+      (await JSON.parse(outdatedOutput.stdout)) as Record<
+        string,
+        Omit<PackageUpdate, 'packageName'>
+      >,
+    ).map(([packageName, update]) => ({
+      ...update,
+      packageName,
+    }));
 
     logger.info(
-      chalk.bold.cyan(
-        `📋 Found ${Object.keys(updates).length} packages to update`,
-      ),
+      chalk.bold.cyan(`📋 Found ${updates.length} packages to update`),
     );
 
-    for (const [packageName, { current, latest }] of Object.entries(updates)) {
-      await updatePackage(packageName, current, latest);
+    // Group updates based on patterns
+    const { groups, ungrouped } = groupPackageUpdates(updates);
+
+    // Process grouped updates
+    for (const [groupName, groupUpdates] of groups) {
+      await updatePackageGroup(groupUpdates, groupName);
+    }
+
+    // Process ungrouped updates individually
+    for (const update of ungrouped) {
+      await updatePackageGroup([update]);
     }
 
     logger.info(chalk.bold.green('✨ Package updates completed!'));
