@@ -37,14 +37,14 @@ jobs:
       - name: Verify Docker is running
         run: docker info
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
       - name: Create and checkout update branch
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git checkout -b ${{ github.event.inputs.branch-name }}
+
+      - name: Create .env.local
+        run: touch .env.local
 
       - name: Run update script
         run: pnpm tsx src/scripts/update-packages.ts
