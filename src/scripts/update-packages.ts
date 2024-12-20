@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { spawn } from 'child_process';
 import fs from 'fs';
+import semver from 'semver';
 
 import { assertError } from '@/utils';
 import { Logger } from '@/utils/logger';
@@ -10,11 +11,11 @@ const logger = new Logger('', 'debug');
 
 
 
-async function execCommand(command: string, args: string[], allowFailure = false): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+async function execCommand(command: string, args: string[], options: {allowFailure?: boolean, env?: Record<string, string>} = {allowFailure: false, env: {}}): Promise<{ stdout: string; stderr: string; exitCode: number }> {
   logger.info(chalk.dim(`$ ${command} ${args.join(' ')}`));
 
   return new Promise((resolve, reject) => {
-    const proc = spawn(command, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+    const proc = spawn(command, args, { stdio: ['pipe', 'pipe', 'pipe'] , env: { ...process.env, ...options.env } });
     let stdout = '';
     let stderr = '';
 
@@ -31,7 +32,7 @@ async function execCommand(command: string, args: string[], allowFailure = false
     });
 
     proc.on('close', (code) => {
-      if (code === 0 || allowFailure) {
+      if (code === 0 || options.allowFailure) {
         resolve({ stdout, stderr, exitCode: code ?? 0 });
       } else {
         reject(new Error(`Command failed with exit code ${code}`));
@@ -69,22 +70,52 @@ async function runTests() {
 
   try {
     logger.info(chalk.bold.blue('\n🐳 Rebuilding Docker for E2E...'));
-    await execCommand('pnpm', ['docker:rebuild']);
+    await execCommand('pnpm', ['docker:build']);
   } catch (error) {
     assertError(error);
-    logger.error(chalk.bold.red('\n❌ Docker rebuild failed:'));
+    logger.error(chalk.bold.red('\n❌ Docker build failed:'));
     logger.error(chalk.red(error.message));
     process.exit(1);
   }
 
   try {
     logger.info(chalk.bold.blue('\n🚀 Running E2E tests...'));
-    await execCommand('pnpm', ['e2e:dev']);
+    await execCommand('pnpm', ['e2e'], { env: { CI: 'true' } });
   } catch (error) {
     assertError(error);
     logger.error(chalk.bold.red('\n❌ E2E tests failed:'));
     logger.error(chalk.red(error.message));
     process.exit(1);
+  }
+}
+
+function getUpdateType(currentVersion: string, newVersion: string): 'major' | 'minor' | 'patch' {
+  if (!currentVersion || !newVersion) return 'patch';
+  
+  try {
+    const clean1 = semver.clean(currentVersion) || currentVersion;
+    const clean2 = semver.clean(newVersion) || newVersion;
+    
+    if (semver.major(clean2) > semver.major(clean1)) return 'major';
+    if (semver.minor(clean2) > semver.minor(clean1)) return 'minor';
+    return 'patch';
+  } catch {
+    return 'patch'; // Fallback for invalid semver
+  }
+}
+
+async function getChangelog(packageName: string, currentVersion: string, newVersion: string): Promise<string> {
+  try {
+    const { stdout } = await execCommand('pnpm', [
+      'view',
+      `${packageName}@${currentVersion}..${newVersion}`,
+      'changelog'
+    ], {allowFailure: true});
+    
+    return stdout.trim() || 'No changelog available';
+  } catch (error) {
+    logger.debug('Failed to fetch changelog:', error);
+    return 'No changelog available';
   }
 }
 
@@ -98,8 +129,8 @@ async function updatePackage(packageName: string, currentVersion: string, versio
     logger.info(chalk.bold.yellow('\n🧪 Running tests...'));
     await runTests();
 
-    // Determine update type
     const updateType = getUpdateType(currentVersion, version);
+    const changelog = await getChangelog(packageName, currentVersion, version);
     
     const commitMessage = [
       `chore(deps): ${updateType} update ${packageName} from ${currentVersion} to ${version}`,
@@ -108,7 +139,10 @@ async function updatePackage(packageName: string, currentVersion: string, versio
       '',
       'Testing: All tests passed ✅',
       '',
-      `Type: ${updateType} update`
+      `Type: ${updateType} update`,
+      '',
+      '## Changelog',
+      changelog
     ].join('\n');
 
     await execCommand('git', ['add', 'package.json', 'pnpm-lock.yaml']);
@@ -132,17 +166,6 @@ async function updatePackage(packageName: string, currentVersion: string, versio
   }
 }
 
-function getUpdateType(currentVersion: string, newVersion: string): 'major' | 'minor' | 'patch' {
-  if (!currentVersion || !newVersion) return 'patch';
-  
-  const current = currentVersion.replace(/[^\d.]/g, '').split('.').map(Number);
-  const next = newVersion.replace(/[^\d.]/g, '').split('.').map(Number);
-  
-  if (next[0] > current[0]) return 'major';
-  if (next[1] > current[1]) return 'minor';
-  return 'patch';
-}
-
 
 
 async function main() {
@@ -152,20 +175,20 @@ async function main() {
 
 
 
-    const updates = await JSON.parse(outdatedOutput.stdout) as {
+    const updates = await JSON.parse(outdatedOutput.stdout) as Record<string, {
       current: string;
       latest: string;
       wanted: string;
       isDeprecated: boolean;
       dependencyType: string;
-    }[];
+    }>;
 
     logger.info(
-      chalk.bold.cyan(`📋 Found ${updates.length} packages to update`),
+      chalk.bold.cyan(`📋 Found ${Object.keys(updates).length} packages to update`),
     );
 
-    for (const { current, latest, wanted } of updates) {
-      await updatePackage(current, latest, wanted);
+    for (const [packageName, { current, latest }] of Object.entries(updates)) {
+      await updatePackage(packageName, current, latest);
     }
 
     logger.info(chalk.bold.green('✨ Package updates completed!'));
