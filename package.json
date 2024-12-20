@@ -166,7 +166,7 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "pnpm prisma:generate",
-      "eslint --max-warnings=0 --config=config/eslint.config.mjs --fix",
+      "eslint --max-warnings=0 --config=config/eslint.config.mjs --fix --cache",
       "prettier --write"
     ],
     "*.{json,css,scss,md,webmanifest}": [

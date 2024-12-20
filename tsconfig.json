@@ -32,12 +32,10 @@
     "**/*.tsx",
     "**/*.js",
     "**/*.mjs",
+    ".storybook/preview.tsx",
     ".next/types/**/*.ts",
     "src/prisma/**/*.ts",
-    "__mocks__/next/image.jsx",
-    ".storybook/main.ts",
-    ".storybook/**/*.{js,jsx,ts,tsx,mjs}"
+    ".storybook/**/*"
   ],
-  "exclude": ["node_modules", ".next"],
-  "moduleResolution": ["node_modules", ".next", "node"]
+  "exclude": ["node_modules", ".next"]
 }
