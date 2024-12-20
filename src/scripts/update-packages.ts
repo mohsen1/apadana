@@ -1,39 +1,49 @@
 import chalk from 'chalk';
 import { spawn } from 'child_process';
-import fs from 'fs';
 import semver from 'semver';
 
 import { assertError } from '@/utils';
 import { Logger } from '@/utils/logger';
 
-
 const logger = new Logger('', 'debug');
 
-
-
-async function execCommand(command: string, args: string[], options: {allowFailure?: boolean, env?: Record<string, string>} = {allowFailure: false, env: {}}): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+async function execCommand(
+  command: string,
+  args: string[],
+  options: { allowFailure?: boolean; env?: Record<string, string> } = {
+    allowFailure: false,
+    env: {},
+  },
+): Promise<{ stdout: string; stderr: string; exitCode: number }> {
   logger.info(chalk.dim(`$ ${command} ${args.join(' ')}`));
 
   return new Promise((resolve, reject) => {
-    const proc = spawn(command, args, { stdio: ['pipe', 'pipe', 'pipe'] , env: { ...process.env, ...options.env } });
-    let stdout = '';
-    let stderr = '';
+    const proc = spawn(command, args, {
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, ...options.env },
+    });
+    let stdout: string[] = [];
+    let stderr: string[] = [];
 
-    proc.stdout.on('data', (data) => {
+    proc.stdout.on('data', (data: Buffer) => {
       const chunk = data.toString();
-      stdout += chunk;
+      stdout.push(chunk);
       process.stdout.write(chunk);
     });
 
-    proc.stderr.on('data', (data) => {
+    proc.stderr.on('data', (data: Buffer) => {
       const chunk = data.toString();
-      stderr += chunk;
+      stderr.push(chunk);
       process.stderr.write(chunk);
     });
 
     proc.on('close', (code) => {
       if (code === 0 || options.allowFailure) {
-        resolve({ stdout, stderr, exitCode: code ?? 0 });
+        resolve({
+          stdout: stdout.join(''),
+          stderr: stderr.join(''),
+          exitCode: code ?? 0,
+        });
       } else {
         reject(new Error(`Command failed with exit code ${code}`));
       }
@@ -45,7 +55,6 @@ async function execCommand(command: string, args: string[], options: {allowFailu
 
 async function runTests() {
   try {
-
     logger.info(chalk.bold.blue('\n📝 Running TypeScript checks...'));
     const { stderr, exitCode } = await execCommand('pnpm', ['typecheck']);
     if (exitCode !== 0) {
@@ -89,49 +98,39 @@ async function runTests() {
   }
 }
 
-function getUpdateType(currentVersion: string, newVersion: string): 'major' | 'minor' | 'patch' {
+function getUpdateType(
+  currentVersion: string,
+  newVersion: string,
+): 'major' | 'minor' | 'patch' {
   if (!currentVersion || !newVersion) return 'patch';
-  
+
   try {
-    const clean1 = semver.clean(currentVersion) || currentVersion;
-    const clean2 = semver.clean(newVersion) || newVersion;
-    
+    const clean1 = semver.clean(currentVersion) ?? currentVersion;
+    const clean2 = semver.clean(newVersion) ?? newVersion;
+
     if (semver.major(clean2) > semver.major(clean1)) return 'major';
     if (semver.minor(clean2) > semver.minor(clean1)) return 'minor';
     return 'patch';
   } catch {
-    return 'patch'; // Fallback for invalid semver
+    return 'patch';
   }
 }
 
-async function getChangelog(packageName: string, currentVersion: string, newVersion: string): Promise<string> {
-  try {
-    const { stdout } = await execCommand('pnpm', [
-      'view',
-      `${packageName}@${currentVersion}..${newVersion}`,
-      'changelog'
-    ], {allowFailure: true});
-    
-    return stdout.trim() || 'No changelog available';
-  } catch (error) {
-    logger.debug('Failed to fetch changelog:', error);
-    return 'No changelog available';
-  }
-}
-
-async function updatePackage(packageName: string, currentVersion: string, version: string) {
+async function updatePackage(
+  packageName: string,
+  currentVersion: string,
+  version: string,
+) {
   logger.info(chalk.bold.cyan(`\n📦 Updating ${packageName} to ${version}`));
 
   try {
-
     await execCommand('pnpm', ['add', `${packageName}@${version}`]);
-    
+
     logger.info(chalk.bold.yellow('\n🧪 Running tests...'));
     await runTests();
 
     const updateType = getUpdateType(currentVersion, version);
-    const changelog = await getChangelog(packageName, currentVersion, version);
-    
+
     const commitMessage = [
       `chore(deps): ${updateType} update ${packageName} from ${currentVersion} to ${version}`,
       '',
@@ -140,51 +139,59 @@ async function updatePackage(packageName: string, currentVersion: string, versio
       'Testing: All tests passed ✅',
       '',
       `Type: ${updateType} update`,
-      '',
-      '## Changelog',
-      changelog
     ].join('\n');
 
     await execCommand('git', ['add', 'package.json', 'pnpm-lock.yaml']);
     await execCommand('git', ['commit', '-m', commitMessage]);
 
     logger.info(
-      chalk.bold.green(`\n✅ Successfully updated ${packageName} to ${version}`),
+      chalk.bold.green(
+        `\n✅ Successfully updated ${packageName} to ${version}`,
+      ),
     );
     return true;
   } catch (error) {
     assertError(error);
     logger.error(chalk.bold.red(`\n❌ Failed to update ${packageName}:`));
     logger.error(chalk.red(error.message));
-    
+
     logger.info(chalk.bold.yellow('\n↩️ Rolling back changes...'));
-    await execCommand('git', ['checkout', '--', 'package.json', 'pnpm-lock.yaml']);
+    await execCommand('git', [
+      'checkout',
+      '--',
+      'package.json',
+      'pnpm-lock.yaml',
+    ]);
     await execCommand('pnpm', ['install']);
-    
+
     // Exit immediately on failure
     process.exit(1);
   }
 }
 
-
+interface PackageUpdate {
+  current: string;
+  latest: string;
+  wanted: string;
+  isDeprecated: boolean;
+  dependencyType: string;
+}
 
 async function main() {
   try {
-    logger.info(chalk.bold.blue('🔍 Checking for outdated packages...'));
-    const outdatedOutput = await execCommand('pnpm', ['outdated', '--json'], true);
-
-
-
-    const updates = await JSON.parse(outdatedOutput.stdout) as Record<string, {
-      current: string;
-      latest: string;
-      wanted: string;
-      isDeprecated: boolean;
-      dependencyType: string;
-    }>;
+    logger.info(chalk.bold.blue('��� Checking for outdated packages...'));
+    const outdatedOutput = await execCommand('pnpm', ['outdated', '--json'], {
+      allowFailure: true,
+    });
+    const updates = (await JSON.parse(outdatedOutput.stdout)) as Record<
+      string,
+      PackageUpdate
+    >;
 
     logger.info(
-      chalk.bold.cyan(`📋 Found ${Object.keys(updates).length} packages to update`),
+      chalk.bold.cyan(
+        `📋 Found ${Object.keys(updates).length} packages to update`,
+      ),
     );
 
     for (const [packageName, { current, latest }] of Object.entries(updates)) {

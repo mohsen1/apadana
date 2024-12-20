@@ -33,7 +33,8 @@
     "**/*.js",
     "**/*.mjs",
     ".next/types/**/*.ts",
-    "src/prisma/**/*.ts"
+    "src/prisma/**/*.ts",
+    "__mocks__/next/image.jsx"
   ],
   "exclude": ["node_modules", ".next"],
   "moduleResolution": ["node_modules", ".next", "node"]

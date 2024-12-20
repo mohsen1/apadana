@@ -9,21 +9,6 @@ const logger = createLogger(__filename, 'warn');
 
 const composeFile = 'src/docker/docker-compose.yml';
 
-function safeParse<T>(value: string): { value: string; parsed: T | null } {
-  try {
-    return {
-      value,
-      parsed: JSON.parse(value) as T,
-    };
-  } catch (error) {
-    assertError(error);
-    return {
-      value,
-      parsed: null,
-    };
-  }
-}
-
 async function waitForContainerHealthy(
   composeFile: string,
   serviceName: string,
@@ -46,7 +31,7 @@ async function waitForContainerHealthy(
       logger.debug('Container status output:', output);
 
       const statusLines = output.split('\n').filter(Boolean);
-      
+
       for (const line of statusLines) {
         try {
           const container = JSON.parse(line) as {
@@ -80,7 +65,9 @@ async function waitForContainerHealthy(
         logger.debug(`Waiting ${retryTimeout}ms before re-checking...`);
         await new Promise((resolve) => setTimeout(resolve, retryTimeout));
       } else {
-        throw new Error(`Container "${serviceName}" not healthy after all retries`);
+        throw new Error(
+          `Container "${serviceName}" not healthy after all retries`,
+        );
       }
     } catch (error) {
       assertError(error);
@@ -96,7 +83,9 @@ async function waitForContainerHealthy(
       }
     }
   }
-  throw new Error(`Container "${serviceName}" not healthy after ${maxRetries} retries`);
+  throw new Error(
+    `Container "${serviceName}" not healthy after ${maxRetries} retries`,
+  );
 }
 
 async function cleanDatabaseSchema() {
