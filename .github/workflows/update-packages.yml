@@ -43,13 +43,6 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git checkout -b ${{ github.event.inputs.branch-name }}
 
-      - name: Create .env.local
-        run: touch .env.local
-
-      - name: setup /etc/hosts
-        run: |
-          echo "127.0.0.1 apadana.local" | sudo tee -a /etc/hosts
-
       - name: Run update script
         run: pnpm tsx src/scripts/update-packages.ts
 
@@ -73,13 +66,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'chore(deps): update dependencies'
-          title: '📦 Update Dependencies'
+          title: 'Update Dependencies'
           body-path: package-updates-summary.md
           branch: ${{ github.event.inputs.branch-name }}
           base: main
           labels: |
             dependencies
-            automated pr
           draft: false
 
       - name: PR Details
