@@ -48,13 +48,23 @@ export const GetListingSchema = z.object({
 export type GetListing = z.infer<typeof GetListingSchema>;
 
 export const GetListingsSchema = z.object({
-  take: z.number().optional().default(10).describe('Limit of how many listings to return'),
-  skip: z.number().optional().default(0).describe('Offset of how many listings to skip'),
+  take: z
+    .number()
+    .optional()
+    .default(10)
+    .describe('Limit of how many listings to return'),
+  skip: z
+    .number()
+    .optional()
+    .default(0)
+    .describe('Offset of how many listings to skip'),
 });
 
-export const EditListingSchema = BaseListingSchema.omit({ images: true }).partial().extend({
-  id: z.string(),
-});
+export const EditListingSchema = BaseListingSchema.omit({ images: true })
+  .partial()
+  .extend({
+    id: z.string(),
+  });
 
 export const CreateListingSchema = BaseListingSchema.extend({});
 
@@ -165,14 +175,18 @@ export const BookingRequestResponseSchema = z.object({
   }),
 });
 
-export type BookingRequestResponse = z.infer<typeof BookingRequestResponseSchema>;
+export type BookingRequestResponse = z.infer<
+  typeof BookingRequestResponseSchema
+>;
 
 export const ChangeBookingRequestStatusSchema = z.object({
   bookingRequestId: z.string(),
   status: z.nativeEnum(BookingRequestStatus),
 });
 
-export type ChangeBookingRequestStatus = z.infer<typeof ChangeBookingRequestStatusSchema>;
+export type ChangeBookingRequestStatus = z.infer<
+  typeof ChangeBookingRequestStatusSchema
+>;
 
 export const GetBookingsSchema = z.object({
   listingId: z.string(),

@@ -27,11 +27,15 @@ function FormDebugger() {
          border-gray-300 dark:border-gray-700 rounded-lg shadow-lg p-1 transition-all 
          text-gray-900 dark:text-gray-100
          duration-200 ${
-           isMinimized ? 'h-[40px] overflow-hidden' : 'max-h-[50vh] overflow-auto'
+           isMinimized
+             ? 'h-[40px] overflow-hidden'
+             : 'max-h-[50vh] overflow-auto'
          } opacity-80 hover:opacity-100`}
     >
       <div className='flex justify-between items-center'>
-        <h3 className='font-semibold text-gray-900 dark:text-gray-100'>Debug Information</h3>
+        <h3 className='font-semibold text-gray-900 dark:text-gray-100'>
+          Debug Information
+        </h3>
         <div className='flex items-center space-x-2'>
           {!isMinimized && (
             <>
@@ -46,7 +50,9 @@ function FormDebugger() {
           <button
             onClick={() => setIsMinimized(!isMinimized)}
             className='p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors'
-            aria-label={isMinimized ? 'Maximize debug panel' : 'Minimize debug panel'}
+            aria-label={
+              isMinimized ? 'Maximize debug panel' : 'Minimize debug panel'
+            }
           >
             {isMinimized ? '□' : '−'}
           </button>

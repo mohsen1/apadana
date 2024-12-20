@@ -1,4 +1,8 @@
-import { CreateEmailOptions, CreateEmailRequestOptions, CreateEmailResponse } from 'resend';
+import {
+  CreateEmailOptions,
+  CreateEmailRequestOptions,
+  CreateEmailResponse,
+} from 'resend';
 
 import prisma from '@/lib/prisma/client';
 

@@ -7,7 +7,9 @@ test.describe('Login Page', () => {
     await page.context().clearCookies();
   });
 
-  test('shows validation errors for empty form submission', async ({ page }) => {
+  test('shows validation errors for empty form submission', async ({
+    page,
+  }) => {
     await page.goto('/sign-in');
     await page.getByRole('button', { name: 'Log in', exact: true }).click();
     await expect(page.getByText(/Please enter a valid email/i)).toBeVisible();

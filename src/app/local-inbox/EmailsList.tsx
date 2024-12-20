@@ -7,7 +7,9 @@ interface EmailsListProps {
 }
 
 export default function EmailsList({ emails }: EmailsListProps) {
-  const [selectedEmail, setSelectedEmail] = useState<LocalEmail | null>(emails[0] ?? null);
+  const [selectedEmail, setSelectedEmail] = useState<LocalEmail | null>(
+    emails[0] ?? null,
+  );
 
   return (
     <div className='flex flex-col '>
@@ -44,7 +46,9 @@ export default function EmailsList({ emails }: EmailsListProps) {
           {selectedEmail ? (
             <div className='flex-1 flex flex-col'>
               <div className='border-b border-gray-200 dark:border-gray-800 p-8'>
-                <h2 className='font-bold text-2xl mb-4'>{selectedEmail.subject}</h2>
+                <h2 className='font-bold text-2xl mb-4'>
+                  {selectedEmail.subject}
+                </h2>
                 <p className='mb-2'>
                   <strong>From:</strong> {selectedEmail.from}
                 </p>
@@ -68,7 +72,9 @@ export default function EmailsList({ emails }: EmailsListProps) {
             </div>
           ) : (
             <div className='flex items-center justify-center h-full'>
-              <p className='text-gray-600'>Select an email to view its content</p>
+              <p className='text-gray-600'>
+                Select an email to view its content
+              </p>
             </div>
           )}
         </div>

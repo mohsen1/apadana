@@ -110,7 +110,10 @@ export function AccountProfile() {
             </div>
 
             {isEditing ? (
-              <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className='space-y-4'
+              >
                 <div className='grid grid-cols-2 gap-4'>
                   <div className='space-y-2'>
                     <Label htmlFor='firstName'>First name</Label>
@@ -170,7 +173,11 @@ export function AccountProfile() {
                 <Badge variant='secondary'>Primary</Badge>
               </div>
             </div>
-            <Button variant='outline' size='sm' className='mt-4 border-gray-700'>
+            <Button
+              variant='outline'
+              size='sm'
+              className='mt-4 border-gray-700'
+            >
               <span className='mr-2'>+</span> Add email address
             </Button>
           </div>
@@ -207,7 +214,11 @@ export function AccountProfile() {
                 <span className='text-muted-foreground'>john@example.com</span>
               </div>
             </div>
-            <Button variant='outline' size='sm' className='mt-4 border-gray-700'>
+            <Button
+              variant='outline'
+              size='sm'
+              className='mt-4 border-gray-700'
+            >
               <span className='mr-2'>+</span> Connect account
             </Button>
           </div>

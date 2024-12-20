@@ -9,7 +9,10 @@ import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { useForm } from 'react-hook-form';
 
-import { CreateBookingRequest, CreateBookingRequestSchema } from '@/lib/prisma/schema';
+import {
+  CreateBookingRequest,
+  CreateBookingRequestSchema,
+} from '@/lib/prisma/schema';
 import { PublicListing } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 
@@ -31,7 +34,10 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
-import { alterBookingRequest, createBookingRequest } from '@/app/listing/[id]/booking/action';
+import {
+  alterBookingRequest,
+  createBookingRequest,
+} from '@/app/listing/[id]/booking/action';
 import { ImageGallery } from '@/app/listing/[id]/booking/create/ImageGallery';
 
 interface CreateBookingFormProps {
@@ -48,17 +54,18 @@ export default function BookingPage({
   originalBookingRequest,
 }: CreateBookingFormProps) {
   const router = useRouter();
-  const { register, handleSubmit, getValues, formState } = useForm<CreateBookingRequest>({
-    defaultValues: {
-      listingId: listing.id,
-      checkIn: initialCheckIn,
-      checkOut: initialCheckOut,
-      guests: 1,
-      message: '',
-      pets: false,
-    },
-    resolver: zodResolver(CreateBookingRequestSchema),
-  });
+  const { register, handleSubmit, getValues, formState } =
+    useForm<CreateBookingRequest>({
+      defaultValues: {
+        listingId: listing.id,
+        checkIn: initialCheckIn,
+        checkOut: initialCheckOut,
+        guests: 1,
+        message: '',
+        pets: false,
+      },
+      resolver: zodResolver(CreateBookingRequestSchema),
+    });
 
   const { execute, status, result } = useAction(createBookingRequest, {
     onSuccess: (res) => {
@@ -80,7 +87,9 @@ export default function BookingPage({
       const alteredRequest = result?.data;
 
       if (alteredRequest?.id) {
-        router.push(`/listing/${listing.id}/booking/request/${alteredRequest.id}`);
+        router.push(
+          `/listing/${listing.id}/booking/request/${alteredRequest.id}`,
+        );
       }
     } else {
       execute({
@@ -123,8 +132,14 @@ export default function BookingPage({
               <div className='space-y-2'>
                 <label className='text-sm font-medium'>Selected dates</label>
                 <div>
-                  From <span className='font-semibold'>{format(checkin, 'MMM d, yyyy')}</span> to{' '}
-                  <span className='font-semibold'>{format(checkout, 'MMM d, yyyy')}</span>
+                  From{' '}
+                  <span className='font-semibold'>
+                    {format(checkin, 'MMM d, yyyy')}
+                  </span>{' '}
+                  to{' '}
+                  <span className='font-semibold'>
+                    {format(checkout, 'MMM d, yyyy')}
+                  </span>
                 </div>
               </div>
 
@@ -177,7 +192,8 @@ export default function BookingPage({
                 <div className='space-y-1'>
                   <div className='flex justify-between'>
                     <span>
-                      {formatCurrency(basePrice, listing.currency)} x {nights} nights
+                      {formatCurrency(basePrice, listing.currency)} x {nights}{' '}
+                      nights
                     </span>
                     <span>${subtotal}</span>
                   </div>
@@ -194,10 +210,14 @@ export default function BookingPage({
             </CardContent>
             <CardFooter className='flex flex-col gap-2'>
               <Button type='submit' className='w-full'>
-                {status === 'executing' ? 'Sending...' : 'Send your booking request'}
+                {status === 'executing'
+                  ? 'Sending...'
+                  : 'Send your booking request'}
               </Button>
               {result.serverError ? (
-                <div className='text-red-500 w-full'>{result.serverError.error}</div>
+                <div className='text-red-500 w-full'>
+                  {result.serverError.error}
+                </div>
               ) : null}
             </CardFooter>
           </Card>

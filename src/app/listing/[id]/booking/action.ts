@@ -15,7 +15,10 @@
 import { addDays, eachDayOfInterval } from 'date-fns';
 
 import resend from '@/lib/email/resend';
-import { sendBookingAlterationEmail, sendBookingRequestEmail } from '@/lib/email/send-email';
+import {
+  sendBookingAlterationEmail,
+  sendBookingRequestEmail,
+} from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import {
   AlterBookingRequestSchema,
@@ -24,11 +27,18 @@ import {
   GetBookingRequestsSchema,
 } from '@/lib/prisma/schema';
 import { getUserEmail } from '@/lib/prisma/utils';
-import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
+import {
+  actionClient,
+  ClientVisibleError,
+  UnauthorizedError,
+} from '@/lib/safe-action';
 
 import BookingAlterationEmail from '@/components/emails/BookingAlterationEmail';
 
-import { CancelBookingSchema, UpdateBookingSchema } from '@/app/listing/[id]/booking/schema';
+import {
+  CancelBookingSchema,
+  UpdateBookingSchema,
+} from '@/app/listing/[id]/booking/schema';
 import logger from '@/utils/logger';
 
 export const getBookingRequest = actionClient
@@ -64,7 +74,9 @@ export const getBookingRequest = actionClient
     }
 
     if (bookingRequest.userId !== ctx.user.id) {
-      throw new UnauthorizedError('You are not authorized to view this booking request');
+      throw new UnauthorizedError(
+        'You are not authorized to view this booking request',
+      );
     }
 
     return bookingRequest;
@@ -94,11 +106,15 @@ export const alterBookingRequest = actionClient
       }
 
       if (originalRequest.userId !== ctx.user.id) {
-        throw new UnauthorizedError('Unauthorized to alter this booking request');
+        throw new UnauthorizedError(
+          'Unauthorized to alter this booking request',
+        );
       }
 
       if (originalRequest.status !== 'PENDING') {
-        throw new ClientVisibleError('Cannot alter a booking that is not pending');
+        throw new ClientVisibleError(
+          'Cannot alter a booking that is not pending',
+        );
       }
 
       // Create new booking request as an alteration
@@ -220,7 +236,8 @@ export const createBookingRequest = actionClient
       try {
         await sendBookingRequestEmail({
           hostEmail,
-          guestName: `${ctx.user.firstName ?? ''} ${ctx.user.lastName ?? ''}`.trim(),
+          guestName:
+            `${ctx.user.firstName ?? ''} ${ctx.user.lastName ?? ''}`.trim(),
           listingTitle: listing.title,
           checkIn,
           checkOut,
@@ -326,7 +343,9 @@ export const updateBooking = actionClient
         },
       });
 
-      const hostEmail = getUserEmail(updatedBooking?.listingInventory?.at(0)?.listing?.owner);
+      const hostEmail = getUserEmail(
+        updatedBooking?.listingInventory?.at(0)?.listing?.owner,
+      );
 
       if (!hostEmail) {
         throw new ClientVisibleError('Host email not found');
@@ -395,7 +414,8 @@ export const cancelBooking = actionClient
               listingTitle: booking.listingInventory[0].listing.title,
               startDate: booking.checkIn,
               endDate: booking.checkOut,
-              guestName: `${booking.user.firstName ?? ''} ${booking.user.lastName ?? ''}`.trim(),
+              guestName:
+                `${booking.user.firstName ?? ''} ${booking.user.lastName ?? ''}`.trim(),
               alterationType: 'cancelled',
             }),
           });

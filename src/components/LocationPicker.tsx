@@ -1,6 +1,12 @@
 // LocationPicker.tsx
 
-import { Circle, GoogleMap, Libraries, Marker, useLoadScript } from '@react-google-maps/api';
+import {
+  Circle,
+  GoogleMap,
+  Libraries,
+  Marker,
+  useLoadScript,
+} from '@react-google-maps/api';
 import { Loader2, LocateFixed } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import React, { useEffect, useRef, useState } from 'react';
@@ -8,9 +14,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
-import { googleMapsDarkStyles, googleMapsLightStyles } from '@/shared/google-maps-styles';
+import {
+  googleMapsDarkStyles,
+  googleMapsLightStyles,
+} from '@/shared/google-maps-styles';
 import { GOOGLE_MAPS_API_KEY } from '@/shared/public-api-keys';
 
 interface LocationPickerProps {
@@ -37,18 +51,29 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   errors = { address: undefined },
 }) => {
   const [addressInput, setAddressInput] = useState(initialAddress);
-  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLngLiteral | null>(
-    initialLatitude && initialLongitude ? { lat: initialLatitude, lng: initialLongitude } : null,
+  const [predictions, setPredictions] = useState<
+    google.maps.places.AutocompletePrediction[]
+  >([]);
+  const [selectedLocation, setSelectedLocation] =
+    useState<google.maps.LatLngLiteral | null>(
+      initialLatitude && initialLongitude
+        ? { lat: initialLatitude, lng: initialLongitude }
+        : null,
+    );
+  const [showExactLocation, setShowExactLocation] = useState(
+    initialShowExactLocation,
   );
-  const [showExactLocation, setShowExactLocation] = useState(initialShowExactLocation);
-  const [isFetchingCurrentLocation, setIsFetchingCurrentLocation] = useState(false);
+  const [isFetchingCurrentLocation, setIsFetchingCurrentLocation] =
+    useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral | null>(selectedLocation);
+  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral | null>(
+    selectedLocation,
+  );
   const [mapZoom, setMapZoom] = useState<number>(14);
   const [customPin, setCustomPin] = useState<google.maps.Icon | null>(null);
-  const [activePredictionIndex, setActivePredictionIndex] = useState<number>(-1);
+  const [activePredictionIndex, setActivePredictionIndex] =
+    useState<number>(-1);
   const libraries: Libraries = ['places', 'geometry'];
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
@@ -74,11 +99,15 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         types: ['address'],
       },
       (predictions, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+        if (
+          status === google.maps.places.PlacesServiceStatus.OK &&
+          predictions
+        ) {
           // Filter predictions to only include residential addresses
           const residentialPredictions = predictions.filter(
             (prediction) =>
-              prediction.types.includes('street_address') || prediction.types.includes('premise'),
+              prediction.types.includes('street_address') ||
+              prediction.types.includes('premise'),
           );
           setPredictions(residentialPredictions);
           setActivePredictionIndex(-1);
@@ -90,28 +119,33 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     );
   };
 
-  const handleSelectPrediction = (prediction: google.maps.places.AutocompletePrediction) => {
+  const handleSelectPrediction = (
+    prediction: google.maps.places.AutocompletePrediction,
+  ) => {
     setAddressInput(prediction.description);
     onAddressChange?.(prediction.description);
     setPredictions([]);
     setActivePredictionIndex(-1);
 
     const geocoder = new google.maps.Geocoder();
-    return geocoder.geocode({ placeId: prediction.place_id }, (results, status) => {
-      if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-        const location = results[0].geometry?.location;
-        if (location) {
-          const lat = location.lat();
-          const lng = location.lng();
-          if (typeof lat === 'number' && typeof lng === 'number') {
-            setSelectedLocation({ lat, lng });
-            setMapCenter({ lat, lng });
-            setMapZoom(14); // Default zoom level
-            onLocationChange?.(lat, lng);
+    return geocoder.geocode(
+      { placeId: prediction.place_id },
+      (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+          const location = results[0].geometry?.location;
+          if (location) {
+            const lat = location.lat();
+            const lng = location.lng();
+            if (typeof lat === 'number' && typeof lng === 'number') {
+              setSelectedLocation({ lat, lng });
+              setMapCenter({ lat, lng });
+              setMapZoom(14); // Default zoom level
+              onLocationChange?.(lat, lng);
+            }
           }
         }
-      }
-    });
+      },
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -128,7 +162,10 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         );
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        if (activePredictionIndex >= 0 && activePredictionIndex < predictions.length) {
+        if (
+          activePredictionIndex >= 0 &&
+          activePredictionIndex < predictions.length
+        ) {
           return handleSelectPrediction(predictions[activePredictionIndex]);
         }
       } else if (e.key === 'Escape') {
@@ -157,7 +194,11 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
             { location: { lat: latitude, lng: longitude } },
             (results, status) => {
               setIsFetchingCurrentLocation(false);
-              if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+              if (
+                status === google.maps.GeocoderStatus.OK &&
+                results &&
+                results[0]
+              ) {
                 const address = results[0].formatted_address;
                 setAddressInput(address);
                 onAddressChange?.(address);
@@ -188,10 +229,26 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
         const center = new google.maps.LatLng(lat, lng);
 
-        const north = google.maps.geometry.spherical.computeOffset(center, radiusInMeters, 0);
-        const east = google.maps.geometry.spherical.computeOffset(center, radiusInMeters, 90);
-        const south = google.maps.geometry.spherical.computeOffset(center, radiusInMeters, 180);
-        const west = google.maps.geometry.spherical.computeOffset(center, radiusInMeters, 270);
+        const north = google.maps.geometry.spherical.computeOffset(
+          center,
+          radiusInMeters,
+          0,
+        );
+        const east = google.maps.geometry.spherical.computeOffset(
+          center,
+          radiusInMeters,
+          90,
+        );
+        const south = google.maps.geometry.spherical.computeOffset(
+          center,
+          radiusInMeters,
+          180,
+        );
+        const west = google.maps.geometry.spherical.computeOffset(
+          center,
+          radiusInMeters,
+          270,
+        );
 
         bounds.extend(north);
         bounds.extend(east);
@@ -301,7 +358,9 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                 </div>
               </span>
             )}
-            {errors.address && <span className='text-red-500'>{errors.address}</span>}
+            {errors.address && (
+              <span className='text-red-500'>{errors.address}</span>
+            )}
             {predictions.length > 0 && (
               <ul className='absolute z-10 w-full border border-border/15 rounded-md mt-1 shadow-lg'>
                 {predictions.map((prediction, index) => (
@@ -343,7 +402,10 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                   zoom={mapZoom}
                   mapContainerStyle={{ height: '100%', width: '100%' }}
                   options={{
-                    styles: theme === 'dark' ? googleMapsDarkStyles : googleMapsLightStyles,
+                    styles:
+                      theme === 'dark'
+                        ? googleMapsDarkStyles
+                        : googleMapsLightStyles,
                     streetViewControl: false,
                     mapTypeControl: false,
                     fullscreenControl: false,

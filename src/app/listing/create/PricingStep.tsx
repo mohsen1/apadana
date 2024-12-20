@@ -25,7 +25,9 @@ export function PricingStep() {
             setValueAs: (value: string) => Number.parseInt(value, 10),
           })}
         />
-        {errors.pricePerNight && <span className='text-red-500'>Please enter a valid price</span>}
+        {errors.pricePerNight && (
+          <span className='text-red-500'>Please enter a valid price</span>
+        )}
       </div>
       <div>
         <Label htmlFor='minimumStay'>Minimum Stay (nights)</Label>
@@ -39,7 +41,9 @@ export function PricingStep() {
           })}
         />
         {errors.minimumStay && (
-          <span className='text-red-500'>Please enter a valid number of nights</span>
+          <span className='text-red-500'>
+            Please enter a valid number of nights
+          </span>
         )}
       </div>
       <div>
@@ -54,7 +58,9 @@ export function PricingStep() {
           })}
         />
         {errors.maximumGuests && (
-          <span className='text-red-500'>Please enter a valid number of guests</span>
+          <span className='text-red-500'>
+            Please enter a valid number of guests
+          </span>
         )}
       </div>
     </div>

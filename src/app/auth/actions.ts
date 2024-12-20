@@ -6,11 +6,18 @@ import { deleteServerSession, getUserInServer } from '@/lib/auth';
 import { argon } from '@/lib/auth/argon';
 import { RESET_TOKEN_DURATION, SESSION_DURATION } from '@/lib/auth/constants';
 import { sanitizeUserForClient } from '@/lib/auth/utils';
-import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
+import {
+  sendPasswordResetEmail,
+  sendWelcomeEmail,
+} from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
 
-import { clientUserSchema, loginSchema, successfulLogin } from '@/app/auth/schema';
+import {
+  clientUserSchema,
+  loginSchema,
+  successfulLogin,
+} from '@/app/auth/schema';
 import logger from '@/utils/logger';
 
 export const login = actionClient
@@ -43,7 +50,10 @@ export const login = actionClient
     }
 
     // Verify password
-    const validPassword = await argon.verify(user.password, parsedInput.password);
+    const validPassword = await argon.verify(
+      user.password,
+      parsedInput.password,
+    );
     if (!validPassword) {
       throw new ClientVisibleError('Invalid email or password');
     }
@@ -57,7 +67,9 @@ export const login = actionClient
     });
 
     // Get primary email
-    const primaryEmail = user.emailAddresses.find((e) => e.isPrimary)?.emailAddress;
+    const primaryEmail = user.emailAddresses.find(
+      (e) => e.isPrimary,
+    )?.emailAddress;
 
     if (!primaryEmail) {
       throw new Error('Primary email not found');
@@ -104,7 +116,9 @@ export const signUp = actionClient
       },
     });
     if (existingUser) {
-      throw new Error('There is already an account with this email. Please login with that email.');
+      throw new Error(
+        'There is already an account with this email. Please login with that email.',
+      );
     }
 
     const hashedPassword = await argon.hash(parsedInput.password);
@@ -158,11 +172,13 @@ const getCurrentUserOutput = z
   })
   .nullable();
 
-export const getCurrentUser = actionClient.outputSchema(getCurrentUserOutput).action(async () => {
-  const user = await getUserInServer();
-  const clientUser = sanitizeUserForClient(user);
-  return { user: clientUser };
-});
+export const getCurrentUser = actionClient
+  .outputSchema(getCurrentUserOutput)
+  .action(async () => {
+    const user = await getUserInServer();
+    const clientUser = sanitizeUserForClient(user);
+    return { user: clientUser };
+  });
 
 export const logOut = actionClient
   .outputSchema(z.object({ user: z.literal(null) }))
@@ -290,6 +306,8 @@ export const resetPassword = actionClient
       if (error instanceof ClientVisibleError) {
         throw error;
       }
-      throw new ClientVisibleError('Unable to reset password. Please try again later.');
+      throw new ClientVisibleError(
+        'Unable to reset password. Please try again later.',
+      );
     }
   });

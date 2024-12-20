@@ -53,7 +53,10 @@ export function DeleteListing({ listing }: { listing: Listing }) {
       </h1>
 
       <div className='flex items-center gap-2'>
-        <p>Are you sure you want to delete this listing? This action cannot be undone.</p>
+        <p>
+          Are you sure you want to delete this listing? This action cannot be
+          undone.
+        </p>
       </div>
       <input type='hidden' name='id' value={listing.id.toString()} />
       <div className='flex justify-end gap-4'>

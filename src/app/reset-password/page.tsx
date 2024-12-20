@@ -47,11 +47,16 @@ function ResetPasswordForm() {
       <div className='min-h-screen flex items-center justify-center'>
         <Card>
           <CardHeader>
-            <CardTitle className='text-destructive'>Invalid Reset Link</CardTitle>
+            <CardTitle className='text-destructive'>
+              Invalid Reset Link
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p>This password reset link is invalid or has expired.</p>
-            <Button className='mt-4' onClick={() => router.push('/forgot-password')}>
+            <Button
+              className='mt-4'
+              onClick={() => router.push('/forgot-password')}
+            >
               Request New Reset Link
             </Button>
           </CardContent>
@@ -71,7 +76,8 @@ function ResetPasswordForm() {
     } catch (error) {
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Something went wrong',
+        description:
+          error instanceof Error ? error.message : 'Something went wrong',
         variant: 'destructive',
       });
     }
@@ -90,13 +96,23 @@ function ResetPasswordForm() {
             <div className='space-y-2'>
               <Label htmlFor='password'>New Password</Label>
               <Input {...register('password')} type='password' id='password' />
-              {errors.password && <p className='text-sm text-red-500'>{errors.password.message}</p>}
+              {errors.password && (
+                <p className='text-sm text-red-500'>
+                  {errors.password.message}
+                </p>
+              )}
             </div>
             <div className='space-y-2'>
               <Label htmlFor='confirmPassword'>Confirm Password</Label>
-              <Input {...register('confirmPassword')} type='password' id='confirmPassword' />
+              <Input
+                {...register('confirmPassword')}
+                type='password'
+                id='confirmPassword'
+              />
               {errors.confirmPassword && (
-                <p className='text-sm text-red-500'>{errors.confirmPassword.message}</p>
+                <p className='text-sm text-red-500'>
+                  {errors.confirmPassword.message}
+                </p>
               )}
             </div>
             <Button className='w-full' type='submit' disabled={isSubmitting}>

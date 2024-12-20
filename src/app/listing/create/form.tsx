@@ -39,16 +39,17 @@ enum FormStep {
   Pricing = 4,
   HouseRules = 5,
 }
-const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> = {
-  amenities: ['Wi-Fi'],
-  title: 'My listing',
-  description: 'This is a test listing',
-  propertyType: 'house',
-  houseRules: 'No smoking allowed',
-  pricePerNight: 100,
-  minimumStay: 1,
-  maximumGuests: 5,
-};
+const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> =
+  {
+    amenities: ['Wi-Fi'],
+    title: 'My listing',
+    description: 'This is a test listing',
+    propertyType: 'house',
+    houseRules: 'No smoking allowed',
+    pricePerNight: 100,
+    minimumStay: 1,
+    maximumGuests: 5,
+  };
 
 const stepRequiredFields = {
   [FormStep.LocationDetails]: ['address'],
@@ -86,7 +87,9 @@ const steps = [
 export default function CreateListingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [currentStep, setCurrentStep] = useState<FormStep>(FormStep.LocationDetails);
+  const [currentStep, setCurrentStep] = useState<FormStep>(
+    FormStep.LocationDetails,
+  );
   const [showLoading, setShowLoading] = useState(false);
 
   const { execute, result } = useAction(createListing, {
@@ -118,7 +121,13 @@ export default function CreateListingForm() {
   const { isSubmitting } = formState;
 
   const updateUrlParams = useCallback(
-    ({ formData, step }: { formData: Partial<CreateListing>; step: number }) => {
+    ({
+      formData,
+      step,
+    }: {
+      formData: Partial<CreateListing>;
+      step: number;
+    }) => {
       const params = new URLSearchParams(searchParams);
       const serialized = qs.stringify(formData);
       params.set('form-data', serialized);
@@ -139,7 +148,9 @@ export default function CreateListingForm() {
       });
     }
 
-    const formData = qs.parse(searchParams.get('form-data') || '{}') as Partial<CreateListing>;
+    const formData = qs.parse(
+      searchParams.get('form-data') || '{}',
+    ) as Partial<CreateListing>;
 
     // Convert string values to numbers
     const numericFields = [
@@ -174,7 +185,10 @@ export default function CreateListingForm() {
   const nextStep = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const currentValues = getValues();
-    const nextStepValue = Math.min(currentStep + 1, Object.keys(FormStep).length);
+    const nextStepValue = Math.min(
+      currentStep + 1,
+      Object.keys(FormStep).length,
+    );
     updateUrlParams({
       formData: currentValues,
       step: nextStepValue,
@@ -241,7 +255,9 @@ export default function CreateListingForm() {
             <CardDescription>{steps[currentStep].description}</CardDescription>
           </CardHeader>
           <CardContent>
-            {currentStep === FormStep.LocationDetails && <LocationDetailsStep />}
+            {currentStep === FormStep.LocationDetails && (
+              <LocationDetailsStep />
+            )}
             {currentStep === FormStep.BasicInfo && <BasicInfoStep />}
             {currentStep === FormStep.Amenities && <AmenitiesStep />}
             {currentStep === FormStep.Photos && <PhotosStep />}
@@ -257,7 +273,11 @@ export default function CreateListingForm() {
               <div className='w-4 opacity-0' />
             )}
             {currentStep < steps.length - 1 ? (
-              <Button type='button' onClick={nextStep} disabled={!canGoToNextStep()}>
+              <Button
+                type='button'
+                onClick={nextStep}
+                disabled={!canGoToNextStep()}
+              >
                 Next
               </Button>
             ) : (

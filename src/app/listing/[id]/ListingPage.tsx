@@ -7,7 +7,12 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
 import { FullListing } from '@/lib/types';
-import { areAllDatesAvailable, formatCurrency, getLocale, isDateUnavailable } from '@/lib/utils';
+import {
+  areAllDatesAvailable,
+  formatCurrency,
+  getLocale,
+  isDateUnavailable,
+} from '@/lib/utils';
 
 import { LightBox } from '@/components/LightBox';
 import { Calendar } from '@/components/range-calendar';
@@ -35,9 +40,17 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
     e.preventDefault();
     if (checkIn && checkOut) {
       const searchParams = new URLSearchParams();
-      searchParams.set('checkIn', checkIn?.toDate(listingData.timeZone).toISOString());
-      searchParams.set('checkOut', checkOut?.toDate(listingData.timeZone).toISOString());
-      router.push(`/listing/${listingData.id}/booking/create?${searchParams.toString()}`);
+      searchParams.set(
+        'checkIn',
+        checkIn?.toDate(listingData.timeZone).toISOString(),
+      );
+      searchParams.set(
+        'checkOut',
+        checkOut?.toDate(listingData.timeZone).toISOString(),
+      );
+      router.push(
+        `/listing/${listingData.id}/booking/create?${searchParams.toString()}`,
+      );
     } else {
       alert('Please select check-in and check-out dates');
     }
@@ -49,12 +62,16 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
    * @returns the total price for the stay
    */
   function calculateTotalPrice() {
-    const totalPrice = listingData.pricePerNight * (checkOut.compare(checkIn) + 1);
+    const totalPrice =
+      listingData.pricePerNight * (checkOut.compare(checkIn) + 1);
     return totalPrice;
   }
 
   return (
-    <form className='min-h-screen bg-gray-100 dark:bg-gray-900' onSubmit={onSubmit}>
+    <form
+      className='min-h-screen bg-gray-100 dark:bg-gray-900'
+      onSubmit={onSubmit}
+    >
       {/* Cover Photo */}
       <LightBox images={listingData.images} index={0}>
         <div className='relative h-[50vh] w-full '>
@@ -71,12 +88,16 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
           {/* Listing Details */}
           <div className='md:col-span-2'>
-            <h1 className='text-4xl font-bold mb-2  font-heading'>{listingData.title}</h1>
+            <h1 className='text-4xl font-bold mb-2  font-heading'>
+              {listingData.title}
+            </h1>
             <p className='text-muted-foreground mb-4'>{listingData.address}</p>
             <h2 className='text-2xl font-semibold font-subheading mb-4 dark:text-white'>
               About this place
             </h2>
-            <p className='text-muted-foreground mb-6'>{listingData.description}</p>
+            <p className='text-muted-foreground mb-6'>
+              {listingData.description}
+            </p>
 
             {/* Amenities */}
             <h2 className='text-2xl font-semibold font-subheading mb-4 dark:text-white'>
@@ -84,7 +105,10 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
             </h2>
             <ul className='grid grid-cols-2 gap-2 mb-6'>
               {listingData.amenities.map((amenity) => (
-                <li key={amenity} className='flex items-center dark:text-gray-300'>
+                <li
+                  key={amenity}
+                  className='flex items-center dark:text-gray-300'
+                >
                   <Amenity name={amenity} />
                 </li>
               ))}
@@ -96,7 +120,11 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
             </h2>
             <div className='grid grid-cols-2 gap-4'>
               {listingData.images.slice(1).map((image, index) => (
-                <LightBox key={index} images={listingData.images} index={index + 1}>
+                <LightBox
+                  key={index}
+                  images={listingData.images}
+                  index={index + 1}
+                >
                   <div key={index} className='relative h-48'>
                     <Image
                       src={image.url}
@@ -110,7 +138,9 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
               ))}
             </div>
             {/* Host Information */}
-            <h2 className='text-2xl font-subheading font-semibold mb-4  mt-8'>Meet your host</h2>
+            <h2 className='text-2xl font-subheading font-semibold mb-4  mt-8'>
+              Meet your host
+            </h2>
             <div className='flex items-center mt-4'>
               <Image
                 src={listingData.owner.imageUrl ?? ''}
@@ -120,7 +150,9 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
                 className='rounded-md mr-4'
               />
               <div>
-                <p className='my-2 font-bold text-lg'>Hosted by {listingData.owner.firstName}</p>
+                <p className='my-2 font-bold text-lg'>
+                  Hosted by {listingData.owner.firstName}
+                </p>
                 <p className='my-2'>
                   <Check className='inline-block mr-2' />
                   {listingData.owner.firstName} has hosted more than 100 guests
@@ -139,7 +171,11 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
                 <Calendar
                   border={false}
                   isDateUnavailable={(date) =>
-                    isDateUnavailable(date, listingData.inventory, listingData.timeZone)
+                    isDateUnavailable(
+                      date,
+                      listingData.inventory,
+                      listingData.timeZone,
+                    )
                   }
                   value={{
                     start: checkIn,
@@ -147,7 +183,9 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
                   }}
                   onChange={(range) => {
                     if (range) {
-                      const startDate = range.start.toDate(listingData.timeZone);
+                      const startDate = range.start.toDate(
+                        listingData.timeZone,
+                      );
                       const endDate = range.end.toDate(listingData.timeZone);
                       const startCalendarDate = new CalendarDate(
                         startDate.getFullYear(),
@@ -166,22 +204,32 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
                 />
                 <div className='grid grid-cols-[1fr_auto] gap-4 items-center my-4'>
                   <div>
-                    <span className='text-sm font-medium pr-1' suppressHydrationWarning>
-                      {checkIn.toDate(listingData.timeZone).toLocaleDateString(getLocale(), {
-                        month: 'long',
-                        day: 'numeric',
-                      })}
+                    <span
+                      className='text-sm font-medium pr-1'
+                      suppressHydrationWarning
+                    >
+                      {checkIn
+                        .toDate(listingData.timeZone)
+                        .toLocaleDateString(getLocale(), {
+                          month: 'long',
+                          day: 'numeric',
+                        })}
                       {' to '}
-                      {checkOut.toDate(listingData.timeZone).toLocaleDateString(getLocale(), {
-                        month: 'long',
-                        day: 'numeric',
-                      })}
+                      {checkOut
+                        .toDate(listingData.timeZone)
+                        .toLocaleDateString(getLocale(), {
+                          month: 'long',
+                          day: 'numeric',
+                        })}
                     </span>
                     <div>{`${checkOut.compare(checkIn) + 1} nights`}</div>
                   </div>
                   <div className='text-xl font-bold font-lg w-full text-right'>
                     {isRangeAvailable
-                      ? formatCurrency(calculateTotalPrice(), listingData.currency)
+                      ? formatCurrency(
+                          calculateTotalPrice(),
+                          listingData.currency,
+                        )
                       : '–'}
                   </div>
                 </div>

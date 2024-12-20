@@ -1,6 +1,12 @@
 import { format } from 'date-fns';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -54,8 +60,12 @@ export async function Bookings({ listingId }: { listingId: string }) {
               bookings.map((booking) => (
                 <TableRow key={booking.id}>
                   <TableCell>{booking.id}</TableCell>
-                  <TableCell>{format(booking.checkIn, 'MMM dd, yyyy')}</TableCell>
-                  <TableCell>{format(booking.checkOut, 'MMM dd, yyyy')}</TableCell>
+                  <TableCell>
+                    {format(booking.checkIn, 'MMM dd, yyyy')}
+                  </TableCell>
+                  <TableCell>
+                    {format(booking.checkOut, 'MMM dd, yyyy')}
+                  </TableCell>
                   <TableCell>{booking.userId}</TableCell>
                   <TableCell>{booking.totalPrice}</TableCell>
                   <TableCell>{booking.bookingRequestId}</TableCell>

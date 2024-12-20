@@ -20,7 +20,8 @@ function ColorPalette() {
     <div className='p-4'>
       <h1 className='text-2xl font-bold mb-4'>Color Palette</h1>
       <p className='text-sky-500-foreground mb-4'>
-        We try to keep the number of colors to a minimum for easier customization.
+        We try to keep the number of colors to a minimum for easier
+        customization.
       </p>
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
         {colors.map((color) => (
@@ -29,8 +30,12 @@ function ColorPalette() {
               <h2 className='text-lg font-semibold mb-2'>{color}</h2>
               <div className={`h-18 text-sm text-${color}-foreground`}>
                 <code className='font-thin block font-mono'>bg-{color}</code>
-                <code className='font-thin block font-mono'>text-{color}-foreground</code>
-                <div className={`flex mt-2 bg-${color} text-${color}-foreground`}>
+                <code className='font-thin block font-mono'>
+                  text-{color}-foreground
+                </code>
+                <div
+                  className={`flex mt-2 bg-${color} text-${color}-foreground`}
+                >
                   {[10, 20, 30, 40, 50, 60, 70, 80, 90].map((shade) => (
                     <div
                       key={shade}

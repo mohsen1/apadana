@@ -7,10 +7,18 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { sendBookingRequestEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 
-import { createTestListing, findOrCreateTestUser, TestUser } from '@/__tests__/setup/fixtures';
+import {
+  createTestListing,
+  findOrCreateTestUser,
+  TestUser,
+} from '@/__tests__/setup/fixtures';
 import { clearDatabase } from '@/__tests__/setup/test-container';
 
-import { createBookingRequest, getBookingRequest, getBookingRequests } from '../action';
+import {
+  createBookingRequest,
+  getBookingRequest,
+  getBookingRequests,
+} from '../action';
 
 vi.mock('@/lib/email/send-email', () => ({
   sendBookingRequestEmail: vi.fn(),
@@ -134,7 +142,9 @@ describe('Booking Requests Actions', () => {
         pets: false,
         message: 'No inventory created',
       });
-      expect(result?.serverError?.error).toContain('One or more dates are not available');
+      expect(result?.serverError?.error).toContain(
+        'One or more dates are not available',
+      );
     });
 
     test('does not send email if host has no email addresses', async () => {
@@ -151,7 +161,9 @@ describe('Booking Requests Actions', () => {
         message: 'No host email',
       });
 
-      expect(result?.serverError?.error).toContain('One or more dates are not available');
+      expect(result?.serverError?.error).toContain(
+        'One or more dates are not available',
+      );
       expect(sendBookingRequestEmail).not.toHaveBeenCalled();
     });
 
@@ -379,7 +391,9 @@ describe('Booking Requests Edge Cases', () => {
       pets: false,
       message: 'Testing partial availability',
     });
-    expect(result?.serverError?.error).toContain('One or more dates are not available');
+    expect(result?.serverError?.error).toContain(
+      'One or more dates are not available',
+    );
   });
 
   test('fails if checkIn equals checkOut', async () => {
@@ -405,7 +419,9 @@ describe('Booking Requests Edge Cases', () => {
       pets: false,
       message: 'Less than one day booking attempt',
     });
-    expect(result?.serverError?.error).toContain('Booking must be for at least one day');
+    expect(result?.serverError?.error).toContain(
+      'Booking must be for at least one day',
+    );
   });
 });
 

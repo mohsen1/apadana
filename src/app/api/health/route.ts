@@ -10,7 +10,10 @@ export async function GET() {
     // Test query to check DB connection
     await prisma.$queryRaw`SELECT 1`;
 
-    return NextResponse.json({ status: 'healthy', database: 'connected' }, { status: 200 });
+    return NextResponse.json(
+      { status: 'healthy', database: 'connected' },
+      { status: 200 },
+    );
   } catch (error) {
     assertError(error);
     logger.error('Database health check failed:', error);

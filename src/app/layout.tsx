@@ -53,7 +53,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   validateEnvironmentVariables();
 
   const result = await getCurrentUser();
@@ -81,7 +85,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
             <ToastProvider>
               <Header className='h-16' />
-              <main className='flex-1 min-h-[calc(100vh-4rem)] w-full mx-auto'>{children}</main>
+              <main className='flex-1 min-h-[calc(100vh-4rem)] w-full mx-auto'>
+                {children}
+              </main>
               <Footer className='mt-auto' />
               <Toaster />
             </ToastProvider>

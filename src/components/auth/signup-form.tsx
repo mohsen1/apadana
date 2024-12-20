@@ -9,7 +9,13 @@ import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -100,7 +106,9 @@ export function SignupForm() {
     <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
       <Card className='w-full max-w-md shadow-lg bg-gray-100 dark:bg-gray-900'>
         <CardHeader>
-          <CardTitle className='text-2xl font-bold text-center'>Create your account</CardTitle>
+          <CardTitle className='text-2xl font-bold text-center'>
+            Create your account
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -113,7 +121,11 @@ export function SignupForm() {
                     <FormItem>
                       <FormLabel>First Name</FormLabel>
                       <FormControl>
-                        <Input placeholder='John' {...field} autoComplete='given-name' />
+                        <Input
+                          placeholder='John'
+                          {...field}
+                          autoComplete='given-name'
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -127,7 +139,11 @@ export function SignupForm() {
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input placeholder='Doe' {...field} autoComplete='family-name' />
+                        <Input
+                          placeholder='Doe'
+                          {...field}
+                          autoComplete='family-name'
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -161,7 +177,11 @@ export function SignupForm() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type='password' {...field} autoComplete='new-password' />
+                      <Input
+                        type='password'
+                        {...field}
+                        autoComplete='new-password'
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -175,7 +195,11 @@ export function SignupForm() {
                   <FormItem>
                     <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
-                      <Input type='password' {...field} autoComplete='new-password' />
+                      <Input
+                        type='password'
+                        {...field}
+                        autoComplete='new-password'
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -183,7 +207,11 @@ export function SignupForm() {
               />
 
               <div className='flex flex-col gap-4'>
-                <Button type='submit' className='w-full' disabled={form.formState.isSubmitting}>
+                <Button
+                  type='submit'
+                  className='w-full'
+                  disabled={form.formState.isSubmitting}
+                >
                   {form.formState.isSubmitting ? (
                     <>
                       <Loader2 className='mr-2 h-4 w-4 animate-spin' />

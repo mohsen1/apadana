@@ -6,7 +6,9 @@ import { BookingRequestEmail } from './booking-request-email';
 
 const meta: Meta<typeof BookingRequestEmail> = {
   title: 'Emails/BookingRequestEmail',
-  render: (args) => <ReactEmailStoryRenderer Component={BookingRequestEmail} props={args} />,
+  render: (args) => (
+    <ReactEmailStoryRenderer Component={BookingRequestEmail} props={args} />
+  ),
   parameters: {
     layout: 'centered',
   },

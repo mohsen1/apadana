@@ -48,8 +48,8 @@ export async function GET() {
             paddingRight: 30,
           }}
         >
-          Get direct bookings, manage your calendar, and communicate with guests - all without extra
-          fees.
+          Get direct bookings, manage your calendar, and communicate with guests
+          - all without extra fees.
         </div>
       </div>
     ),

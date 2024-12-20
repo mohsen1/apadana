@@ -36,10 +36,23 @@ _.memoize(() => {
   }
 })();
 
-export const storageState = path.join(process.cwd(), '.cache/__e2e__auth/state.json');
+export const storageState = path.join(
+  process.cwd(),
+  '.cache/__e2e__auth/state.json',
+);
 
-const htmlReportFolder = path.join(process.cwd(), '.next', 'playwright-report', 'html');
-const jsonReportFolder = path.join(process.cwd(), '.next', 'playwright-report', 'json');
+const htmlReportFolder = path.join(
+  process.cwd(),
+  '.next',
+  'playwright-report',
+  'html',
+);
+const jsonReportFolder = path.join(
+  process.cwd(),
+  '.next',
+  'playwright-report',
+  'json',
+);
 if (!fs.existsSync(htmlReportFolder)) {
   fs.mkdirSync(htmlReportFolder, { recursive: true });
 }
@@ -87,7 +100,8 @@ export default defineConfig({
       // Learn more about this here:
       // https://vercel.com/docs/security/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation
       if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET) {
-        headers['x-vercel-protection-bypass'] = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+        headers['x-vercel-protection-bypass'] =
+          process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
       }
 
       return headers;

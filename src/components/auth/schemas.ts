@@ -7,4 +7,6 @@ const prodPasswordSchema = z
   .max(100, 'Password must be less than 100 characters');
 
 export const passwordSchema =
-  process.env.NODE_ENV === 'development' ? devPasswordSchema : prodPasswordSchema;
+  process.env.NODE_ENV === 'development'
+    ? devPasswordSchema
+    : prodPasswordSchema;

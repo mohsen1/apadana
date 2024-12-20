@@ -26,7 +26,9 @@ export function AmenitiesStep() {
                 onCheckedChange={(checked) => {
                   const updatedAmenities = checked
                     ? [...(field.value || []), amenity]
-                    : (field.value || []).filter((item: string) => item !== amenity);
+                    : (field.value || []).filter(
+                        (item: string) => item !== amenity,
+                      );
                   field.onChange(updatedAmenities);
                 }}
               />

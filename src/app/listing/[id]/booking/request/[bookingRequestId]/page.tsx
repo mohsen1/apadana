@@ -27,19 +27,27 @@ export default async function BookingRequestPage(props: {
   return <BookingRequestSent bookingRequest={res.data} />;
 }
 
-function BookingRequestSent({ bookingRequest }: { bookingRequest: FullBookingRequest }) {
+function BookingRequestSent({
+  bookingRequest,
+}: {
+  bookingRequest: FullBookingRequest;
+}) {
   return (
     <main className='flex-grow container mx-auto p-4 max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 place-content-center'>
       <div>
         <div className='flex items-center mt-8'>
-          <CheckCircle2 className='w-20 h-20 text-green-500' strokeWidth={1.5} />
+          <CheckCircle2
+            className='w-20 h-20 text-green-500'
+            strokeWidth={1.5}
+          />
         </div>
         <h1 className='text-2xl mt-8 font-bold mb-4 flex items-center'>
           Your booking request has been sent
         </h1>
         <p className='mb-4'>
-          Your booking request has been sent to {bookingRequest.listing.owner.firstName}. Your host
-          will review your request and get back to you soon.
+          Your booking request has been sent to{' '}
+          {bookingRequest.listing.owner.firstName}. Your host will review your
+          request and get back to you soon.
         </p>
         <p>
           Check-in date:{' '}
@@ -66,14 +74,19 @@ function BookingRequestSent({ bookingRequest }: { bookingRequest: FullBookingReq
         <p>
           Total price:{' '}
           <span className='font-bold'>
-            {formatCurrency(bookingRequest.totalPrice, bookingRequest.listing.currency)}
+            {formatCurrency(
+              bookingRequest.totalPrice,
+              bookingRequest.listing.currency,
+            )}
           </span>
         </p>
-        <p className='my-4'>A confirmation email will be sent to you and your host.</p>
+        <p className='my-4'>
+          A confirmation email will be sent to you and your host.
+        </p>
         <h2 className='text-lg font-bold my-2'>What happens next?</h2>
         <p>
-          You will be notified when the host has accepted or rejected your request. We will send you
-          an email to{' '}
+          You will be notified when the host has accepted or rejected your
+          request. We will send you an email to{' '}
           <span className='font-bold'>
             {bookingRequest.user?.emailAddresses?.[0]?.emailAddress}
           </span>{' '}

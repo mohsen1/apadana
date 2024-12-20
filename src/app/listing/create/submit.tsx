@@ -15,7 +15,10 @@ function validateFormData(
   formData: TypedFormData<Listing>,
 ): formData is TypedFormData<Required<Listing>> {
   const errors: Record<string, string> = {};
-  const validatedData: Record<string, string | number | string[] | boolean | Date> = {};
+  const validatedData: Record<
+    string,
+    string | number | string[] | boolean | Date
+  > = {};
 
   // Define required fields
   const requiredFields: (keyof Listing)[] = [
@@ -39,8 +42,10 @@ function validateFormData(
   }
 
   // Validate and convert numeric fields
-  const numericFields: (keyof Pick<Listing, 'pricePerNight' | 'minimumStay' | 'maximumGuests'>)[] =
-    ['pricePerNight', 'minimumStay', 'maximumGuests'];
+  const numericFields: (keyof Pick<
+    Listing,
+    'pricePerNight' | 'minimumStay' | 'maximumGuests'
+  >)[] = ['pricePerNight', 'minimumStay', 'maximumGuests'];
   for (const field of numericFields) {
     const value = formData.get(field);
     if (value) {
@@ -75,7 +80,9 @@ function validateFormData(
   return true;
 }
 
-export async function submitForm(formData: TypedFormData<Listing>): Promise<ServerResponse> {
+export async function submitForm(
+  formData: TypedFormData<Listing>,
+): Promise<ServerResponse> {
   validateFormData(formData);
 
   const user = await getUserInServer();

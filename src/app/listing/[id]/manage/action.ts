@@ -15,7 +15,11 @@ import {
   GetListingSchema,
   GetListingsSchema,
 } from '@/lib/prisma/schema';
-import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
+import {
+  actionClient,
+  ClientVisibleError,
+  UnauthorizedError,
+} from '@/lib/safe-action';
 
 export const getBookings = actionClient
   .schema(GetBookingsSchema)
@@ -33,7 +37,9 @@ export const getBookings = actionClient
     });
 
     if (!listing) {
-      throw new ClientVisibleError('Listing not found or you do not have access to it');
+      throw new ClientVisibleError(
+        'Listing not found or you do not have access to it',
+      );
     }
 
     // Fetch all bookings associated with the listing
@@ -111,7 +117,10 @@ export const editListingImages = actionClient
 
     // Delete images that are no longer in the new set
     const imagesToDelete = listing.images.filter(
-      (existingImage) => !parsedInput.images.some((newImage) => newImage.key === existingImage.key),
+      (existingImage) =>
+        !parsedInput.images.some(
+          (newImage) => newImage.key === existingImage.key,
+        ),
     );
 
     await prisma.$transaction(async (tx) => {
@@ -184,7 +193,10 @@ export const editInventory = actionClient
         toZonedTime(new Date(), listing.timeZone),
       );
       // Convert the datetime to ISO string
-      const dateInUTC = toZonedTime(dateWithCheckInTime, listing.timeZone).toISOString();
+      const dateInUTC = toZonedTime(
+        dateWithCheckInTime,
+        listing.timeZone,
+      ).toISOString();
 
       return {
         ...item,
@@ -247,7 +259,9 @@ export const editInventory = actionClient
  */
 export const getListings = actionClient
   .schema(GetListingsSchema)
-  .outputSchema(z.object({ listings: z.array(GetListingSchema), totalCount: z.number() }))
+  .outputSchema(
+    z.object({ listings: z.array(GetListingSchema), totalCount: z.number() }),
+  )
   .action(async ({ parsedInput: { take, skip }, ctx: { userId } }) => {
     const listings = await prisma.listing.findMany({
       where: {
@@ -281,158 +295,162 @@ export const changeBookingRequestStatus = actionClient
       listing: GetListingSchema,
     }),
   )
-  .action(async ({ parsedInput: { bookingRequestId, status }, ctx: { userId } }) => {
-    if (!userId) {
-      throw new UnauthorizedError();
-    }
+  .action(
+    async ({ parsedInput: { bookingRequestId, status }, ctx: { userId } }) => {
+      if (!userId) {
+        throw new UnauthorizedError();
+      }
 
-    const bookingRequest = await prisma.bookingRequest.findUnique({
-      where: {
-        id: bookingRequestId,
-      },
-      include: {
-        listing: true,
-      },
-    });
-
-    if (!bookingRequest || bookingRequest.listing.ownerId !== userId) {
-      throw new ClientVisibleError(
-        'Booking request not found or you are not the owner of the listing',
-      );
-    }
-
-    const previousStatus = bookingRequest.status;
-
-    await prisma.$transaction(async (prisma) => {
-      // Update the booking request status
-      await prisma.bookingRequest.update({
+      const bookingRequest = await prisma.bookingRequest.findUnique({
         where: {
           id: bookingRequestId,
         },
-        data: {
-          status,
+        include: {
+          listing: true,
         },
       });
 
-      if (
-        status === BookingRequestStatus.ACCEPTED &&
-        previousStatus !== BookingRequestStatus.ACCEPTED
-      ) {
-        // Create a booking
-        const booking = await prisma.booking.create({
+      if (!bookingRequest || bookingRequest.listing.ownerId !== userId) {
+        throw new ClientVisibleError(
+          'Booking request not found or you are not the owner of the listing',
+        );
+      }
+
+      const previousStatus = bookingRequest.status;
+
+      await prisma.$transaction(async (prisma) => {
+        // Update the booking request status
+        await prisma.bookingRequest.update({
+          where: {
+            id: bookingRequestId,
+          },
           data: {
-            userId: bookingRequest.userId,
-            totalPrice: 0, // We'll calculate this below
-            checkIn: bookingRequest.checkIn,
-            checkOut: bookingRequest.checkOut,
-            bookingRequestId: bookingRequest.id,
+            status,
           },
         });
 
-        // Generate dates between checkIn and checkOut (excluding checkOut)
-        const dates = [];
-        const currentDate = new Date(bookingRequest.checkIn);
-        while (currentDate < bookingRequest.checkOut) {
-          dates.push(new Date(currentDate));
-          currentDate.setDate(currentDate.getDate() + 1);
-        }
-
-        let totalPrice = 0;
-        for (const date of dates) {
-          // Check if the date is available
-          const inventory = await prisma.listingInventory.findUnique({
-            where: {
-              listingId_date: {
-                listingId: bookingRequest.listingId,
-                date,
-              },
+        if (
+          status === BookingRequestStatus.ACCEPTED &&
+          previousStatus !== BookingRequestStatus.ACCEPTED
+        ) {
+          // Create a booking
+          const booking = await prisma.booking.create({
+            data: {
+              userId: bookingRequest.userId,
+              totalPrice: 0, // We'll calculate this below
+              checkIn: bookingRequest.checkIn,
+              checkOut: bookingRequest.checkOut,
+              bookingRequestId: bookingRequest.id,
             },
           });
 
-          if (inventory) {
-            if (!inventory.isAvailable) {
-              throw new Error(`Date ${date.toISOString().split('T')[0]} is not available`);
-            }
-            // Update the inventory
-            await prisma.listingInventory.update({
+          // Generate dates between checkIn and checkOut (excluding checkOut)
+          const dates = [];
+          const currentDate = new Date(bookingRequest.checkIn);
+          while (currentDate < bookingRequest.checkOut) {
+            dates.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+
+          let totalPrice = 0;
+          for (const date of dates) {
+            // Check if the date is available
+            const inventory = await prisma.listingInventory.findUnique({
               where: {
-                id: inventory.id,
-              },
-              data: {
-                isAvailable: false,
-                bookingId: booking.id,
-              },
-            });
-            totalPrice += inventory.price;
-          } else {
-            // Create new inventory entry
-            const newInventory = await prisma.listingInventory.create({
-              data: {
-                listingId: bookingRequest.listingId,
-                date,
-                isAvailable: false,
-                price: bookingRequest.listing.pricePerNight,
-                bookingId: booking.id,
+                listingId_date: {
+                  listingId: bookingRequest.listingId,
+                  date,
+                },
               },
             });
-            totalPrice += newInventory.price;
-          }
-        }
 
-        // Update the total price of the booking
-        await prisma.booking.update({
-          where: { id: booking.id },
-          data: {
-            totalPrice,
-          },
-        });
-      } else if (
-        previousStatus === BookingRequestStatus.ACCEPTED &&
-        status !== BookingRequestStatus.ACCEPTED
-      ) {
-        // Cancel the booking
-        const booking = await prisma.booking.findFirst({
-          where: {
-            bookingRequestId: bookingRequest.id,
-          },
-          include: {
-            listingInventory: true,
-          },
-        });
-
-        if (booking) {
-          // Release inventory
-          for (const inventory of booking.listingInventory) {
-            await prisma.listingInventory.update({
-              where: { id: inventory.id },
-              data: {
-                isAvailable: true,
-                bookingId: null,
-              },
-            });
+            if (inventory) {
+              if (!inventory.isAvailable) {
+                throw new Error(
+                  `Date ${date.toISOString().split('T')[0]} is not available`,
+                );
+              }
+              // Update the inventory
+              await prisma.listingInventory.update({
+                where: {
+                  id: inventory.id,
+                },
+                data: {
+                  isAvailable: false,
+                  bookingId: booking.id,
+                },
+              });
+              totalPrice += inventory.price;
+            } else {
+              // Create new inventory entry
+              const newInventory = await prisma.listingInventory.create({
+                data: {
+                  listingId: bookingRequest.listingId,
+                  date,
+                  isAvailable: false,
+                  price: bookingRequest.listing.pricePerNight,
+                  bookingId: booking.id,
+                },
+              });
+              totalPrice += newInventory.price;
+            }
           }
 
-          // Delete the booking
-          await prisma.booking.delete({
+          // Update the total price of the booking
+          await prisma.booking.update({
             where: { id: booking.id },
+            data: {
+              totalPrice,
+            },
           });
+        } else if (
+          previousStatus === BookingRequestStatus.ACCEPTED &&
+          status !== BookingRequestStatus.ACCEPTED
+        ) {
+          // Cancel the booking
+          const booking = await prisma.booking.findFirst({
+            where: {
+              bookingRequestId: bookingRequest.id,
+            },
+            include: {
+              listingInventory: true,
+            },
+          });
+
+          if (booking) {
+            // Release inventory
+            for (const inventory of booking.listingInventory) {
+              await prisma.listingInventory.update({
+                where: { id: inventory.id },
+                data: {
+                  isAvailable: true,
+                  bookingId: null,
+                },
+              });
+            }
+
+            // Delete the booking
+            await prisma.booking.delete({
+              where: { id: booking.id },
+            });
+          }
         }
-      }
-    });
+      });
 
-    const updatedListing = await prisma.listing.findUniqueOrThrow({
-      where: {
-        id: bookingRequest.listingId,
-      },
-      include: {
-        inventory: true,
-        owner: true,
-        images: true,
-      },
-    });
+      const updatedListing = await prisma.listing.findUniqueOrThrow({
+        where: {
+          id: bookingRequest.listingId,
+        },
+        include: {
+          inventory: true,
+          owner: true,
+          images: true,
+        },
+      });
 
-    return {
-      status,
-      listing: updatedListing,
-    };
-  });
+      return {
+        status,
+        listing: updatedListing,
+      };
+    },
+  );

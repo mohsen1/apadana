@@ -23,11 +23,18 @@ export function ImageGallery({ listing }: { listing: PublicListing }) {
             onClick={() => setMainImage(index)}
             className={`relative aspect-video ${index === mainImage ? 'ring-2 ring-primary' : ''}`}
           >
-            <Image src={img.url} alt={img.name ?? ''} fill className='object-cover rounded-md' />
+            <Image
+              src={img.url}
+              alt={img.name ?? ''}
+              fill
+              className='object-cover rounded-md'
+            />
           </button>
         ))}
       </div>
-      <h2 className='text-2xl pt-6 pb-2  mb-2 font-bold font-heading'>{listing.title}</h2>
+      <h2 className='text-2xl pt-6 pb-2  mb-2 font-bold font-heading'>
+        {listing.title}
+      </h2>
       <div className='mt-4'>{listing.description}</div>
     </div>
   );

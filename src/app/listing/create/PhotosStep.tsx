@@ -32,13 +32,17 @@ export function PhotosStep() {
               }
               setError('images', {
                 type: 'uploadError',
-                message: error?.message || 'Something went wrong while uploading the images',
+                message:
+                  error?.message ||
+                  'Something went wrong while uploading the images',
               });
             }}
           />
         )}
       />
-      {errors.images && <span className='text-red-500'>{errors.images.message}</span>}
+      {errors.images && (
+        <span className='text-red-500'>{errors.images.message}</span>
+      )}
     </div>
   );
 }

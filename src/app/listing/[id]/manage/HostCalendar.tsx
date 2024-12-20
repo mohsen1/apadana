@@ -37,18 +37,23 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
     start: today,
     end: today,
   });
-  const [rangePrice, setRangePrice] = useState<number>(listingData.pricePerNight);
-  const [rangeAvailable, setRangeAvailable] = useState<boolean>(isRangeAvailable(range));
-  const { execute: executeEditInventory, status: editInventoryStatus } = useAction(editInventory, {
-    onSuccess: (result) => {
-      if (result.data) {
-        return refreshInventory();
-      }
-    },
-    onError: (error) => {
-      throw error;
-    },
-  });
+  const [rangePrice, setRangePrice] = useState<number>(
+    listingData.pricePerNight,
+  );
+  const [rangeAvailable, setRangeAvailable] = useState<boolean>(
+    isRangeAvailable(range),
+  );
+  const { execute: executeEditInventory, status: editInventoryStatus } =
+    useAction(editInventory, {
+      onSuccess: (result) => {
+        if (result.data) {
+          return refreshInventory();
+        }
+      },
+      onError: (error) => {
+        throw error;
+      },
+    });
 
   /**
    * Refresh the inventory.
@@ -190,7 +195,9 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
                           {formatCurrencySymbol(listingData.currency)}
                         </span>
                       }
-                      disabled={editInventoryStatus === 'executing' || !rangeAvailable}
+                      disabled={
+                        editInventoryStatus === 'executing' || !rangeAvailable
+                      }
                       id='datePrice'
                       inputMode='decimal'
                       pattern='^\d*\.?\d*$'
@@ -234,9 +241,15 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
                     }}
                   >
                     <RefreshCcw
-                      className={editInventoryStatus === 'executing' ? 'animate-spin' : ''}
+                      className={
+                        editInventoryStatus === 'executing'
+                          ? 'animate-spin'
+                          : ''
+                      }
                     />
-                    {range.start.compare(range.end) === 0 ? 'Update Date' : 'Update Dates'}
+                    {range.start.compare(range.end) === 0
+                      ? 'Update Date'
+                      : 'Update Dates'}
                   </Button>
                 </div>
               </>
@@ -261,7 +274,8 @@ function TimeZoneWarning({ listingTimeZone }: { listingTimeZone: string }) {
   return (
     <div className='text-sm mt-2'>
       Note: This calendar is in{' '}
-      <span className='font-semibold'>{formatTimezone(listingTimeZone)}</span> time zone.
+      <span className='font-semibold'>{formatTimezone(listingTimeZone)}</span>{' '}
+      time zone.
       {/* if it's a different day in listing time zone than local time, the dates will be different */}
       {isCurrentlyAnotherDayInTimeZone(new Date(), listingTimeZone)
         ? `The current date is ${new Date().toLocaleDateString(getLocale(), {

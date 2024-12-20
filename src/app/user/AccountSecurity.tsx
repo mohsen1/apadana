@@ -43,7 +43,9 @@ export function AccountSecurity() {
         <h2 className='text-2xl font-semibold'>Security Settings</h2>
 
         <div className='border-t pt-6'>
-          <h3 className='text-lg font-medium text-destructive mb-2'>Danger Zone</h3>
+          <h3 className='text-lg font-medium text-destructive mb-2'>
+            Danger Zone
+          </h3>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant='destructive' disabled={isDeleting}>
@@ -55,8 +57,8 @@ export function AccountSecurity() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your account and remove
-                  all of your data from our servers.
+                  This action cannot be undone. This will permanently delete
+                  your account and remove all of your data from our servers.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

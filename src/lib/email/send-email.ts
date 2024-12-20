@@ -80,7 +80,9 @@ export interface BookingAlterationEmailProps {
   alterationType?: 'modified' | 'cancelled';
 }
 
-export async function sendBookingAlterationEmail(props: BookingAlterationEmailProps) {
+export async function sendBookingAlterationEmail(
+  props: BookingAlterationEmailProps,
+) {
   const {
     hostEmail,
     guestName,

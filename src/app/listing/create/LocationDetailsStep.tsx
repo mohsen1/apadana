@@ -6,7 +6,8 @@ import { CreateListing } from '@/lib/prisma/schema';
 import { LocationPicker } from '@/components/LocationPicker';
 
 export function LocationDetailsStep() {
-  const { formState, setValue, watch, trigger } = useFormContext<CreateListing>();
+  const { formState, setValue, watch, trigger } =
+    useFormContext<CreateListing>();
 
   const address = watch('address');
   const latitude = watch('latitude');
@@ -37,7 +38,9 @@ export function LocationDetailsStep() {
       onLocationChange={handleLocationChange}
       onShowExactLocationChange={handleShowExactLocationChange}
       errors={{
-        address: formState.errors.address ? 'You must enter an address' : undefined,
+        address: formState.errors.address
+          ? 'You must enter an address'
+          : undefined,
       }}
     />
   );

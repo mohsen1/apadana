@@ -29,7 +29,9 @@ const ListingsGrid = ({ listings }: ListingsGridProps) => {
             )}
           </div>
           <div className='p-6'>
-            <h2 className='text-2xl font-semibold mb-2 text-card-foreground'>{listing.title}</h2>
+            <h2 className='text-2xl font-semibold mb-2 text-card-foreground'>
+              {listing.title}
+            </h2>
             <div className='text-sm text-muted-foreground'>
               <p>{listing.address}</p>
               <p className='font-medium mt-2'>
@@ -38,7 +40,10 @@ const ListingsGrid = ({ listings }: ListingsGridProps) => {
             </div>
           </div>
           <div className='p-6 min-h-10 flex justify-end align-end gap-4'>
-            <Button href={`/listing/${listing.id}/delete`} variant='softDestructive'>
+            <Button
+              href={`/listing/${listing.id}/delete`}
+              variant='softDestructive'
+            >
               Delete
             </Button>
             <Button href={`/listing/${listing.id}`} variant='secondary'>

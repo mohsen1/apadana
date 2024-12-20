@@ -1,4 +1,9 @@
-import { BookingRequest, BookingRequestStatus, Currency, Prisma } from '@prisma/client';
+import {
+  BookingRequest,
+  BookingRequestStatus,
+  Currency,
+  Prisma,
+} from '@prisma/client';
 import { addDays } from 'date-fns';
 import _ from 'lodash';
 
@@ -106,7 +111,9 @@ export async function createTestBookingRequest({
     where: { id: listingId },
   });
 
-  const daysCount = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+  const daysCount = Math.ceil(
+    (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24),
+  );
   const totalPrice = listing.pricePerNight * daysCount;
 
   return prisma.bookingRequest.create({
