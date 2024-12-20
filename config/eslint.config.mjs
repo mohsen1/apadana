@@ -9,17 +9,10 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: [
-      '**/dist/**',
-      '**/out/**',
-      '**/build/**',
-      '**/e2e/.next/**',
-      '**/__mocks__/**',
-      '**/node_modules/**',
-    ],
+    ignores: ['**/dist/**', '**/out/**', '**/build/**', '**/node_modules/**'],
   },
   {
-    files: ['{src,config}/**/*.{js,jsx,ts,tsx}'],
+    files: ['{src,config,__mocks__}/**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
