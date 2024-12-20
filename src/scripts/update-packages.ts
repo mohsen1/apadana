@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { spawn } from 'child_process';
+import fs from 'fs/promises';
 import semver from 'semver';
 
 import { assertError } from '@/utils';
@@ -55,6 +56,23 @@ interface PackageUpdate {
   dependencyType: string;
 }
 
+interface TestResult {
+  type: 'typecheck' | 'lint' | 'unit' | 'docker' | 'e2e';
+  passed: boolean;
+  error?: string;
+}
+
+interface UpdateResult {
+  packageName: string;
+  groupName?: string;
+  fromVersion: string;
+  toVersion: string;
+  updateType: 'major' | 'minor' | 'patch';
+  testResults: TestResult[];
+}
+
+const results: UpdateResult[] = [];
+
 async function execCommand(
   command: string,
   args: string[],
@@ -101,60 +119,47 @@ async function execCommand(
   });
 }
 
-async function runTests() {
-  try {
-    logger.info(chalk.bold.blue('\n📝 Running TypeScript checks...'));
-    const { stderr, exitCode } = await execCommand('pnpm', ['typecheck']);
-    if (exitCode !== 0) {
-      throw new Error(stderr);
+async function runTests(update: UpdateResult): Promise<boolean> {
+  const runTest = async (
+    type: TestResult['type'],
+    command: string,
+    args: string[],
+    env = {},
+  ): Promise<TestResult> => {
+    try {
+      logger.info(
+        chalk.bold.blue(`\n${getTestEmoji(type)} Running ${type} checks...`),
+      );
+      const { stderr, exitCode } = await execCommand('pnpm', args, {
+        allowFailure: true,
+        env,
+      });
+      const passed = exitCode === 0;
+
+      if (passed) {
+        logger.info(chalk.bold.green(`✅ ${type} checks passed`));
+      } else {
+        logger.error(chalk.bold.yellow(`⚠️ ${type} checks failed`));
+      }
+
+      return { type, passed, error: passed ? undefined : stderr };
+    } catch (error) {
+      assertError(error);
+      logger.error(chalk.bold.yellow(`⚠️ ${type} checks failed`));
+      return { type, passed: false, error: error.message };
     }
-    logger.info(chalk.bold.green('✅ TypeScript checks passed'));
-  } catch (error) {
-    assertError(error);
-    logger.error(chalk.bold.red('\n❌ TypeScript checks failed:'));
-    logger.error(chalk.red(error.message));
-  }
+  };
 
-  try {
-    logger.info(chalk.bold.blue('\n🔍 Running ESLint checks...'));
-    await execCommand('pnpm', ['lint:strict']);
-    logger.info(chalk.bold.green('✅ ESLint checks passed'));
-  } catch (error) {
-    assertError(error);
-    logger.error(chalk.bold.red('\n❌ ESLint checks failed:'));
-    logger.error(chalk.red(error.message));
-    process.exit(1);
-  }
+  const tests: TestResult[] = await Promise.all([
+    runTest('typecheck', 'pnpm', ['typecheck']),
+    runTest('lint', 'pnpm', ['lint:strict']),
+    runTest('unit', 'pnpm', ['test']),
+    runTest('docker', 'pnpm', ['docker:build']),
+    runTest('e2e', 'pnpm', ['e2e'], { CI: 'true' }),
+  ]);
 
-  try {
-    logger.info(chalk.bold.blue('\n🧪 Running unit tests...'));
-    await execCommand('pnpm', ['test']);
-  } catch (error) {
-    assertError(error);
-    logger.error(chalk.bold.red('\n❌ Some of the tests failed:'));
-    logger.error(chalk.red(error.message));
-    process.exit(1);
-  }
-
-  try {
-    logger.info(chalk.bold.blue('\n🐳 Rebuilding Docker for E2E...'));
-    await execCommand('pnpm', ['docker:build']);
-  } catch (error) {
-    assertError(error);
-    logger.error(chalk.bold.red('\n❌ Docker build failed:'));
-    logger.error(chalk.red(error.message));
-    process.exit(1);
-  }
-
-  try {
-    logger.info(chalk.bold.blue('\n🚀 Running E2E tests...'));
-    await execCommand('pnpm', ['e2e'], { env: { CI: 'true' } });
-  } catch (error) {
-    assertError(error);
-    logger.error(chalk.bold.red('\n❌ E2E tests failed:'));
-    logger.error(chalk.red(error.message));
-    process.exit(1);
-  }
+  update.testResults = tests;
+  return tests.every((test) => test.passed);
 }
 
 function getUpdateType(
@@ -210,7 +215,7 @@ async function updatePackageGroup(
   );
 
   try {
-    // Install all packages in the group
+    // Install packages
     for (const update of updates) {
       await execCommand('pnpm', [
         'add',
@@ -218,10 +223,6 @@ async function updatePackageGroup(
       ]);
     }
 
-    logger.info(chalk.bold.yellow('\n🧪 Running tests...'));
-    await runTests();
-
-    // Use the highest severity update type for the group
     const updateType = updates.reduce(
       (highest, update) => {
         const type = getUpdateType(update.current, update.latest);
@@ -231,6 +232,19 @@ async function updatePackageGroup(
       },
       'patch' as 'major' | 'minor' | 'patch',
     );
+
+    const updateResult: UpdateResult = {
+      packageName: updates.map((u) => u.packageName).join(', '),
+      groupName,
+      fromVersion: updates[0].current,
+      toVersion: updates[0].latest,
+      updateType,
+      testResults: [],
+    };
+
+    logger.info(chalk.bold.yellow('\n🧪 Running tests...'));
+    await runTests(updateResult);
+    results.push(updateResult);
 
     const commitMessage = [
       groupName
@@ -287,6 +301,45 @@ async function updatePackageGroup(
   }
 }
 
+function generatePRSummary(results: UpdateResult[]): string {
+  const summary = [
+    '# Package Updates Summary',
+    '',
+    '## Overview',
+    '',
+    '| Package(s) | Update Type | From | To | Status |',
+    '|------------|-------------|------|-----|--------|',
+  ];
+
+  for (const result of results) {
+    const allPassed = result.testResults.every((t) => t.passed);
+    const status = allPassed ? '✅ All Passed' : '⚠️ Some Tests Failed';
+    summary.push(
+      `| ${result.groupName || result.packageName} | ${result.updateType} | ${result.fromVersion} | ${result.toVersion} | ${status} |`,
+    );
+  }
+
+  summary.push('', '## Detailed Test Results', '');
+
+  for (const result of results) {
+    summary.push(
+      `### ${result.groupName || result.packageName}`,
+      '',
+      '| Test Type | Status | Error |',
+      '|-----------|--------|-------|',
+    );
+
+    for (const test of result.testResults) {
+      summary.push(
+        `| ${test.type} | ${test.passed ? '✅ Passed' : '❌ Failed'} | ${test.error ? `\`\`\`\n${test.error}\n\`\`\`` : 'N/A'} |`,
+      );
+    }
+    summary.push('');
+  }
+
+  return summary.join('\n');
+}
+
 async function main() {
   try {
     logger.info(chalk.bold.blue('🔍 Checking for outdated packages...'));
@@ -322,11 +375,34 @@ async function main() {
       await updatePackageGroup([update]);
     }
 
-    logger.info(chalk.bold.green('✨ Package updates completed!'));
+    // Generate and print PR summary
+    const prSummary = generatePRSummary(results);
+    logger.info('\n📋 PR Summary:');
+    logger.log(prSummary);
+
+    // Write summary to file
+    await fs.writeFile('package-updates-summary.md', prSummary);
+    logger.info(
+      chalk.bold.green(
+        '\n✨ Package updates completed! Summary written to package-updates-summary.md',
+      ),
+    );
   } catch (error) {
     logger.error(chalk.bold.red('❌ Script failed:'), error);
     process.exit(1);
   }
+}
+
+// Helper function for test emojis
+function getTestEmoji(type: TestResult['type']): string {
+  const emojis = {
+    typecheck: '📝',
+    lint: '🔍',
+    unit: '🧪',
+    docker: '🐳',
+    e2e: '🚀',
+  };
+  return emojis[type];
 }
 
 main().catch((error) => {
