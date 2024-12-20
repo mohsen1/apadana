@@ -35,59 +35,44 @@ async function waitForContainerHealthy(
     try {
       logger.debug('Checking container status...');
       const containerStatusResult = exec(
-        `docker compose -f ${composeFile} ps --format json`,
+        `docker compose -f ${composeFile} ps --format '{"service":"{{ .Service }}","state":"{{ .State }}","health":"{{ .Health }}"}'`,
         {
           env: process.env,
           stdio: 'pipe',
         },
       );
 
-      logger.debug(
-        'Raw container status output:',
-        containerStatusResult.toString(),
-      );
-      let { parsed: containers } = safeParse<
-        { Service: string; State: string; Health: string }[]
-      >(containerStatusResult.toString());
+      const output = containerStatusResult.toString().trim();
+      logger.debug('Container status output:', output);
 
-      if (!containers) {
-        logger.error(
-          'Failed to parse container status output:',
-          containerStatusResult.toString(),
-        );
-        throw new Error('Failed to parse container status output');
-      }
-
-      if (!Array.isArray(containers)) {
-        logger.debug(
-          'Received a single container object, converting to array.',
-        );
-        containers = [containers];
-      }
-
-      if (!Array.isArray(containers)) {
-        logger.error('Expected an array of containers, got:', containers);
-        logger.error(
-          'Check Docker Compose version or remove --format json. Requires Docker Compose v2 or newer.',
-        );
-        throw new Error('Invalid container status format - not an array');
-      }
-
-      const targetContainer = containers.find(
-        (c: { Service: string; State: string; Health: string }) =>
-          c.Service === serviceName,
-      );
-      if (!targetContainer || targetContainer.State !== 'running') {
-        logger.info(
-          `Container "${serviceName}" not running yet. Retries left: ${retries - 1}`,
-        );
-      } else if (targetContainer.Health !== 'healthy') {
-        logger.info(
-          `Container "${serviceName}" not healthy yet. Retries left: ${retries - 1}`,
-        );
-      } else {
-        logger.debug(`Container "${serviceName}" is running and healthy.`);
-        return;
+      const statusLines = output.split('\n').filter(Boolean);
+      
+      for (const line of statusLines) {
+        try {
+          const container = JSON.parse(line) as {
+            service: string;
+            state: string;
+            health: string;
+          };
+          if (container.service === serviceName) {
+            if (container.state !== 'running') {
+              logger.info(
+                `Container "${serviceName}" not running yet. Retries left: ${retries - 1}`,
+              );
+            } else if (container.health !== 'healthy') {
+              logger.info(
+                `Container "${serviceName}" not healthy yet. Retries left: ${retries - 1}`,
+              );
+            } else {
+              logger.info(`Container "${serviceName}" is running and healthy.`);
+              return;
+            }
+          }
+        } catch (parseError) {
+          assertError(parseError);
+          logger.debug(`Failed to parse line: ${line}`);
+          continue;
+        }
       }
 
       retries--;
@@ -95,9 +80,7 @@ async function waitForContainerHealthy(
         logger.debug(`Waiting ${retryTimeout}ms before re-checking...`);
         await new Promise((resolve) => setTimeout(resolve, retryTimeout));
       } else {
-        throw new Error(
-          `"${serviceName}" container not healthy after all retries`,
-        );
+        throw new Error(`Container "${serviceName}" not healthy after all retries`);
       }
     } catch (error) {
       assertError(error);
@@ -113,6 +96,7 @@ async function waitForContainerHealthy(
       }
     }
   }
+  throw new Error(`Container "${serviceName}" not healthy after ${maxRetries} retries`);
 }
 
 async function cleanDatabaseSchema() {
