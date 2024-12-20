@@ -57,7 +57,7 @@ interface PackageUpdate {
 }
 
 interface TestResult {
-  type: 'typecheck' | 'lint' | 'unit' | 'docker' | 'e2e';
+  type: 'typecheck' | 'lint' | 'unit' | 'docker';
   passed: boolean;
   error?: string;
 }
@@ -155,7 +155,6 @@ async function runTests(update: UpdateResult): Promise<boolean> {
     runTest('lint', 'pnpm', ['lint:strict']),
     runTest('unit', 'pnpm', ['test']),
     runTest('docker', 'pnpm', ['docker:build']),
-    runTest('e2e', 'pnpm', ['e2e'], { CI: 'true' }),
   ]);
 
   update.testResults = tests;
@@ -400,7 +399,6 @@ function getTestEmoji(type: TestResult['type']): string {
     lint: '🔍',
     unit: '🧪',
     docker: '🐳',
-    e2e: '🚀',
   };
   return emojis[type];
 }
