@@ -52,7 +52,7 @@ export function Header({ className }: { className?: string }) {
             <>
               <Button asChild variant='ghost' size='sm'>
                 <Link
-                  href='/__dev-only__/prisma-studio'
+                  href='https://prisma_studio.apadana.local'
                   target='_blank'
                   rel='noopener noreferrer'
                 >
@@ -61,7 +61,7 @@ export function Header({ className }: { className?: string }) {
               </Button>
               <Button asChild variant='ghost' size='sm'>
                 <Link
-                  href='/__dev-only__/storybook'
+                  href='https://storybook.apadana.local'
                   target='_blank'
                   rel='noopener noreferrer'
                 >

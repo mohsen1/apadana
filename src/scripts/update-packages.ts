@@ -130,6 +130,7 @@ async function runTests(update: UpdateResult): Promise<boolean> {
       logger.info(
         chalk.bold.blue(`\n${getTestEmoji(type)} Running ${type} checks...`),
       );
+
       const { stderr, exitCode } = await execCommand('pnpm', args, {
         allowFailure: true,
         env,
@@ -150,6 +151,7 @@ async function runTests(update: UpdateResult): Promise<boolean> {
     }
   };
 
+  // Run tests in sequence to avoid resource contention
   const tests: TestResult[] = await Promise.all([
     runTest('typecheck', 'pnpm', ['typecheck']),
     runTest('lint', 'pnpm', ['lint:strict']),

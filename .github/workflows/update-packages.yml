@@ -41,6 +41,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git branch -D ${{ github.event.inputs.branch-name }} || true
           git checkout -b ${{ github.event.inputs.branch-name }}
 
       - name: Run update script

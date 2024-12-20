@@ -58,6 +58,7 @@ e2e/uploads/
 
 # Do not allow new files in root
 .*
+package-updates-summary.md
 
 # Files that *are* allowed in root
 !README.md

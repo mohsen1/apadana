@@ -12,7 +12,7 @@ export default [
     ignores: ['**/dist/**', '**/out/**', '**/build/**', '**/node_modules/**'],
   },
   {
-    files: ['{src,config,__mocks__}/**/*.{js,jsx,ts,tsx}'],
+    files: ['{src,config,__mocks__,.storybook}/**/*.{js,jsx,ts,tsx,mjs}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
