@@ -1,0 +1,90 @@
+name: Update Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch-name:
+        description: 'Branch name for the updates'
+        required: true
+        default: 'chore/package-updates'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: touch .env.local
+        run: touch .env.local
+
+      - name: Install Playwright Browsers
+        uses: ./.github/actions/playwright
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Start Docker service
+        run: sudo service docker start
+
+      - name: Verify Docker is running
+        run: docker info
+
+      - name: Create and checkout update branch
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git branch -D ${{ github.event.inputs.branch-name }} || true
+          git checkout -b ${{ github.event.inputs.branch-name }}
+
+      - name: Run update script
+        run: pnpm tsx src/scripts/update-packages.ts
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git push origin ${{ github.event.inputs.branch-name }}
+
+      - name: Create Pull Request
+        if: steps.git-check.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore(deps): update dependencies'
+          title: 'Update Dependencies'
+          body-path: package-updates-summary.md
+          branch: ${{ github.event.inputs.branch-name }}
+          base: main
+          labels: |
+            dependencies
+          draft: false
+
+      - name: PR Details
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          echo "✅ Pull Request created successfully!"
+          echo "Please review the changes and merge if everything looks good."
+
+      - name: No Changes
+        if: steps.git-check.outputs.changes == 'false'
+        run: |
+          echo "ℹ️ No package updates were needed."

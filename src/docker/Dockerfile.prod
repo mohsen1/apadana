@@ -45,7 +45,7 @@ ENV S3_UPLOAD_SECRET=${S3_UPLOAD_SECRET}
 # Use cache mount for Prisma and Next.js
 RUN --mount=type=cache,target=/app/.next/cache pnpm prisma:generate
 RUN pnpm exec next telemetry disable
-RUN --mount=type=cache,target=/app/.next/cache pnpm build
+RUN --mount=type=cache,target=/app/.next/cache pnpm build --experimental-app-only
 
 FROM builder AS final
 COPY --from=build /app /app

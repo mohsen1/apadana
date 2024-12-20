@@ -1,8 +1,16 @@
 import type { Config } from 'tailwindcss';
 import colors from 'tailwindcss/colors';
 
+// Use absolute paths for content so when config is imported by
+// Storybook, it can find the files
+const content = [
+  'src/**/*.{js,ts,jsx,tsx,mdx}',
+  'app/**/*.{js,ts,jsx,tsx,mdx}',
+  '.storybook/**/*.{js,ts,jsx,tsx,mdx}',
+].map((path) => `${process.cwd()}/${path}`);
+
 const config: Config = {
-  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
+  content,
   theme: {
     colors: {
       background: {

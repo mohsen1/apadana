@@ -7,7 +7,13 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 import { LoggedInHeaderLinks } from './LoggedInHeaderLinks';
 import { Nav } from './Nav';
@@ -45,12 +51,20 @@ export function Header({ className }: { className?: string }) {
           {isDev && (
             <>
               <Button asChild variant='ghost' size='sm'>
-                <Link href='/__dev-only__/prisma-studio' target='_blank' rel='noopener noreferrer'>
+                <Link
+                  href='https://prisma_studio.apadana.local'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                >
                   Prisma Studio
                 </Link>
               </Button>
               <Button asChild variant='ghost' size='sm'>
-                <Link href='/__dev-only__/storybook' target='_blank' rel='noopener noreferrer'>
+                <Link
+                  href='https://storybook.apadana.local'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                >
                   Storybook
                 </Link>
               </Button>
@@ -66,7 +80,10 @@ export function Header({ className }: { className?: string }) {
         {/* Mobile Menu */}
 
         <Sheet>
-          <SheetTrigger asChild className='dark:hover:bg-background-dark dark:hover:-dark'>
+          <SheetTrigger
+            asChild
+            className='dark:hover:bg-background-dark dark:hover:-dark'
+          >
             <Button variant='ghost' size='icon' className='lg:hidden'>
               <Menu className='h-5 w-5' />
               <span className='sr-only'>Toggle menu</span>
@@ -90,7 +107,11 @@ export function Header({ className }: { className?: string }) {
                     </Link>
                   </Button>
                   <Button asChild variant='ghost' size='sm'>
-                    <Link href='/__dev-only__/storybook' target='_blank' rel='noopener noreferrer'>
+                    <Link
+                      href='/__dev-only__/storybook'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                    >
                       Storybook
                     </Link>
                   </Button>

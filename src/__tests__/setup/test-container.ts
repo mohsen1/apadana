@@ -9,21 +9,6 @@ const logger = createLogger(__filename, 'warn');
 
 const composeFile = 'src/docker/docker-compose.yml';
 
-function safeParse<T>(value: string): { value: string; parsed: T | null } {
-  try {
-    return {
-      value,
-      parsed: JSON.parse(value) as T,
-    };
-  } catch (error) {
-    assertError(error);
-    return {
-      value,
-      parsed: null,
-    };
-  }
-}
-
 async function waitForContainerHealthy(
   composeFile: string,
   serviceName: string,
@@ -34,44 +19,45 @@ async function waitForContainerHealthy(
   while (retries > 0) {
     try {
       logger.debug('Checking container status...');
-      const containerStatusResult = exec(`docker compose -f ${composeFile} ps --format json`, {
-        env: process.env,
-        stdio: 'pipe',
-      });
-
-      logger.debug('Raw container status output:', containerStatusResult.toString());
-      let { parsed: containers } = safeParse<{ Service: string; State: string; Health: string }[]>(
-        containerStatusResult.toString(),
+      const containerStatusResult = exec(
+        `docker compose -f ${composeFile} ps --format '{"service":"{{ .Service }}","state":"{{ .State }}","health":"{{ .Health }}"}'`,
+        {
+          env: process.env,
+          stdio: 'pipe',
+        },
       );
 
-      if (!containers) {
-        logger.error('Failed to parse container status output:', containerStatusResult.toString());
-        throw new Error('Failed to parse container status output');
-      }
+      const output = containerStatusResult.toString().trim();
+      logger.debug('Container status output:', output);
 
-      if (!Array.isArray(containers)) {
-        logger.debug('Received a single container object, converting to array.');
-        containers = [containers];
-      }
+      const statusLines = output.split('\n').filter(Boolean);
 
-      if (!Array.isArray(containers)) {
-        logger.error('Expected an array of containers, got:', containers);
-        logger.error(
-          'Check Docker Compose version or remove --format json. Requires Docker Compose v2 or newer.',
-        );
-        throw new Error('Invalid container status format - not an array');
-      }
-
-      const targetContainer = containers.find(
-        (c: { Service: string; State: string; Health: string }) => c.Service === serviceName,
-      );
-      if (!targetContainer || targetContainer.State !== 'running') {
-        logger.info(`Container "${serviceName}" not running yet. Retries left: ${retries - 1}`);
-      } else if (targetContainer.Health !== 'healthy') {
-        logger.info(`Container "${serviceName}" not healthy yet. Retries left: ${retries - 1}`);
-      } else {
-        logger.debug(`Container "${serviceName}" is running and healthy.`);
-        return;
+      for (const line of statusLines) {
+        try {
+          const container = JSON.parse(line) as {
+            service: string;
+            state: string;
+            health: string;
+          };
+          if (container.service === serviceName) {
+            if (container.state !== 'running') {
+              logger.info(
+                `Container "${serviceName}" not running yet. Retries left: ${retries - 1}`,
+              );
+            } else if (container.health !== 'healthy') {
+              logger.info(
+                `Container "${serviceName}" not healthy yet. Retries left: ${retries - 1}`,
+              );
+            } else {
+              logger.info(`Container "${serviceName}" is running and healthy.`);
+              return;
+            }
+          }
+        } catch (parseError) {
+          assertError(parseError);
+          logger.debug(`Failed to parse line: ${line}`);
+          continue;
+        }
       }
 
       retries--;
@@ -79,7 +65,9 @@ async function waitForContainerHealthy(
         logger.debug(`Waiting ${retryTimeout}ms before re-checking...`);
         await new Promise((resolve) => setTimeout(resolve, retryTimeout));
       } else {
-        throw new Error(`"${serviceName}" container not healthy after all retries`);
+        throw new Error(
+          `Container "${serviceName}" not healthy after all retries`,
+        );
       }
     } catch (error) {
       assertError(error);
@@ -95,6 +83,9 @@ async function waitForContainerHealthy(
       }
     }
   }
+  throw new Error(
+    `Container "${serviceName}" not healthy after ${maxRetries} retries`,
+  );
 }
 
 async function cleanDatabaseSchema() {
