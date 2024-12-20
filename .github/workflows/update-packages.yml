@@ -25,6 +25,9 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: touch .env.local
+        run: touch .env.local
+
       - name: Install Playwright Browsers
         uses: ./.github/actions/playwright
 
