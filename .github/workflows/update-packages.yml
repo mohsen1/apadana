@@ -46,6 +46,10 @@ jobs:
       - name: Create .env.local
         run: touch .env.local
 
+      - name: setup /etc/hosts
+        run: |
+          echo "127.0.0.1 apadana.local" | sudo tee -a /etc/hosts
+
       - name: Run update script
         run: pnpm tsx src/scripts/update-packages.ts
 
