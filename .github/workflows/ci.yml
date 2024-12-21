@@ -9,21 +9,28 @@ on:
 jobs:
   validate:
     name: Validate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     strategy:
       matrix:
-        task: [lint:strict, typecheck, format:check]
+        task:
+          - name: Lint
+            run: pnpm run lint:strict
+          - name: Type check
+            run: pnpm run typecheck
+          - name: Format check
+            run: pnpm run format:check
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
       - name: Setup
         uses: ./.github/actions/setup
-      - run: pnpm run ${{ matrix.task }}
+      - name: ${{ matrix.task.name }}
+        run: ${{ matrix.task.run }}
 
   test:
     name: Run Vitest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     services:
       postgres:
@@ -56,7 +63,7 @@ jobs:
   fix-and-commit:
     name: Fix and commit code style
     needs: [validate]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Only run this job on pull requests and when lint or prettier fails
     if: |
       github.event_name == 'pull_request' && 
