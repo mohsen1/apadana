@@ -47,9 +47,7 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ result }) => {
       <div className='max-w-md mx-auto mt-8 p-6 rounded-lg shadow-md bg-background'>
         <div
           className={`text-center text-lg font-semibold ${
-            result.data
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
+            result.data ? 'text-green-600' : 'text-destructive'
           }`}
         >
           {result.data ? (

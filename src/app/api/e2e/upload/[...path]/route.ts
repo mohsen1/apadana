@@ -20,7 +20,12 @@ export async function GET(
   const fullPath = path.join(process.cwd(), 'e2e', 'uploads', filePath);
 
   if (!fs.existsSync(fullPath)) {
-    return new NextResponse('Not Found', { status: 404 });
+    const defaultImage = fs.readFileSync(
+      path.join(process.cwd(), '../public/images/default.jpg'),
+    );
+    return new NextResponse(defaultImage, {
+      status: 200,
+    });
   }
 
   const fileContent = fs.readFileSync(fullPath);

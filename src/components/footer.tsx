@@ -6,10 +6,7 @@ import { Button } from '@/components/ui/button';
 const Footer = ({ className }: { className?: string }) => {
   return (
     <footer
-      className={cn(
-        'flex-1 py-8 mx-auto max-w-6xl dark:text-gray-200',
-        className,
-      )}
+      className={cn('flex-1 py-8 mx-auto max-w-6xl text-foreground', className)}
     >
       <div className='container mx-auto px-4'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>

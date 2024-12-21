@@ -38,15 +38,18 @@ export const BookingRequestEmail: React.FC<
         <Heading className='text-2xl font-bold text-gray-700 my-10'>
           New Booking Request
         </Heading>
-        <Text className='text-base text-gray-700 leading-6 my-3'>
+        <Text className='text-base text-foreground leading-6 my-3'>
           You have received a new booking request from {guestName} for{' '}
           {listingTitle}.
         </Text>
 
-        <Heading as='h2' className='text-xl font-bold text-gray-700 mt-6 mb-4'>
+        <Heading
+          as='h2'
+          className='text-xl font-bold text-foreground mt-6 mb-4'
+        >
           Booking Details:
         </Heading>
-        <Section className='my-4 p-4 bg-gray-50 rounded'>
+        <Section className='my-4 p-4 bg-muted rounded'>
           <Text className='text-base text-gray-700 leading-6 my-3'>
             Check-in: {checkIn.toLocaleDateString()}
           </Text>

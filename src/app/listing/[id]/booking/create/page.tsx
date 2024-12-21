@@ -1,5 +1,12 @@
 import { redirect } from 'next/navigation';
 
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+
 import { getBookingRequest } from '@/app/listing/[id]/booking/action';
 import CreateBookingForm from '@/app/listing/[id]/booking/create/CreateBookingForm';
 import { getListing } from '@/app/listing/action';
@@ -91,11 +98,29 @@ export default async function CreateBookingPage(props: {
   }
 
   return (
-    <CreateBookingForm
-      listing={listing}
-      checkIn={new Date(checkIn)}
-      checkOut={new Date(checkOut)}
-      originalBookingRequest={originalBookingRequest}
-    />
+    <div className='min-h-screen bg-background'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+          <div className='md:col-span-2'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Booking Request</CardTitle>
+                <CardDescription>
+                  <p className='text-muted-foreground'>
+                    Fill out the form below to request a booking
+                  </p>
+                </CardDescription>
+              </CardHeader>
+              <CreateBookingForm
+                listing={listing}
+                checkIn={new Date(checkIn)}
+                checkOut={new Date(checkOut)}
+                originalBookingRequest={originalBookingRequest}
+              />
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

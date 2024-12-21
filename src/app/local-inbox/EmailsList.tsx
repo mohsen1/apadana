@@ -13,27 +13,30 @@ export default function EmailsList({ emails }: EmailsListProps) {
 
   return (
     <div className='flex flex-col '>
-      <header className='border-b border-gray-200 dark:border-gray-800'>
+      <header className='border-b border-border'>
         <h1 className='text-2xl font-semibold p-4'>Local Email Inbox</h1>
       </header>
 
-      <div className='flex-1 grid grid-cols-3 min-h-0'>
+      <div className='grid grid-cols-2 gap-4'>
         {/* Email List */}
-        <div className='col-span-1 border-r border-gray-200 dark:border-gray-800 overflow-auto'>
+        <div className='col-span-1 border-r border-border overflow-auto'>
           <ul>
             {emails.map((email) => (
               <li
                 key={email.id}
-                className={`p-4 cursor-pointer border-b border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                className={`p-4 cursor-pointer border-b border-border hover:bg-accent ${
                   selectedEmail?.id === email.id
-                    ? 'bg-blue-50 border-l-4 border-l-blue-500 dark:bg-blue-950'
+                    ? 'bg-accent border-l-4 border-l-primary'
                     : ''
                 }`}
                 onClick={() => setSelectedEmail(email)}
               >
                 <h2 className='font-medium'>{email.subject}</h2>
                 <p className='text-sm text-gray-600'>{email.to}</p>
-                <p className='text-xs text-gray-500' suppressHydrationWarning>
+                <p
+                  className='text-xs text-muted-foreground'
+                  suppressHydrationWarning
+                >
                   {new Date(email.createdAt).toLocaleString()}
                 </p>
               </li>
@@ -45,7 +48,7 @@ export default function EmailsList({ emails }: EmailsListProps) {
         <div className='col-span-2 overflow-auto flex flex-col'>
           {selectedEmail ? (
             <div className='flex-1 flex flex-col'>
-              <div className='border-b border-gray-200 dark:border-gray-800 p-8'>
+              <div className='border-b border-border p-8'>
                 <h2 className='font-bold text-2xl mb-4'>
                   {selectedEmail.subject}
                 </h2>
@@ -64,7 +67,7 @@ export default function EmailsList({ emails }: EmailsListProps) {
                 />
               </div>
 
-              <footer className='border-t border-gray-200 dark:border-gray-800 p-4 mt-auto'>
+              <footer className='border-t border-border p-4 mt-auto'>
                 <p className='text-sm text-gray-600'>
                   Sent at: {new Date(selectedEmail.createdAt).toLocaleString()}
                 </p>
@@ -72,7 +75,7 @@ export default function EmailsList({ emails }: EmailsListProps) {
             </div>
           ) : (
             <div className='flex items-center justify-center h-full'>
-              <p className='text-gray-600'>
+              <p className='text-muted-foreground'>
                 Select an email to view its content
               </p>
             </div>
