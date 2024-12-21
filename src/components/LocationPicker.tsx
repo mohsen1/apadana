@@ -25,7 +25,6 @@ import {
   googleMapsDarkStyles,
   googleMapsLightStyles,
 } from '@/shared/google-maps-styles';
-import { GOOGLE_MAPS_API_KEY } from '@/shared/public-api-keys';
 
 interface LocationPickerProps {
   initialAddress?: string;
@@ -75,8 +74,9 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   const [activePredictionIndex, setActivePredictionIndex] =
     useState<number>(-1);
   const libraries: Libraries = ['places', 'geometry'];
+
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     libraries,
   });
   const { theme } = useTheme();

@@ -55,19 +55,14 @@ services:
     env_file:
       - ../../.env.local
     environment:
+      - PORT=3000
       - NEXT_SHARP_PATH=/app/node_modules/sharp
       - NODE_ENV=development
       - VERCEL_URL=dev.apadana.local
       - DATABASE_URL=postgresql://admin:admin@db_dev:5432/apadana
-      - NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET:-dev-bucket}
-      - NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION:-us-east-1}
-      - S3_UPLOAD_KEY=${S3_UPLOAD_KEY:-fake_s3_key_for_dev}
-      - S3_UPLOAD_SECRET=${S3_UPLOAD_SECRET:-fake_s3_secret_for_dev}
-      - RESEND_API_KEY=${RESEND_API_KEY:-re_1234567890_fake_key_for_dev}
-      - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_dev}
-      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-fake_maps_key_for_dev}
       - HOST=dev.apadana.local
       - NEXT_PUBLIC_TEST_ENV=e2e
+      - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_dev}
     depends_on:
       db_dev:
         condition: service_healthy
@@ -86,15 +81,11 @@ services:
     build:
       context: ../..
       dockerfile: src/docker/Dockerfile.prod
+      # To build the production image, we need to provide these
+      # environment variables as arguments to the Dockerfile.prod.
       args:
-        - RESEND_API_KEY=${RESEND_API_KEY:-re_1234567890_invalid_key}
         - VERCEL_URL=prod.apadana.local
         - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
-        - NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET:-invalid_bucket}
-        - NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION:-invalid_region}
-        - S3_UPLOAD_KEY=${S3_UPLOAD_KEY:-invalid_key}
-        - S3_UPLOAD_SECRET=${S3_UPLOAD_SECRET:-invalid_secret}
-        - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
     expose:
       - '3030'
     env_file:
@@ -106,7 +97,6 @@ services:
       - VERCEL_URL=prod.apadana.local
       - HOST=prod.apadana.local
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
-      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
       - NEXT_PUBLIC_TEST_ENV=e2e
     depends_on:
       db_prod:
