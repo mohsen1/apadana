@@ -55,6 +55,7 @@ services:
     env_file:
       - ../../.env.local
     environment:
+      - BUILDKIT_INLINE_CACHE=1
       - PORT=3000
       - NEXT_SHARP_PATH=/app/node_modules/sharp
       - NODE_ENV=development
@@ -91,6 +92,7 @@ services:
     env_file:
       - ../../.env.local
     environment:
+      - BUILDKIT_INLINE_CACHE=1
       - PORT=3030
       - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
       - NODE_ENV=production
