@@ -40,10 +40,7 @@ const ListingsGrid = ({ listings }: ListingsGridProps) => {
             </div>
           </div>
           <div className='p-6 min-h-10 flex justify-end align-end gap-4'>
-            <Button
-              href={`/listing/${listing.id}/delete`}
-              variant='softDestructive'
-            >
+            <Button href={`/listing/${listing.id}/delete`} variant='link'>
               Delete
             </Button>
             <Button href={`/listing/${listing.id}`} variant='secondary'>

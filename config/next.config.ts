@@ -17,14 +17,23 @@ const nextConfig: NextConfig = {
 
   images: {
     remotePatterns: [
-      { hostname: 'utfs.io' },
-      { hostname: 'apadana.app' },
-      { hostname: 'avatars.githubusercontent.com' },
-      { hostname: 'apadana-uploads.s3.us-east-1.amazonaws.com' },
+      { protocol: 'https', hostname: 'apadana.app' },
       {
+        protocol: 'https',
+        hostname: '**.githubusercontent.com',
+        pathname: '**',
+        port: '',
+      },
+      {
+        protocol: 'https',
+        hostname: 'apadana-uploads.s3.us-east-1.amazonaws.com',
+      },
+      {
+        protocol: 'https',
         hostname: `${process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.amazonaws.com`,
       },
       {
+        protocol: 'https',
         hostname: `${process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.${process.env.NEXT_PUBLIC_S3_UPLOAD_REGION}.amazonaws.com`,
       },
     ],

@@ -75,7 +75,8 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
           <Image
             src={listingData.images[0].url}
             alt={listingData.title}
-            layout='fill'
+            width={800}
+            height={400}
             objectFit='cover'
             priority
           />
@@ -124,10 +125,12 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
                 >
                   <div key={index} className='relative h-48'>
                     <Image
+                      unoptimized
                       src={image.url}
                       key={image.id}
+                      width={128}
+                      height={128}
                       alt={`${listingData.title} - Image ${index + 2}`}
-                      layout='fill'
                       objectFit='cover'
                     />
                   </div>
@@ -145,6 +148,9 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
                 width={128}
                 height={128}
                 className='rounded-md mr-4'
+                loader={({ src }) => {
+                  return src;
+                }}
               />
               <div>
                 <p className='my-2 font-bold text-lg'>
