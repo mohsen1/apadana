@@ -24,27 +24,13 @@ FROM builder AS build
 COPY --from=deps /app/node_modules /app/node_modules
 COPY . .
 
-# Provide environment variables that are necessary for the build process
-ARG RESEND_API_KEY
-ENV RESEND_API_KEY=${RESEND_API_KEY}
-ARG VERCEL_URL
-ENV VERCEL_URL=${VERCEL_URL}
-ARG GOOGLE_MAPS_API_KEY
-ENV GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
-ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
-ARG NEXT_PUBLIC_S3_UPLOAD_BUCKET
-ENV NEXT_PUBLIC_S3_UPLOAD_BUCKET=${NEXT_PUBLIC_S3_UPLOAD_BUCKET}
-ARG NEXT_PUBLIC_S3_UPLOAD_REGION
-ENV NEXT_PUBLIC_S3_UPLOAD_REGION=${NEXT_PUBLIC_S3_UPLOAD_REGION}
-ARG S3_UPLOAD_KEY
-ENV S3_UPLOAD_KEY=${S3_UPLOAD_KEY}
-ARG S3_UPLOAD_SECRET
-ENV S3_UPLOAD_SECRET=${S3_UPLOAD_SECRET}
-
 # Use cache mount for Prisma and Next.js
 RUN --mount=type=cache,target=/app/.next/cache pnpm prisma:generate
 RUN pnpm exec next telemetry disable
+ARG DATABASE_URL
+ARG VERCEL_URL
+ENV DATABASE_URL=${DATABASE_URL}\
+  VERCEL_URL=${VERCEL_URL}
 RUN --mount=type=cache,target=/app/.next/cache pnpm build --experimental-app-only
 
 FROM builder AS final

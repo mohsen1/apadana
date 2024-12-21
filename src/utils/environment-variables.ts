@@ -9,7 +9,7 @@ const schema = z.object({
     .default('development'),
 
   // Google Maps
-  GOOGLE_MAPS_API_KEY: z.string(),
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string(),
 
   // Database
   DATABASE_URL: z.string().url(),

@@ -5,7 +5,7 @@
 
 # if The following environment variable is not set, exit
 variables=(
-  GOOGLE_MAPS_API_KEY
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
   RESEND_API_KEY
   NEXT_PUBLIC_S3_UPLOAD_BUCKET
   NEXT_PUBLIC_S3_UPLOAD_REGION

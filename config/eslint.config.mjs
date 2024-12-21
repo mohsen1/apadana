@@ -3,10 +3,14 @@ import js from '@eslint/js';
 import nextPlugin from '@next/eslint-plugin-next';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
+import prettierConfig from 'eslint-config-prettier';
+import prettierPlugin from 'eslint-plugin-prettier';
 import reactPlugin from 'eslint-plugin-react';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
 export default [
   {
@@ -48,6 +52,7 @@ export default [
       'unused-imports': unusedImports,
       react: reactPlugin,
       '@next/next': nextPlugin,
+      prettier: prettierPlugin,
     },
     rules: {
       // Core Recommended ESLint configs
@@ -55,6 +60,7 @@ export default [
       ...reactPlugin.configs.recommended.rules,
       ...nextPlugin.configs.recommended.rules,
       ...tsPlugin.configs.recommended.rules,
+      ...prettierConfig.rules,
 
       // React specific rules
       'react/react-in-jsx-scope': 'off',
@@ -157,6 +163,9 @@ export default [
         },
       ],
       'simple-import-sort/exports': 'warn',
+
+      // Add prettier rules
+      'prettier/prettier': ['error', require('../package.json').prettier],
     },
   },
 ];
