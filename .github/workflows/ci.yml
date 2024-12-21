@@ -26,7 +26,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
       - name: ${{ matrix.task.name }}
-        run: pnpm run ${{ matrix.task.run }}
+        run: ${{ matrix.task.run }}
 
   test:
     name: Run Vitest
