@@ -85,6 +85,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "date-fns-tz": "^3.2.0",
+    "ignore": "^5.3.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.439.0",
     "next": "15.0.3",
@@ -108,8 +109,7 @@
     "tailwindcss-animate": "^1.0.7",
     "uvcanvas": "^0.2.2",
     "yet-another-react-lightbox": "^3.21.7",
-    "zod": "^3.23.8",
-    "ignore": "^5.3.1"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@actions/core": "^1.11.1",

@@ -93,15 +93,35 @@ async function* walkDirectory(
 
 async function getRepoChecksum(chunkSize: number): Promise<string> {
   try {
-    // Get git tree hash
-    const gitHash = execSync('git rev-parse HEAD').toString().trim();
+    // Get list of tracked files excluding ignored ones
+    const trackedFiles = execSync('git ls-files -c --exclude-standard')
+      .toString()
+      .trim()
+      .split('\n')
+      .sort();
 
-    // Create a hash of git state + arguments
+    // Create a hash combining git state of tracked files
     const hash = crypto.createHash('sha256');
-    hash.update(gitHash);
-    hash.update(chunkSize.toString());
 
-    return hash.digest('hex').slice(0, 8); // Use first 8 chars
+    for (const file of trackedFiles) {
+      try {
+        const fileHash = execSync(`git hash-object "${file}"`)
+          .toString()
+          .trim();
+        hash.update(`${file}:${fileHash}\n`);
+      } catch (error) {
+        assertError(error);
+        // Skip files that can't be hashed
+        continue;
+      }
+    }
+
+    // Add chunk size to hash if not Infinity
+    if (chunkSize !== Infinity) {
+      hash.update(chunkSize.toString());
+    }
+
+    return hash.digest('hex').slice(0, 8);
   } catch (error) {
     assertError(error);
     logger.warn(
@@ -127,12 +147,9 @@ async function writeChunk(
 
 async function serializeRepo(chunkSizeMB: number): Promise<string> {
   const checksum = await getRepoChecksum(chunkSizeMB);
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const outputDir = path.join(
-    process.cwd(),
-    'repo-serialized',
-    `${timestamp}_${checksum}_${chunkSizeMB}mb`,
-  );
+  const dirName =
+    chunkSizeMB === Infinity ? checksum : `${checksum}_${chunkSizeMB}mb`;
+  const outputDir = path.join(process.cwd(), 'repo-serialized', dirName);
 
   await fs.mkdir(outputDir, { recursive: true });
 
