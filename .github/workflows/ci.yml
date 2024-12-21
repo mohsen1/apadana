@@ -9,7 +9,7 @@ on:
 jobs:
   validate:
     name: Validate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     strategy:
       matrix:
@@ -30,7 +30,7 @@ jobs:
 
   test:
     name: Run Vitest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     services:
       postgres:
@@ -63,7 +63,7 @@ jobs:
   fix-and-commit:
     name: Fix and commit code style
     needs: [validate]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Only run this job on pull requests and when lint or prettier fails
     if: |
       github.event_name == 'pull_request' && 
