@@ -21,10 +21,8 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 
 import { login } from '@/app/auth/actions';
-import { AppleLogo, GoogleLogo } from '@/app/sign-in/logos';
 
 // Match the schema from actions.ts
 const loginSchema = z.object({
@@ -137,19 +135,6 @@ function SignInPage() {
               {status === 'executing' ? 'Logging in...' : 'Log in'}
             </Button>
           </form>
-
-          <Separator className='my-4' />
-
-          <div className='space-y-2'>
-            <Button variant='outline' className='w-full'>
-              <GoogleLogo />
-              Log in with Google
-            </Button>
-            <Button variant='outline' className='w-full'>
-              <AppleLogo />
-              Log in with Apple
-            </Button>
-          </div>
         </CardContent>
         <CardFooter className='justify-center'>
           <p className='text-sm text-gray-600 dark:text-gray-400'>

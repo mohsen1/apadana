@@ -22,9 +22,7 @@ import { fontHeading, fontSans, fontSubheading } from './fonts';
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.title} ${
-      process.env.NODE_ENV === 'development' ? '(dev)' : ''
-    }`,
+    default: `${siteConfig.title} ${process.env.NODE_ENV === 'development' ? '(dev)' : ''}`,
     template: `%s | ${siteConfig.title}`,
   },
   description: siteConfig.description,

@@ -92,6 +92,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -100,6 +101,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git checkout ${{ github.head_ref }}
 
       - name: Run fixes
         run: pnpm run fix

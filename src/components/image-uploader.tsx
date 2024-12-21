@@ -47,7 +47,9 @@ const SortableImage = ({
   isCover: boolean;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: fileState.key ?? '' });
+    useSortable({
+      id: fileState.key ?? '',
+    });
 
   const onDeleteCb = useCallback(() => {
     if (!fileState.key) {

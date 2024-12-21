@@ -58,5 +58,7 @@
   },
   "eslint.options": {
     "overrideConfigFile": "config/eslint.config.mjs"
-  }
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "eslint.format.enable": true
 }
