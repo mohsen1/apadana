@@ -13,10 +13,10 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        task: 
-         - lint:strict
-         - typecheck
-         - format:check
+        task:
+          - lint:strict
+          - typecheck
+          - format:check
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
