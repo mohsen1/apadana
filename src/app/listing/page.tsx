@@ -20,12 +20,10 @@ export default async function ListingsPage() {
 
   return (
     <div className='container mx-auto pt-10'>
-      <h1 className='text-3xl font-extrabold mb-8'>My Listings</h1>
+      <h1 className='mb-8 text-3xl font-extrabold'>My Listings</h1>
       {listings.length === 0 ? (
-        <div className='text-center py-6'>
-          <p className='text-lg text-muted-foreground pb-4'>
-            No listings were found
-          </p>
+        <div className='py-6 text-center'>
+          <p className='text-muted-foreground pb-4 text-lg'>No listings were found</p>
           <Button href='/listing/create'>Create a listing</Button>
         </div>
       ) : (

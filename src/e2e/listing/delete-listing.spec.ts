@@ -1,7 +1,4 @@
-import {
-  prodE2eTestHostUser,
-  prodE2eTestListing_usa_1,
-} from '@/e2e/fixtures/data';
+import { prodE2eTestHostUser, prodE2eTestListing_usa_1 } from '@/e2e/fixtures/data';
 
 import { expect, test } from '../base';
 

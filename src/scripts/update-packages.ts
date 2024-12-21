@@ -127,9 +127,7 @@ async function runTests(update: UpdateResult): Promise<boolean> {
     env = {},
   ): Promise<TestResult> => {
     try {
-      logger.info(
-        chalk.bold.blue(`\n${getTestEmoji(type)} Running ${type} checks...`),
-      );
+      logger.info(chalk.bold.blue(`\n${getTestEmoji(type)} Running ${type} checks...`));
 
       const { stderr, exitCode } = await execCommand('pnpm', args, {
         allowFailure: true,
@@ -162,10 +160,7 @@ async function runTests(update: UpdateResult): Promise<boolean> {
   return tests.every((test) => test.passed);
 }
 
-function getUpdateType(
-  currentVersion: string,
-  newVersion: string,
-): 'major' | 'minor' | 'patch' {
+function getUpdateType(currentVersion: string, newVersion: string): 'major' | 'minor' | 'patch' {
   if (!currentVersion || !newVersion) return 'patch';
 
   try {
@@ -204,10 +199,7 @@ function groupPackageUpdates(updates: PackageUpdate[]) {
   };
 }
 
-async function updatePackageGroup(
-  updates: PackageUpdate[],
-  groupName?: string,
-) {
+async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) {
   logger.info(
     chalk.bold.cyan(
       `\n📦 Updating ${updates.length} packages: ${updates.map((u) => u.packageName).join(', ')}`,
@@ -217,10 +209,7 @@ async function updatePackageGroup(
   try {
     // Install packages
     for (const update of updates) {
-      await execCommand('pnpm', [
-        'add',
-        `${update.packageName}@${update.latest}`,
-      ]);
+      await execCommand('pnpm', ['add', `${update.packageName}@${update.latest}`]);
     }
 
     const updateType = updates.reduce(
@@ -259,15 +248,9 @@ async function updatePackageGroup(
     ].join('\n');
 
     // if not diff skip
-    const diff = await execCommand('git', [
-      'diff',
-      'package.json',
-      'pnpm-lock.yaml',
-    ]);
+    const diff = await execCommand('git', ['diff', 'package.json', 'pnpm-lock.yaml']);
     if (diff.stdout.trim() === '') {
-      logger.info(
-        chalk.bold.yellow(`\n🔍 No changes for ${updates[0].packageName}`),
-      );
+      logger.info(chalk.bold.yellow(`\n🔍 No changes for ${updates[0].packageName}`));
       return true;
     }
 
@@ -282,18 +265,11 @@ async function updatePackageGroup(
     return true;
   } catch (error) {
     assertError(error);
-    logger.error(
-      chalk.bold.red(`\n❌ Failed to update ${updates[0].packageName}:`),
-    );
+    logger.error(chalk.bold.red(`\n❌ Failed to update ${updates[0].packageName}:`));
     logger.error(chalk.red(error.message));
 
     logger.info(chalk.bold.yellow('\n↩️ Rolling back changes...'));
-    await execCommand('git', [
-      'checkout',
-      '--',
-      'package.json',
-      'pnpm-lock.yaml',
-    ]);
+    await execCommand('git', ['checkout', '--', 'package.json', 'pnpm-lock.yaml']);
     await execCommand('pnpm', ['install']);
 
     // Exit immediately on failure
@@ -359,9 +335,7 @@ async function main() {
       packageName,
     }));
 
-    logger.info(
-      chalk.bold.cyan(`📋 Found ${updates.length} packages to update`),
-    );
+    logger.info(chalk.bold.cyan(`📋 Found ${updates.length} packages to update`));
 
     // Group updates based on patterns
     const { groups, ungrouped } = groupPackageUpdates(updates);

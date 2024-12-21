@@ -53,15 +53,9 @@ export type RequestBody =
 
 export type Command = RequestBody['command'];
 
-export type CommandArgs<T extends Command> = Extract<
-  RequestBody,
-  { command: T }
->['args'];
+export type CommandArgs<T extends Command> = Extract<RequestBody, { command: T }>['args'];
 
-export type CommandResponse<T extends Command> = Extract<
-  RequestBody,
-  { command: T }
->['response'];
+export type CommandResponse<T extends Command> = Extract<RequestBody, { command: T }>['response'];
 
 /**
  * E2E API route. This is only available in the development environment and while

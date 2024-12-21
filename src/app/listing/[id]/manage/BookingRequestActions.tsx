@@ -37,8 +37,7 @@ export function BookingRequestActions({
         className='text-destructive'
         onClick={getHandler(BookingRequestStatus.REJECTED)}
       >
-        {status === 'executing' &&
-        input?.status === BookingRequestStatus.REJECTED ? (
+        {status === 'executing' && input?.status === BookingRequestStatus.REJECTED ? (
           <>
             <Loader2 className='mr-2' />
             <span>Saving</span>
@@ -50,12 +49,8 @@ export function BookingRequestActions({
           </>
         )}
       </Button>
-      <Button
-        variant='link'
-        onClick={getHandler(BookingRequestStatus.ACCEPTED)}
-      >
-        {status === 'executing' &&
-        input?.status === BookingRequestStatus.ACCEPTED ? (
+      <Button variant='link' onClick={getHandler(BookingRequestStatus.ACCEPTED)}>
+        {status === 'executing' && input?.status === BookingRequestStatus.ACCEPTED ? (
           <>
             <Loader2 className='mr-2' />
             <span>Saving</span>

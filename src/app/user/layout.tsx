@@ -20,10 +20,10 @@ function SidebarButton({
     <Button
       variant='ghost'
       href={href}
-      className={`flex items-center justify-start w-full p-2  rounded-none text-left ${
+      className={`flex w-full items-center justify-start rounded-none  p-2 text-left ${
         isActive
-          ? 'bg-slate-200 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800'
-          : 'hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-500-foreground dark:hover:text-sky-500'
+          ? 'bg-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-800'
+          : 'hover:text-sky-500-foreground hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-sky-500'
       }`}
     >
       {children}
@@ -31,34 +31,22 @@ function SidebarButton({
   );
 }
 
-export default function UserLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function UserLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
     <div className='flex min-h-screen'>
       {/* Sidebar */}
-      <div className='w-64 min-w-64 border-r border-gray-200 dark:border-gray-800 p-6'>
+      <div className='w-64 min-w-64 border-r border-gray-200 p-6 dark:border-gray-800'>
         <h1 className='text-2xl font-semibold'>Account</h1>
-        <p className='text-sm text-muted-foreground mt-1'>
-          Manage your account info.
-        </p>
+        <p className='text-muted-foreground mt-1 text-sm'>Manage your account info.</p>
 
         <div className='mt-8 space-y-2'>
-          <SidebarButton
-            href='/user/profile'
-            isActive={pathname === '/user/profile'}
-          >
+          <SidebarButton href='/user/profile' isActive={pathname === '/user/profile'}>
             <User className='mr-2 h-4 w-4' />
             Profile
           </SidebarButton>
-          <SidebarButton
-            href='/user/security'
-            isActive={pathname === '/user/security'}
-          >
+          <SidebarButton href='/user/security' isActive={pathname === '/user/security'}>
             <Shield className={cn('mr-2 h-4 w-4')} />
             Security
           </SidebarButton>

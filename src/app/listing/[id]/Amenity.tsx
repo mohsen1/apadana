@@ -12,10 +12,7 @@ import {
 
 import { amenitiesList } from '@/shared/ameneties';
 
-const amenitiesToIcons: Record<
-  (typeof amenitiesList)[number],
-  typeof WifiIcon
-> = {
+const amenitiesToIcons: Record<(typeof amenitiesList)[number], typeof WifiIcon> = {
   'Wi-Fi': WifiIcon,
   Kitchen: CookingPot,
   'Free parking': CarIcon,
@@ -31,7 +28,7 @@ export function Amenity({ name }: { name: string }) {
 
   return (
     <div className='flex items-center gap-2'>
-      <Icon className='w-4 h-4' />
+      <Icon className='h-4 w-4' />
       {name}
     </div>
   );

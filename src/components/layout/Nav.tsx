@@ -32,10 +32,7 @@ const UserButton = ({ user }: { user: ClientUser }) => {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        className='w-56 bg-background border-border'
-        align='end'
-      >
+      <DropdownMenuContent className='bg-background border-border w-56' align='end'>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>

@@ -70,11 +70,7 @@ async function isTextFile(filePath: string): Promise<boolean> {
   }
 }
 
-async function* walkDirectory(
-  dir: string,
-  ig: Ignore,
-  base = '',
-): AsyncGenerator<string> {
+async function* walkDirectory(dir: string, ig: Ignore, base = ''): AsyncGenerator<string> {
   const entries = await fs.readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
@@ -105,9 +101,7 @@ async function getRepoChecksum(chunkSize: number): Promise<string> {
 
     for (const file of trackedFiles) {
       try {
-        const fileHash = execSync(`git hash-object "${file}"`)
-          .toString()
-          .trim();
+        const fileHash = execSync(`git hash-object "${file}"`).toString().trim();
         hash.update(`${file}:${fileHash}\n`);
       } catch (error) {
         assertError(error);
@@ -124,22 +118,13 @@ async function getRepoChecksum(chunkSize: number): Promise<string> {
     return hash.digest('hex').slice(0, 8);
   } catch (error) {
     assertError(error);
-    logger.warn(
-      'Not a git repository, using timestamp as fallback:',
-      error.message,
-    );
+    logger.warn('Not a git repository, using timestamp as fallback:', error.message);
     return Date.now().toString(36);
   }
 }
 
-async function writeChunk(
-  files: FileEntry[],
-  index: number,
-  outputDir: string,
-): Promise<void> {
-  const chunk = files
-    .map((file) => `### ${file.path}\n${file.content}`)
-    .join('\n\n');
+async function writeChunk(files: FileEntry[], index: number, outputDir: string): Promise<void> {
+  const chunk = files.map((file) => `### ${file.path}\n${file.content}`).join('\n\n');
   const outputPath = path.join(outputDir, `chunk-${index}.txt`);
   await fs.writeFile(outputPath, chunk, 'utf-8');
   logger.info(`Written chunk ${index} with ${files.length} files`);
@@ -147,8 +132,7 @@ async function writeChunk(
 
 async function serializeRepo(chunkSizeMB: number): Promise<string> {
   const checksum = await getRepoChecksum(chunkSizeMB);
-  const dirName =
-    chunkSizeMB === Infinity ? checksum : `${checksum}_${chunkSizeMB}mb`;
+  const dirName = chunkSizeMB === Infinity ? checksum : `${checksum}_${chunkSizeMB}mb`;
   const outputDir = path.join(process.cwd(), 'repo-serialized', dirName);
 
   await fs.mkdir(outputDir, { recursive: true });

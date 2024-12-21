@@ -7,9 +7,7 @@ export default async function globalSetup() {
 
   // Dynamically import the test container setup so the Prisma client is configured
   // by the test environment variables (DATABASE_URL)
-  const { setupTestContainer } = await import(
-    '@/__tests__/setup/test-container'
-  );
+  const { setupTestContainer } = await import('@/__tests__/setup/test-container');
 
   await setupTestContainer();
 }

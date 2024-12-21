@@ -12,13 +12,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -65,17 +59,10 @@ function SignInPage() {
   });
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-muted p-4'>
-      <Card
-        className={cn(
-          'w-full max-w-md shadow-lg',
-          hasErrored && 'shadow-red-500',
-        )}
-      >
+    <div className='bg-muted flex min-h-screen items-center justify-center p-4'>
+      <Card className={cn('w-full max-w-md shadow-lg', hasErrored && 'shadow-red-500')}>
         <CardHeader>
-          <CardTitle className='text-2xl font-bold text-center'>
-            Login to your account
-          </CardTitle>
+          <CardTitle className='text-center text-2xl font-bold'>Login to your account</CardTitle>
         </CardHeader>
         <CardContent className='space-y-4'>
           <form
@@ -93,9 +80,7 @@ function SignInPage() {
                 {...register('email')}
                 aria-invalid={!!errors.email}
               />
-              {errors.email && (
-                <p className='text-sm text-red-500'>{errors.email.message}</p>
-              )}
+              {errors.email && <p className='text-sm text-red-500'>{errors.email.message}</p>}
             </div>
             <div className='space-y-2'>
               <Label htmlFor='password'>Password</Label>
@@ -106,14 +91,10 @@ function SignInPage() {
                 {...register('password')}
                 aria-invalid={!!errors.password}
               />
-              {errors.password && (
-                <p className='text-sm text-red-500'>
-                  {errors.password.message}
-                </p>
-              )}
+              {errors.password && <p className='text-sm text-red-500'>{errors.password.message}</p>}
             </div>
             {failedAttempts >= 2 && (
-              <div className='text-sm text-center'>
+              <div className='text-center text-sm'>
                 <Link
                   href={`/forgot-password?email=${getValues('email')}`}
                   className='text-primary hover:underline'
@@ -122,11 +103,7 @@ function SignInPage() {
                 </Link>
               </div>
             )}
-            {hasErrored && (
-              <p className='text-sm text-red-500'>
-                {result?.serverError?.error}
-              </p>
-            )}
+            {hasErrored && <p className='text-sm text-red-500'>{result?.serverError?.error}</p>}
             <Button
               type='submit'
               className='w-full'
@@ -137,7 +114,7 @@ function SignInPage() {
           </form>
         </CardContent>
         <CardFooter className='justify-center'>
-          <p className='text-sm text-muted-foreground'>
+          <p className='text-muted-foreground text-sm'>
             Don't have an account?{' '}
             <Link href='/signup' className='text-primary hover:underline'>
               Sign up

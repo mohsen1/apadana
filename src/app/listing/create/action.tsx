@@ -26,10 +26,7 @@ export const createListing = actionClient
     if (!owner) {
       throw new Error('Owner not found');
     }
-    const timeZone = await getTimeZone(
-      parsedInput.latitude,
-      parsedInput.longitude,
-    );
+    const timeZone = await getTimeZone(parsedInput.latitude, parsedInput.longitude);
     const listing = await prisma.listing.create({
       data: {
         ...parsedInput,

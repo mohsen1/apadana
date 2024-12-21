@@ -1,10 +1,5 @@
 import { useRef } from 'react';
-import {
-  AriaButtonProps,
-  mergeProps,
-  useButton,
-  useFocusRing,
-} from 'react-aria';
+import { AriaButtonProps, mergeProps, useButton, useFocusRing } from 'react-aria';
 
 export function CalendarButton(props: AriaButtonProps<'button'>) {
   const ref = useRef<HTMLButtonElement>(null);
@@ -14,9 +9,9 @@ export function CalendarButton(props: AriaButtonProps<'button'>) {
     <button
       {...mergeProps(buttonProps, focusProps)}
       ref={ref}
-      className={`p-2 rounded-full ${props.isDisabled ? '/30' : ''} ${
+      className={`rounded-full p-2 ${props.isDisabled ? '/30' : ''} ${
         !props.isDisabled ? 'hover:bg-sky-500/40 active:bg-sky-500/45' : ''
-      } outline-none ${isFocusVisible ? 'ring-2 ring-offset-2 ring-sky-500/50' : ''}`}
+      } outline-none ${isFocusVisible ? 'ring-2 ring-sky-500/50 ring-offset-2' : ''}`}
     >
       {props.children}
     </button>

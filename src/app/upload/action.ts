@@ -32,8 +32,7 @@ const getUploadSignedUrl = actionClient
   .schema(inputSchema)
   .outputSchema(outputSchema)
   .action(async ({ parsedInput }) => {
-    const { NEXT_PUBLIC_S3_UPLOAD_REGION, S3_UPLOAD_KEY, S3_UPLOAD_SECRET } =
-      process.env;
+    const { NEXT_PUBLIC_S3_UPLOAD_REGION, S3_UPLOAD_KEY, S3_UPLOAD_SECRET } = process.env;
 
     if (shouldUseFakeUploads) {
       // Return fake signed URLs for e2e testing

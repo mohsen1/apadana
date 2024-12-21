@@ -65,9 +65,7 @@ async function waitForContainerHealthy(
         logger.debug(`Waiting ${retryTimeout}ms before re-checking...`);
         await new Promise((resolve) => setTimeout(resolve, retryTimeout));
       } else {
-        throw new Error(
-          `Container "${serviceName}" not healthy after all retries`,
-        );
+        throw new Error(`Container "${serviceName}" not healthy after all retries`);
       }
     } catch (error) {
       assertError(error);
@@ -83,9 +81,7 @@ async function waitForContainerHealthy(
       }
     }
   }
-  throw new Error(
-    `Container "${serviceName}" not healthy after ${maxRetries} retries`,
-  );
+  throw new Error(`Container "${serviceName}" not healthy after ${maxRetries} retries`);
 }
 
 async function cleanDatabaseSchema() {

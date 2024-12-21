@@ -1,11 +1,6 @@
 import { redirect } from 'next/navigation';
 
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { getBookingRequest } from '@/app/listing/[id]/booking/action';
 import CreateBookingForm from '@/app/listing/[id]/booking/create/CreateBookingForm';
@@ -57,9 +52,7 @@ export default async function CreateBookingPage(props: {
   const { checkIn, checkOut } = searchParams;
 
   // Use original booking dates if altering and no dates provided
-  let checkInDate = checkIn
-    ? new Date(checkIn)
-    : originalBookingRequest?.checkIn || today;
+  let checkInDate = checkIn ? new Date(checkIn) : originalBookingRequest?.checkIn || today;
   let checkOutDate = checkOut
     ? new Date(checkOut)
     : originalBookingRequest?.checkOut || twoDaysFromNow;
@@ -86,21 +79,16 @@ export default async function CreateBookingPage(props: {
     });
 
     if (originalBookingRequest) {
-      searchParams.set(
-        'alterBookingRequestId',
-        originalBookingRequest.id.toString(),
-      );
+      searchParams.set('alterBookingRequestId', originalBookingRequest.id.toString());
     }
 
-    return redirect(
-      `/listing/${params.id}/booking/create?${searchParams.toString()}`,
-    );
+    return redirect(`/listing/${params.id}/booking/create?${searchParams.toString()}`);
   }
 
   return (
-    <div className='min-h-screen bg-background'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+    <div className='bg-background min-h-screen'>
+      <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
+        <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
           <div className='md:col-span-2'>
             <Card>
               <CardHeader>

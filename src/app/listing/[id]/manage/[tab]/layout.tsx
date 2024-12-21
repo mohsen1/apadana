@@ -30,20 +30,20 @@ export default async function ManageListingPageLayout(props: {
   }
 
   return (
-    <div className='container mx-auto p-4 flex-grow'>
-      <h1 className='text-3xl font-bold mb-6'>
+    <div className='container mx-auto flex-grow p-4'>
+      <h1 className='mb-6 text-3xl font-bold'>
         <Link href={`/listing/${id}`}>
           <Image
             src={listing.images[0].url}
             alt={listing.title}
             width={96}
             height={96}
-            className='inline object-cover mr-2'
+            className='mr-2 inline object-cover'
           />
           <span>Manage "{listing.title.slice()}"</span>
           <Button variant='outline' size='icon' className='ml-6'>
             <Link href={`/listing/${id}`}>
-              <ArrowRight className='w-4 h-4' />
+              <ArrowRight className='h-4 w-4' />
             </Link>
           </Button>
         </Link>
@@ -63,9 +63,7 @@ export default async function ManageListingPageLayout(props: {
             <Link href={`/listing/${id}/manage/bookings`}>Bookings</Link>
           </TabsTrigger>
           <TabsTrigger value='booking-requests'>
-            <Link href={`/listing/${id}/manage/booking-requests`}>
-              Booking Requests
-            </Link>
+            <Link href={`/listing/${id}/manage/booking-requests`}>Booking Requests</Link>
           </TabsTrigger>
         </TabsList>
         <TabsContent value={tab}>{children}</TabsContent>

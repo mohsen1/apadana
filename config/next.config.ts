@@ -48,20 +48,22 @@ const nextConfig: NextConfig = {
         },
       },
     },
+    optimizeCss: true,
+    scrollRestoration: true,
+    typedRoutes: true,
   },
 
   webpack(config: webpack.Configuration) {
     // Grab the existing rule that handles SVG imports
-    const fileLoaderRule: webpack.RuleSetRule | undefined =
-      config.module?.rules?.find(
-        (rule) =>
-          typeof rule === 'object' &&
-          rule != null &&
-          'test' in rule &&
-          rule.test != null &&
-          rule.test instanceof RegExp &&
-          rule.test?.test?.('.svg'),
-      ) as webpack.RuleSetRule | undefined;
+    const fileLoaderRule: webpack.RuleSetRule | undefined = config.module?.rules?.find(
+      (rule) =>
+        typeof rule === 'object' &&
+        rule != null &&
+        'test' in rule &&
+        rule.test != null &&
+        rule.test instanceof RegExp &&
+        rule.test?.test?.('.svg'),
+    ) as webpack.RuleSetRule | undefined;
 
     config?.module?.rules?.push(
       // Reapply the existing rule, but only for svg imports ending in ?url
@@ -87,6 +89,29 @@ const nextConfig: NextConfig = {
     if (fileLoaderRule != null) {
       fileLoaderRule.exclude = /\.svg$/i;
     }
+
+    // Add optimization configuration
+    config.optimization = {
+      ...config.optimization,
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            name: 'vendor',
+            test: /[\\/]node_modules[\\/]/,
+            chunks: 'all',
+            priority: 10,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 1,
+            reuseExistingChunk: true,
+          },
+        },
+      },
+    };
 
     return config;
   },

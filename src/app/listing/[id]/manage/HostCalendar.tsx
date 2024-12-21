@@ -37,23 +37,18 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
     start: today,
     end: today,
   });
-  const [rangePrice, setRangePrice] = useState<number>(
-    listingData.pricePerNight,
-  );
-  const [rangeAvailable, setRangeAvailable] = useState<boolean>(
-    isRangeAvailable(range),
-  );
-  const { execute: executeEditInventory, status: editInventoryStatus } =
-    useAction(editInventory, {
-      onSuccess: (result) => {
-        if (result.data) {
-          return refreshInventory();
-        }
-      },
-      onError: (error) => {
-        throw error;
-      },
-    });
+  const [rangePrice, setRangePrice] = useState<number>(listingData.pricePerNight);
+  const [rangeAvailable, setRangeAvailable] = useState<boolean>(isRangeAvailable(range));
+  const { execute: executeEditInventory, status: editInventoryStatus } = useAction(editInventory, {
+    onSuccess: (result) => {
+      if (result.data) {
+        return refreshInventory();
+      }
+    },
+    onError: (error) => {
+      throw error;
+    },
+  });
 
   /**
    * Refresh the inventory.
@@ -140,9 +135,9 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
     });
   }
   return (
-    <Card className='box-shadow-none border-none mt-6'>
+    <Card className='box-shadow-none mt-6 border-none'>
       <CardContent>
-        <div className='grid lg:grid-cols-[1fr_auto] gap-8'>
+        <div className='grid gap-8 lg:grid-cols-[1fr_auto]'>
           <div className=''>
             <AvailabilityManagementCalendar
               value={range}
@@ -191,20 +186,18 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
                   <div className='relative pt-4'>
                     <LabledInput
                       label={
-                        <span className='text-2xl text-right'>
+                        <span className='text-right text-2xl'>
                           {formatCurrencySymbol(listingData.currency)}
                         </span>
                       }
-                      disabled={
-                        editInventoryStatus === 'executing' || !rangeAvailable
-                      }
+                      disabled={editInventoryStatus === 'executing' || !rangeAvailable}
                       id='datePrice'
                       inputMode='decimal'
                       pattern='^\d*\.?\d*$'
                       type='text'
                       step='1'
                       min='1'
-                      className=' l-8 text-2xl py-6'
+                      className=' l-8 py-6 text-2xl'
                       placeholder='100.00'
                       value={rangePrice}
                       onChange={(e) => {
@@ -213,7 +206,7 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
                     />
                   </div>
                 </div>
-                <div className='flex items-center space-x-2 ml-12 pt-2'>
+                <div className='ml-12 flex items-center space-x-2 pt-2'>
                   <Switch
                     id='dateAvailable'
                     disabled={editInventoryStatus === 'executing'}
@@ -223,14 +216,14 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
                       setRangeAvailable(checked);
                     }}
                   />
-                  <Label className='text-lg pl-2' htmlFor='dateAvailable'>
+                  <Label className='pl-2 text-lg' htmlFor='dateAvailable'>
                     {rangeAvailable ? 'Available' : 'Unavailable'}
                   </Label>
                 </div>
                 <div className='flex items-end justify-end space-x-2 py-8'>
                   <Button
                     disabled={editInventoryStatus === 'executing'}
-                    className='flex items-center space-x-2 gap-2'
+                    className='flex items-center gap-2 space-x-2'
                     onClick={async (e) => {
                       e.preventDefault();
 
@@ -241,20 +234,14 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
                     }}
                   >
                     <RefreshCcw
-                      className={
-                        editInventoryStatus === 'executing'
-                          ? 'animate-spin'
-                          : ''
-                      }
+                      className={editInventoryStatus === 'executing' ? 'animate-spin' : ''}
                     />
-                    {range.start.compare(range.end) === 0
-                      ? 'Update Date'
-                      : 'Update Dates'}
+                    {range.start.compare(range.end) === 0 ? 'Update Date' : 'Update Dates'}
                   </Button>
                 </div>
               </>
             )}
-            <div className='text-sm mt-2 text-muted-foreground'>
+            <div className='text-muted-foreground mt-2 text-sm'>
               <p>Check-in: {formatHHMMDate(listingData.checkInTime)}</p>
               <p>Check-out: {formatHHMMDate(listingData.checkOutTime)}</p>
             </div>
@@ -272,10 +259,9 @@ function TimeZoneWarning({ listingTimeZone }: { listingTimeZone: string }) {
     return null;
   }
   return (
-    <div className='text-sm mt-2'>
+    <div className='mt-2 text-sm'>
       Note: This calendar is in{' '}
-      <span className='font-semibold'>{formatTimezone(listingTimeZone)}</span>{' '}
-      time zone.
+      <span className='font-semibold'>{formatTimezone(listingTimeZone)}</span> time zone.
       {/* if it's a different day in listing time zone than local time, the dates will be different */}
       {isCurrentlyAnotherDayInTimeZone(new Date(), listingTimeZone)
         ? `The current date is ${new Date().toLocaleDateString(getLocale(), {

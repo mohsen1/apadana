@@ -9,13 +9,10 @@ import { Input, InputProps } from '@/components/ui/input';
  * | Label | Input      |
  * **********************
  */
-export function LabledInput({
-  label,
-  ...props
-}: InputProps & { label: React.ReactNode }) {
+export function LabledInput({ label, ...props }: InputProps & { label: React.ReactNode }) {
   return (
     <div className='flex flex-row items-center'>
-      <span className='min-w-10 text-right pr-1'>{label}</span>
+      <span className='min-w-10 pr-1 text-right'>{label}</span>
       <Input {...props} />
     </div>
   );

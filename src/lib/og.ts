@@ -17,9 +17,7 @@ export function openGraph({
 }: OpenGraphType): string {
   const ogLogo = encodeURIComponent(logo);
   const ogSiteName = encodeURIComponent(siteName.trim());
-  const ogTemplateTitle = templateTitle
-    ? encodeURIComponent(templateTitle.trim())
-    : undefined;
+  const ogTemplateTitle = templateTitle ? encodeURIComponent(templateTitle.trim()) : undefined;
   const ogDesc = encodeURIComponent(description.trim());
 
   return `https://apadana.app/api/og?siteName=${ogSiteName}&description=${ogDesc}&logo=${ogLogo}${
