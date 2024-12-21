@@ -74,8 +74,7 @@ export default async function RootLayout({
         )}
         <body
           className={cn(
-            'text-gray-900 dark:text-gray-100',
-            'min-h-screen bg-gray-50 dark:bg-gray-950 font-sans antialiased',
+            'min-h-screen bg-background text-foreground',
             'flex flex-col',
             fontSans.variable,
             fontHeading.variable,

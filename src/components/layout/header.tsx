@@ -25,22 +25,22 @@ export function Header({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 flex h-16 items-center justify-between px-4 backdrop-blur-sm bg-white/75 dark:bg-gray-900/75 supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60',
-        'border-b border-gray-200 dark:border-gray-800',
+        'sticky top-0 z-50 flex h-16 items-center justify-between px-4 backdrop-blur-sm bg-background/75 supports-[backdrop-filter]:bg-background/60',
+        'border-b border-border',
         className,
       )}
     >
       <div className='flex items-center gap-4'>
         <Link
           href='/'
-          className='flex items-center gap-2 whitespace-nowrap text-gray-800 dark:text-gray-200'
+          className='flex items-center gap-2 whitespace-nowrap text-foreground'
         >
           <HomeIcon className='h-6 w-6' />
           <span className='font-bold'>Apadana {isDev ? '(Dev)' : null}</span>
         </Link>
 
         {user && (
-          <div className='hidden border-l border-gray-200 dark:border-gray-800 pl-4 lg:flex lg:gap-6'>
+          <div className='hidden border-l border-border pl-4 lg:flex lg:gap-6'>
             <LoggedInHeaderLinks />
           </div>
         )}
@@ -80,16 +80,13 @@ export function Header({ className }: { className?: string }) {
         {/* Mobile Menu */}
 
         <Sheet>
-          <SheetTrigger
-            asChild
-            className='dark:hover:bg-background-dark dark:hover:-dark'
-          >
+          <SheetTrigger asChild className='hover:bg-accent'>
             <Button variant='ghost' size='icon' className='lg:hidden'>
               <Menu className='h-5 w-5' />
               <span className='sr-only'>Toggle menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent className='bg-background dark:bg-background-dark dark:border-border-dark'>
+          <SheetContent className='bg-background border-border'>
             <SheetHeader>
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>

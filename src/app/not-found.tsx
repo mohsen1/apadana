@@ -25,7 +25,7 @@ export default function NotFound({
 }) {
   return (
     <main className='flex-grow grid place-items-center mt-10  grid place-content-center'>
-      <section className=' grid place-items-center h-full dark:-dark'>
+      <section className=' grid place-items-center h-full'>
         <div className='layout flex flex-col items-center justify-center text-center'>
           <OctagonAlert
             size={100}

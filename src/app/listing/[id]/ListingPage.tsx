@@ -68,10 +68,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
   }
 
   return (
-    <form
-      className='min-h-screen bg-gray-100 dark:bg-gray-900'
-      onSubmit={onSubmit}
-    >
+    <form className='min-h-screen bg-background' onSubmit={onSubmit}>
       {/* Cover Photo */}
       <LightBox images={listingData.images} index={0}>
         <div className='relative h-[50vh] w-full '>
@@ -92,7 +89,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
               {listingData.title}
             </h1>
             <p className='text-muted-foreground mb-4'>{listingData.address}</p>
-            <h2 className='text-2xl font-semibold font-subheading mb-4 dark:text-white'>
+            <h2 className='text-2xl font-semibold font-subheading mb-4 text-foreground'>
               About this place
             </h2>
             <p className='text-muted-foreground mb-6'>
@@ -100,14 +97,14 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
             </p>
 
             {/* Amenities */}
-            <h2 className='text-2xl font-semibold font-subheading mb-4 dark:text-white'>
+            <h2 className='text-2xl font-semibold font-subheading mb-4 text-foreground'>
               Amenities
             </h2>
             <ul className='grid grid-cols-2 gap-2 mb-6'>
               {listingData.amenities.map((amenity) => (
                 <li
                   key={amenity}
-                  className='flex items-center dark:text-gray-300'
+                  className='flex items-center text-muted-foreground'
                 >
                   <Amenity name={amenity} />
                 </li>
@@ -115,7 +112,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
             </ul>
 
             {/* Image Gallery */}
-            <h2 className='text-2xl font-subheading font-semibold mb-4 dark:text-white'>
+            <h2 className='text-2xl font-subheading font-semibold mb-4 text-foreground'>
               Photo Gallery
             </h2>
             <div className='grid grid-cols-2 gap-4'>
@@ -166,7 +163,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
 
           {/* Booking Card */}
           <div>
-            <Card className='bg-[#f8f8f8] dark:bg-[#1d1d1d] dark:text-white lg:sticky lg:top-2 pt-4'>
+            <Card className='bg-card text-card-foreground lg:sticky lg:top-2 pt-4'>
               <CardContent>
                 <Calendar
                   border={false}

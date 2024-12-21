@@ -23,11 +23,7 @@ const UserButton = ({ user }: { user: ClientUser }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant='ghost'
-          size='sm'
-          className='flex items-center gap-2 dark:hover:bg-background-dark dark:hover:-dark'
-        >
+        <Button variant='ghost' size='sm' className='flex items-center gap-2'>
           <span data-testid='nav-user-name' className='hidden sm:inline-flex'>
             {user.firstName} {user.lastName}
           </span>
@@ -37,7 +33,7 @@ const UserButton = ({ user }: { user: ClientUser }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className='w-56 bg-background border-border  dark:bg-background-dark dark:-dark dark:border-border-dark'
+        className='w-56 bg-background border-border'
         align='end'
       >
         <DropdownMenuLabel>My Account</DropdownMenuLabel>

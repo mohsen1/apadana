@@ -273,7 +273,7 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
             {formState.isSubmitSuccessful && !formState.isSubmitting && (
               <DisappearingComponent
                 disappearIn={3}
-                className='mx-2 text-green-600 dark:text-green-400'
+                className='mx-2 text-green-600'
               >
                 Your changes have been saved
               </DisappearingComponent>

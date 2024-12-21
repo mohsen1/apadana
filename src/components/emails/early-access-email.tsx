@@ -21,10 +21,10 @@ export const EarlyAccessEmail: React.FC<Readonly<EarlyAccessEmailProps>> = ({
     <Preview>Welcome to Apadana Early Access</Preview>
     <Body className='bg-white font-sans'>
       <Container className='mx-auto py-5 pb-12 max-w-lg'>
-        <Heading className='text-2xl font-semibold text-black tracking-tight'>
+        <Heading className='text-2xl font-semibold text-foreground tracking-tight'>
           Welcome to Apadana!
         </Heading>
-        <Text className='text-base leading-relaxed text-gray-700 mb-6'>
+        <Text className='text-base leading-relaxed text-muted-foreground mb-6'>
           Thank you for signing up for early access. We've added {email} to our
           waitlist and we'll notify you as soon as we launch.
         </Text>

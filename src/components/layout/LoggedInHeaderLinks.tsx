@@ -6,14 +6,14 @@ export function LoggedInHeaderLinks() {
       <Button
         variant='link'
         href='/listing/create'
-        className='text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
+        className='text-sm font-medium text-muted-foreground hover:text-foreground'
       >
         Create Listing
       </Button>
       <Button
         variant='link'
         href='/listing'
-        className='text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
+        className='text-sm font-medium text-muted-foreground hover:text-foreground'
       >
         My Listings
       </Button>

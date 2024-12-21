@@ -71,9 +71,9 @@ const SortableImage = ({
       {...listeners}
       className='aspect-square relative m-2'
     >
-      <div className='border border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden w-full h-full'>
+      <div className='border border-border rounded-lg shadow-md overflow-hidden w-full h-full'>
         <div
-          className={cn(' w-full h-full bg-gray-100 dark:bg-gray-800', {
+          className={cn('w-full h-full bg-muted', {
             'opacity-75': fileState.status === 'uploading',
           })}
         >
@@ -84,7 +84,7 @@ const SortableImage = ({
             className='object-contain'
           />
           {isCover && (
-            <div className='absolute bottom-0 left-0 right-0 bg-black/50 dark:bg-black/70 text-white text-center py-1 rounded-b-lg'>
+            <div className='absolute bottom-0 left-0 right-0 bg-black/50 text-white text-center py-1 rounded-b-lg'>
               Cover Photo
             </div>
           )}
@@ -107,7 +107,7 @@ const SortableImage = ({
           e.stopPropagation();
         }}
         type='button'
-        className='absolute -top-3 -right-3 bg-gray-500 dark:bg-gray-400 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 dark:hover:bg-red-500 focus:bg-red-600 dark:focus:bg-red-500 focus:outline-none'
+        className='absolute -top-3 -right-3 bg-muted text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-destructive focus:bg-destructive focus:outline-none'
       >
         <XIcon className='w-4 h-4' />
       </button>
@@ -217,13 +217,11 @@ export const ImageUploader = ({
               htmlFor='image-uploader-input'
               className='aspect-square relative m-2 cursor-pointer'
             >
-              <div className=' border border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden w-full h-full'>
-                <div className='flex place-content-center relative w-full h-full bg-gray-100 dark:bg-gray-800'>
+              <div className='border border-border rounded-lg shadow-md overflow-hidden w-full h-full'>
+                <div className='flex place-content-center relative w-full h-full bg-muted'>
                   <div className='flex flex-col items-center justify-center'>
-                    <PlusIcon className='w-10 h-10 text-gray-500 dark:text-gray-400' />
-                    <p className='text-gray-500 dark:text-gray-400'>
-                      Add Photos
-                    </p>
+                    <PlusIcon className='w-10 h-10 text-muted-foreground' />
+                    <p className='text-muted-foreground'>Add Photos</p>
                   </div>
                 </div>
               </div>

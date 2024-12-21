@@ -28,10 +28,8 @@ export default function HomePage() {
             <div className='w-full px-4 md:px-6 mx-auto max-w-6xl'>
               <div className='flex flex-col items-center space-y-4 text-center'>
                 <div className='space-y-2'>
-                  <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl'>
-                    Your Rental, Your Website, Your Way
-                  </h1>
-                  <p className='mx-auto max-w-[700px] text-gray-600 md:text-xl dark:text-gray-300'>
+                  <h1 className='text-4xl font-bold'>Welcome to Apadana</h1>
+                  <p className='mx-auto max-w-[700px] text-muted-foreground md:text-xl'>
                     Create your own website for your short-term rental in
                     minutes. Get direct bookings, manage your calendar, and
                     communicate with guests - all without extra fees.
@@ -289,7 +287,7 @@ export default function HomePage() {
                   <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl'>
                     Ready to Take Control of Your Rental?
                   </h2>
-                  <p className='mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400'>
+                  <p className='mx-auto max-w-[700px] text-muted-foreground md:text-xl'>
                     Start managing your short-term rental your way. Create your
                     website, get direct bookings, and maximize your profits.
                   </p>

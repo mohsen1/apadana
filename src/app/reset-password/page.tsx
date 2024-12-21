@@ -84,10 +84,10 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4'>
+    <div className='min-h-screen flex items-center justify-center bg-background p-4'>
       <Card className='w-full max-w-md shadow-lg'>
         <CardHeader>
-          <CardTitle className='text-2xl font-bold text-center text-black dark:text-white'>
+          <CardTitle className='text-2xl font-bold text-center text-foreground'>
             Reset Your Password
           </CardTitle>
         </CardHeader>
@@ -97,7 +97,7 @@ function ResetPasswordForm() {
               <Label htmlFor='password'>New Password</Label>
               <Input {...register('password')} type='password' id='password' />
               {errors.password && (
-                <p className='text-sm text-red-500'>
+                <p className='text-sm text-destructive'>
                   {errors.password.message}
                 </p>
               )}
@@ -110,7 +110,7 @@ function ResetPasswordForm() {
                 id='confirmPassword'
               />
               {errors.confirmPassword && (
-                <p className='text-sm text-red-500'>
+                <p className='text-sm text-destructive'>
                   {errors.confirmPassword.message}
                 </p>
               )}
@@ -134,12 +134,12 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className='min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4'>
+    <div className='min-h-screen flex items-center justify-center bg-background p-4'>
       <Suspense
         fallback={
           <Card className='w-full max-w-md shadow-lg'>
             <CardHeader>
-              <CardTitle className='text-2xl font-bold text-center text-black dark:text-white'>
+              <CardTitle className='text-2xl font-bold text-center text-foreground'>
                 Loading...
               </CardTitle>
             </CardHeader>

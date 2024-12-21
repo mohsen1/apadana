@@ -65,7 +65,7 @@ function SignInPage() {
   });
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
+    <div className='min-h-screen flex items-center justify-center bg-muted p-4'>
       <Card
         className={cn(
           'w-full max-w-md shadow-lg',
@@ -116,7 +116,7 @@ function SignInPage() {
               <div className='text-sm text-center'>
                 <Link
                   href={`/forgot-password?email=${getValues('email')}`}
-                  className='text-blue-600 dark:text-blue-400 hover:underline'
+                  className='text-primary hover:underline'
                 >
                   Forgot your password?
                 </Link>
@@ -137,12 +137,9 @@ function SignInPage() {
           </form>
         </CardContent>
         <CardFooter className='justify-center'>
-          <p className='text-sm text-gray-600 dark:text-gray-400'>
+          <p className='text-sm text-muted-foreground'>
             Don't have an account?{' '}
-            <Link
-              href='/signup'
-              className='text-blue-600 dark:text-blue-400 hover:underline'
-            >
+            <Link href='/signup' className='text-primary hover:underline'>
               Sign up
             </Link>
           </p>

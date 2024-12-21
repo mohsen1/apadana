@@ -103,8 +103,8 @@ export function SignupForm() {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
-      <Card className='w-full max-w-md shadow-lg bg-gray-100 dark:bg-gray-900'>
+    <div className='min-h-screen flex items-center justify-center bg-muted p-4'>
+      <Card className='w-full max-w-md shadow-lg bg-card'>
         <CardHeader>
           <CardTitle className='text-2xl font-bold text-center'>
             Create your account
@@ -226,11 +226,11 @@ export function SignupForm() {
           </Form>
         </CardContent>
         <CardFooter className='justify-center'>
-          <div className='text-sm text-gray-600 dark:text-gray-400'>
+          <div className='text-sm text-muted-foreground'>
             Already have an account?{' '}
             <Button
               variant='link'
-              className='p-0 h-auto font-normal text-blue-600 dark:text-blue-400 hover:underline'
+              className='p-0 h-auto font-normal text-primary hover:underline'
               onClick={() => router.push('/sign-in')}
             >
               Sign in

@@ -64,7 +64,7 @@ function SignUpForm() {
   });
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
+    <div className='min-h-screen flex items-center justify-center bg-muted p-4'>
       <Card className='w-full max-w-md shadow-lg'>
         <CardHeader>
           <CardTitle className='text-2xl font-bold text-center'>
@@ -140,12 +140,9 @@ function SignUpForm() {
           </form>
         </CardContent>
         <CardFooter className='justify-center'>
-          <p className='text-sm text-gray-600 dark:text-gray-400'>
+          <p className='text-sm text-muted-foreground'>
             Already have an account?{' '}
-            <Link
-              href='/sign-in'
-              className='text-blue-600 dark:text-blue-400 hover:underline'
-            >
+            <Link href='/sign-in' className='text-primary hover:underline'>
               Log in
             </Link>
           </p>
@@ -159,7 +156,7 @@ export default function Page() {
   return (
     <Suspense
       fallback={
-        <div className='min-h-screen flex items-center justify-center bg-gray-300 dark:bg-gray-600 p-4'>
+        <div className='min-h-screen flex items-center justify-center bg-muted p-4'>
           <Card className='w-full max-w-md shadow-lg'>
             <CardContent className='flex justify-center p-8'>
               <Loader2 className='h-8 w-8 animate-spin' />
