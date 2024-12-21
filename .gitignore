@@ -71,3 +71,6 @@ package-updates-summary.md
 !.vscode/
 !.husky/
 !.github
+
+# Serialized repo
+repo-serialized/
