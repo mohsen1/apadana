@@ -5,9 +5,7 @@ import { promisify } from 'util';
 
 import { createLogger } from '@/utils/logger';
 
-const sudoExec = promisify<string, Parameters<typeof sudoPrompt.exec>[1]>(
-  sudoPrompt.exec,
-);
+const sudoExec = promisify<string, Parameters<typeof sudoPrompt.exec>[1]>(sudoPrompt.exec);
 
 const logger = createLogger(__filename);
 const DOMAINS = [
@@ -26,9 +24,7 @@ async function setupLocalDomains() {
   try {
     if (fs.existsSync(certFile) && fs.existsSync(keyFile)) {
       const hostsContent = fs.readFileSync(HOSTS_FILE, 'utf8');
-      const allDomainsExist = DOMAINS.every((domain) =>
-        hostsContent.includes(domain),
-      );
+      const allDomainsExist = DOMAINS.every((domain) => hostsContent.includes(domain));
       if (allDomainsExist) {
         logger.info('Local development environment already set up! ✨');
         return;
@@ -50,8 +46,7 @@ async function setupLocalDomains() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    const mkcertPath =
-      execSync('brew --prefix mkcert').toString().trim() + '/bin/mkcert';
+    const mkcertPath = execSync('brew --prefix mkcert').toString().trim() + '/bin/mkcert';
     if (!fs.existsSync(mkcertPath)) {
       throw new Error(`mkcert binary not found at ${mkcertPath}`);
     }

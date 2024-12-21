@@ -19,41 +19,19 @@ export function BasicInfoStep() {
       <div>
         <Label htmlFor='title'>Listing Title</Label>
         <Input id='title' {...register('title', { required: true })} />
-        {errors.title && (
-          <span className='text-red-500'>This field is required</span>
-        )}
+        {errors.title && <span className='text-red-500'>This field is required</span>}
       </div>
       <div>
         <Label htmlFor='description'>Description</Label>
-        <Textarea
-          id='description'
-          {...register('description', { required: true })}
-        />
-        {errors.description && (
-          <span className='text-red-500'>This field is required</span>
-        )}
+        <Textarea id='description' {...register('description', { required: true })} />
+        {errors.description && <span className='text-red-500'>This field is required</span>}
       </div>
       <div>
         <Label>Property Type</Label>
-        <RadioGroup
-          defaultValue='apartment'
-          className='flex py-4 justify-between gap-4'
-        >
-          <PropertyTypeRadioButton
-            value='apartment'
-            Icon={BuildingIcon}
-            label='Apartment'
-          />
-          <PropertyTypeRadioButton
-            value='house'
-            Icon={HomeIcon}
-            label='House'
-          />
-          <PropertyTypeRadioButton
-            value='unique'
-            Icon={CableCar}
-            label='Unique space'
-          />
+        <RadioGroup defaultValue='apartment' className='flex justify-between gap-4 py-4'>
+          <PropertyTypeRadioButton value='apartment' Icon={BuildingIcon} label='Apartment' />
+          <PropertyTypeRadioButton value='house' Icon={HomeIcon} label='House' />
+          <PropertyTypeRadioButton value='unique' Icon={CableCar} label='Unique space' />
         </RadioGroup>
       </div>
     </div>
@@ -81,7 +59,7 @@ function PropertyTypeRadioButton({
         setValue('propertyType', value, { shouldValidate: true });
       }}
       className={cn(
-        'flex flex-col items-center justify-center gap-2 space-x-2 p-4 rounded-md border-2 border-transparent cursor-pointer',
+        'flex cursor-pointer flex-col items-center justify-center gap-2 space-x-2 rounded-md border-2 border-transparent p-4',
         'min-w-36',
         {
           'border-border': getValues('propertyType') === value,
@@ -92,7 +70,7 @@ function PropertyTypeRadioButton({
         <Icon size={48} />
       </Label>
       <RadioGroupItem value={value} id={value} {...register('propertyType')} />
-      <Label htmlFor={value} className='text-sm text-center'>
+      <Label htmlFor={value} className='text-center text-sm'>
         {label}
       </Label>
     </div>

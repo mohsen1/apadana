@@ -19,15 +19,14 @@ export function WelcomeToNewListing() {
   };
 
   return (
-    <div className='flex flex-col items-center justify-center h-full bg-accent p-4 rounded-md relative'>
+    <div className='bg-accent relative flex h-full flex-col items-center justify-center rounded-md p-4'>
       <X
-        className='absolute top-2 right-2 hover:cursor-pointer hover:rounded-full hover:bg-gray-200'
+        className='absolute right-2 top-2 hover:cursor-pointer hover:rounded-full hover:bg-gray-200'
         onClick={handleClose}
       />
       <h1 className='text-2xl font-semibold'>Welcome to your new listing!</h1>
       <p className='text-sm '>
-        You can now start adding your listing details and setting up your
-        availability and pricing.
+        You can now start adding your listing details and setting up your availability and pricing.
       </p>
     </div>
   );

@@ -7,7 +7,7 @@ import CreateListingForm from '@/app/listing/create/form';
 
 function LoadingFallback() {
   return (
-    <Card className='max-w-4xl mx-auto'>
+    <Card className='mx-auto max-w-4xl'>
       <CardHeader>
         <CardTitle>
           <Skeleton className='h-8 w-64' />

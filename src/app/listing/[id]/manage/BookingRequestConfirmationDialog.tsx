@@ -47,10 +47,7 @@ export function BookingRequestConfirmationDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Booking Request</DialogTitle>
-          <BookingRequestCard
-            bookingRequest={bookingRequest}
-            listing={listing}
-          />
+          <BookingRequestCard bookingRequest={bookingRequest} listing={listing} />
           <DialogFooter className='flex justify-end gap-2 pt-4'>
             <BookingRequestActions
               bookingRequest={bookingRequest}
@@ -72,15 +69,9 @@ function BookingRequestCard({
   bookingRequest: BookingRequest & { user: User };
   listing: FullListing;
 }) {
-  const Row = ({
-    label,
-    children,
-  }: {
-    label: string;
-    children: React.ReactNode;
-  }) => {
+  const Row = ({ label, children }: { label: string; children: React.ReactNode }) => {
     return (
-      <div className='grid grid-cols-[160px_1fr] gap-4 mt-2'>
+      <div className='mt-2 grid grid-cols-[160px_1fr] gap-4'>
         <div>{label}</div>
         <div>{children}</div>
       </div>
@@ -88,7 +79,7 @@ function BookingRequestCard({
   };
   return (
     <div>
-      <header className='flex items-center gap-2 my-2 mb-4'>
+      <header className='my-2 mb-4 flex items-center gap-2'>
         <Avatar>
           <AvatarImage
             src={bookingRequest.user.imageUrl ?? ''}
@@ -106,27 +97,15 @@ function BookingRequestCard({
         </div>
       </header>
       <div>
-        <Row label='Sent on:'>
-          {formatRelative(bookingRequest.createdAt, new Date(), {})}
-        </Row>
+        <Row label='Sent on:'>{formatRelative(bookingRequest.createdAt, new Date(), {})}</Row>
         <Row label='Property:'>
-          <Button
-            variant='link'
-            className='p-0 text-md'
-            href={`/listing/${listing.id}`}
-          >
+          <Button variant='link' className='text-md p-0' href={`/listing/${listing.id}`}>
             {listing.title.trim().slice(0, 100)}
           </Button>
         </Row>
-        <Row label='Check In:'>
-          {bookingRequest.checkIn.toLocaleDateString()}
-        </Row>
-        <Row label='Check Out:'>
-          {bookingRequest.checkOut.toLocaleDateString()}
-        </Row>
-        <Row label='Number of Guests:'>
-          {bookingRequest.guests.toLocaleString()} guests
-        </Row>
+        <Row label='Check In:'>{bookingRequest.checkIn.toLocaleDateString()}</Row>
+        <Row label='Check Out:'>{bookingRequest.checkOut.toLocaleDateString()}</Row>
+        <Row label='Number of Guests:'>{bookingRequest.guests.toLocaleString()} guests</Row>
         <Row label='Total Price:'>
           {formatCurrency(bookingRequest.totalPrice, listing.currency)}
         </Row>
@@ -134,7 +113,7 @@ function BookingRequestCard({
           <BookingRequestStatusBadge status={bookingRequest.status} />
         </Row>
         <Row label='Message:'>{null}</Row>
-        <div className='border rounded-md p-2 mt-0 min-h-24 max-h-48 overflow-y-auto'>
+        <div className='mt-0 max-h-48 min-h-24 overflow-y-auto rounded-md border p-2'>
           {bookingRequest.message}
         </div>
       </div>

@@ -12,11 +12,11 @@ type ListingsGridProps = {
 
 const ListingsGrid = ({ listings }: ListingsGridProps) => {
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+    <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3'>
       {listings.map((listing) => (
         <div
           key={listing.id}
-          className='bg-card shadow-lg rounded-lg overflow-hidden transition-transform duration-300 grid grid-rows-[1fr_auto_auto]'
+          className='bg-card grid grid-rows-[1fr_auto_auto] overflow-hidden rounded-lg shadow-lg transition-transform duration-300'
         >
           <div className='relative h-48'>
             {listing.images && listing.images[0] && (
@@ -29,17 +29,15 @@ const ListingsGrid = ({ listings }: ListingsGridProps) => {
             )}
           </div>
           <div className='p-6'>
-            <h2 className='text-2xl font-semibold mb-2 text-card-foreground'>
-              {listing.title}
-            </h2>
-            <div className='text-sm text-muted-foreground'>
+            <h2 className='text-card-foreground mb-2 text-2xl font-semibold'>{listing.title}</h2>
+            <div className='text-muted-foreground text-sm'>
               <p>{listing.address}</p>
-              <p className='font-medium mt-2'>
+              <p className='mt-2 font-medium'>
                 {formatCurrency(listing.pricePerNight, listing.currency)}/night
               </p>
             </div>
           </div>
-          <div className='p-6 min-h-10 flex justify-end align-end gap-4'>
+          <div className='align-end flex min-h-10 justify-end gap-4 p-6'>
             <Button href={`/listing/${listing.id}/delete`} variant='link'>
               Delete
             </Button>

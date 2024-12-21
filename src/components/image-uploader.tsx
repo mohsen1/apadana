@@ -46,10 +46,9 @@ const SortableImage = ({
   onDelete: (key: string) => void;
   isCover: boolean;
 }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: fileState.key ?? '',
-    });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: fileState.key ?? '',
+  });
 
   const onDeleteCb = useCallback(() => {
     if (!fileState.key) {
@@ -69,11 +68,11 @@ const SortableImage = ({
       style={style}
       {...attributes}
       {...listeners}
-      className='aspect-square relative m-2'
+      className='relative m-2 aspect-square'
     >
-      <div className='border border-border rounded-lg shadow-md overflow-hidden w-full h-full'>
+      <div className='border-border h-full w-full overflow-hidden rounded-lg border shadow-md'>
         <div
-          className={cn('w-full h-full bg-muted', {
+          className={cn('bg-muted h-full w-full', {
             'opacity-75': fileState.status === 'uploading',
           })}
         >
@@ -84,13 +83,13 @@ const SortableImage = ({
             className='object-contain'
           />
           {isCover && (
-            <div className='absolute bottom-0 left-0 right-0 bg-black/50 text-white text-center py-1 rounded-b-lg'>
+            <div className='absolute bottom-0 left-0 right-0 rounded-b-lg bg-black/50 py-1 text-center text-white'>
               Cover Photo
             </div>
           )}
           {fileState.status === 'uploading' && (
             <Progress
-              className='absolute top-0 left-0 right-0 rounded-t-lg'
+              className='absolute left-0 right-0 top-0 rounded-t-lg'
               value={fileState.progress}
               max={100}
             />
@@ -107,35 +106,28 @@ const SortableImage = ({
           e.stopPropagation();
         }}
         type='button'
-        className='absolute -top-3 -right-3 bg-muted text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-destructive focus:bg-destructive focus:outline-none'
+        className='bg-muted hover:bg-destructive focus:bg-destructive absolute -right-3 -top-3 flex h-6 w-6 items-center justify-center rounded-full text-white focus:outline-none'
       >
-        <XIcon className='w-4 h-4' />
+        <XIcon className='h-4 w-4' />
       </button>
     </div>
   );
 };
 
-export const ImageUploader = ({
-  initialImages,
-  onChange,
-  onError,
-}: ImageUploaderProps) => {
-  const { fileStates, removeFile, handleFileSelect } = useFileUploader(
-    (files) => {
-      const images = files
-        .filter(
-          (file): file is Required<FileUploadState> =>
-            file.status === 'success' && file.key !== undefined,
-        )
-        .map((file) => ({
-          key: file.key,
-          name: file.file.name,
-          url: file.uploadedUrl,
-        }));
-      onChange(images);
-    },
-    onError,
-  );
+export const ImageUploader = ({ initialImages, onChange, onError }: ImageUploaderProps) => {
+  const { fileStates, removeFile, handleFileSelect } = useFileUploader((files) => {
+    const images = files
+      .filter(
+        (file): file is Required<FileUploadState> =>
+          file.status === 'success' && file.key !== undefined,
+      )
+      .map((file) => ({
+        key: file.key,
+        name: file.file.name,
+        url: file.uploadedUrl,
+      }));
+    onChange(images);
+  }, onError);
   const [orderedImages, setOrderedImages] = useState<FileUploadState[]>([
     ...fileStates,
     ...(initialImages ?? []).map((image) => ({
@@ -198,13 +190,11 @@ export const ImageUploader = ({
       >
         <SortableContext
           items={orderedImages
-            .filter(
-              (img): img is Required<FileUploadState> => img.key !== undefined,
-            )
+            .filter((img): img is Required<FileUploadState> => img.key !== undefined)
             .map((img) => img.key)}
           strategy={rectSwappingStrategy}
         >
-          <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
+          <div className='grid grid-cols-2 gap-4 md:grid-cols-3'>
             {orderedImages.map((fileState, index) => (
               <SortableImage
                 key={fileState.key || index}
@@ -215,12 +205,12 @@ export const ImageUploader = ({
             ))}
             <label
               htmlFor='image-uploader-input'
-              className='aspect-square relative m-2 cursor-pointer'
+              className='relative m-2 aspect-square cursor-pointer'
             >
-              <div className='border border-border rounded-lg shadow-md overflow-hidden w-full h-full'>
-                <div className='flex place-content-center relative w-full h-full bg-muted'>
+              <div className='border-border h-full w-full overflow-hidden rounded-lg border shadow-md'>
+                <div className='bg-muted relative flex h-full w-full place-content-center'>
                   <div className='flex flex-col items-center justify-center'>
-                    <PlusIcon className='w-10 h-10 text-muted-foreground' />
+                    <PlusIcon className='text-muted-foreground h-10 w-10' />
                     <p className='text-muted-foreground'>Add Photos</p>
                   </div>
                 </div>

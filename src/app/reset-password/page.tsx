@@ -44,19 +44,14 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
+      <div className='flex min-h-screen items-center justify-center'>
         <Card>
           <CardHeader>
-            <CardTitle className='text-destructive'>
-              Invalid Reset Link
-            </CardTitle>
+            <CardTitle className='text-destructive'>Invalid Reset Link</CardTitle>
           </CardHeader>
           <CardContent>
             <p>This password reset link is invalid or has expired.</p>
-            <Button
-              className='mt-4'
-              onClick={() => router.push('/forgot-password')}
-            >
+            <Button className='mt-4' onClick={() => router.push('/forgot-password')}>
               Request New Reset Link
             </Button>
           </CardContent>
@@ -76,18 +71,17 @@ function ResetPasswordForm() {
     } catch (error) {
       toast({
         title: 'Error',
-        description:
-          error instanceof Error ? error.message : 'Something went wrong',
+        description: error instanceof Error ? error.message : 'Something went wrong',
         variant: 'destructive',
       });
     }
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-background p-4'>
+    <div className='bg-background flex min-h-screen items-center justify-center p-4'>
       <Card className='w-full max-w-md shadow-lg'>
         <CardHeader>
-          <CardTitle className='text-2xl font-bold text-center text-foreground'>
+          <CardTitle className='text-foreground text-center text-2xl font-bold'>
             Reset Your Password
           </CardTitle>
         </CardHeader>
@@ -97,22 +91,14 @@ function ResetPasswordForm() {
               <Label htmlFor='password'>New Password</Label>
               <Input {...register('password')} type='password' id='password' />
               {errors.password && (
-                <p className='text-sm text-destructive'>
-                  {errors.password.message}
-                </p>
+                <p className='text-destructive text-sm'>{errors.password.message}</p>
               )}
             </div>
             <div className='space-y-2'>
               <Label htmlFor='confirmPassword'>Confirm Password</Label>
-              <Input
-                {...register('confirmPassword')}
-                type='password'
-                id='confirmPassword'
-              />
+              <Input {...register('confirmPassword')} type='password' id='confirmPassword' />
               {errors.confirmPassword && (
-                <p className='text-sm text-destructive'>
-                  {errors.confirmPassword.message}
-                </p>
+                <p className='text-destructive text-sm'>{errors.confirmPassword.message}</p>
               )}
             </div>
             <Button className='w-full' type='submit' disabled={isSubmitting}>
@@ -134,12 +120,12 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className='min-h-screen flex items-center justify-center bg-background p-4'>
+    <div className='bg-background flex min-h-screen items-center justify-center p-4'>
       <Suspense
         fallback={
           <Card className='w-full max-w-md shadow-lg'>
             <CardHeader>
-              <CardTitle className='text-2xl font-bold text-center text-foreground'>
+              <CardTitle className='text-foreground text-center text-2xl font-bold'>
                 Loading...
               </CardTitle>
             </CardHeader>

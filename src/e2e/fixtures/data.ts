@@ -26,10 +26,7 @@ export const seedUser = {
 };
 
 // listing fixtures
-export const prodE2eTestListing_usa_1: Omit<
-  Prisma.ListingCreateInput,
-  'owner'
-> = {
+export const prodE2eTestListing_usa_1: Omit<Prisma.ListingCreateInput, 'owner'> = {
   title: 'My new test listing',
   description: 'This is a test listing',
   pricePerNight: 100,

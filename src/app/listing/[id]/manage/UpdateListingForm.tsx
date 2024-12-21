@@ -11,13 +11,7 @@ import { CreateListingSchema } from '@/lib/prisma/schema';
 import { DisappearingComponent } from '@/components/DisappearingComponent';
 import { LocationPicker } from '@/components/LocationPicker';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -30,9 +24,7 @@ const EditListingSchema = CreateListingSchema.omit({
 }).partial();
 
 export default function UpdateListingForm({ listing }: { listing: Listing }) {
-  const { register, handleSubmit, formState, setValue, control } = useForm<
-    Partial<Listing>
-  >({
+  const { register, handleSubmit, formState, setValue, control } = useForm<Partial<Listing>>({
     defaultValues: listing,
     resolver: zodResolver(EditListingSchema),
   });
@@ -60,14 +52,8 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
           <div className='grid grid-cols-2 gap-4'>
             <div className='space-y-2'>
               <Label htmlFor='title'>Title</Label>
-              <Input
-                {...register('title')}
-                id='title'
-                placeholder='Enter listing title'
-              />
-              {errors.title && (
-                <p className='text-destructive'>{errors.title.message}</p>
-              )}
+              <Input {...register('title')} id='title' placeholder='Enter listing title' />
+              {errors.title && <p className='text-destructive'>{errors.title.message}</p>}
             </div>
             <div className='space-y-2'>
               <Label htmlFor='propertyType'>Property Type</Label>
@@ -77,12 +63,10 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
                 placeholder='e.g. Apartment, House'
               />
               {errors.propertyType && (
-                <p className='text-destructive'>
-                  {errors.propertyType.message}
-                </p>
+                <p className='text-destructive'>{errors.propertyType.message}</p>
               )}
             </div>
-            <div className='space-y-2 col-span-2'>
+            <div className='col-span-2 space-y-2'>
               <LocationPicker
                 onAddressChange={(address) => {
                   setValue('address', address);
@@ -97,9 +81,7 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
                 initialAddress={listing.address}
                 initialLatitude={listing.latitude ?? undefined}
                 initialLongitude={listing.longitude ?? undefined}
-                initialShowExactLocation={
-                  listing.showExactLocation ?? undefined
-                }
+                initialShowExactLocation={listing.showExactLocation ?? undefined}
               />
             </div>
           </div>
@@ -110,9 +92,7 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
               id='description'
               placeholder='Describe your listing'
             />
-            {errors.description && (
-              <p className='text-destructive'>{errors.description.message}</p>
-            )}
+            {errors.description && <p className='text-destructive'>{errors.description.message}</p>}
           </div>
           <div>
             {/* TODO: Handle localization here. 
@@ -121,7 +101,7 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
               <div className='space-y-2'>
                 <Label htmlFor='checkInTime'>Check-in Time</Label>
                 <div className='relative'>
-                  <Clock className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+                  <Clock className='text-muted-foreground absolute left-2 top-2.5 h-4 w-4' />
                   <Input
                     {...register('checkInTime', {
                       pattern: {
@@ -135,15 +115,13 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
                   />
                 </div>
                 {errors.checkInTime && (
-                  <p className='text-destructive'>
-                    {errors.checkInTime.message}
-                  </p>
+                  <p className='text-destructive'>{errors.checkInTime.message}</p>
                 )}
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='checkOutTime'>Check-out Time</Label>
                 <div className='relative'>
-                  <Clock className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+                  <Clock className='text-muted-foreground absolute left-2 top-2.5 h-4 w-4' />
                   <Input
                     {...register('checkOutTime', {
                       pattern: {
@@ -157,9 +135,7 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
                   />
                 </div>
                 {errors.checkOutTime && (
-                  <p className='text-destructive'>
-                    {errors.checkOutTime.message}
-                  </p>
+                  <p className='text-destructive'>{errors.checkOutTime.message}</p>
                 )}
               </div>
             </div>
@@ -168,7 +144,7 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
             <div className='space-y-2'>
               <Label htmlFor='pricePerNight'>Price per Night</Label>
               <div className='relative'>
-                <DollarSign className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+                <DollarSign className='text-muted-foreground absolute left-2 top-2.5 h-4 w-4' />
                 <Input
                   {...register('pricePerNight', { valueAsNumber: true })}
                   id='pricePerNight'
@@ -178,15 +154,13 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
                 />
               </div>
               {errors.pricePerNight && (
-                <p className='text-destructive'>
-                  {errors.pricePerNight.message}
-                </p>
+                <p className='text-destructive'>{errors.pricePerNight.message}</p>
               )}
             </div>
             <div className='space-y-2'>
               <Label htmlFor='minimumStay'>Minimum Stay (nights)</Label>
               <div className='relative'>
-                <Clock className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+                <Clock className='text-muted-foreground absolute left-2 top-2.5 h-4 w-4' />
                 <Input
                   {...register('minimumStay', { valueAsNumber: true })}
                   id='minimumStay'
@@ -202,7 +176,7 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
             <div className='space-y-2'>
               <Label htmlFor='maximumGuests'>Maximum Guests</Label>
               <div className='relative'>
-                <Users className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+                <Users className='text-muted-foreground absolute left-2 top-2.5 h-4 w-4' />
                 <Input
                   {...register('maximumGuests', {
                     valueAsNumber: true,
@@ -214,22 +188,14 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
                 />
               </div>
               {errors.maximumGuests && (
-                <p className='text-destructive'>
-                  {errors.maximumGuests.message}
-                </p>
+                <p className='text-destructive'>{errors.maximumGuests.message}</p>
               )}
             </div>
           </div>
           <div className='space-y-2'>
             <Label htmlFor='houseRules'>House Rules</Label>
-            <Textarea
-              {...register('houseRules')}
-              id='houseRules'
-              placeholder='Enter house rules'
-            />
-            {errors.houseRules && (
-              <p className='text-destructive'>{errors.houseRules.message}</p>
-            )}
+            <Textarea {...register('houseRules')} id='houseRules' placeholder='Enter house rules' />
+            {errors.houseRules && <p className='text-destructive'>{errors.houseRules.message}</p>}
           </div>
           <Controller
             name='published'
@@ -247,14 +213,10 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
               </div>
             )}
           />
-          {errors.published && (
-            <p className='text-destructive'>{errors.published.message}</p>
-          )}
-          <div className='flex justify-start items-center'>
+          {errors.published && <p className='text-destructive'>{errors.published.message}</p>}
+          <div className='flex items-center justify-start'>
             <Button
-              disabled={
-                isSubmitting || !formState.isValid || !formState.isDirty
-              }
+              disabled={isSubmitting || !formState.isValid || !formState.isDirty}
               type='submit'
               className='flex items-center gap-2'
             >
@@ -271,10 +233,7 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
               )}
             </Button>
             {formState.isSubmitSuccessful && !formState.isSubmitting && (
-              <DisappearingComponent
-                disappearIn={3}
-                className='mx-2 text-green-600'
-              >
+              <DisappearingComponent disappearIn={3} className='mx-2 text-green-600'>
                 Your changes have been saved
               </DisappearingComponent>
             )}

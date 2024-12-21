@@ -68,13 +68,13 @@ export function AccountProfile() {
       <div className='flex-1 p-6'>
         <div className='max-w-3xl'>
           <h2 className='text-2xl font-semibold'>Profile details</h2>
-          <Separator className='my-6 border-border' />
+          <Separator className='border-border my-6' />
 
           {/* Updated Profile Section */}
-          <div className='flex items-center justify-between mb-8'>
+          <div className='mb-8 flex items-center justify-between'>
             <div className='flex items-start gap-4 '>
               <label htmlFor='image-uploader-input'>
-                <Avatar className='h-16 w-16 relative group cursor-pointer hover:opacity-90'>
+                <Avatar className='group relative h-16 w-16 cursor-pointer hover:opacity-90'>
                   <AvatarImage src={user?.imageUrl ?? '/placeholder.png'} />
                   <AvatarFallback>{userInitials}</AvatarFallback>
                 </Avatar>
@@ -96,7 +96,7 @@ export function AccountProfile() {
           </div>
 
           {/* Name Section */}
-          <div className='space-y-4 mb-8'>
+          <div className='mb-8 space-y-4'>
             <div className='flex items-center justify-between'>
               <h3 className='text-lg font-medium'>Name</h3>
               <Button
@@ -110,10 +110,7 @@ export function AccountProfile() {
             </div>
 
             {isEditing ? (
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className='space-y-4'
-              >
+              <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
                 <div className='grid grid-cols-2 gap-4'>
                   <div className='space-y-2'>
                     <Label htmlFor='firstName'>First name</Label>
@@ -124,7 +121,7 @@ export function AccountProfile() {
                       className='border-border'
                     />
                     {form.formState.errors.firstName && (
-                      <p className='text-sm text-destructive'>
+                      <p className='text-destructive text-sm'>
                         {form.formState.errors.firstName.message}
                       </p>
                     )}
@@ -138,7 +135,7 @@ export function AccountProfile() {
                       className='border-border'
                     />
                     {form.formState.errors.lastName && (
-                      <p className='text-sm text-destructive'>
+                      <p className='text-destructive text-sm'>
                         {form.formState.errors.lastName.message}
                       </p>
                     )}
@@ -157,30 +154,26 @@ export function AccountProfile() {
 
           {/* Email Section */}
           <div className='mb-8'>
-            <div className='flex items-center justify-between mb-4'>
+            <div className='mb-4 flex items-center justify-between'>
               <h3 className='text-lg font-medium'>Email addresses</h3>
-              <Button
-                variant='ghost'
-                size='sm'
-                className='border-border hover:bg-accent'
-              >
+              <Button variant='ghost' size='sm' className='border-border hover:bg-accent'>
                 ...
               </Button>
             </div>
-            <div className='flex items-center justify-between mb-2'>
+            <div className='mb-2 flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <span>john@example.com</span>
                 <Badge variant='secondary'>Primary</Badge>
               </div>
             </div>
-            <Button variant='outline' size='sm' className='mt-4 border-border'>
+            <Button variant='outline' size='sm' className='border-border mt-4'>
               <span className='mr-2'>+</span> Add email address
             </Button>
           </div>
 
           {/* Connected Accounts Section */}
           <div>
-            <div className='flex items-center justify-between mb-4'>
+            <div className='mb-4 flex items-center justify-between'>
               <h3 className='text-lg font-medium'>Connected accounts</h3>
               <Button variant='ghost' size='sm' className='border-border'>
                 ...
@@ -210,12 +203,12 @@ export function AccountProfile() {
                 <span className='text-muted-foreground'>john@example.com</span>
               </div>
             </div>
-            <Button variant='outline' size='sm' className='mt-4 border-border'>
+            <Button variant='outline' size='sm' className='border-border mt-4'>
               <span className='mr-2'>+</span> Connect account
             </Button>
           </div>
 
-          <Separator className='my-8 border-border' />
+          <Separator className='border-border my-8' />
 
           <div>
             <Button

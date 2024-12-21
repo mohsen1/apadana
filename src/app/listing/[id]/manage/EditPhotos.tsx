@@ -6,21 +6,12 @@ import { Loader2, SaveIcon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Controller, useForm } from 'react-hook-form';
 
-import {
-  EditListingImages,
-  EditListingImagesSchema,
-} from '@/lib/prisma/schema';
+import { EditListingImages, EditListingImagesSchema } from '@/lib/prisma/schema';
 
 import { DisappearingComponent } from '@/components/DisappearingComponent';
 import { ImageUploader } from '@/components/image-uploader';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { editListingImages } from '@/app/listing/[id]/manage/action';
 
@@ -65,9 +56,7 @@ export function EditPhotos({ listing }: EditPhotosProps) {
                 <ImageUploader
                   initialImages={listing.images}
                   onChange={(images) => {
-                    const optimistic = images.some((image) =>
-                      image.key.startsWith('optimistic-'),
-                    );
+                    const optimistic = images.some((image) => image.key.startsWith('optimistic-'));
                     if (!optimistic) {
                       field.onChange(images);
                     }
@@ -75,11 +64,9 @@ export function EditPhotos({ listing }: EditPhotosProps) {
                 />
               )}
             />
-            {errors.images && (
-              <div className='text-destructive'>{errors.images.message}</div>
-            )}
+            {errors.images && <div className='text-destructive'>{errors.images.message}</div>}
           </div>
-          <div className='flex justify-start items-center'>
+          <div className='flex items-center justify-start'>
             <Button
               disabled={isSubmitting || !formState.isDirty}
               type='submit'
@@ -98,10 +85,7 @@ export function EditPhotos({ listing }: EditPhotosProps) {
               )}
             </Button>
             {formState.isSubmitSuccessful && !formState.isSubmitting && (
-              <DisappearingComponent
-                disappearIn={3}
-                className='mx-2 text-green-600'
-              >
+              <DisappearingComponent disappearIn={3} className='mx-2 text-green-600'>
                 Your changes have been saved
               </DisappearingComponent>
             )}

@@ -6,9 +6,7 @@ import { PasswordResetEmail } from './password-reset-email';
 
 const meta: Meta<typeof PasswordResetEmail> = {
   title: 'Emails/PasswordResetEmail',
-  render: (args) => (
-    <ReactEmailStoryRenderer Component={PasswordResetEmail} props={args} />
-  ),
+  render: (args) => <ReactEmailStoryRenderer Component={PasswordResetEmail} props={args} />,
   parameters: {
     layout: 'centered',
   },

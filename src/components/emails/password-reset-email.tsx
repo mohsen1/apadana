@@ -20,23 +20,21 @@ export function PasswordResetEmail({ resetLink }: PasswordResetEmailProps) {
       <Head />
       <Preview>Reset your password</Preview>
       <Tailwind>
-        <Body className='bg-white my-12 mx-auto font-sans'>
-          <Container className='border border-solid border-gray-200 rounded-lg p-10 max-w-md mx-auto'>
+        <Body className='mx-auto my-12 bg-white font-sans'>
+          <Container className='mx-auto max-w-md rounded-lg border border-solid border-gray-200 p-10'>
             <Section>
-              <Text className='text-2xl font-bold text-gray-900'>
-                Reset Your Password
-              </Text>
+              <Text className='text-2xl font-bold text-gray-900'>Reset Your Password</Text>
               <Text className='text-gray-600'>
-                Someone requested a password reset for your account. If this
-                wasn't you, you can safely ignore this email.
+                Someone requested a password reset for your account. If this wasn't you, you can
+                safely ignore this email.
               </Text>
               <Button
-                className='bg-blue-600 text-white px-6 py-3 rounded-md font-medium'
+                className='rounded-md bg-blue-600 px-6 py-3 font-medium text-white'
                 href={resetLink}
               >
                 Reset Password
               </Button>
-              <Text className='text-sm text-gray-500 mt-4'>
+              <Text className='mt-4 text-sm text-gray-500'>
                 This link will expire in 1 hour for security reasons.
               </Text>
             </Section>

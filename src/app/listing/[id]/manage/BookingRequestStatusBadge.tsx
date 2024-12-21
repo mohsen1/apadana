@@ -4,11 +4,7 @@ import { cn } from '@/lib/utils';
 
 import { Badge } from '@/components/ui/badge';
 
-export function BookingRequestStatusBadge({
-  status,
-}: {
-  status: BookingRequestStatus;
-}) {
+export function BookingRequestStatusBadge({ status }: { status: BookingRequestStatus }) {
   return (
     <Badge
       variant='outline'

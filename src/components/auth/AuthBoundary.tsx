@@ -30,12 +30,10 @@ export async function AuthBoundary({
 
 function AccessDenied() {
   return (
-    <div className='flex flex-col items-center justify-center min-h-[400px] space-y-4'>
-      <ShieldCheck className='w-16 h-16 text-destructive' />
-      <h1 className='text-2xl font-bold text-destructive'>Access Denied</h1>
-      <p className='text-muted-foreground'>
-        You don't have permission to access this section.
-      </p>
+    <div className='flex min-h-[400px] flex-col items-center justify-center space-y-4'>
+      <ShieldCheck className='text-destructive h-16 w-16' />
+      <h1 className='text-destructive text-2xl font-bold'>Access Denied</h1>
+      <p className='text-muted-foreground'>You don't have permission to access this section.</p>
     </div>
   );
 }

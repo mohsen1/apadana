@@ -23,9 +23,9 @@ export function CalendarGrid({
   const weeksInMonth = getWeeksInMonth(state.visibleRange.start, locale);
 
   return (
-    <table {...gridProps} cellPadding='0' className='flex-1 w-full'>
+    <table {...gridProps} cellPadding='0' className='w-full flex-1'>
       <thead {...headerProps} className='/80'>
-        <tr className='grid grid-cols-7 w-full text-muted-foreground'>
+        <tr className='text-muted-foreground grid w-full grid-cols-7'>
           {weekDays.map((day, index) => (
             <th key={index}>{day}</th>
           ))}
@@ -33,7 +33,7 @@ export function CalendarGrid({
       </thead>
       <tbody>
         {Array.from({ length: weeksInMonth }, (_, weekIndex) => (
-          <tr key={weekIndex} className='grid grid-cols-7 w-full'>
+          <tr key={weekIndex} className='grid w-full grid-cols-7'>
             {state
               .getDatesInWeek(weekIndex)
               .map((date, i) =>

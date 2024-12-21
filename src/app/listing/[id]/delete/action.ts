@@ -3,11 +3,7 @@
 import { z } from 'zod';
 
 import prisma from '@/lib/prisma/client';
-import {
-  actionClient,
-  ClientVisibleError,
-  UnauthorizedError,
-} from '@/lib/safe-action';
+import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
 
 import { getListing } from '@/app/listing/action';
 

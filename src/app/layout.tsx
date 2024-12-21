@@ -53,11 +53,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   validateEnvironmentVariables();
 
   const result = await getCurrentUser();
@@ -74,7 +70,7 @@ export default async function RootLayout({
         )}
         <body
           className={cn(
-            'min-h-screen bg-background text-foreground',
+            'bg-background text-foreground min-h-screen',
             'flex flex-col',
             fontSans.variable,
             fontHeading.variable,
@@ -84,9 +80,7 @@ export default async function RootLayout({
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
             <ToastProvider>
               <Header className='h-16' />
-              <main className='flex-1 min-h-[calc(100vh-4rem)] w-full mx-auto'>
-                {children}
-              </main>
+              <main className='mx-auto min-h-[calc(100vh-4rem)] w-full flex-1'>{children}</main>
               <Footer className='mt-auto' />
               <Toaster />
             </ToastProvider>

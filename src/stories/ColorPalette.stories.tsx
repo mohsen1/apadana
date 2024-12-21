@@ -9,30 +9,25 @@ interface ColorCardProps {
   isBorder?: boolean;
 }
 
-function ColorCard({
-  name,
-  bgClass,
-  textClass,
-  isBorder = false,
-}: ColorCardProps) {
+function ColorCard({ name, bgClass, textClass, isBorder = false }: ColorCardProps) {
   if (isBorder) {
     return (
-      <div className='border rounded-lg overflow-hidden'>
+      <div className='overflow-hidden rounded-lg border'>
         <div className='bg-background p-4'>
           <h3 className='text-lg font-semibold'>{name}</h3>
-          <div className={`h-8 ${bgClass} rounded mt-2`} />
-          <code className='text-sm block mt-2'>{name.toLowerCase()}</code>
+          <div className={`h-8 ${bgClass} mt-2 rounded`} />
+          <code className='mt-2 block text-sm'>{name.toLowerCase()}</code>
         </div>
       </div>
     );
   }
 
   return (
-    <div className='border rounded-lg overflow-hidden'>
+    <div className='overflow-hidden rounded-lg border'>
       <div className={`${bgClass} ${textClass} p-4`}>
         <h3 className='text-lg font-semibold'>{name}</h3>
-        <code className='text-sm block'>{bgClass}</code>
-        <code className='text-sm block'>{textClass}</code>
+        <code className='block text-sm'>{bgClass}</code>
+        <code className='block text-sm'>{textClass}</code>
       </div>
     </div>
   );
@@ -40,30 +35,18 @@ function ColorCard({
 
 function ColorPalette() {
   return (
-    <div className='p-4 space-y-8'>
+    <div className='space-y-8 p-4'>
       <div>
-        <h2 className='text-2xl font-bold mb-4'>UI Colors</h2>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-          <ColorCard
-            name='Primary'
-            bgClass='bg-primary'
-            textClass='text-primary-foreground'
-          />
+        <h2 className='mb-4 text-2xl font-bold'>UI Colors</h2>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+          <ColorCard name='Primary' bgClass='bg-primary' textClass='text-primary-foreground' />
           <ColorCard
             name='Secondary'
             bgClass='bg-secondary'
             textClass='text-secondary-foreground'
           />
-          <ColorCard
-            name='Muted'
-            bgClass='bg-muted'
-            textClass='text-muted-foreground'
-          />
-          <ColorCard
-            name='Accent'
-            bgClass='bg-accent'
-            textClass='text-accent-foreground'
-          />
+          <ColorCard name='Muted' bgClass='bg-muted' textClass='text-muted-foreground' />
+          <ColorCard name='Accent' bgClass='bg-accent' textClass='text-accent-foreground' />
           <ColorCard
             name='Destructive'
             bgClass='bg-destructive'
@@ -73,29 +56,17 @@ function ColorPalette() {
       </div>
 
       <div>
-        <h2 className='text-2xl font-bold mb-4'>System Colors</h2>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-          <ColorCard
-            name='Background'
-            bgClass='bg-background'
-            textClass='text-foreground'
-          />
-          <ColorCard
-            name='Card'
-            bgClass='bg-card'
-            textClass='text-card-foreground'
-          />
-          <ColorCard
-            name='Popover'
-            bgClass='bg-popover'
-            textClass='text-popover-foreground'
-          />
+        <h2 className='mb-4 text-2xl font-bold'>System Colors</h2>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+          <ColorCard name='Background' bgClass='bg-background' textClass='text-foreground' />
+          <ColorCard name='Card' bgClass='bg-card' textClass='text-card-foreground' />
+          <ColorCard name='Popover' bgClass='bg-popover' textClass='text-popover-foreground' />
         </div>
       </div>
 
       <div>
-        <h2 className='text-2xl font-bold mb-4'>Border Colors</h2>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+        <h2 className='mb-4 text-2xl font-bold'>Border Colors</h2>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
           <ColorCard name='Border' bgClass='bg-border' textClass='' isBorder />
           <ColorCard name='Input' bgClass='bg-input' textClass='' isBorder />
           <ColorCard name='Ring' bgClass='bg-ring' textClass='' isBorder />
