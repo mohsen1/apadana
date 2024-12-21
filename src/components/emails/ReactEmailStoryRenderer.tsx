@@ -1,6 +1,8 @@
 import { render } from '@react-email/components';
 import { useState } from 'react';
 
+import logger from '@/utils/logger';
+
 /**
  * Renders a React Email component in a storybook story.
  * Since React Email uses a Promise to render the email, we need to use a
@@ -12,7 +14,7 @@ import { useState } from 'react';
  * @param props - The props to pass to the component.
  * @returns A React component that renders the email.
  */
-export async function ReactEmailStoryRenderer<C extends React.ElementType>({
+export function ReactEmailStoryRenderer<C extends React.ElementType>({
   Component,
   props,
 }: {
@@ -20,9 +22,13 @@ export async function ReactEmailStoryRenderer<C extends React.ElementType>({
   props: React.ComponentProps<C>;
 }) {
   const [html, setHtml] = useState('');
-  await render(<Component {...props} />).then((html) => {
-    setHtml(html);
-  });
+  render(<Component {...props} />)
+    .then((html) => {
+      setHtml(html);
+    })
+    .catch((error) => {
+      logger.error('Error rendering email:', error);
+    });
   return (
     <div
       data-testid='react-email-story-renderer'

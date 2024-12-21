@@ -34,6 +34,7 @@ const config: StorybookConfig = {
                       config: taildwindConfig,
                     },
                   ],
+
                   // eslint-disable-next-line @typescript-eslint/no-require-imports
                   require('autoprefixer'),
                 ],
