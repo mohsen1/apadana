@@ -1,6 +1,8 @@
 import chalk from 'chalk';
-import { spawn } from 'child_process';
-import fs from 'fs/promises';
+import { spawn } from 'node:child_process';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import semver from 'semver';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -254,17 +256,20 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
       `Type: ${updateType} update`,
     ].join('\n');
 
-    // if not diff skip
-    const diff = await execCommand('git', ['diff', 'package.json', 'pnpm-lock.yaml'], {
+    // Write commit message to temporary file
+    const tempFile = path.join(os.tmpdir(), `.temp-commit-msg-${Date.now()}`);
+    await fs.writeFile(tempFile, commitMessage);
+
+    const commitResult = await execCommand('git', ['commit', '-F', tempFile, '--no-verify'], {
       silent: true,
     });
-    if (diff.stdout.trim() === '') {
-      logger.info(chalk.bold.yellow(`\n🔍 No changes for ${updates[0].packageName}`));
-      return true;
-    }
 
-    await execCommand('git', ['add', 'package.json', 'pnpm-lock.yaml'], { silent: true });
-    await execCommand('git', ['commit', '-m', commitMessage, '--no-verify'], { silent: true });
+    if (commitResult.exitCode !== 0) {
+      logger.error(chalk.bold.red(`\n❌ Failed to commit changes to git`));
+      logger.error(chalk.red(commitResult.stderr));
+      return false;
+    }
+    logger.info(chalk.bold.green(`\n✅ Committed changes to git`));
 
     logger.info(
       chalk.bold.green(
