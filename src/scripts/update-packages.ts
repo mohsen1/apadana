@@ -76,9 +76,10 @@ const results: UpdateResult[] = [];
 async function execCommand(
   command: string,
   args: string[],
-  options: { allowFailure?: boolean; env?: Record<string, string> } = {
+  options: { allowFailure?: boolean; env?: Record<string, string>; silent?: boolean } = {
     allowFailure: false,
     env: {},
+    silent: false,
   },
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
   logger.info(chalk.dim(`$ ${command} ${args.join(' ')}`));
@@ -94,13 +95,17 @@ async function execCommand(
     proc.stdout.on('data', (data: Buffer) => {
       const chunk = data.toString();
       stdout.push(chunk);
-      process.stdout.write(chunk);
+      if (!options.silent) {
+        process.stdout.write(chunk);
+      }
     });
 
     proc.stderr.on('data', (data: Buffer) => {
       const chunk = data.toString();
       stderr.push(chunk);
-      process.stderr.write(chunk);
+      if (!options.silent) {
+        process.stderr.write(chunk);
+      }
     });
 
     proc.on('close', (code) => {
@@ -209,7 +214,12 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
   try {
     // Install packages
     for (const update of updates) {
-      await execCommand('pnpm', ['add', `${update.packageName}@${update.latest}`]);
+      await execCommand('pnpm', [
+        'add',
+        `${update.packageName}@${update.latest}`,
+        '--no-progress',
+        '--silent',
+      ]);
     }
 
     const updateType = updates.reduce(
@@ -248,14 +258,16 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
     ].join('\n');
 
     // if not diff skip
-    const diff = await execCommand('git', ['diff', 'package.json', 'pnpm-lock.yaml']);
+    const diff = await execCommand('git', ['diff', 'package.json', 'pnpm-lock.yaml'], {
+      silent: true,
+    });
     if (diff.stdout.trim() === '') {
       logger.info(chalk.bold.yellow(`\n🔍 No changes for ${updates[0].packageName}`));
       return true;
     }
 
-    await execCommand('git', ['add', 'package.json', 'pnpm-lock.yaml']);
-    await execCommand('git', ['commit', '-m', commitMessage, '--no-verify']);
+    await execCommand('git', ['add', 'package.json', 'pnpm-lock.yaml'], { silent: true });
+    await execCommand('git', ['commit', '-m', commitMessage, '--no-verify'], { silent: true });
 
     logger.info(
       chalk.bold.green(
@@ -269,7 +281,9 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
     logger.error(chalk.red(error.message));
 
     logger.info(chalk.bold.yellow('\n↩️ Rolling back changes...'));
-    await execCommand('git', ['checkout', '--', 'package.json', 'pnpm-lock.yaml']);
+    await execCommand('git', ['checkout', '--', 'package.json', 'pnpm-lock.yaml'], {
+      silent: true,
+    });
     await execCommand('pnpm', ['install']);
 
     // Exit immediately on failure
