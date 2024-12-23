@@ -217,8 +217,7 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
       await execCommand('pnpm', [
         'add',
         `${update.packageName}@${update.latest}`,
-        '--logger=simple',
-        '--silent',
+        
       ]);
     }
 
