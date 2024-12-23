@@ -9,8 +9,6 @@ const logger = createLogger(__filename, 'warn');
 
 const composeFile = 'src/docker/docker-compose.yml';
 
-const DOCKER_OPTIONS = process.env.CI ? '--quiet-pull' : '';
-
 async function waitForContainerHealthy(
   composeFile: string,
   serviceName: string,
@@ -22,7 +20,7 @@ async function waitForContainerHealthy(
     try {
       logger.debug('Checking container status...');
       const containerStatusResult = exec(
-        `docker compose -f ${composeFile} ${DOCKER_OPTIONS} ps --format '{"service":"{{ .Service }}","state":"{{ .State }}","health":"{{ .Health }}"}'`,
+        `docker compose -f ${composeFile} ps --format '{"service":"{{ .Service }}","state":"{{ .State }}","health":"{{ .Health }}"}'`,
         {
           env: process.env,
           stdio: 'pipe',
@@ -142,7 +140,7 @@ export async function setupTestContainer() {
 
       // Start only the test database container
       logger.log('⏳ Launching test container...');
-      exec(`docker compose -f ${composeFile} ${DOCKER_OPTIONS} up db_test -d`, {
+      exec(`docker compose -f ${composeFile} up --quiet-pull db_test -d`, {
         env: process.env,
       });
 
@@ -167,7 +165,7 @@ export async function teardownTestContainer() {
   logger.info('Tearing down test database container...');
 
   try {
-    exec(`docker compose -f ${composeFile} ${DOCKER_OPTIONS} down`, {
+    exec(`docker compose -f ${composeFile} down`, {
       env: process.env,
     });
     logger.info('Test database container torn down successfully');
