@@ -89,7 +89,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
-            import fs from 'fs';
+            const fs = require('fs');
             const { repo, owner } = context.repo;
             const body = fs.readFileSync('package-updates-summary.md', 'utf8').toString();
             const result = await github.rest.pulls.create({
