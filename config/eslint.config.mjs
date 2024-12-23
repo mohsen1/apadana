@@ -14,7 +14,7 @@ const require = createRequire(import.meta.url);
 
 export default [
   {
-    ignores: ['**/dist/**', '**/out/**', '**/build/**', '**/node_modules/**'],
+    ignores: ['**/dist/**', '**/out/**', '**/build/**', '**/node_modules/**', '**/src/prisma/zod/**'],
   },
   {
     files: ['{src,config,__mocks__,.storybook}/**/*.{js,jsx,ts,tsx,mjs}'],

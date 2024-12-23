@@ -92,6 +92,7 @@
     "next-themes": "^0.3.0",
     "oslo": "^1.2.1",
     "prisma": "^6.1.0",
+    "prisma-zod-generator": "^0.8.13",
     "qs": "^6.13.1",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-aria": "^3.36.0",
@@ -161,7 +162,8 @@
     "tsx": "^4.19.2",
     "typescript": "~5.7.2",
     "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "zod-prisma": "^0.5.4"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
