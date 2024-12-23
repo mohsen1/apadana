@@ -282,7 +282,7 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
     logger.error(chalk.red(error.message));
 
     logger.info(chalk.bold.yellow('\n↩️ Rolling back changes...'));
-    await execCommand('git', ['checkout', '--', 'package.json', 'pnpm-lock.yaml'], {
+    await execCommand('git', ['reset', '--hard'], {
       silent: true,
     });
     await execCommand('pnpm', ['install']);
