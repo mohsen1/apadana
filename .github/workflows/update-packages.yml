@@ -12,6 +12,9 @@ on:
         required: true
         default: '0'
         type: number
+  schedule:
+    # Runs at 06:00 UTC every Monday
+    - cron: '0 6 * * 1'
 
 permissions:
   contents: write
