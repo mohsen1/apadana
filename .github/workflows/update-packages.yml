@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       branch-name:
-        description: 'Branch name for the updates'
-        required: true
-        default: 'chore/package-updates'
+        description: 'Branch name for the updates (defaults to day-of-year format)'
+        required: false
+        default: ''
       package-limit:
         description: 'Maximum number of packages to update (0 for unlimited)'
         required: true
@@ -52,8 +52,17 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git branch -D ${{ github.event.inputs.branch-name }} || true
-          git checkout -b ${{ github.event.inputs.branch-name }}
+
+          # Generate branch name based on day of year if not provided
+          if [ -z "${{ github.event.inputs.branch-name }}" ]; then
+            BRANCH_NAME="chore/package-updates-$(date +%j)"
+          else
+            BRANCH_NAME="${{ github.event.inputs.branch-name }}"
+          fi
+
+          git branch -D $BRANCH_NAME || true
+          git checkout -b $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Run update script
         run: pnpm tsx src/scripts/update-packages.ts --limit ${{ github.event.inputs.package-limit }}
@@ -71,7 +80,7 @@ jobs:
       - name: Push changes
         if: steps.git-check.outputs.changes == 'true'
         run: |
-          git push --force origin ${{ github.event.inputs.branch-name }}
+          git push origin ${{ env.BRANCH_NAME }}
 
       - name: Create Pull Request
         if: steps.git-check.outputs.changes == 'true'
@@ -81,7 +90,7 @@ jobs:
           commit-message: 'chore(deps): update dependencies'
           title: 'Update Dependencies'
           body-path: package-updates-summary.md
-          branch: ${{ github.event.inputs.branch-name }}
+          branch: ${{ env.BRANCH_NAME }}
           base: main
           labels: |
             dependencies
