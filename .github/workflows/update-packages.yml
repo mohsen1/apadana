@@ -7,6 +7,11 @@ on:
         description: 'Branch name for the updates'
         required: true
         default: 'chore/package-updates'
+      package-limit:
+        description: 'Maximum number of packages to update (0 for unlimited)'
+        required: true
+        default: '0'
+        type: number
 
 permissions:
   contents: write
@@ -48,7 +53,7 @@ jobs:
           git checkout -b ${{ github.event.inputs.branch-name }}
 
       - name: Run update script
-        run: pnpm tsx src/scripts/update-packages.ts
+        run: pnpm tsx src/scripts/update-packages.ts --limit ${{ github.event.inputs.package-limit }}
 
       - name: Check for changes
         id: git-check
@@ -63,7 +68,7 @@ jobs:
       - name: Push changes
         if: steps.git-check.outputs.changes == 'true'
         run: |
-          git push origin ${{ github.event.inputs.branch-name }}
+          git push --force origin ${{ github.event.inputs.branch-name }}
 
       - name: Create Pull Request
         if: steps.git-check.outputs.changes == 'true'
