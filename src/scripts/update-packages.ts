@@ -2,6 +2,8 @@ import chalk from 'chalk';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import semver from 'semver';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 import { assertError } from '@/utils';
 import { Logger } from '@/utils/logger';
@@ -72,10 +74,6 @@ interface UpdateResult {
 }
 
 const results: UpdateResult[] = [];
-
-const args = process.argv.slice(2);
-const limitArg = args.find((arg) => arg.startsWith('--limit='));
-const updateLimit = limitArg ? parseInt(limitArg.split('=')[1], 10) : 0;
 
 async function execCommand(
   command: string,
@@ -322,8 +320,11 @@ function generatePRSummary(results: UpdateResult[]): string {
     );
 
     for (const test of result.testResults) {
+      const errorDetails = test.error
+        ? `<details><summary>Error Details</summary><pre>${test.error}</pre></details>`
+        : '--';
       summary.push(
-        `| \`${test.type}\` | ${test.passed ? '✅ Passed' : '❌ Failed'} |  ${test.error ? `<details><summary>Click to expand error</summary>\n\n<pre>${test.error.slice(0, 1000)}</pre>\n\n</details>` : '--'} |`,
+        `| \`${test.type}\` | ${test.passed ? '✅ Passed' : '❌ Failed'} | ${errorDetails} |`,
       );
     }
     summary.push('');
@@ -333,6 +334,18 @@ function generatePRSummary(results: UpdateResult[]): string {
 }
 
 async function main() {
+  const argv = await yargs(hideBin(process.argv))
+    .option('limit', {
+      alias: 'l',
+      type: 'number',
+      description: 'Limit the number of packages to update',
+      default: 0,
+    })
+    .help()
+    .parseAsync();
+
+  const limit = argv.limit === undefined || argv.limit === 0 ? Infinity : argv.limit;
+
   try {
     logger.info(chalk.bold.blue('🔍 Checking for outdated packages...'));
     const outdatedOutput = await execCommand('pnpm', ['outdated', '--json'], {
@@ -348,13 +361,13 @@ async function main() {
         ...update,
         packageName,
       }))
-      .slice(0, updateLimit);
+      .slice(0, limit);
 
     logger.info(chalk.bold.cyan(`📋 Found ${updates.length} packages to update`));
 
     // Add limit logging if specified
-    if (updateLimit > 0) {
-      logger.info(chalk.bold.yellow(`ℹ️ Limiting updates to ${updateLimit} packages`));
+    if (argv.limit > 0) {
+      logger.info(chalk.bold.yellow(`ℹ️ Limiting updates to ${argv.limit} packages`));
     }
 
     // Group updates based on patterns
