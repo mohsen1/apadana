@@ -260,7 +260,7 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
     await fs.writeFile(tempFile, commitMessage);
 
     const commitResult = await execCommand('git', ['commit', '-a', '-F', tempFile, '--no-verify'], {
-      // silent
+      allowFailure: true,
     });
 
     if (commitResult.exitCode !== 0) {
