@@ -216,7 +216,7 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
   try {
     // Install packages
     for (const update of updates) {
-      await execCommand('pnpm', ['add', `${update.packageName}@${update.latest}`]);
+      await execCommand('pnpm', ['add', `${update.packageName}@${update.latest}`, '--silent']);
     }
 
     const updateType = updates.reduce(
