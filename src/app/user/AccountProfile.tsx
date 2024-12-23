@@ -7,6 +7,7 @@ import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { UpdateUser, UpdateUserSchema } from '@/lib/schema';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from '@/hooks/use-toast';
 import { useFileUploader } from '@/hooks/useFileUploader';
@@ -19,13 +20,11 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 
 import { updateUser } from './actions';
-import type { UpdateUserInput } from './schema';
-import { updateUserSchema } from './schema';
 
 export function AccountProfile() {
   const { user, signOut, setUser } = useAuth();
-  const form = useForm<UpdateUserInput>({
-    resolver: zodResolver(updateUserSchema),
+  const form = useForm<UpdateUser>({
+    resolver: zodResolver(UpdateUserSchema),
     defaultValues: {
       firstName: user?.firstName ?? undefined,
       lastName: user?.lastName ?? undefined,
@@ -54,7 +53,7 @@ export function AccountProfile() {
     },
   });
 
-  const onSubmit = (data: UpdateUserInput) => {
+  const onSubmit = (data: UpdateUser) => {
     execute(data);
   };
 

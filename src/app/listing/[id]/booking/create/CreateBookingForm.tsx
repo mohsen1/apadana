@@ -9,7 +9,9 @@ import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { useForm } from 'react-hook-form';
 
-import { CreateBookingRequest, CreateBookingRequestSchema } from '@/lib/prisma/schema';
+import { CreateBooking } from '@/lib/schema';
+import { CreateBookingRequestSchema } from '@/lib/schema';
+import { CreateBookingRequest } from '@/lib/schema';
 import { PublicListing } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 

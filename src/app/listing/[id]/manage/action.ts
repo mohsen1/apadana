@@ -6,6 +6,7 @@ import { toZonedTime } from 'date-fns-tz';
 import { z } from 'zod';
 
 import prisma from '@/lib/prisma/client';
+import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
 import {
   ChangeBookingRequestStatusSchema,
   EditInventorySchema,
@@ -14,8 +15,7 @@ import {
   GetBookingsSchema,
   GetListingSchema,
   GetListingsSchema,
-} from '@/lib/prisma/schema';
-import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
+} from '@/lib/schema';
 
 export const getBookings = actionClient
   .schema(GetBookingsSchema)

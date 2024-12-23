@@ -9,8 +9,8 @@ import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
+import { clientUserSchema, loginSchema, successfulLogin } from '@/lib/schema';
 
-import { clientUserSchema, loginSchema, successfulLogin } from '@/app/auth/schema';
 import logger from '@/utils/logger';
 
 export const login = actionClient

@@ -19,9 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { editListing } from '@/app/listing/[id]/manage/action';
 
-const EditListingSchema = CreateListingSchema.omit({
-  images: true,
-}).partial();
+const EditListingSchema = CreateListingSchema.partial();
 
 export default function UpdateListingForm({ listing }: { listing: Listing }) {
   const { register, handleSubmit, formState, setValue, control } = useForm<Partial<Listing>>({
