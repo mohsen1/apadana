@@ -131,7 +131,6 @@ async function execCommand(
 async function runTests(update: UpdateResult): Promise<boolean> {
   const runTest = async (
     type: TestResult['type'],
-    command: string,
     args: string[],
     env = {},
   ): Promise<TestResult> => {
@@ -145,24 +144,24 @@ async function runTests(update: UpdateResult): Promise<boolean> {
       const passed = exitCode === 0;
 
       if (passed) {
-        logger.info(chalk.bold.green(`✅ ${type} checks passed`));
+        logger.info(chalk.bold.green(`✅ ${type} checks passed for ${update.packageName}`));
       } else {
-        logger.error(chalk.bold.yellow(`⚠️ ${type} checks failed`));
+        logger.error(chalk.bold.yellow(`⚠️ ${type} checks failed for ${update.packageName}`));
       }
 
       return { type, passed, error: passed ? undefined : stderr };
     } catch (error) {
       assertError(error);
-      logger.error(chalk.bold.yellow(`⚠️ ${type} checks failed`));
+      logger.error(chalk.bold.yellow(`⚠️ ${type} checks failed for ${update.packageName}`));
       return { type, passed: false, error: error.message };
     }
   };
 
   // Run tests in sequence to avoid resource contention
   const tests: TestResult[] = await Promise.all([
-    runTest('typecheck', 'pnpm', ['typecheck']),
-    // runTest('lint', 'pnpm', ['lint:strict']),
-    // runTest('unit', 'pnpm', ['test']),
+    runTest('typecheck', ['typecheck']),
+    runTest('lint', ['lint:strict']),
+    runTest('unit', ['test']),
   ]);
 
   update.testResults = tests;
@@ -370,6 +369,7 @@ async function main() {
       .slice(0, limit);
 
     logger.info(chalk.bold.cyan(`📋 Found ${updates.length} packages to update`));
+    logger.info(chalk.dim(updates.map((u) => u.packageName).join(', ')));
 
     // Add limit logging if specified
     if (argv.limit > 0) {
