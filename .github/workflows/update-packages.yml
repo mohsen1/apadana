@@ -97,7 +97,7 @@ jobs:
               repo,
               title: 'Update Dependencies',
               body,
-              head: ${{ env.BRANCH_NAME }},
+              head: '${{ env.BRANCH_NAME }}',
               base: 'main'
             });
 
