@@ -83,7 +83,7 @@ const SortableImage = ({
             className='object-contain'
           />
           {isCover && (
-            <div className='absolute bottom-0 left-0 right-0 rounded-b-lg bg-black/50 py-1 text-center text-white'>
+            <div className='bg-foreground/50 text-background absolute bottom-0 left-0 right-0 rounded-b-lg py-1 text-center'>
               Cover Photo
             </div>
           )}
@@ -106,7 +106,7 @@ const SortableImage = ({
           e.stopPropagation();
         }}
         type='button'
-        className='bg-muted hover:bg-destructive focus:bg-destructive absolute -right-3 -top-3 flex h-6 w-6 items-center justify-center rounded-full text-white focus:outline-none'
+        className='bg-destructive hover:bg-destructive focus:bg-destructive absolute -right-3 -top-3 flex h-6 w-6 items-center justify-center rounded-full text-white opacity-50 focus:outline-none'
       >
         <XIcon className='h-4 w-4' />
       </button>
@@ -115,30 +115,35 @@ const SortableImage = ({
 };
 
 export const ImageUploader = ({ initialImages, onChange, onError }: ImageUploaderProps) => {
-  const { fileStates, removeFile, handleFileSelect } = useFileUploader((files) => {
-    const images = files
-      .filter(
-        (file): file is Required<FileUploadState> =>
-          file.status === 'success' && file.key !== undefined,
-      )
-      .map((file) => ({
-        key: file.key,
-        name: file.file.name,
-        url: file.uploadedUrl,
-      }));
-    onChange(images);
-  }, onError);
-  const [orderedImages, setOrderedImages] = useState<FileUploadState[]>([
-    ...fileStates,
-    ...(initialImages ?? []).map((image) => ({
-      key: image.key,
-      file: new File([], image.name),
-      status: 'success' as const,
-      localUrl: image.url,
-      uploadedUrl: image.url,
-      progress: 100,
-    })),
-  ]);
+  const { fileStates, removeFile, handleFileSelect } = useFileUploader({
+    initialFiles:
+      initialImages?.map((image) => ({
+        key: image.key,
+        file: new File([], image.name),
+        status: 'success' as const,
+        localUrl: image.url,
+        uploadedUrl: image.url,
+        progress: 100,
+      })) ?? [],
+    onUploadSuccess: (files) => {
+      const images = files
+        .filter(
+          (file): file is Required<FileUploadState> =>
+            file.status === 'success' && file.key !== undefined,
+        )
+        .map((file) => ({
+          key: file.key,
+          name: file.file.name,
+          url: file.uploadedUrl,
+        }));
+      onChange(images);
+    },
+    onUploadError: (error) => {
+      onError?.(error);
+    },
+  });
+  const [orderedImages, setOrderedImages] = useState<FileUploadState[]>(fileStates);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -151,11 +156,7 @@ export const ImageUploader = ({ initialImages, onChange, onError }: ImageUploade
   );
 
   useEffect(() => {
-    setOrderedImages((prev) => {
-      const existingKeys = new Set(prev.map((p) => p.key));
-      const newStates = fileStates.filter((s) => !existingKeys.has(s.key));
-      return [...prev, ...newStates];
-    });
+    setOrderedImages(fileStates);
   }, [fileStates]);
 
   const handleDragEnd = (event: DragEndEvent) => {

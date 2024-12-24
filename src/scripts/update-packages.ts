@@ -306,70 +306,112 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
   }
 }
 
+function organizeResults(results: UpdateResult[]) {
+  // Map groupName -> array of UpdateResult
+  const grouped = new Map<string, UpdateResult[]>();
+
+  for (const r of results) {
+    // Fall back to “Ungrouped” if no groupName
+    const gName = r.groupName ?? 'Ungrouped';
+    const current = grouped.get(gName) || [];
+    current.push(r);
+    grouped.set(gName, current);
+  }
+
+  return grouped;
+}
+
 function generatePRSummary(results: UpdateResult[]): string {
-  const manualUpdates = results.filter(
-    (r) => r.testResults.length === 0 || r.testResults.some((t) => !t.passed),
+  // Mark anything with failing tests as needing manual update
+  const manualUpdates = results.filter((r) => r.testResults.some((t) => !t.passed));
+
+  const grouped = organizeResults(results);
+
+  // Build text lines
+  const lines: string[] = [];
+
+  // High-level heading
+  lines.push('# Package Updates Summary', '');
+  lines.push('Automated script to update dependencies has generated this PR');
+
+  // Manual updates
+  lines.push(`### ${manualUpdates.length} packages need manual update`);
+  lines.push(
+    '<pre>' +
+      manualUpdates
+        .map(
+          (r) =>
+            `pnpm add ${r.dependencyType === 'devDependencies' ? '-D ' : ''}${
+              r.packageName
+            }@${r.toVersion}`,
+        )
+        .join('\n') +
+      '</pre>',
+    '',
   );
 
-  const summary = [
-    '# Package Updates Summary',
-    '',
-    'Automated script to update dependencies has generated this PR',
-    `### ${manualUpdates.length} packages need manual update`,
-    `<pre>${manualUpdates
-      .map(
-        (r) =>
-          `pnpm add ${
-            r.dependencyType === 'devDependencies' ? '-D ' : ''
-          }${r.packageName}@${r.toVersion}`,
-      )
-      .join('\n')}</pre>`,
-    '',
-    '## Overview',
-    '',
-    '<table>',
-    '<thead><tr>',
-    '<th>Package(s)</th>',
-    '<th>Update Type</th>',
-    '<th>From</th>',
-    '<th>To</th>',
-    '<th>Status</th>',
-    '</tr></thead>',
-    '<tbody>',
-  ];
+  // Overview table
+  lines.push('## Overview', '');
+  lines.push('<table>');
+  lines.push(
+    '<thead><tr><th>Group</th><th>Package(s)</th><th>Update Type</th><th>From</th><th>To</th><th>Status</th></tr></thead>',
+  );
+  lines.push('<tbody>');
 
-  for (const result of results) {
-    const allPassed = result.testResults.every((t) => t.passed);
-    const status = allPassed
-      ? '✅ All Passed'
-      : `⚠️ ${result.testResults.map((t) => t.type).join(', ')} failed`;
-    summary.push(
-      '<tr>',
-      `<td><code>${result.groupName || result.packageName}</code></td>`,
-      `<td>${result.updateType.toUpperCase()}</td>`,
-      `<td><code>${result.fromVersion}</code></td>`,
-      `<td><code>${result.toVersion}</code></td>`,
-      `<td>${status}</td>`,
-      '</tr>',
-    );
+  for (const [groupName, items] of grouped.entries()) {
+    for (const r of items) {
+      const passedAll = r.testResults.every((t) => t.passed);
+      const status = passedAll
+        ? '✅ All Passed'
+        : `⚠️ ${r.testResults
+            .map((t) => (t.passed ? '' : t.type))
+            .filter(Boolean)
+            .join(', ')} failed`;
+      lines.push(
+        '<tr>',
+        `<td>${groupName}</td>`,
+        `<td><code>${r.packageName}</code></td>`,
+        `<td>${r.updateType.toUpperCase()}</td>`,
+        `<td><code>${r.fromVersion}</code></td>`,
+        `<td><code>${r.toVersion}</code></td>`,
+        `<td>${status}</td>`,
+        '</tr>',
+      );
+    }
   }
 
-  summary.push('</tbody></table>', '', '## Detailed Test Results', '');
+  lines.push('</tbody></table>', '');
 
-  for (const result of results) {
-    if (result.testResults.length === 0) continue;
-    summary.push(`### \`${result.groupName || result.packageName}\``);
-    for (const test of result.testResults) {
-      if (test.error) {
-        summary.push(
-          `<details><summary><h4>${test.type} failed</h4></summary><pre>${test.error}</pre></details>`,
+  // Detailed results
+  lines.push('## Detailed Test Results', '');
+  for (const [groupName, items] of grouped.entries()) {
+    lines.push(`### ${groupName}`, '');
+    for (const r of items) {
+      lines.push(`#### \`${r.packageName}\``, '');
+      if (r.testResults.length === 0) {
+        lines.push('_No test results found for this package._', '');
+        continue;
+      }
+      lines.push('<table>');
+      lines.push('<thead><tr><th>Test Type</th><th>Status</th><th>Error</th></tr></thead>');
+      lines.push('<tbody>');
+      for (const test of r.testResults) {
+        const errorDetails = test.error
+          ? `<details><summary>Error Details</summary><pre>${test.error}</pre></details>`
+          : '';
+        lines.push(
+          '<tr>',
+          `<td><code>${test.type}</code></td>`,
+          `<td>${test.passed ? '✅ Passed' : '❌ Failed'}</td>`,
+          `<td>${errorDetails}</td>`,
+          '</tr>',
         );
       }
+      lines.push('</tbody></table>', '');
     }
-    summary.push('');
   }
 
-  return summary.join('\n');
+  return lines.join('\n');
 }
 
 async function main() {

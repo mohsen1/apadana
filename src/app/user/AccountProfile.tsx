@@ -31,8 +31,20 @@ export function AccountProfile() {
       imageUrl: user?.imageUrl ?? undefined,
     },
   });
-  const { handleFileSelect } = useFileUploader(([file]) => {
-    execute({ ...form.getValues(), imageUrl: file.uploadedUrl });
+  const { handleFileSelect } = useFileUploader({
+    initialFiles: [
+      {
+        key: user?.imageUrl ?? '',
+        file: new File([], ''),
+        status: 'success',
+        uploadedUrl: user?.imageUrl ?? '',
+        localUrl: user?.imageUrl ?? '',
+        progress: 100,
+      },
+    ],
+    onUploadSuccess: ([file]) => {
+      execute({ ...form.getValues(), imageUrl: file.uploadedUrl });
+    },
   });
 
   const { execute, status } = useAction(updateUser, {
