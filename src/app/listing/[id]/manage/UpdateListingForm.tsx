@@ -6,7 +6,7 @@ import { Clock, DollarSign, Loader2, SaveIcon, Users } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Controller, useForm } from 'react-hook-form';
 
-import { CreateListingSchema } from '@/lib/schema';
+import { CreateListingSchemaWithCoercion } from '@/lib/schema';
 
 import { DisappearingComponent } from '@/components/DisappearingComponent';
 import { LocationPicker } from '@/components/LocationPicker';
@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { editListing } from '@/app/listing/[id]/manage/action';
 
-const EditListingSchema = CreateListingSchema;
+const EditListingSchema = CreateListingSchemaWithCoercion;
 
 export default function UpdateListingForm({ listing }: { listing: Listing }) {
   const { register, handleSubmit, formState, setValue, control } = useForm<Partial<Listing>>({

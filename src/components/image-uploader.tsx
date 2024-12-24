@@ -68,7 +68,7 @@ const SortableImage = ({
       style={style}
       {...attributes}
       {...listeners}
-      className='relative m-2 aspect-square'
+      className='relative aspect-square'
     >
       <div className='border-border h-full w-full overflow-hidden rounded-lg border shadow-md'>
         <div
@@ -208,10 +208,7 @@ export const ImageUploader = ({ initialImages, onChange, onError }: ImageUploade
                 isCover={index === 0}
               />
             ))}
-            <label
-              htmlFor='image-uploader-input'
-              className='relative m-2 aspect-square cursor-pointer'
-            >
+            <label htmlFor='image-uploader-input' className='relative aspect-square cursor-pointer'>
               <div className='border-border h-full w-full overflow-hidden rounded-lg border shadow-md'>
                 <div className='bg-muted relative flex h-full w-full place-content-center'>
                   <div className='flex flex-col items-center justify-center'>

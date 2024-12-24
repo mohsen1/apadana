@@ -58,7 +58,7 @@ const defaultValues: Omit<CreateListingWithCoercion, 'latitude' | 'longitude' | 
   petPolicy: '',
   published: false,
   showExactLocation: true,
-  locationRadius: 0,
+  locationRadius: 10,
   images: [],
 };
 

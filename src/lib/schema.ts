@@ -7,7 +7,7 @@
  * generated from the Prisma models, they are more likely to
  * be up to date with the latest changes in the database.
  */
-import { BookingRequestStatus } from '@prisma/client';
+import { BookingRequestStatus, Currency } from '@prisma/client';
 import { z } from 'zod';
 
 import {
@@ -91,7 +91,14 @@ export const CreateListingSchema = ListingBaseModel.omit({
   createdAt: true,
   updatedAt: true,
 }).extend({
+  currency: z.nativeEnum(Currency).optional(),
   images: z.array(UploadImageSchema),
+  checkInTime: ListingBaseModel.shape.checkInTime.optional(),
+  checkOutTime: ListingBaseModel.shape.checkOutTime.optional(),
+  locationRadius: ListingBaseModel.shape.locationRadius.optional(),
+  petPolicy: ListingBaseModel.shape.petPolicy.optional(),
+  slug: ListingBaseModel.shape.slug.optional(),
+  timeZone: ListingBaseModel.shape.timeZone.optional(),
 });
 
 /**
@@ -102,12 +109,20 @@ export const CreateListingSchemaWithCoercion = CreateListingSchema.extend({
   allowPets: z.coerce.boolean(),
   published: z.coerce.boolean(),
   showExactLocation: z.coerce.boolean(),
-  pricePerNight: z.coerce.number(),
-  minimumStay: z.coerce.number().int(),
-  maximumGuests: z.coerce.number().int(),
-  locationRadius: z.coerce.number(),
-  latitude: z.coerce.number().nullish(),
-  longitude: z.coerce.number().nullish(),
+  pricePerNight: z.coerce.number().min(0, 'Price per night must be greater than 0'),
+  minimumStay: z.coerce.number().int().min(1, 'Minimum stay must be greater than 0'),
+  maximumGuests: z.coerce.number().int().min(1, 'Maximum guests must be greater than 0'),
+  locationRadius: z.coerce.number().min(0, 'Location radius must be greater than 0'),
+  latitude: z.coerce
+    .number()
+    .min(-90, 'Latitude must be greater than -90')
+    .max(90, 'Latitude must be less than 90')
+    .nullish(),
+  longitude: z.coerce
+    .number()
+    .min(-180, 'Longitude must be greater than -180')
+    .max(180, 'Longitude must be less than 180')
+    .nullish(),
   images: z
     .array(
       z.object({
