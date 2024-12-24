@@ -26,7 +26,12 @@ export const createListing = actionClient
     if (!owner) {
       throw new Error('Owner not found');
     }
-    if (!parsedInput.latitude || !parsedInput.longitude) {
+    if (
+      parsedInput.latitude === undefined ||
+      parsedInput.latitude === null ||
+      parsedInput.longitude === undefined ||
+      parsedInput.longitude === null
+    ) {
       throw new Error('Latitude and longitude are required');
     }
     const timeZone = await getTimeZone(parsedInput.latitude, parsedInput.longitude);

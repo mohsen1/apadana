@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { editListing } from '@/app/listing/[id]/manage/action';
 
-const EditListingSchema = CreateListingSchema.partial();
+const EditListingSchema = CreateListingSchema;
 
 export default function UpdateListingForm({ listing }: { listing: Listing }) {
   const { register, handleSubmit, formState, setValue, control } = useForm<Partial<Listing>>({

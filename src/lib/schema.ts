@@ -1,3 +1,12 @@
+/**
+ * @fileoverview This file contains the schemas that are not
+ * available in @/prisma/zod.
+ *
+ * Avoid defining more custom schemas here and try to use the
+ * ones available in @/prisma/zod. Since those schemas are
+ * generated from the Prisma models, they are more likely to
+ * be up to date with the latest changes in the database.
+ */
 import { BookingRequestStatus } from '@prisma/client';
 import { z } from 'zod';
 
@@ -21,7 +30,7 @@ export const BaseListingSchema = ListingBaseModel.extend({
 //#endregion
 
 //#region Authentication & User Schemas
-export const clientUserSchema = z.object({
+export const ClientUserSchema = z.object({
   id: z.string(),
   email: z.string().email(),
   firstName: z.string().nullable(),
@@ -29,13 +38,13 @@ export const clientUserSchema = z.object({
   imageUrl: z.string().nullable(),
 });
 
-export const loginSchema = z.object({
+export const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
 
-export const successfulLogin = z.object({
-  user: clientUserSchema,
+export const SuccessfulLoginSchema = z.object({
+  user: ClientUserSchema,
 });
 
 export const UpdateUserSchema = z.object({
@@ -204,7 +213,7 @@ export const ChangeBookingRequestStatusSchema = z.object({
 //#endregion
 
 //#region Email Schemas
-export const localEmailSchema = z.object({
+export const LocalEmailSchema = z.object({
   id: z.string(),
   createdAt: z.date(),
   subject: z.string(),
