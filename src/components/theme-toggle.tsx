@@ -3,23 +3,21 @@
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
+import { Button } from '@/components/ui/button';
+
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
 
   return (
-    <div className='text-foreground flex items-center gap-2'>
-      <span className='text-sm font-medium'>Theme</span>
-      <button
-        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className='bg-secondary hover:bg-secondary/80 rounded-md p-2 transition-colors'
-      >
-        {theme === 'dark' ? (
-          <Sun className='text-foreground h-5 w-5' />
-        ) : (
-          <Moon className='text-foreground h-5 w-5' />
-        )}
-        <span className='sr-only'>Toggle theme</span>
-      </button>
-    </div>
+    <Button
+      variant='ghost'
+      size='icon'
+      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      className='text-foreground hover:bg-accent hover:text-accent-foreground'
+    >
+      <Sun className='h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0' />
+      <Moon className='absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100' />
+      <span className='sr-only'>Toggle theme</span>
+    </Button>
   );
 }
