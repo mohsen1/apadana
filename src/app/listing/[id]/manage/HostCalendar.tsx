@@ -197,7 +197,7 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
                       type='text'
                       step='1'
                       min='1'
-                      className=' l-8 py-6 text-2xl'
+                      className='l-8 py-6 text-2xl'
                       placeholder='100.00'
                       value={rangePrice}
                       onChange={(e) => {

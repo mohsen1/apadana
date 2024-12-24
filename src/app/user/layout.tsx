@@ -20,7 +20,7 @@ function SidebarButton({
     <Button
       variant='ghost'
       href={href}
-      className={`flex w-full items-center justify-start rounded-none  p-2 text-left ${
+      className={`flex w-full items-center justify-start rounded-none p-2 text-left ${
         isActive
           ? 'bg-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-800'
           : 'hover:text-sky-500-foreground hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-sky-500'

@@ -57,7 +57,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
     <form className='bg-background min-h-screen' onSubmit={onSubmit}>
       {/* Cover Photo */}
       <LightBox images={listingData.images} index={0}>
-        <div className='relative h-[50vh] w-full '>
+        <div className='relative h-[50vh] w-full'>
           <Image
             src={listingData.images[0].url}
             alt={listingData.title}
@@ -72,7 +72,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
         <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
           {/* Listing Details */}
           <div className='md:col-span-2'>
-            <h1 className='font-heading mb-2 text-4xl  font-bold'>{listingData.title}</h1>
+            <h1 className='font-heading mb-2 text-4xl font-bold'>{listingData.title}</h1>
             <p className='text-muted-foreground mb-4'>{listingData.address}</p>
             <h2 className='font-subheading text-foreground mb-4 text-2xl font-semibold'>
               About this place
@@ -113,7 +113,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
               ))}
             </div>
             {/* Host Information */}
-            <h2 className='font-subheading mb-4 mt-8 text-2xl  font-semibold'>Meet your host</h2>
+            <h2 className='font-subheading mb-4 mt-8 text-2xl font-semibold'>Meet your host</h2>
             <div className='mt-4 flex items-center'>
               <Image
                 src={listingData.owner.imageUrl ?? ''}

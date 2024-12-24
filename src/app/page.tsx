@@ -17,7 +17,7 @@ export default function HomePage() {
           >
             <Novatrix />
           </div>
-          <div className='relative top-0  z-10'>
+          <div className='relative top-0 z-10'>
             <div className='mx-auto w-full max-w-6xl px-4 md:px-6'>
               <div className='flex flex-col items-center space-y-4 text-center'>
                 <div className='space-y-2'>
@@ -110,7 +110,7 @@ export default function HomePage() {
                 </Card>
               </div>
             </div>
-            <div className='container mx-auto mt-24 max-w-6xl  px-4 md:px-6  '>
+            <div className='container mx-auto mt-24 max-w-6xl px-4 md:px-6'>
               <h2 className='font-subheading mb-12 text-center text-3xl font-bold tracking-tighter sm:text-5xl'>
                 How It Works
               </h2>
@@ -146,7 +146,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-        <div className=' mx-auto max-w-6xl md:px-6'>
+        <div className='mx-auto max-w-6xl md:px-6'>
           <section className='w-full'>
             <div className='container px-4 md:px-6'>
               <h2 className='font-subheading mb-12 mt-8 text-center text-3xl font-bold tracking-tighter sm:text-5xl'>
