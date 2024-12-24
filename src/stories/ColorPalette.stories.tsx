@@ -72,6 +72,23 @@ function ColorPalette() {
           <ColorCard name='Ring' bgClass='bg-ring' textClass='' isBorder />
         </div>
       </div>
+
+      <div>
+        <h2 className='mb-4 text-2xl font-bold'>Additional Status Colors</h2>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+          <ColorCard name='Success' bgClass='bg-success' textClass='text-success-foreground' />
+          <ColorCard name='Warning' bgClass='bg-warning' textClass='text-warning-foreground' />
+        </div>
+      </div>
+
+      <div>
+        <h2 className='mb-4 text-2xl font-bold'>Additional Base Colors</h2>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+          <ColorCard name='Slate' bgClass='bg-slate' textClass='text-slate-foreground' />
+          <ColorCard name='Stone' bgClass='bg-stone' textClass='text-stone-foreground' />
+          <ColorCard name='Zinc' bgClass='bg-zinc' textClass='text-zinc-foreground' />
+        </div>
+      </div>
     </div>
   );
 }

@@ -4,9 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       branch-name:
-        description: 'Branch name for the updates'
+        description: 'Branch name for the updates (defaults to day-of-year format)'
+        required: false
+        default: ''
+      package-limit:
+        description: 'Maximum number of packages to update (0 for unlimited)'
         required: true
-        default: 'chore/package-updates'
+        default: '0'
+        type: number
+  schedule:
+    # Runs at 06:00 UTC every Monday
+    - cron: '0 6 * * 1'
 
 permissions:
   contents: write
@@ -15,7 +23,7 @@ permissions:
 jobs:
   update-packages:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,9 +35,6 @@ jobs:
 
       - name: touch .env.local
         run: touch .env.local
-
-      - name: Install Playwright Browsers
-        uses: ./.github/actions/playwright
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
@@ -44,16 +49,30 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git branch -D ${{ github.event.inputs.branch-name }} || true
-          git checkout -b ${{ github.event.inputs.branch-name }}
+
+          # Generate branch name based on day of year if not provided
+          if [ -z "${{ github.event.inputs.branch-name }}" ]; then
+            BRANCH_NAME="chore/package-updates-$(date +%j)"
+          else
+            BRANCH_NAME="${{ github.event.inputs.branch-name }}"
+          fi
+
+          git branch -D $BRANCH_NAME || true
+          git checkout -b $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Run update script
-        run: pnpm tsx src/scripts/update-packages.ts
+        run: pnpm tsx src/scripts/update-packages.ts --limit ${{ github.event.inputs.package-limit }}
 
       - name: Check for changes
         id: git-check
         run: |
-          if [[ -n "$(git status --porcelain)" ]]; then
+          git fetch origin main
+          git checkout origin/main
+          OUTDATED_EXIT_CODE=0
+          pnpm outdated || OUTDATED_EXIT_CODE=$?
+
+          if [[ -n "$(git diff origin/main..HEAD)" ]] || [[ $OUTDATED_EXIT_CODE -eq 1 ]]; then
             echo "changes=true" >> $GITHUB_OUTPUT
           else
             echo "changes=false" >> $GITHUB_OUTPUT
@@ -62,21 +81,34 @@ jobs:
       - name: Push changes
         if: steps.git-check.outputs.changes == 'true'
         run: |
-          git push origin ${{ github.event.inputs.branch-name }}
+          git push origin ${{ env.BRANCH_NAME }}
 
       - name: Create Pull Request
         if: steps.git-check.outputs.changes == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore(deps): update dependencies'
-          title: 'Update Dependencies'
-          body-path: package-updates-summary.md
-          branch: ${{ github.event.inputs.branch-name }}
-          base: main
-          labels: |
-            dependencies
-          draft: false
+          script: |
+            const fs = require('fs');
+            const { repo, owner } = context.repo;
+            const body = fs.readFileSync('package-updates-summary.md', 'utf8').toString();
+            const result = await github.rest.pulls.create({
+              owner,
+              repo,
+              title: 'Update Dependencies',
+              head: '${{ env.BRANCH_NAME }}',
+              body,
+              base: 'main'
+            });
+
+            // Add labels to the PR
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: result.data.number,
+              labels: ['dependencies', 'automated']
+            });
 
       - name: PR Details
         if: steps.git-check.outputs.changes == 'true'

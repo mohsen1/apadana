@@ -140,7 +140,7 @@ export async function setupTestContainer() {
 
       // Start only the test database container
       logger.log('⏳ Launching test container...');
-      exec(`docker compose -f ${composeFile} up db_test -d`, {
+      exec(`docker compose -f ${composeFile} up --quiet-pull db_test -d`, {
         env: process.env,
       });
 
