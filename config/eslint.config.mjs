@@ -19,7 +19,7 @@ export default [
       '**/out/**',
       '**/build/**',
       '**/node_modules/**',
-      '**/src/prisma/zod/**',
+      '**/src/prisma/zod/index.ts',
     ],
   },
   {

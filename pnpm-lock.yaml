@@ -209,6 +209,9 @@ importers:
       zod:
         specifier: ^3.24.1
         version: 3.24.1
+      zod-prisma-types:
+        specifier: ^3.2.1
+        version: 3.2.1(@prisma/client@6.1.0(prisma@6.1.0))(prisma@6.1.0)
     devDependencies:
       '@playwright/test':
         specifier: ^1.49.1
@@ -366,9 +369,6 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.8(@types/node@22.10.2)(@vitest/ui@2.1.8)(happy-dom@15.11.7)(jsdom@25.0.1(bufferutil@4.0.8)(utf-8-validate@6.0.4))(terser@5.37.0)
-      zod-prisma:
-        specifier: ^0.5.4
-        version: 0.5.4(decimal.js@10.4.3)(prisma@6.1.0)(zod@3.24.1)
 
 packages:
 
@@ -2163,9 +2163,6 @@ packages:
       prisma:
         optional: true
 
-  '@prisma/debug@3.8.1':
-    resolution: {integrity: sha512-ft4VPTYME1UBJ7trfrBuF2w9jX1ipDy786T9fAEskNGb+y26gPDqz5fiEWc2kgHNeVdz/qTI/V3wXILRyEcgxQ==}
-
   '@prisma/debug@6.1.0':
     resolution: {integrity: sha512-0himsvcM4DGBTtvXkd2Tggv6sl2JyUYLzEGXXleFY+7Kp6rZeSS3hiTW9mwtUlXrwYbJP6pwlVNB7jYElrjWUg==}
 
@@ -2178,8 +2175,8 @@ packages:
   '@prisma/fetch-engine@6.1.0':
     resolution: {integrity: sha512-asdFi7TvPlEZ8CzSZ/+Du5wZ27q6OJbRSXh+S8ISZguu+S9KtS/gP7NeXceZyb1Jv1SM1S5YfiCv+STDsG6rrg==}
 
-  '@prisma/generator-helper@3.8.1':
-    resolution: {integrity: sha512-3zSy+XTEjmjLj6NO+/YPN1Cu7or3xA11TOoOnLRJ9G4pTT67RJXjK0L9Xy5n+3I0Xlb7xrWCgo8MvQQLMWzxPA==}
+  '@prisma/generator-helper@6.1.0':
+    resolution: {integrity: sha512-drHaTKRmRsz6esHk2dpn7aPoxfttoqkYWSaI7zXsL5YQz73jww1YgJpGbPgOUiblriJAtdT4o7mibMqnf8TOsA==}
 
   '@prisma/get-platform@6.1.0':
     resolution: {integrity: sha512-ia8bNjboBoHkmKGGaWtqtlgQOhCi7+f85aOkPJKgNwWvYrT6l78KgojLekE8zMhVk0R9lWcifV0Pf8l3/15V0Q==}
@@ -4059,9 +4056,6 @@ packages:
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
 
-  '@ts-morph/common@0.12.3':
-    resolution: {integrity: sha512-4tUmeLyXJnJWvTFOKtcNJ1yh0a3SsTLi2MUoyj8iUNznFRN1ZquaNe7Oukqrnki2FzZkm0J9adCNLDZxUzvj+w==}
-
   '@tsconfig/node10@1.0.11':
     resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
 
@@ -4095,14 +4089,8 @@ packages:
   '@types/babel__traverse@7.20.6':
     resolution: {integrity: sha512-r1bzfrm0tomOI8g1SzvCaQHo6Lcv6zu0EA+W2kHrt8dyrHQxGzBBL4kdkzIS+jBMV+EYcMAEAqXqYaLJq5rOZg==}
 
-  '@types/cross-spawn@6.0.2':
-    resolution: {integrity: sha512-KuwNhp3eza+Rhu8IFI5HUXRP0LIhqH5cAjubUvGXXthh4YYBuP2ntwEX+Cz8GJoZUHlKo247wPWOfA9LYEq4cw==}
-
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
-
-  '@types/debug@4.1.7':
-    resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
 
   '@types/docker-modem@3.0.6':
     resolution: {integrity: sha512-yKpAGEuKRSS8wwx0joknWxsmLha78wNMe9R2S3UNsVOkZded8UqOrV8KoeDXoXsjndxwyF3eIhyClGbO1SEhEg==}
@@ -4940,8 +4928,8 @@ packages:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
 
-  code-block-writer@11.0.3:
-    resolution: {integrity: sha512-NiujjUFB4SwScJq2bwbYUtXbZhBSlY6vYzm++3Q6oC+U+injTqfPYFK8wS9COOmb2lueqp0ZRB4nK1VYeHgNyw==}
+  code-block-writer@12.0.0:
+    resolution: {integrity: sha512-q4dMFMlXtKR3XNBHyMHt/3pwYNA69EDk00lloMOaaUMKPUXBw6lpXtbu3MMVG6/uOihGnRDOlkyqsONEUj60+w==}
 
   collapse-white-space@2.1.0:
     resolution: {integrity: sha512-loKTxY1zCOuG4j9f6EPnuyyYkf58RnhhWTvRoZEokgB+WbdXehfjFviyOVYkqzEWz1Q5kRiZdBYS5SwxbQYwzw==}
@@ -5085,10 +5073,6 @@ packages:
 
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
-
-  cross-spawn@7.0.3:
-    resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
-    engines: {node: '>= 8'}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -7089,9 +7073,6 @@ packages:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
 
-  parenthesis@3.1.8:
-    resolution: {integrity: sha512-KF/U8tk54BgQewkJPvB4s/US3VQY68BRDpH638+7O/n58TpnwiwnOtGIOsT2/i+M78s61BBpeC83STB88d8sqw==}
-
   parse-asn1@5.1.7:
     resolution: {integrity: sha512-CTM5kuWR3sx9IFamcl5ErfPl6ea/N8IYwiJ+vpeB2g+1iknv7zBl5uPwbMbRVznRVbrNY6lGuDoE5b30grmbqg==}
     engines: {node: '>= 0.10'}
@@ -8276,9 +8257,6 @@ packages:
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  ts-morph@13.0.3:
-    resolution: {integrity: sha512-pSOfUMx8Ld/WUreoSzvMFQG5i9uEiWIsBYjpU9+TTASOeUa89j5HykomeqVULm1oqWtBdleI3KEFRLrlA3zGIw==}
-
   ts-node@10.9.2:
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
     hasBin: true
@@ -8786,17 +8764,12 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
-  zod-prisma@0.5.4:
-    resolution: {integrity: sha512-5Ca4Qd1a1jy1T/NqCEpbr0c+EsbjJfJ/7euEHob3zDvtUK2rTuD1Rc/vfzH8q8PtaR2TZbysD88NHmrLwpv3Xg==}
-    engines: {node: '>=14'}
+  zod-prisma-types@3.2.1:
+    resolution: {integrity: sha512-qsOD8aMVx3Yg9gHctvhTRpavaJizt8xUda6qjwOcH7suvrirXax38tjs0ilKcY7GKbyY57q2rZ+uoSDnzVXpag==}
     hasBin: true
     peerDependencies:
-      decimal.js: ^10.0.0
-      prisma: ^3.0.0
-      zod: ^3.0.0
-    peerDependenciesMeta:
-      decimal.js:
-        optional: true
+      '@prisma/client': ^4.x.x || ^5.x.x || ^6.x.x
+      prisma: ^4.x.x || ^5.x.x || ^6.x.x
 
   zod@3.24.1:
     resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
@@ -10842,12 +10815,6 @@ snapshots:
     optionalDependencies:
       prisma: 6.1.0
 
-  '@prisma/debug@3.8.1':
-    dependencies:
-      '@types/debug': 4.1.7
-      ms: 2.1.3
-      strip-ansi: 6.0.1
-
   '@prisma/debug@6.1.0': {}
 
   '@prisma/engines-version@6.1.0-21.11f085a2012c0f4778414c8db2651556ee0ef959': {}
@@ -10865,12 +10832,9 @@ snapshots:
       '@prisma/engines-version': 6.1.0-21.11f085a2012c0f4778414c8db2651556ee0ef959
       '@prisma/get-platform': 6.1.0
 
-  '@prisma/generator-helper@3.8.1':
+  '@prisma/generator-helper@6.1.0':
     dependencies:
-      '@prisma/debug': 3.8.1
-      '@types/cross-spawn': 6.0.2
-      chalk: 4.1.2
-      cross-spawn: 7.0.3
+      '@prisma/debug': 6.1.0
 
   '@prisma/get-platform@6.1.0':
     dependencies:
@@ -13418,13 +13382,6 @@ snapshots:
 
   '@trysound/sax@0.2.0': {}
 
-  '@ts-morph/common@0.12.3':
-    dependencies:
-      fast-glob: 3.3.2
-      minimatch: 3.1.2
-      mkdirp: 1.0.4
-      path-browserify: 1.0.1
-
   '@tsconfig/node10@1.0.11':
     optional: true
 
@@ -13469,15 +13426,7 @@ snapshots:
     dependencies:
       '@babel/types': 7.26.3
 
-  '@types/cross-spawn@6.0.2':
-    dependencies:
-      '@types/node': 22.10.2
-
   '@types/debug@4.1.12':
-    dependencies:
-      '@types/ms': 0.7.34
-
-  '@types/debug@4.1.7':
     dependencies:
       '@types/ms': 0.7.34
 
@@ -14490,7 +14439,7 @@ snapshots:
 
   clsx@2.1.1: {}
 
-  code-block-writer@11.0.3: {}
+  code-block-writer@12.0.0: {}
 
   collapse-white-space@2.1.0: {}
 
@@ -14642,12 +14591,6 @@ snapshots:
 
   create-require@1.1.1:
     optional: true
-
-  cross-spawn@7.0.3:
-    dependencies:
-      path-key: 3.1.1
-      shebang-command: 2.0.0
-      which: 2.0.2
 
   cross-spawn@7.0.6:
     dependencies:
@@ -17254,8 +17197,6 @@ snapshots:
     dependencies:
       callsites: 3.1.0
 
-  parenthesis@3.1.8: {}
-
   parse-asn1@5.1.7:
     dependencies:
       asn1.js: 4.10.1
@@ -18656,11 +18597,6 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-morph@13.0.3:
-    dependencies:
-      '@ts-morph/common': 0.12.3
-      code-block-writer: 11.0.3
-
   ts-node@10.9.2(@swc/core@1.10.0(@swc/helpers@0.5.15))(@types/node@22.10.2)(typescript@5.7.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
@@ -19270,15 +19206,14 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.5.2
 
-  zod-prisma@0.5.4(decimal.js@10.4.3)(prisma@6.1.0)(zod@3.24.1):
+  zod-prisma-types@3.2.1(@prisma/client@6.1.0(prisma@6.1.0))(prisma@6.1.0):
     dependencies:
-      '@prisma/generator-helper': 3.8.1
-      parenthesis: 3.1.8
+      '@prisma/client': 6.1.0(prisma@6.1.0)
+      '@prisma/generator-helper': 6.1.0
+      code-block-writer: 12.0.0
+      lodash: 4.17.21
       prisma: 6.1.0
-      ts-morph: 13.0.3
       zod: 3.24.1
-    optionalDependencies:
-      decimal.js: 10.4.3
 
   zod@3.24.1: {}
 

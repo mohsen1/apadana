@@ -11,9 +11,10 @@ import { BookingRequestStatus, Currency } from '@prisma/client';
 import { z } from 'zod';
 
 import {
-  ListingBaseModel,
-  RelatedUploadedPhotoBaseModel,
-  RelatedUserBaseModel,
+  ListingSchema,
+  UploadedPhotoSchema as RelatedUploadedPhotoBaseModel,
+  UserSchema as RelatedUserBaseModel,
+  UserSchema,
 } from '@/prisma/zod';
 
 //#region Base Schemas
@@ -23,7 +24,7 @@ export const UploadImageSchema = z.object({
   name: z.string(),
 });
 
-export const BaseListingSchema = ListingBaseModel.extend({
+export const BaseListingSchema = ListingSchema.extend({
   images: RelatedUploadedPhotoBaseModel.array(),
   owner: RelatedUserBaseModel,
 });
@@ -81,11 +82,19 @@ export const GetListingsSchema = z.object({
   skip: z.number().optional().default(0).describe('Offset of how many listings to skip'),
 });
 
-export const EditListingSchema = BaseListingSchema.omit({ images: true }).partial().extend({
-  id: z.string(),
-});
+export const EditListingSchema = ListingSchema.merge(
+  z.object({
+    owner: UserSchema.omit({
+      password: true,
+    }),
+  }),
+)
+  .partial()
+  .extend({
+    id: z.string(),
+  });
 
-export const CreateListingSchema = ListingBaseModel.omit({
+export const CreateListingSchema = ListingSchema.omit({
   id: true,
   ownerId: true,
   createdAt: true,
@@ -93,12 +102,12 @@ export const CreateListingSchema = ListingBaseModel.omit({
 }).extend({
   currency: z.nativeEnum(Currency).optional(),
   images: z.array(UploadImageSchema),
-  checkInTime: ListingBaseModel.shape.checkInTime.optional(),
-  checkOutTime: ListingBaseModel.shape.checkOutTime.optional(),
-  locationRadius: ListingBaseModel.shape.locationRadius.optional(),
-  petPolicy: ListingBaseModel.shape.petPolicy.optional(),
-  slug: ListingBaseModel.shape.slug.optional(),
-  timeZone: ListingBaseModel.shape.timeZone.optional(),
+  checkInTime: ListingSchema.shape.checkInTime.optional(),
+  checkOutTime: ListingSchema.shape.checkOutTime.optional(),
+  locationRadius: ListingSchema.shape.locationRadius.optional(),
+  petPolicy: ListingSchema.shape.petPolicy.optional(),
+  slug: ListingSchema.shape.slug.optional(),
+  timeZone: ListingSchema.shape.timeZone.optional(),
 });
 
 /**
@@ -109,20 +118,12 @@ export const CreateListingSchemaWithCoercion = CreateListingSchema.extend({
   allowPets: z.coerce.boolean(),
   published: z.coerce.boolean(),
   showExactLocation: z.coerce.boolean(),
-  pricePerNight: z.coerce.number().min(0, 'Price per night must be greater than 0'),
-  minimumStay: z.coerce.number().int().min(1, 'Minimum stay must be greater than 0'),
-  maximumGuests: z.coerce.number().int().min(1, 'Maximum guests must be greater than 0'),
-  locationRadius: z.coerce.number().min(0, 'Location radius must be greater than 0'),
-  latitude: z.coerce
-    .number()
-    .min(-90, 'Latitude must be greater than -90')
-    .max(90, 'Latitude must be less than 90')
-    .nullish(),
-  longitude: z.coerce
-    .number()
-    .min(-180, 'Longitude must be greater than -180')
-    .max(180, 'Longitude must be less than 180')
-    .nullish(),
+  pricePerNight: z.coerce.number(),
+  minimumStay: z.coerce.number().int(),
+  maximumGuests: z.coerce.number().int(),
+  locationRadius: z.coerce.number(),
+  latitude: z.coerce.number(),
+  longitude: z.coerce.number(),
   images: z
     .array(
       z.object({
