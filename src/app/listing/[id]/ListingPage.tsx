@@ -72,19 +72,17 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
         <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
           {/* Listing Details */}
           <div className='md:col-span-2'>
-            <h1 className='font-heading text-foreground mb-2 text-4xl font-bold'>
+            <h1 className='font-heading text-primary mb-2 text-4xl font-bold'>
               {listingData.title}
             </h1>
             <p className='text-muted-foreground mb-4'>{listingData.address}</p>
-            <h2 className='font-subheading text-foreground mb-4 text-2xl font-semibold'>
+            <h2 className='font-subheading text-primary mb-4 text-2xl font-semibold'>
               About this place
             </h2>
             <p className='text-muted-foreground mb-6'>{listingData.description}</p>
 
             {/* Amenities */}
-            <h2 className='font-subheading text-foreground mb-4 text-2xl font-semibold'>
-              Amenities
-            </h2>
+            <h2 className='font-subheading text-primary mb-4 text-2xl font-semibold'>Amenities</h2>
             <ul className='mb-6 grid grid-cols-2 gap-2'>
               {listingData.amenities.map((amenity) => (
                 <li key={amenity} className='text-muted-foreground flex items-center'>

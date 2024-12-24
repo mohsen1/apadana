@@ -29,7 +29,7 @@ const ListingsGrid = ({ listings }: ListingsGridProps) => {
             )}
           </div>
           <div className='p-6'>
-            <h2 className='text-card-foreground mb-2 text-2xl font-semibold'>{listing.title}</h2>
+            <h2 className='text-primary mb-2 text-2xl font-semibold'>{listing.title}</h2>
             <div className='text-muted-foreground text-sm'>
               <p>{listing.address}</p>
               <p className='mt-2 font-medium'>
