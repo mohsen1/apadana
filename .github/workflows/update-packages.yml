@@ -36,9 +36,6 @@ jobs:
       - name: touch .env.local
         run: touch .env.local
 
-      - name: Install Playwright Browsers
-        uses: ./.github/actions/playwright
-
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
@@ -97,7 +94,6 @@ jobs:
               repo,
               title: 'Update Dependencies',
               body,
-              head: '${{ env.BRANCH_NAME }}',
               base: 'main'
             });
 
