@@ -1,4 +1,4 @@
-import { BookingRequest, BookingRequestStatus, Currency, Prisma } from '@prisma/client';
+import { Booking, BookingRequest, BookingRequestStatus, Currency, Prisma } from '@prisma/client';
 import { addDays } from 'date-fns';
 import _ from 'lodash';
 
@@ -124,6 +124,27 @@ export async function createTestBookingRequest({
   });
 }
 
-export async function createTestBooking() {
-  throw new Error('Not implemented');
+export async function createTestBooking(
+  createBookingData: Prisma.BookingCreateInput & {
+    bookingRequestId: string;
+  },
+): Promise<Booking> {
+  return prisma.booking.create({
+    data: {
+      ..._.omit(createBookingData, 'bookingRequestId'),
+      bookingRequest: {
+        connect: {
+          id: createBookingData.bookingRequestId,
+        },
+      },
+    },
+  });
+}
+
+export async function createTestListingInventory(
+  createListingInventoryData: Prisma.ListingInventoryCreateInput,
+) {
+  return prisma.listingInventory.create({
+    data: createListingInventoryData,
+  });
 }

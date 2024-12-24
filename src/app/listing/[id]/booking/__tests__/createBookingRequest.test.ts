@@ -83,6 +83,4 @@ describe('createBookingRequest', () => {
       currency: 'USD',
     });
   });
-
-  // Add other createBookingRequest tests...
 });

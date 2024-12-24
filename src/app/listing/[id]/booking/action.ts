@@ -274,6 +274,11 @@ export const updateBooking = actionClient
     try {
       const { id, checkIn, checkOut } = parsedInput;
 
+      // Add date validation
+      if (checkIn >= checkOut) {
+        throw new ClientVisibleError('Check-out date must be after check-in date');
+      }
+
       const existingBooking = await prisma.booking.findUnique({
         where: { id },
         include: {
@@ -291,7 +296,7 @@ export const updateBooking = actionClient
       });
 
       if (!existingBooking) {
-        throw new Error('Booking not found');
+        throw new ClientVisibleError('Booking not found');
       }
 
       const updatedBooking = await prisma.booking.update({

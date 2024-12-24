@@ -7,6 +7,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
+    silent: Boolean(process.env.CI),
     globals: true,
     setupFiles: ['dotenv/config', './src/__tests__/setup/vitest.setup.ts'],
     globalSetup: ['./src/__tests__/setup/vitest.global.setup.ts'],
