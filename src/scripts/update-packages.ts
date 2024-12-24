@@ -57,7 +57,7 @@ interface PackageUpdate {
   latest: string;
   wanted: string;
   isDeprecated: boolean;
-  dependencyType: string;
+  dependencyType: 'devDependencies' | 'dependencies';
 }
 
 interface TestResult {
@@ -67,6 +67,7 @@ interface TestResult {
 }
 
 interface UpdateResult {
+  dependencyType: 'devDependencies' | 'dependencies';
   packageName: string;
   groupName?: string;
   fromVersion: string;
@@ -302,45 +303,73 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
 }
 
 function generatePRSummary(results: UpdateResult[]): string {
+  const manualUpdates = results.filter((r) => r.testResults.length === 0);
   const summary = [
     '# Package Updates Summary',
     '',
     'Automated script to update dependencies has generated this PR',
+    `### ${manualUpdates.length} packages need manual update`,
+    `<pre>${manualUpdates.map((r) => `pnpm add ${r.packageName}@${r.toVersion}`).join('\n')}</pre>`,
     '',
     '## Overview',
     '',
-    '| Package(s) | Update Type | From | To  | Status |',
-    '|------------|-------------|------|-----|--------|',
+    '<table>',
+    '<thead><tr>',
+    '<th>Package(s)</th>',
+    '<th>Update Type</th>',
+    '<th>From</th>',
+    '<th>To</th>',
+    '<th>Status</th>',
+    '</tr></thead>',
+    '<tbody>',
   ];
 
   for (const result of results) {
     const allPassed = result.testResults.every((t) => t.passed);
-    const status = allPassed ? '✅ All Passed' : '⚠️ Some Tests Failed';
+    const status = allPassed
+      ? '✅ All Passed'
+      : `⚠️ ${result.testResults.map((t) => t.type).join(', ')} failed`;
     summary.push(
-      `| \`${result.groupName || result.packageName}\` | ${result.updateType.toUpperCase()} | \`${result.fromVersion}\` | \`${result.toVersion}\` | ${status} |`,
+      '<tr>',
+      `<td><code>${result.groupName || result.packageName}</code></td>`,
+      `<td>${result.updateType.toUpperCase()}</td>`,
+      `<td><code>${result.fromVersion}</code></td>`,
+      `<td><code>${result.toVersion}</code></td>`,
+      `<td>${status}</td>`,
+      '</tr>',
     );
   }
 
-  summary.push('', '', '## Detailed Test Results', '');
+  summary.push('</tbody></table>', '', '## Detailed Test Results', '');
 
+  // Update the detailed results section too
   for (const result of results) {
     if (result.testResults.length === 0) continue;
     summary.push(
       `### \`${result.groupName || result.packageName}\``,
       '',
-      '| Test Type | Status | Error |',
-      '|-----------|--------|-------|',
+      '<table>',
+      '<thead><tr>',
+      '<th>Test Type</th>',
+      '<th>Status</th>',
+      '<th>Error</th>',
+      '</tr></thead>',
+      '<tbody>',
     );
 
     for (const test of result.testResults) {
       const errorDetails = test.error
         ? `<details><summary>Error Details</summary><pre>${test.error}</pre></details>`
-        : '--';
+        : '';
       summary.push(
-        `| \`${test.type}\` | ${test.passed ? '✅ Passed' : '❌ Failed'} | ${errorDetails} |`,
+        '<tr>',
+        `<td><code>${test.type}</code></td>`,
+        `<td>${test.passed ? '✅ Passed' : '❌ Failed'}</td>`,
+        `<td>${errorDetails}</td>`,
+        '</tr>',
       );
     }
-    summary.push('');
+    summary.push('</tbody></table>', '');
   }
 
   return summary.join('\n');
