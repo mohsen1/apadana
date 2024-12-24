@@ -240,8 +240,17 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
     };
 
     logger.info(chalk.bold.yellow('\n🧪 Running tests...'));
-    await runTests(updateResult);
+    const passed = await runTests(updateResult);
     results.push(updateResult);
+
+    if (!passed) {
+      logger.error(chalk.bold.red(`Rolling back changes for ${updateResult.packageName}`));
+      await execCommand('git', ['reset', '--hard'], {
+        silent: true,
+      });
+      await execCommand('pnpm', ['install']);
+      return false;
+    }
 
     const commitMessage = [
       groupName
