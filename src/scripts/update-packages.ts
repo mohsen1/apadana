@@ -393,10 +393,7 @@ async function main() {
     });
 
     const updates = Object.entries(
-      (await JSON.parse(outdatedOutput.stdout)) as Record<
-        string,
-        Omit<PackageUpdate, 'packageName'>
-      >,
+      JSON.parse(outdatedOutput.stdout) as Record<string, Omit<PackageUpdate, 'packageName'>>,
     )
       .map(([packageName, update]) => ({
         ...update,

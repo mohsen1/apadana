@@ -68,7 +68,11 @@ jobs:
         id: git-check
         run: |
           git fetch origin main
-          if [[ -n "$(git diff origin/main..HEAD)" ]]; then
+          git checkout origin/main
+          OUTDATED_EXIT_CODE=0
+          pnpm outdated || OUTDATED_EXIT_CODE=$?
+
+          if [[ -n "$(git diff origin/main..HEAD)" ]] || [[ $OUTDATED_EXIT_CODE -eq 1 ]]; then
             echo "changes=true" >> $GITHUB_OUTPUT
           else
             echo "changes=false" >> $GITHUB_OUTPUT
