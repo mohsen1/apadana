@@ -12,6 +12,7 @@
  * - Cancel a booking
  */
 
+import { BookingStatus } from '@prisma/client';
 import { addDays, eachDayOfInterval } from 'date-fns';
 
 import resend from '@/lib/email/resend';
@@ -297,6 +298,17 @@ export const updateBooking = actionClient
 
       if (!existingBooking) {
         throw new ClientVisibleError('Booking not found');
+      }
+
+      if (existingBooking.status === BookingStatus.CANCELLED) {
+        throw new ClientVisibleError('Cannot update a cancelled booking');
+      }
+
+      if (
+        existingBooking.status === BookingStatus.ACCEPTED &&
+        parsedInput.status === BookingStatus.PENDING
+      ) {
+        throw new ClientVisibleError('Cannot change booking status backwards');
       }
 
       const updatedBooking = await prisma.booking.update({

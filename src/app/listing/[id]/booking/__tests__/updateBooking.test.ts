@@ -1,3 +1,4 @@
+import { BookingStatus } from '@prisma/client';
 import { addDays } from 'date-fns';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -134,5 +135,37 @@ describe('updateBooking', () => {
     });
 
     expect(result?.serverError?.error).toContain('Check-out date must be after check-in date');
+  });
+
+  test('prevents booking status from going backwards', async () => {
+    // Setup test data
+    const user = await findOrCreateTestUser('test@example.com');
+    const owner = await findOrCreateTestUser('owner@example.com');
+    const listing = await createTestListing({ ownerId: owner.id });
+
+    const bookingRequest = await createTestBookingRequest({
+      listingId: listing.id,
+      userId: user.id,
+    });
+
+    // Create a ACCEPTED booking
+    const booking = await createTestBooking({
+      status: BookingStatus.ACCEPTED,
+      checkIn: new Date(),
+      checkOut: addDays(new Date(), 2),
+      totalPrice: 200,
+      user: {
+        connect: { id: user.id },
+      },
+      bookingRequestId: bookingRequest.id,
+    });
+
+    // Attempt to update the booking status to PENDING
+    const result = await updateBooking({
+      ...booking,
+      status: BookingStatus.PENDING,
+    });
+
+    expect(result?.serverError?.error).toContain('Cannot change booking status backwards');
   });
 });
