@@ -94,6 +94,31 @@ export const CreateListingSchema = ListingBaseModel.omit({
   images: z.array(UploadImageSchema),
 });
 
+/**
+ * This is used in the frontend where values are stringified in the URL
+ * and need to be coerced to the correct type.
+ */
+export const CreateListingSchemaWithCoercion = CreateListingSchema.extend({
+  allowPets: z.coerce.boolean(),
+  published: z.coerce.boolean(),
+  showExactLocation: z.coerce.boolean(),
+  pricePerNight: z.coerce.number(),
+  minimumStay: z.coerce.number().int(),
+  maximumGuests: z.coerce.number().int(),
+  locationRadius: z.coerce.number(),
+  latitude: z.coerce.number().nullish(),
+  longitude: z.coerce.number().nullish(),
+  images: z
+    .array(
+      z.object({
+        key: z.string(),
+        url: z.string(),
+        name: z.string(),
+      }),
+    )
+    .default([]),
+});
+
 export const EditListingImagesSchema = z.object({
   listingId: z.string(),
   images: z.array(UploadImageSchema),
@@ -226,6 +251,7 @@ export type UploadImage = z.infer<typeof UploadImageSchema>;
 export type CreateBooking = z.infer<typeof CreateBookingSchema>;
 export type GetListing = z.infer<typeof GetListingSchema>;
 export type CreateListing = z.infer<typeof CreateListingSchema>;
+export type CreateListingWithCoercion = z.infer<typeof CreateListingSchemaWithCoercion>;
 export type EditInventory = z.infer<typeof EditInventorySchema>;
 export type EditListingImages = z.infer<typeof EditListingImagesSchema>;
 export type GetBookingRequest = z.infer<typeof GetBookingRequestSchema>;

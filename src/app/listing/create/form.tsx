@@ -7,9 +7,8 @@ import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
 import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { z } from 'zod';
 
-import { CreateListing, CreateListingSchema } from '@/lib/schema';
+import { CreateListingSchemaWithCoercion, CreateListingWithCoercion } from '@/lib/schema';
 
 import { ResultMessage } from '@/components/form/ResultMessage';
 import { Button } from '@/components/ui/button';
@@ -32,6 +31,7 @@ import { HouseRulesStep } from './HouseRulesStep';
 import { LocationDetailsStep } from './LocationDetailsStep';
 import { PhotosStep } from './PhotosStep';
 import { PricingStep } from './PricingStep';
+
 enum FormStep {
   LocationDetails = 0,
   BasicInfo = 1,
@@ -40,7 +40,7 @@ enum FormStep {
   Pricing = 4,
   HouseRules = 5,
 }
-const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> = {
+const defaultValues: Omit<CreateListingWithCoercion, 'latitude' | 'longitude' | 'address'> = {
   amenities: ['Wi-Fi'],
   title: 'My listing',
   description: 'This is a test listing',
@@ -96,18 +96,6 @@ const steps = [
   },
 ];
 
-const CreateListingSchemaWithCoercion = CreateListingSchema.extend({
-  allowPets: z.coerce.boolean(),
-  published: z.coerce.boolean(),
-  showExactLocation: z.coerce.boolean(),
-  pricePerNight: z.coerce.number(),
-  minimumStay: z.coerce.number().int(),
-  maximumGuests: z.coerce.number().int(),
-  locationRadius: z.coerce.number(),
-  latitude: z.coerce.number().nullish(),
-  longitude: z.coerce.number().nullish(),
-});
-
 export default function CreateListingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -129,8 +117,8 @@ export default function CreateListingForm() {
     },
   });
 
-  const methods = useForm<CreateListing>({
-    resolver: zodResolver(CreateListingSchema, {
+  const methods = useForm<CreateListingWithCoercion>({
+    resolver: zodResolver(CreateListingSchemaWithCoercion, {
       errorMap: (error, ctx) => {
         logger.error(error, ctx);
         return { message: ctx.defaultError ?? 'Unknown error' };
@@ -143,9 +131,13 @@ export default function CreateListingForm() {
   const { isSubmitting } = formState;
 
   const updateUrlParams = useCallback(
-    ({ formData, step }: { formData: Partial<CreateListing>; step: number }) => {
+    ({ formData, step }: { formData: Partial<CreateListingWithCoercion>; step: number }) => {
       const params = new URLSearchParams(searchParams);
-      const serialized = qs.stringify(formData);
+      const { images, ...restFormData } = formData;
+      const serialized = qs.stringify({
+        ...restFormData,
+        images: images ?? [],
+      });
       params.set('form-data', serialized);
       params.set('step', step.toString());
       router.push(`?${params.toString()}`);
@@ -164,12 +156,14 @@ export default function CreateListingForm() {
       });
     }
 
-    const formData = qs.parse(searchParams.get('form-data') || '{}') as Partial<CreateListing>;
+    const formData = qs.parse(
+      searchParams.get('form-data') || '{}',
+    ) as Partial<CreateListingWithCoercion>;
     const parsedData = CreateListingSchemaWithCoercion.partial().safeParse(formData);
     if (parsedData.success) {
       reset(parsedData.data);
     } else {
-      logger.error('invalid form data', { formData });
+      logger.error('invalid form data', { formData }, parsedData.error);
       router.replace(`?step=${FormStep.LocationDetails}`);
       reset(defaultValues);
     }

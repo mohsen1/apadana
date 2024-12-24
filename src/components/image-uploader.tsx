@@ -151,7 +151,11 @@ export const ImageUploader = ({ initialImages, onChange, onError }: ImageUploade
   );
 
   useEffect(() => {
-    setOrderedImages(fileStates);
+    setOrderedImages((prev) => {
+      const existingKeys = new Set(prev.map((p) => p.key));
+      const newStates = fileStates.filter((s) => !existingKeys.has(s.key));
+      return [...prev, ...newStates];
+    });
   }, [fileStates]);
 
   const handleDragEnd = (event: DragEndEvent) => {
