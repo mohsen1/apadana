@@ -4,9 +4,7 @@
 
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #020817;
-
+    /* UI Colors */
     --primary: #0284c7;
     --primary-foreground: #ffffff;
 
@@ -22,21 +20,41 @@
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
 
-    --border: #e2e8f0;
-    --input: #e2e8f0;
-    --ring: #0284c7;
+    /* System Colors */
+    --background: #ffffff;
+    --foreground: #020817;
 
     --card: #f8fafc;
     --card-foreground: #020817;
 
     --popover: #ffffff;
     --popover-foreground: #020817;
+
+    /* Border Colors */
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #0284c7;
+
+    /* Additional Status Colors */
+    --success: #16a34a;
+    --success-foreground: #ffffff;
+
+    --warning: #f59e0b;
+    --warning-foreground: #ffffff;
+
+    /* Additional Base Colors */
+    --slate: #f8fafc;
+    --slate-foreground: #020817;
+
+    --stone: #f5f5f5;
+    --stone-foreground: #020817;
+
+    --zinc: #f9fafb;
+    --zinc-foreground: #020817;
   }
 
   .dark {
-    --background: #020817;
-    --foreground: #ffffff;
-
+    /* UI Colors */
     --primary: #0ea5e9;
     --primary-foreground: #ffffff;
 
@@ -52,15 +70,37 @@
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
 
-    --border: #1e293b;
-    --input: #1e293b;
-    --ring: #0ea5e9;
+    /* System Colors */
+    --background: #020817;
+    --foreground: #ffffff;
 
     --card: #0f172a;
     --card-foreground: #ffffff;
 
     --popover: #0f172a;
     --popover-foreground: #ffffff;
+
+    /* Border Colors */
+    --border: #1e293b;
+    --input: #1e293b;
+    --ring: #0ea5e9;
+
+    /* Additional Status Colors */
+    --success: #16a34a;
+    --success-foreground: #ffffff;
+
+    --warning: #f59e0b;
+    --warning-foreground: #ffffff;
+
+    /* Additional Base Colors */
+    --slate: #0f172a;
+    --slate-foreground: #ffffff;
+
+    --stone: #1e293b;
+    --stone-foreground: #ffffff;
+
+    --zinc: #0f172a;
+    --zinc-foreground: #ffffff;
   }
 
   body {
