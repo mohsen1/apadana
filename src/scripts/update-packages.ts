@@ -307,7 +307,9 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
 }
 
 function generatePRSummary(results: UpdateResult[]): string {
-  const manualUpdates = results.filter((r) => r.testResults.length === 0);
+  const manualUpdates = results.filter(
+    (r) => r.testResults.length === 0 || r.testResults.some((t) => !t.passed),
+  );
 
   const summary = [
     '# Package Updates Summary',
