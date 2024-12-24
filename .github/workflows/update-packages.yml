@@ -93,6 +93,7 @@ jobs:
               owner,
               repo,
               title: 'Update Dependencies',
+              head: '${{ env.BRANCH_NAME }}',
               body,
               base: 'main'
             });
