@@ -49,7 +49,7 @@ test.describe.serial('Create and delete a Listing', () => {
 
     await test.step('Navigate to amenities step', async () => {
       await expect(
-        page.getByRole('heading', { name: 'What amenities does it have?' }),
+        page.getByRole('heading', { name: 'What amenities are available?' }),
       ).toBeVisible();
     });
 
@@ -97,7 +97,7 @@ test.describe.serial('Create and delete a Listing', () => {
 
     await test.step('Navigate to house rules step', async () => {
       await page.getByRole('button', { name: 'Next' }).click();
-      await expect(page.getByRole('heading', { name: 'House Rules' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Set your rules' })).toBeVisible();
     });
 
     await test.step('Fill in house rules and submit listing', async () => {

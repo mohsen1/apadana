@@ -77,14 +77,14 @@ export function useFileUploader({
   const getUploadedUrl = (key?: string) => {
     if (!key) return undefined;
 
-    const NEXT_PUBLIC_S3_UPLOAD_BUCKET = process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET;
-    const NEXT_PUBLIC_S3_UPLOAD_REGION = process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
+    const UPLOAD_BUCKET = process.env.UPLOAD_BUCKET;
+    const UPLOAD_REGION = process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
 
     if (shouldUseFakeUploads) {
-      return `/api/e2e/upload/${key}`;
+      return `${window.location.origin}/api/e2e/upload/${key}`;
     }
 
-    return `https://${NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.${NEXT_PUBLIC_S3_UPLOAD_REGION}.amazonaws.com/${key}`;
+    return `https://${UPLOAD_BUCKET}.s3.${UPLOAD_REGION}.amazonaws.com/${key}`;
   };
 
   const uploadSingleFile = useCallback(

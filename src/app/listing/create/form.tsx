@@ -8,7 +8,11 @@ import qs from 'qs';
 import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { CreateListingSchemaWithCoercion, CreateListingWithCoercion } from '@/lib/schema';
+import {
+  CreateListingSchema,
+  CreateListingSchemaWithCoercion,
+  CreateListingWithCoercion,
+} from '@/lib/schema';
 
 import { ResultMessage } from '@/components/form/ResultMessage';
 import { Button } from '@/components/ui/button';
@@ -62,13 +66,31 @@ const defaultValues: Omit<CreateListingWithCoercion, 'latitude' | 'longitude' | 
   images: [],
 };
 
-const stepRequiredFields = {
-  [FormStep.LocationDetails]: ['address'],
-  [FormStep.BasicInfo]: ['title', 'description', 'propertyType'],
-  [FormStep.Amenities]: ['amenities'],
-  [FormStep.Photos]: ['images'],
-  [FormStep.Pricing]: ['pricePerNight', 'minimumStay', 'maximumGuests'],
-  [FormStep.HouseRules]: ['houseRules'],
+const stepSchema = {
+  [FormStep.LocationDetails]: CreateListingSchema.pick({
+    address: true,
+    latitude: true,
+    longitude: true,
+  }),
+  [FormStep.BasicInfo]: CreateListingSchema.pick({
+    title: true,
+    description: true,
+    propertyType: true,
+  }),
+  [FormStep.Amenities]: CreateListingSchema.pick({
+    amenities: true,
+  }),
+  [FormStep.Photos]: CreateListingSchema.pick({
+    images: true,
+  }),
+  [FormStep.Pricing]: CreateListingSchema.pick({
+    pricePerNight: true,
+    minimumStay: true,
+    maximumGuests: true,
+  }),
+  [FormStep.HouseRules]: CreateListingSchema.pick({
+    houseRules: true,
+  }),
 };
 
 const steps = [
@@ -188,9 +210,10 @@ export default function CreateListingForm() {
   };
 
   const canGoToNextStep = () => {
-    const requiredFields = stepRequiredFields[currentStep];
+    const schema = stepSchema[currentStep];
     const values = getValues();
-    return requiredFields.every((field) => field in values);
+    const parsed = schema.safeParse(values);
+    return parsed.success;
   };
 
   const handleFormSubmit = useCallback(

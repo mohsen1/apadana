@@ -171,10 +171,10 @@ model Listing {
   /// @zod.string({required_error: "Address is required" })
   address String @db.VarChar(255)
 
-  /// @zod.number.gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" })
+  /// @zod.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" })
   latitude Float?
 
-  /// @zod.number.int({ message: "Longitude must be a number" }).min(-180, { message: "Longitude must be greater than -180" }).max(180, { message: "Longitude must be less than 180" })
+  /// @zod.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" })
   longitude Float?
 
   /// @zod.string({ invalid_type_error: "Time zone is required" })
