@@ -1,7 +1,7 @@
 'use server';
 import prisma from '@/lib/prisma/client';
-import { GetListingSchema } from '@/lib/prisma/schema';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
+import { GetListingSchema } from '@/lib/schema';
 
 export const getListing = actionClient
   .schema(GetListingSchema)

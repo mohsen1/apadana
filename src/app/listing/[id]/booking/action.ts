@@ -17,18 +17,19 @@ import { addDays, eachDayOfInterval } from 'date-fns';
 import resend from '@/lib/email/resend';
 import { sendBookingAlterationEmail, sendBookingRequestEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
+import { getUserEmail } from '@/lib/prisma/utils';
+import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
 import {
   AlterBookingRequestSchema,
+  CancelBookingSchema,
   CreateBookingRequestSchema,
   GetBookingRequestSchema,
   GetBookingRequestsSchema,
-} from '@/lib/prisma/schema';
-import { getUserEmail } from '@/lib/prisma/utils';
-import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
+  UpdateBookingSchema,
+} from '@/lib/schema';
 
 import BookingAlterationEmail from '@/components/emails/BookingAlterationEmail';
 
-import { CancelBookingSchema, UpdateBookingSchema } from '@/app/listing/[id]/booking/schema';
 import logger from '@/utils/logger';
 
 export const getBookingRequest = actionClient
@@ -271,10 +272,10 @@ export const updateBooking = actionClient
   .schema(UpdateBookingSchema)
   .action(async ({ parsedInput }) => {
     try {
-      const { bookingId, startDate, endDate } = parsedInput;
+      const { id, checkIn, checkOut } = parsedInput;
 
       const existingBooking = await prisma.booking.findUnique({
-        where: { id: bookingId },
+        where: { id },
         include: {
           listingInventory: {
             include: {
@@ -294,10 +295,10 @@ export const updateBooking = actionClient
       }
 
       const updatedBooking = await prisma.booking.update({
-        where: { id: bookingId },
+        where: { id },
         data: {
-          checkIn: startDate,
-          checkOut: endDate,
+          checkIn,
+          checkOut,
         },
         include: {
           bookingRequest: {

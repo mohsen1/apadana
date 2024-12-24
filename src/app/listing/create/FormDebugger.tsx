@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { CreateListing } from '@/lib/prisma/schema';
+import { CreateListing } from '@/lib/schema';
 
 function FormDebugger() {
   const methods = useFormContext<CreateListing>();

@@ -9,13 +9,13 @@ import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
+import { ClientUserSchema, LoginSchema, SuccessfulLoginSchema } from '@/lib/schema';
 
-import { clientUserSchema, loginSchema, successfulLogin } from '@/app/auth/schema';
 import logger from '@/utils/logger';
 
 export const login = actionClient
-  .schema(loginSchema)
-  .outputSchema(successfulLogin)
+  .schema(LoginSchema)
+  .outputSchema(SuccessfulLoginSchema)
   .action(async ({ parsedInput, ctx }) => {
     const user = await prisma.user.findFirst({
       where: {
@@ -90,7 +90,7 @@ const signUpSchema = z.object({
 });
 
 const successfulSignUp = z.object({
-  user: clientUserSchema,
+  user: ClientUserSchema,
 });
 
 export const signUp = actionClient
@@ -150,11 +150,11 @@ export const signUp = actionClient
     };
   });
 
-export type ClientUser = z.infer<typeof clientUserSchema>;
+export type ClientUser = z.infer<typeof ClientUserSchema>;
 
 const getCurrentUserOutput = z
   .object({
-    user: clientUserSchema.nullable(),
+    user: ClientUserSchema.nullable(),
   })
   .nullable();
 

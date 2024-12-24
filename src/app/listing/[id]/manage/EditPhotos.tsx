@@ -6,7 +6,7 @@ import { Loader2, SaveIcon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Controller, useForm } from 'react-hook-form';
 
-import { EditListingImages, EditListingImagesSchema } from '@/lib/prisma/schema';
+import { EditListingImages, EditListingImagesSchema } from '@/lib/schema';
 
 import { DisappearingComponent } from '@/components/DisappearingComponent';
 import { ImageUploader } from '@/components/image-uploader';

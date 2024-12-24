@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { CreateListing } from '@/lib/prisma/schema';
+import { CreateListing } from '@/lib/schema';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

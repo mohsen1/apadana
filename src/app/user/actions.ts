@@ -5,15 +5,13 @@ import { z } from 'zod';
 import { sanitizeUserForClient } from '@/lib/auth/utils';
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
+import { ClientUserSchema, UpdateUserSchema } from '@/lib/schema';
 
-import { clientUserSchema } from '@/app/auth/schema';
 import logger from '@/utils/logger';
 
-import { updateUserSchema } from './schema';
-
 export const updateUser = actionClient
-  .schema(updateUserSchema)
-  .outputSchema(z.object({ user: clientUserSchema }))
+  .schema(UpdateUserSchema)
+  .outputSchema(z.object({ user: ClientUserSchema }))
   .action(async ({ parsedInput, ctx }) => {
     if (!ctx.userId) {
       throw new UnauthorizedError();

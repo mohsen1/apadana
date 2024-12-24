@@ -1,6 +1,11 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+generator zod {
+  provider = "zod-prisma-types"
+  output   = "./zod"
+}
+
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native"]
@@ -11,48 +16,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// TODO
-// generator zod {
-//   provider = "prisma-zod-generator"
-//   output   = "../src/lib/prisma/generated"
-// }
-
 enum Permission {
-  // org:listing:manage
   MANAGE_LISTINGS
-
-  // org:member:manage
   READ_MEMBERS
-  // org:billing:manage
   MANAGE_BILLING
-  // org:reports:view
   VIEW_REPORTS
-  // org:settings:edit
   EDIT_SETTINGS
-  // org:domains:manage
   MANAGE_DOMAINS
-  // org:organization:manage
   MANAGE_ORGANIZATION
-  // org:organization:delete
   DELETE_ORGANIZATION
-  // org:members:manage
   MANAGE_MEMBERS
-  // org:user:manage
   MANAGE_USERS
-  // org:role:manage
   MANAGE_ROLES
-  // org:permission:manage
   MANAGE_PERMISSIONS
 }
 
 enum Role {
-  // org:admin
   ADMIN
-  // org:user -- all users are hosts
   HOST
-  // org:cohost
   COHOST
-  // org:guest
   GUEST
 }
 
@@ -76,12 +58,24 @@ model UserPermission {
 
 model User {
   id        String   @id @default(cuid())
-  firstName String?
-  lastName  String?
-  imageUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Basic Information
+  /// @zod.string({required_error: "First name is required" })
+  firstName String?
+
+  /// @zod.string({required_error: "Last name is required" })
+  lastName String?
+
+  /// @zod.string({required_error: "Image URL must be valid" }).url()
+  imageUrl String?
+
+  // Authentication
+  /// @zod.string({required_error: "Password must be at least 8 characters" })
+  password String?
+
+  // Relationships
   emailAddresses   EmailAddress[]
   externalAccounts ExternalAccount[]
   listings         Listing[]
@@ -89,36 +83,60 @@ model User {
   permissions      UserPermission[]
   bookings         Booking[]
   BookingRequest   BookingRequest[]
-  password         String?
   sessions         Session[]
   passwordReset    PasswordReset[]
 }
 
 model EmailAddress {
-  id           String  @id @default(cuid())
-  emailAddress String  @unique
-  isPrimary    Boolean @default(false)
+  id String @id @default(cuid())
+
+  // Email Details
+  /// @zod.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" })
+  emailAddress String @unique
+
+  /// Whether this is the user's primary email address
+  isPrimary Boolean @default(false)
+
+  /// Verification code for email confirmation
   verification String?
-  userId       String
-  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ExternalAccount {
-  id         String @id @default(cuid())
-  provider   String
-  externalId String
-  userId     String
-  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id String @id @default(cuid())
 
+  // Provider Details
+  /// @zod.string({required_error: "Provider is required" })
+  provider String
+
+  /// External provider's unique identifier
+  externalId String
+
+  // Relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Constraints
   @@unique([provider, externalId])
 }
 
 model UploadedPhoto {
-  id   String @id @default(cuid())
-  url  String
-  key  String @unique
+  id String @id @default(cuid())
+
+  // Photo Details
+  /// @zod.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" })
+  url String
+
+  /// Unique storage key for the photo
+  key String @unique
+
+  /// Original filename
   name String
 
+  // Relationships
   Listing   Listing? @relation(fields: [listingId], references: [id])
   listingId String?
 }
@@ -132,116 +150,232 @@ enum Currency {
 }
 
 model Listing {
-  id                String             @id @default(cuid())
-  title             String             @db.VarChar(255)
-  slug              String             @default("") @db.VarChar(255)
-  description       String             @db.Text
-  propertyType      String             @db.VarChar(100)
-  address           String             @db.VarChar(255)
-  latitude          Float?
-  longitude         Float?
-  timeZone          String             @default("America/New_York") @db.VarChar(100)
-  /// HH:MM 24-hour format
-  checkInTime       String             @default("14:00") @db.VarChar(6)
-  /// HH:MM 24-hour format
-  checkOutTime      String             @default("11:00") @db.VarChar(6)
-  amenities         String[]
-  pricePerNight     Float
-  currency          Currency           @default(USD)
-  minimumStay       Int                @default(1)
-  maximumGuests     Int                @default(5)
-  houseRules        String             @db.Text
-  allowPets         Boolean            @default(false)
-  petPolicy         String             @default("") @db.Text
-  published         Boolean            @default(false)
-  showExactLocation Boolean            @default(true)
-  locationRadius    Float              @default(1) // in kilometers
-  owner             User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId           String
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  images            UploadedPhoto[]
-  inventory         ListingInventory[]
-  BookingRequest    BookingRequest[]
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  // Basic Information
+  /// @zod.string({required_error: "Title is required" })
+  title String @db.VarChar(255)
+
+  /// @zod.string({required_error: "Slug is required" })
+  slug String @default("") @db.VarChar(255)
+
+  /// @zod.string({required_error: "Description is required" })
+  description String @db.Text
+
+  /// @zod.string({required_error: "Property type is required" })
+  propertyType String @db.VarChar(100)
+
+  // Location Details
+  /// @zod.string({required_error: "Address is required" })
+  address String @db.VarChar(255)
+
+  /// @zod.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" })
+  latitude Float?
+
+  /// @zod.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" })
+  longitude Float?
+
+  /// @zod.string({ invalid_type_error: "Time zone is required" })
+  timeZone String @default("America/New_York") @db.VarChar(100)
+
+  // Check-in/out Settings
+  /// HH:MM 24-hour format
+  /// @zod.string({ invalid_type_error: "Check-in time is required" })
+  checkInTime String @default("14:00") @db.VarChar(6)
+
+  /// HH:MM 24-hour format
+  /// @zod.string({ invalid_type_error: "Check-out time is required" })
+  checkOutTime String @default("11:00") @db.VarChar(6)
+
+  // Amenities and Features
+  /// List of amenities available in the listing
+  amenities String[]
+
+  // Pricing and Capacity
+  /// @zod.number.gt(0, { message: "Price per night must be greater than 0" })
+  pricePerNight Float
+
+  /// Default currency for the listing
+  currency Currency @default(USD)
+
+  /// @zod.number.gt(0, { message: "Minimum stay must be greater than 0" })
+  minimumStay Int @default(1)
+
+  /// @zod.number.gt(0, { message: "Maximum guests must be greater than 0" })
+  maximumGuests Int @default(5)
+
+  // Rules and Policies
+  /// @zod.string({ invalid_type_error: "House rules are required" })
+  houseRules String @db.Text
+
+  /// Allow pets in the listing
+  allowPets Boolean @default(false)
+
+  /// @zod.string({ invalid_type_error: "Pet policy is required" })
+  petPolicy String @default("") @db.Text
+
+  // Visibility Settings
+  /// is this listing published and visible to guests. Unpublished listings are only visible to the owner.
+  published Boolean @default(false)
+
+  /// Show listing location on map exactly
+  showExactLocation Boolean @default(true)
+
+  /// This value is used to determine the radius of the listing on the map.
+  /// If the user is within this radius, the listing will be shown on the map.
+  /// If the user is outside this radius, the listing will not be shown on the map.
+  locationRadius Float @default(1)
+
+  // Relationships
+  owner          User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId        String
+  images         UploadedPhoto[]
+  inventory      ListingInventory[]
+  BookingRequest BookingRequest[]
+
+  // Indexes
   @@index([ownerId])
   @@index([pricePerNight])
 }
 
 model ListingInventory {
-  id          Int      @id @default(autoincrement())
-  listing     Listing  @relation(fields: [listingId], references: [id])
-  listingId   String
+  id Int @id @default(autoincrement())
+
+  // Date and Availability
+  /// @zod.date({ invalid_type_error: "Date is required" })
   date        DateTime
   /// is this date available for booking
   isAvailable Boolean  @default(true)
-  price       Float
-  /// related booking for this date
-  booking     Booking? @relation(fields: [bookingId], references: [id])
-  bookingId   String?
 
+  // Pricing
+  /// @zod.number.gt(0, { message: "Price must be greater than 0" })
+  /// Price per night for this date
+  price Float
+
+  // Relationships
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  bookingId String?
+  /// related booking for this date
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+
+  // Constraints
   @@unique([listingId, date])
   @@index([date])
   @@index([bookingId])
 }
 
 enum BookingStatus {
+  /// Initial status when a guest submits a booking request
   PENDING
+
+  /// Host has approved the booking request
   ACCEPTED
+
+  /// Host has declined the booking request
   REJECTED
+
+  /// Booking has been cancelled
   CANCELLED
 }
 
 model Booking {
-  id               String             @id @default(cuid())
-  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId           String
-  listingInventory ListingInventory[]
-  totalPrice       Float
-  checkIn          DateTime
-  checkOut         DateTime
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Booking Details
+  /// @zod.date({ invalid_type_error: "Check-in date is required" })
+  checkIn DateTime
+
+  /// @zod.date({ invalid_type_error: "Check-out date is required" })
+  checkOut DateTime
+
+  /// @zod.number.positive({ message: "Total price must be greater than 0" })
+  totalPrice Float
+
+  // Status
+  status BookingStatus @default(PENDING)
+
+  // Relationships
+  /// @zod.string({ invalid_type_error: "User ID is required" })
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   bookingRequest   BookingRequest?    @relation(fields: [bookingRequestId], references: [id])
   bookingRequestId String?
-  status           BookingStatus      @default(PENDING)
+  listingInventory ListingInventory[]
 
+  // Indexes
   @@index([userId])
   @@index([bookingRequestId])
 }
 
 enum BookingRequestStatus {
+  /// Initial status when a guest submits a booking request
   PENDING
+
+  /// Request has passed its validity period without host response
   EXPIRED
+
+  /// Host has approved the booking request
   ACCEPTED
+
+  /// Host has declined the booking request
   REJECTED
+
+  /// Host has proposed different dates/terms for the booking
   ALTERED
 }
 
 model BookingRequest {
-  id              String               @id @default(cuid())
-  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          String
-  listing         Listing              @relation(fields: [listingId], references: [id])
-  listingId       String
-  message         String               @db.Text
-  checkIn         DateTime
-  checkOut        DateTime
-  guests          Int
-  status          BookingRequestStatus @default(PENDING)
-  pets            Boolean              @default(false)
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
-  Booking         Booking[]
-  /// Total price for the booking request calculated from the listing price per night and the number of nights at the time of the booking request
-  totalPrice      Float                @default(0)
-  /// Reference to the original booking request if this is an alteration
-  alterationOf    String?
-  /// Reference to the original booking request
-  originalRequest BookingRequest?      @relation("BookingRequestAlterations", fields: [alterationOf], references: [id])
-  /// Alterations made to this booking request
-  alterations     BookingRequest[]     @relation("BookingRequestAlterations")
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  // Request Details
+  /// @zod.string({ invalid_type_error: "Message is required" })
+  message String @db.Text
+
+  /// @zod.date({ invalid_type_error: "Check-in date is required" })
+  checkIn DateTime
+
+  /// @zod.date({ invalid_type_error: "Check-out date is required" })
+  checkOut DateTime
+
+  // Guest Information
+  /// @zod.number.int().min(1, { message: "At least 1 guest is required" })
+  guests Int
+
+  /// Whether pets are included in this booking request
+  pets Boolean @default(false)
+
+  // Pricing and Status
+  /// @zod.number.positive({ message: "Total price must be greater than 0" })
+  /// Total price for the booking request calculated from the listing price per night
+  totalPrice Float @default(0)
+
+  /// Current status of the booking request
+  status BookingRequestStatus @default(PENDING)
+
+  // Alteration References
+  /// Reference to the original booking request if this is an alteration
+  alterationOf String?
+
+  // Relationships
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  listing         Listing          @relation(fields: [listingId], references: [id])
+  listingId       String
+  Booking         Booking[]
+  /// Reference to the original booking request
+  originalRequest BookingRequest?  @relation("BookingRequestAlterations", fields: [alterationOf], references: [id])
+  /// Alterations made to this booking request
+  alterations     BookingRequest[] @relation("BookingRequestAlterations")
+
+  // Indexes
   @@index([listingId])
   @@index([userId])
   @@index([alterationOf])

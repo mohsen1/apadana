@@ -39,12 +39,31 @@ export interface FileUploadState {
   localUrl?: string;
 }
 
-export const useFileUploader = (
-  onUploadSuccess?: (uploadedFiles: FileUploadState[]) => void,
-  onUploadError?: (error: Error, failedFiles: FileUploadState[]) => void,
-) => {
+export interface UseFileUploaderOptions {
+  /**
+   * Initial list of files to populate the uploader with
+   */
+  initialFiles?: FileUploadState[];
+  /**
+   * Callback fired when files are successfully uploaded
+   * @param uploadedFiles Array of successfully uploaded files
+   */
+  onUploadSuccess?: (uploadedFiles: FileUploadState[]) => void;
+  /**
+   * Callback fired when file upload fails
+   * @param error The error that occurred
+   * @param failedFiles Array of files that failed to upload
+   */
+  onUploadError?: (error: Error, failedFiles: FileUploadState[]) => void;
+}
+
+export function useFileUploader({
+  initialFiles = [],
+  onUploadSuccess,
+  onUploadError,
+}: UseFileUploaderOptions = {}) {
   const [totalProgress, setTotalProgress] = useState(0);
-  const [fileStates, setFileStates] = useState<FileUploadState[]>([]);
+  const [fileStates, setFileStates] = useState<FileUploadState[]>(initialFiles);
 
   const computeTotalProgress = useCallback(() => {
     const totalProgress = fileStates.reduce((acc, fileState) => {
@@ -58,14 +77,14 @@ export const useFileUploader = (
   const getUploadedUrl = (key?: string) => {
     if (!key) return undefined;
 
-    const NEXT_PUBLIC_S3_UPLOAD_BUCKET = process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET;
-    const NEXT_PUBLIC_S3_UPLOAD_REGION = process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
+    const UPLOAD_BUCKET = process.env.UPLOAD_BUCKET;
+    const UPLOAD_REGION = process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
 
     if (shouldUseFakeUploads) {
-      return `/api/e2e/upload/${key}`;
+      return `${window.location.origin}/api/e2e/upload/${key}`;
     }
 
-    return `https://${NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.${NEXT_PUBLIC_S3_UPLOAD_REGION}.amazonaws.com/${key}`;
+    return `https://${UPLOAD_BUCKET}.s3.${UPLOAD_REGION}.amazonaws.com/${key}`;
   };
 
   const uploadSingleFile = useCallback(
@@ -207,4 +226,4 @@ export const useFileUploader = (
     removeFile,
     totalProgress,
   };
-};
+}

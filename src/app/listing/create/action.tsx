@@ -5,8 +5,8 @@ import { z } from 'zod';
 
 import { getTimeZone } from '@/lib/google-maps-api';
 import prisma from '@/lib/prisma/client';
-import { CreateListingSchema, GetListingSchema } from '@/lib/prisma/schema';
 import { actionClient, UnauthorizedError } from '@/lib/safe-action';
+import { CreateListingSchema, GetListingSchema } from '@/lib/schema';
 
 import logger from '@/utils/logger';
 
@@ -25,6 +25,14 @@ export const createListing = actionClient
     });
     if (!owner) {
       throw new Error('Owner not found');
+    }
+    if (
+      parsedInput.latitude === undefined ||
+      parsedInput.latitude === null ||
+      parsedInput.longitude === undefined ||
+      parsedInput.longitude === null
+    ) {
+      throw new Error('Latitude and longitude are required');
     }
     const timeZone = await getTimeZone(parsedInput.latitude, parsedInput.longitude);
     const listing = await prisma.listing.create({

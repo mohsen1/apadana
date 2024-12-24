@@ -8,7 +8,11 @@ import qs from 'qs';
 import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { CreateListing, CreateListingSchema } from '@/lib/prisma/schema';
+import {
+  CreateListingSchema,
+  CreateListingSchemaWithCoercion,
+  CreateListingWithCoercion,
+} from '@/lib/schema';
 
 import { ResultMessage } from '@/components/form/ResultMessage';
 import { Button } from '@/components/ui/button';
@@ -31,6 +35,7 @@ import { HouseRulesStep } from './HouseRulesStep';
 import { LocationDetailsStep } from './LocationDetailsStep';
 import { PhotosStep } from './PhotosStep';
 import { PricingStep } from './PricingStep';
+
 enum FormStep {
   LocationDetails = 0,
   BasicInfo = 1,
@@ -39,7 +44,7 @@ enum FormStep {
   Pricing = 4,
   HouseRules = 5,
 }
-const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> = {
+const defaultValues: Omit<CreateListingWithCoercion, 'latitude' | 'longitude' | 'address'> = {
   amenities: ['Wi-Fi'],
   title: 'My listing',
   description: 'This is a test listing',
@@ -48,37 +53,67 @@ const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> =
   pricePerNight: 100,
   minimumStay: 1,
   maximumGuests: 5,
+  slug: '',
+  timeZone: 'UTC',
+  checkInTime: '15:00',
+  checkOutTime: '11:00',
+  currency: 'USD',
+  allowPets: false,
+  petPolicy: '',
+  published: false,
+  showExactLocation: true,
+  locationRadius: 10,
+  images: [],
 };
 
-const stepRequiredFields = {
-  [FormStep.LocationDetails]: ['address'],
-  [FormStep.BasicInfo]: ['title', 'description', 'propertyType'],
-  [FormStep.Amenities]: ['amenities'],
-  [FormStep.Photos]: ['images'],
-  [FormStep.Pricing]: ['pricePerNight', 'minimumStay', 'maximumGuests'],
-  [FormStep.HouseRules]: ['houseRules'],
+const stepSchema = {
+  [FormStep.LocationDetails]: CreateListingSchema.pick({
+    address: true,
+    latitude: true,
+    longitude: true,
+  }),
+  [FormStep.BasicInfo]: CreateListingSchema.pick({
+    title: true,
+    description: true,
+    propertyType: true,
+  }),
+  [FormStep.Amenities]: CreateListingSchema.pick({
+    amenities: true,
+  }),
+  [FormStep.Photos]: CreateListingSchema.pick({
+    images: true,
+  }),
+  [FormStep.Pricing]: CreateListingSchema.pick({
+    pricePerNight: true,
+    minimumStay: true,
+    maximumGuests: true,
+  }),
+  [FormStep.HouseRules]: CreateListingSchema.pick({
+    houseRules: true,
+  }),
 };
 
 const steps = [
   {
-    title: 'Location Details',
-    description: 'Enter the address and location information',
+    title: 'Where is your property?',
+    description:
+      'Enter the address and location information. You can choose to hide the exact location of your property on your website and show an estmiate location',
   },
   {
-    title: 'Basic Information',
+    title: 'What kind of property is it?',
     description: 'Provide general details about your listing',
   },
   {
-    title: 'Amenities',
+    title: 'What amenities are available?',
     description: 'Select the amenities available at your property',
   },
   { title: 'Photos', description: 'Upload photos of your property' },
   {
-    title: 'Pricing and Availability',
+    title: 'Set your pricing',
     description: 'Set your pricing and availability rules',
   },
   {
-    title: 'House Rules',
+    title: 'Set your rules',
     description: 'Establish house rules for your guests',
   },
 ];
@@ -104,8 +139,8 @@ export default function CreateListingForm() {
     },
   });
 
-  const methods = useForm<CreateListing>({
-    resolver: zodResolver(CreateListingSchema, {
+  const methods = useForm<CreateListingWithCoercion>({
+    resolver: zodResolver(CreateListingSchemaWithCoercion, {
       errorMap: (error, ctx) => {
         logger.error(error, ctx);
         return { message: ctx.defaultError ?? 'Unknown error' };
@@ -118,9 +153,13 @@ export default function CreateListingForm() {
   const { isSubmitting } = formState;
 
   const updateUrlParams = useCallback(
-    ({ formData, step }: { formData: Partial<CreateListing>; step: number }) => {
+    ({ formData, step }: { formData: Partial<CreateListingWithCoercion>; step: number }) => {
       const params = new URLSearchParams(searchParams);
-      const serialized = qs.stringify(formData);
+      const { images, ...restFormData } = formData;
+      const serialized = qs.stringify({
+        ...restFormData,
+        images: images ?? [],
+      });
       params.set('form-data', serialized);
       params.set('step', step.toString());
       router.push(`?${params.toString()}`);
@@ -139,35 +178,16 @@ export default function CreateListingForm() {
       });
     }
 
-    const formData = qs.parse(searchParams.get('form-data') || '{}') as Partial<CreateListing>;
-
-    // Convert string values to numbers
-    const numericFields = [
-      'pricePerNight',
-      'minimumStay',
-      'maximumGuests',
-      'latitude',
-      'longitude',
-    ] as const;
-    const booleanFields = ['showExactLocation'] as const;
-    numericFields.forEach((field) => {
-      if (field in formData && typeof formData[field] === 'string') {
-        formData[field] = Number(formData[field]);
-      }
-    });
-    booleanFields.forEach((field) => {
-      if (field in formData && typeof formData[field] === 'string') {
-        formData[field] = formData[field] === 'true';
-      }
-    });
-    if (Object.keys(formData).length > 1) {
-      try {
-        const parsedData = CreateListingSchema.partial().parse(formData);
-        reset(parsedData);
-      } catch {
-        router.replace(`?step=${FormStep.LocationDetails}`);
-        reset(defaultValues);
-      }
+    const formData = qs.parse(
+      searchParams.get('form-data') || '{}',
+    ) as Partial<CreateListingWithCoercion>;
+    const parsedData = CreateListingSchemaWithCoercion.partial().safeParse(formData);
+    if (parsedData.success) {
+      reset(parsedData.data);
+    } else {
+      logger.error('invalid form data', { formData }, parsedData.error);
+      router.replace(`?step=${FormStep.LocationDetails}`);
+      reset(defaultValues);
     }
   }, [searchParams, router, reset, updateUrlParams]);
 
@@ -190,9 +210,10 @@ export default function CreateListingForm() {
   };
 
   const canGoToNextStep = () => {
-    const requiredFields = stepRequiredFields[currentStep];
+    const schema = stepSchema[currentStep];
     const values = getValues();
-    return requiredFields.every((field) => field in values);
+    const parsed = schema.safeParse(values);
+    return parsed.success;
   };
 
   const handleFormSubmit = useCallback(
@@ -229,13 +250,10 @@ export default function CreateListingForm() {
 
   return (
     <FormProvider {...methods}>
-      <form
-        onSubmit={handleFormSubmit}
-        className='mx-auto w-full max-w-4xl flex-grow space-y-8 p-6'
-      >
+      <form onSubmit={handleFormSubmit} className='mx-auto w-full max-w-4xl flex-grow space-y-8'>
         <ResultMessage result={result} />
 
-        <Card className='w-full border-none shadow-none'>
+        <Card className='w-full border-none bg-transparent shadow-none'>
           <CardHeader>
             <CardTitle>{steps[currentStep].title}</CardTitle>
             <CardDescription>{steps[currentStep].description}</CardDescription>

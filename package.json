@@ -8,6 +8,9 @@
     "docker:clean": "docker-compose -f src/docker/docker-compose.yml down -v",
     "docker:down": "docker-compose -f src/docker/docker-compose.yml down",
     "docker:build": "docker-compose -f src/docker/docker-compose.yml build",
+    "docker:prod:rebuild": "docker-compose -f src/docker/docker-compose.yml build app_prod",
+    "docker:prod:restart": "docker-compose -f src/docker/docker-compose.yml up -d --no-deps app_prod",
+    "docker:prod:redeploy": "pnpm docker:prod:rebuild && pnpm docker:prod:restart",
     "next:start": "next start",
     "predev": "pnpm prisma:generate && pnpm prisma:migrate",
     "dev": "concurrently --color --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold\" npm:dev:*",
@@ -109,7 +112,8 @@
     "uvcanvas": "^0.2.2",
     "yargs": "^17.7.2",
     "yet-another-react-lightbox": "^3.21.7",
-    "zod": "^3.24.1"
+    "zod": "^3.24.1",
+    "zod-prisma-types": "^3.2.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",
@@ -166,7 +170,7 @@
     "vitest": "^2.1.8"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
+    "*.{js,jsx,ts,tsx},!src/prisma/zod/**": [
       "pnpm prisma:generate",
       "eslint --max-warnings=0 --config=config/eslint.config.mjs --fix --cache",
       "prettier --write"

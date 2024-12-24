@@ -6,6 +6,7 @@ import { toZonedTime } from 'date-fns-tz';
 import { z } from 'zod';
 
 import prisma from '@/lib/prisma/client';
+import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
 import {
   ChangeBookingRequestStatusSchema,
   EditInventorySchema,
@@ -14,8 +15,7 @@ import {
   GetBookingsSchema,
   GetListingSchema,
   GetListingsSchema,
-} from '@/lib/prisma/schema';
-import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
+} from '@/lib/schema';
 
 export const getBookings = actionClient
   .schema(GetBookingsSchema)
@@ -75,11 +75,16 @@ export const editListing = actionClient
       throw new ClientVisibleError('Listing not found');
     }
 
+    const { owner, ...updateData } = parsedInput;
+
     const updatedListing = await prisma.listing.update({
       where: {
         id: listing.id,
       },
-      data: parsedInput,
+      data: {
+        ...updateData,
+        ownerId: userId,
+      },
     });
 
     return {
