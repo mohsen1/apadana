@@ -5,8 +5,8 @@ import { z } from 'zod';
 
 import { getTimeZone } from '@/lib/google-maps-api';
 import prisma from '@/lib/prisma/client';
-import { CreateListingSchema, GetListingSchema } from '@/lib/prisma/schema';
 import { actionClient, UnauthorizedError } from '@/lib/safe-action';
+import { CreateListingSchema, GetListingSchema } from '@/lib/schema';
 
 import logger from '@/utils/logger';
 

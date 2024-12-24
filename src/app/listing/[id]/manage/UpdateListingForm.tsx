@@ -6,7 +6,7 @@ import { Clock, DollarSign, Loader2, SaveIcon, Users } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Controller, useForm } from 'react-hook-form';
 
-import { CreateListingSchema } from '@/lib/prisma/schema';
+import { CreateListingSchema } from '@/lib/schema';
 
 import { DisappearingComponent } from '@/components/DisappearingComponent';
 import { LocationPicker } from '@/components/LocationPicker';

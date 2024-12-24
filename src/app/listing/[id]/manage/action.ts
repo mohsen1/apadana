@@ -75,11 +75,16 @@ export const editListing = actionClient
       throw new ClientVisibleError('Listing not found');
     }
 
+    const { owner, ...updateData } = parsedInput;
+
     const updatedListing = await prisma.listing.update({
       where: {
         id: listing.id,
       },
-      data: parsedInput,
+      data: {
+        ...updateData,
+        ownerId: userId,
+      },
     });
 
     return {

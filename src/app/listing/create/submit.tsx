@@ -3,6 +3,7 @@
 import { Listing } from '@prisma/client';
 
 import { getUserInServer } from '@/lib/auth';
+import { CreateListing } from '@/lib/schema';
 
 import { createListing } from '@/app/listing/create/action';
 import { TypedFormData } from '@/utils/formData';
@@ -12,13 +13,16 @@ export type ServerResponse = {
 };
 
 function validateFormData(
-  formData: TypedFormData<Listing>,
-): formData is TypedFormData<Required<Listing>> {
+  formData: TypedFormData<CreateListing>,
+): formData is TypedFormData<Required<CreateListing>> {
   const errors: Record<string, string> = {};
-  const validatedData: Record<string, string | number | string[] | boolean | Date> = {};
+  const validatedData: Record<
+    string,
+    string | number | string[] | boolean | Date | { url: string; key: string; name: string }[]
+  > = {};
 
   // Define required fields
-  const requiredFields: (keyof Listing)[] = [
+  const requiredFields: (keyof CreateListing)[] = [
     'title',
     'description',
     'propertyType',
@@ -26,6 +30,17 @@ function validateFormData(
     'pricePerNight',
     'minimumStay',
     'maximumGuests',
+    'latitude',
+    'longitude',
+    'showExactLocation',
+    'timeZone',
+    'checkInTime',
+    'checkOutTime',
+    'currency',
+    'allowPets',
+    'petPolicy',
+    'published',
+    'locationRadius',
   ];
 
   // Validate required fields
@@ -75,7 +90,7 @@ function validateFormData(
   return true;
 }
 
-export async function submitForm(formData: TypedFormData<Listing>): Promise<ServerResponse> {
+export async function submitForm(formData: TypedFormData<CreateListing>): Promise<ServerResponse> {
   validateFormData(formData);
 
   const user = await getUserInServer();
@@ -90,15 +105,23 @@ export async function submitForm(formData: TypedFormData<Listing>): Promise<Serv
     propertyType: formData.get('propertyType'),
     address: formData.get('address'),
     amenities: formData.getAll('amenities'),
-    // @ts-expect-error todo
-    pricePerNight: parseFloat(formData.get('pricePerNight') || '0'),
-    // @ts-expect-error todo
-    minimumStay: parseInt(formData.get('minimumStay'), 10),
-    // @ts-expect-error todo
-    maximumGuests: parseInt(formData.get('maximumGuests')),
+    pricePerNight: formData.get('pricePerNight'),
+    minimumStay: formData.get('minimumStay'),
+    maximumGuests: formData.get('maximumGuests'),
     houseRules: formData.get('houseRules'),
-    latitude: formData.get('latitude') ?? 0,
-    longitude: formData.get('longitude') ?? 0,
+    latitude: formData.get('latitude') ?? null,
+    longitude: formData.get('longitude') ?? null,
+    slug: formData.get('title').toLowerCase().replace(/\s+/g, '-'),
+    timeZone: formData.get('timeZone'),
+    checkInTime: formData.get('checkInTime'),
+    checkOutTime: formData.get('checkOutTime'),
+    currency: formData.get('currency'),
+    allowPets: formData.get('allowPets'),
+    petPolicy: formData.get('petPolicy'),
+    published: formData.get('published'),
+    showExactLocation: formData.get('showExactLocation'),
+    locationRadius: formData.get('locationRadius'),
+    images: [],
   });
 
   return { listing: res?.data?.listing };

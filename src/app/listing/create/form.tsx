@@ -8,7 +8,7 @@ import qs from 'qs';
 import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { CreateListing, CreateListingSchema } from '@/lib/prisma/schema';
+import { CreateListing, CreateListingSchema } from '@/lib/schema';
 
 import { ResultMessage } from '@/components/form/ResultMessage';
 import { Button } from '@/components/ui/button';
@@ -48,6 +48,21 @@ const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> =
   pricePerNight: 100,
   minimumStay: 1,
   maximumGuests: 5,
+  slug: '',
+  timeZone: 'UTC',
+  checkInTime: '15:00',
+  checkOutTime: '11:00',
+  currency: 'USD',
+  allowPets: false,
+  petPolicy: '',
+  published: false,
+  showExactLocation: true,
+  locationRadius: 0,
+  images: [],
+  // cleaningFee: 0,
+  // serviceFee: 0,
+  // taxRate: 0,
+  // cancellationPolicy: '',
 };
 
 const stepRequiredFields = {

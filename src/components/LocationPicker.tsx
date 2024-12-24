@@ -14,8 +14,8 @@ import { googleMapsDarkStyles, googleMapsLightStyles } from '@/shared/google-map
 
 interface LocationPickerProps {
   initialAddress?: string;
-  initialLatitude?: number;
-  initialLongitude?: number;
+  initialLatitude?: number | null;
+  initialLongitude?: number | null;
   initialShowExactLocation?: boolean;
   onAddressChange?: (address: string) => void;
   onLocationChange?: (lat: number, lng: number) => void;

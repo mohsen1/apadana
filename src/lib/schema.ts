@@ -1,4 +1,4 @@
-import { BookingRequestStatus, Currency } from '@prisma/client';
+import { BookingRequestStatus } from '@prisma/client';
 import { z } from 'zod';
 
 import {
@@ -7,7 +7,7 @@ import {
   RelatedUserBaseModel,
 } from '@/prisma/zod';
 
-// Base schemas
+//#region Base Schemas
 export const UploadImageSchema = z.object({
   url: z.string(),
   key: z.string(),
@@ -18,8 +18,9 @@ export const BaseListingSchema = ListingBaseModel.extend({
   images: RelatedUploadedPhotoBaseModel.array(),
   owner: RelatedUserBaseModel,
 });
+//#endregion
 
-// User schemas
+//#region Authentication & User Schemas
 export const clientUserSchema = z.object({
   id: z.string(),
   email: z.string().email(),
@@ -37,7 +38,24 @@ export const successfulLogin = z.object({
   user: clientUserSchema,
 });
 
-// Listing schemas
+export const UpdateUserSchema = z.object({
+  id: z.string(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  imageUrl: z.string().optional(),
+});
+
+const DevPasswordSchema = z.string().min(1, 'Password is required');
+const ProdPasswordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(100, 'Password must be less than 100 characters');
+
+export const PasswordSchema =
+  process.env.NODE_ENV === 'development' ? DevPasswordSchema : ProdPasswordSchema;
+//#endregion
+
+//#region Listing Schemas
 export const GetListingSchema = z.object({
   id: z.string(),
   include: z
@@ -58,18 +76,18 @@ export const EditListingSchema = BaseListingSchema.omit({ images: true }).partia
   id: z.string(),
 });
 
-export const CreateListingSchema = BaseListingSchema.extend({});
+export const CreateListingSchema = ListingBaseModel.omit({
+  id: true,
+  ownerId: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  images: z.array(UploadImageSchema),
+});
 
 export const EditListingImagesSchema = z.object({
   listingId: z.string(),
   images: z.array(UploadImageSchema),
-});
-
-// Booking schemas
-export const CreateBookingSchema = z.object({
-  listingId: z.number(),
-  checkIn: z.date(),
-  checkOut: z.date(),
 });
 
 export const EditInventorySchema = z.object({
@@ -83,8 +101,33 @@ export const EditInventorySchema = z.object({
     }),
   ),
 });
+//#endregion
 
-// Booking Request schemas
+//#region Booking Schemas
+export const CreateBookingSchema = z.object({
+  listingId: z.number(),
+  checkIn: z.date(),
+  checkOut: z.date(),
+});
+
+export const UpdateBookingSchema = z.object({
+  bookingId: z.string(),
+  startDate: z.date(),
+  endDate: z.date(),
+});
+
+export const CancelBookingSchema = z.object({
+  bookingId: z.string(),
+});
+
+export const GetBookingsSchema = z.object({
+  listingId: z.string(),
+  take: z.number().optional().default(10),
+  skip: z.number().optional().default(0),
+});
+//#endregion
+
+//#region Booking Request Schemas
 export const GetBookingRequestSchema = z.object({
   id: z.string(),
 });
@@ -158,39 +201,18 @@ export const ChangeBookingRequestStatusSchema = z.object({
   bookingRequestId: z.string(),
   status: z.nativeEnum(BookingRequestStatus),
 });
+//#endregion
 
-export const GetBookingsSchema = z.object({
-  listingId: z.string(),
-  take: z.number().optional().default(10),
-  skip: z.number().optional().default(0),
-});
-
+//#region Email Schemas
 export const localEmailSchema = z.object({
   id: z.string(),
   createdAt: z.date(),
   subject: z.string(),
   html: z.string(),
 });
+//#endregion
 
-// UpdateBookingSchema
-export const UpdateBookingSchema = z.object({
-  bookingId: z.string(),
-  startDate: z.date(),
-  endDate: z.date(),
-});
-// CancelBookingSchema
-export const CancelBookingSchema = z.object({
-  bookingId: z.string(),
-});
-// UpdateUserSchema
-export const UpdateUserSchema = z.object({
-  id: z.string(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  imageUrl: z.string().optional(),
-});
-
-// Type exports
+//#region Type Exports
 export type UploadImage = z.infer<typeof UploadImageSchema>;
 export type CreateBooking = z.infer<typeof CreateBookingSchema>;
 export type GetListing = z.infer<typeof GetListingSchema>;
@@ -205,3 +227,4 @@ export type BookingRequestResponse = z.infer<typeof BookingRequestResponseSchema
 export type ChangeBookingRequestStatus = z.infer<typeof ChangeBookingRequestStatusSchema>;
 export type GetBookings = z.infer<typeof GetBookingsSchema>;
 export type UpdateUser = z.infer<typeof UpdateUserSchema>;
+//#endregion
