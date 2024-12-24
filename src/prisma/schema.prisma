@@ -19,12 +19,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// TODO
-// generator zod {
-//   provider = "prisma-zod-generator"
-//   output   = "../src/lib/prisma/generated"
-// }
-
 enum Permission {
   // org:listing:manage
   MANAGE_LISTINGS
