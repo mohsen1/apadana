@@ -100,17 +100,13 @@ async function execCommand(
     proc.stdout.on('data', (data: Buffer) => {
       const chunk = data.toString();
       stdout.push(chunk);
-      if (!options.silent) {
-        process.stdout.write(chunk);
-      }
+      if (!options.silent) process.stdout.write(chunk);
     });
 
     proc.stderr.on('data', (data: Buffer) => {
       const chunk = data.toString();
       stderr.push(chunk);
-      if (!options.silent) {
-        process.stderr.write(chunk);
-      }
+      if (!options.silent) process.stderr.write(chunk);
     });
 
     proc.on('close', (code) => {
@@ -137,19 +133,16 @@ async function runTests(update: UpdateResult): Promise<boolean> {
   ): Promise<TestResult> => {
     try {
       logger.info(chalk.bold.blue(`\n${getTestEmoji(type)} Running ${type} checks...`));
-
       const { stderr, exitCode } = await execCommand('pnpm', args, {
         allowFailure: true,
         env,
       });
       const passed = exitCode === 0;
-
       if (passed) {
         logger.info(chalk.bold.green(`✅ ${type} checks passed for ${update.packageName}`));
       } else {
         logger.error(chalk.bold.yellow(`⚠️ ${type} checks failed for ${update.packageName}`));
       }
-
       return { type, passed, error: passed ? undefined : stderr };
     } catch (error) {
       assertError(error);
@@ -158,7 +151,6 @@ async function runTests(update: UpdateResult): Promise<boolean> {
     }
   };
 
-  // Run tests in sequence to avoid resource contention
   const tests: TestResult[] = await Promise.all([
     runTest('typecheck', ['typecheck']),
     runTest('lint', ['lint:strict']),
@@ -175,7 +167,6 @@ function getUpdateType(currentVersion: string, newVersion: string): 'major' | 'm
   try {
     const clean1 = semver.clean(currentVersion) ?? currentVersion;
     const clean2 = semver.clean(newVersion) ?? newVersion;
-
     if (semver.major(clean2) > semver.major(clean1)) return 'major';
     if (semver.minor(clean2) > semver.minor(clean1)) return 'minor';
     return 'patch';
@@ -216,9 +207,24 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
   );
 
   try {
-    // Install packages
-    for (const update of updates) {
-      await execCommand('pnpm', ['add', `${update.packageName}@${update.latest}`, '--silent']);
+    // Split dev and regular dependencies to ensure correct flags
+    const devUpdates = updates.filter((u) => u.dependencyType === 'devDependencies');
+    const prodUpdates = updates.filter((u) => u.dependencyType === 'dependencies');
+
+    if (prodUpdates.length) {
+      await execCommand('pnpm', [
+        'add',
+        ...prodUpdates.map((u) => `${u.packageName}@${u.latest}`),
+        '--silent',
+      ]);
+    }
+    if (devUpdates.length) {
+      await execCommand('pnpm', [
+        'add',
+        '-D',
+        ...devUpdates.map((u) => `${u.packageName}@${u.latest}`),
+        '--silent',
+      ]);
     }
 
     const updateType = updates.reduce(
@@ -237,6 +243,7 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
       fromVersion: updates[0].current,
       toVersion: updates[0].latest,
       updateType,
+      dependencyType: updates[0].dependencyType,
       testResults: [],
     };
 
@@ -265,7 +272,6 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
       `Type: ${updateType} update`,
     ].join('\n');
 
-    // Write commit message to temporary file
     const tempFile = path.join(os.tmpdir(), `.temp-commit-msg-${Date.now()}`);
     await fs.writeFile(tempFile, commitMessage);
 
@@ -278,8 +284,8 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
       logger.error(chalk.red(commitResult.stderr));
       return false;
     }
-    logger.info(chalk.bold.green(`\n✅ Committed changes to git`));
 
+    logger.info(chalk.bold.green(`\n✅ Committed changes to git`));
     logger.info(
       chalk.bold.green(
         `\n✅ Successfully updated ${updates[0].packageName} to ${updates[0].latest}`,
@@ -296,20 +302,26 @@ async function updatePackageGroup(updates: PackageUpdate[], groupName?: string) 
       silent: true,
     });
     await execCommand('pnpm', ['install']);
-
-    // Exit immediately on failure
     process.exit(1);
   }
 }
 
 function generatePRSummary(results: UpdateResult[]): string {
   const manualUpdates = results.filter((r) => r.testResults.length === 0);
+
   const summary = [
     '# Package Updates Summary',
     '',
     'Automated script to update dependencies has generated this PR',
     `### ${manualUpdates.length} packages need manual update`,
-    `<pre>${manualUpdates.map((r) => `pnpm add ${r.packageName}@${r.toVersion}`).join('\n')}</pre>`,
+    `<pre>${manualUpdates
+      .map(
+        (r) =>
+          `pnpm add ${
+            r.dependencyType === 'devDependencies' ? '-D ' : ''
+          }${r.packageName}@${r.toVersion}`,
+      )
+      .join('\n')}</pre>`,
     '',
     '## Overview',
     '',
@@ -342,7 +354,6 @@ function generatePRSummary(results: UpdateResult[]): string {
 
   summary.push('</tbody></table>', '', '## Detailed Test Results', '');
 
-  // Update the detailed results section too
   for (const result of results) {
     if (result.testResults.length === 0) continue;
     summary.push(
@@ -356,7 +367,6 @@ function generatePRSummary(results: UpdateResult[]): string {
       '</tr></thead>',
       '<tbody>',
     );
-
     for (const test of result.testResults) {
       const errorDetails = test.error
         ? `<details><summary>Error Details</summary><pre>${test.error}</pre></details>`
@@ -394,6 +404,7 @@ async function main() {
       allowFailure: true,
       silent: true,
     });
+
     const updates = Object.entries(
       (await JSON.parse(outdatedOutput.stdout)) as Record<
         string,
@@ -409,32 +420,26 @@ async function main() {
     logger.info(chalk.bold.cyan(`📋 Found ${updates.length} packages to update`));
     logger.info(chalk.dim(updates.map((u) => u.packageName).join(', ')));
 
-    // Add limit logging if specified
     if (argv.limit > 0) {
       logger.info(chalk.bold.yellow(`ℹ️ Limiting updates to ${argv.limit} packages`));
     }
 
-    // Group updates based on patterns
     const { groups, ungrouped } = groupPackageUpdates(updates);
 
-    // Process grouped updates, largest group first
     for (const [groupName, groupUpdates] of [...groups].sort(
       ([, a], [, b]) => b.length - a.length,
     )) {
       await updatePackageGroup(groupUpdates, groupName);
     }
 
-    // Process ungrouped updates individually
     for (const update of ungrouped) {
       await updatePackageGroup([update]);
     }
 
-    // Generate and print PR summary
     const prSummary = generatePRSummary(results);
     logger.info('\n📋 PR Summary:');
     logger.log(prSummary);
 
-    // Write summary to file
     await fs.writeFile('package-updates-summary.md', prSummary);
     logger.info(
       chalk.bold.green(
@@ -447,7 +452,6 @@ async function main() {
   }
 }
 
-// Helper function for test emojis
 function getTestEmoji(type: TestResult['type']): string {
   const emojis = {
     typecheck: '📝',
