@@ -149,7 +149,7 @@
     "globals": "^15.14.0",
     "happy-dom": "^15.11.7",
     "husky": "^9.1.7",
-    "lint-staged": "^12.5.0",
+    "lint-staged": "^15.2.11",
     "mkcert": "^1.5.1",
     "next-router-mock": "^0.9.13",
     "next-sitemap": "^2.5.28",
