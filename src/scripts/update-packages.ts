@@ -358,30 +358,15 @@ function generatePRSummary(results: UpdateResult[]): string {
 
   for (const result of results) {
     if (result.testResults.length === 0) continue;
-    summary.push(
-      `### \`${result.groupName || result.packageName}\``,
-      '',
-      '<table>',
-      '<thead><tr>',
-      '<th>Test Type</th>',
-      '<th>Status</th>',
-      '<th>Error</th>',
-      '</tr></thead>',
-      '<tbody>',
-    );
+    summary.push(`### \`${result.groupName || result.packageName}\``);
     for (const test of result.testResults) {
-      const errorDetails = test.error
-        ? `<details><summary>Error Details</summary><pre>${test.error}</pre></details>`
-        : '';
-      summary.push(
-        '<tr>',
-        `<td><code>${test.type}</code></td>`,
-        `<td>${test.passed ? '✅ Passed' : '❌ Failed'}</td>`,
-        `<td>${errorDetails}</td>`,
-        '</tr>',
-      );
+      if (test.error) {
+        summary.push(
+          `<details><summary><h4>${test.type} failed</h4></summary><pre>${test.error}</pre></details>`,
+        );
+      }
     }
-    summary.push('</tbody></table>', '');
+    summary.push('');
   }
 
   return summary.join('\n');
