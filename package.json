@@ -148,7 +148,7 @@
     "execa": "^9.5.2",
     "globals": "^15.14.0",
     "happy-dom": "^15.11.7",
-    "husky": "^7.0.4",
+    "husky": "^9.1.7",
     "lint-staged": "^12.5.0",
     "mkcert": "^1.5.1",
     "next-router-mock": "^0.9.13",
