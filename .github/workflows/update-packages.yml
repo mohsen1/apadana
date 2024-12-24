@@ -80,8 +80,7 @@ jobs:
 
       - name: Push changes
         if: steps.git-check.outputs.changes == 'true'
-        run: |
-          git push origin ${{ env.BRANCH_NAME }}
+        run: git push origin ${{ env.BRANCH_NAME }}
 
       - name: Create Pull Request
         if: steps.git-check.outputs.changes == 'true'
@@ -102,7 +101,6 @@ jobs:
               base: 'main'
             });
 
-            // Add labels to the PR
             await github.rest.issues.addLabels({
               owner,
               repo,
@@ -116,7 +114,26 @@ jobs:
           echo "✅ Pull Request created successfully!"
           echo "Please review the changes and merge if everything looks good."
 
-      - name: No Changes
+      - name: Create Issue Instead
         if: steps.git-check.outputs.changes == 'false'
-        run: |
-          echo "ℹ️ No package updates were needed."
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const fs = require('fs');
+            const { repo, owner } = context.repo;
+            // Read the same summary file to include details in the issue
+            const body = fs.readFileSync('package-updates-summary.md', 'utf8').toString();
+            const result = await github.rest.issues.create({
+              owner,
+              repo,
+              title: 'No Packages Could Be Updated',
+              body
+            });
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: result.data.number,
+              labels: ['dependencies', 'automated']
+            });
