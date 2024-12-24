@@ -146,7 +146,7 @@
     "eslint-plugin-storybook": "^0.11.1",
     "eslint-plugin-unused-imports": "^4.1.4",
     "execa": "^9.5.2",
-    "globals": "^15.13.0",
+    "globals": "^15.14.0",
     "happy-dom": "^15.11.7",
     "husky": "^7.0.4",
     "lint-staged": "^12.5.0",
