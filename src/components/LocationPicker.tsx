@@ -303,7 +303,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
             )}
             {errors.address && <span className='text-red-500'>{errors.address}</span>}
             {predictions.length > 0 && (
-              <ul className='border-border/15 absolute z-10 mt-1 w-full rounded-md border shadow-lg'>
+              <ul className='border-border/15 bg-background absolute z-10 mt-1 w-full rounded-md border shadow-lg'>
                 {predictions.map((prediction, index) => (
                   <li
                     key={prediction.place_id}

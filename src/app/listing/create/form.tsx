@@ -7,6 +7,7 @@ import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
 import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { CreateListing, CreateListingSchema } from '@/lib/schema';
 
@@ -59,10 +60,6 @@ const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> =
   showExactLocation: true,
   locationRadius: 0,
   images: [],
-  // cleaningFee: 0,
-  // serviceFee: 0,
-  // taxRate: 0,
-  // cancellationPolicy: '',
 };
 
 const stepRequiredFields = {
@@ -76,27 +73,40 @@ const stepRequiredFields = {
 
 const steps = [
   {
-    title: 'Location Details',
-    description: 'Enter the address and location information',
+    title: 'Where is your property?',
+    description:
+      'Enter the address and location information. You can choose to hide the exact location of your property on your website and show an estmiate location',
   },
   {
-    title: 'Basic Information',
+    title: 'What kind of property is it?',
     description: 'Provide general details about your listing',
   },
   {
-    title: 'Amenities',
+    title: 'What amenities are available?',
     description: 'Select the amenities available at your property',
   },
   { title: 'Photos', description: 'Upload photos of your property' },
   {
-    title: 'Pricing and Availability',
+    title: 'Set your pricing',
     description: 'Set your pricing and availability rules',
   },
   {
-    title: 'House Rules',
+    title: 'Set your rules',
     description: 'Establish house rules for your guests',
   },
 ];
+
+const CreateListingSchemaWithCoercion = CreateListingSchema.extend({
+  allowPets: z.coerce.boolean(),
+  published: z.coerce.boolean(),
+  showExactLocation: z.coerce.boolean(),
+  pricePerNight: z.coerce.number(),
+  minimumStay: z.coerce.number().int(),
+  maximumGuests: z.coerce.number().int(),
+  locationRadius: z.coerce.number(),
+  latitude: z.coerce.number().nullish(),
+  longitude: z.coerce.number().nullish(),
+});
 
 export default function CreateListingForm() {
   const router = useRouter();
@@ -155,34 +165,13 @@ export default function CreateListingForm() {
     }
 
     const formData = qs.parse(searchParams.get('form-data') || '{}') as Partial<CreateListing>;
-
-    // Convert string values to numbers
-    const numericFields = [
-      'pricePerNight',
-      'minimumStay',
-      'maximumGuests',
-      'latitude',
-      'longitude',
-    ] as const;
-    const booleanFields = ['showExactLocation'] as const;
-    numericFields.forEach((field) => {
-      if (field in formData && typeof formData[field] === 'string') {
-        formData[field] = Number(formData[field]);
-      }
-    });
-    booleanFields.forEach((field) => {
-      if (field in formData && typeof formData[field] === 'string') {
-        formData[field] = formData[field] === 'true';
-      }
-    });
-    if (Object.keys(formData).length > 1) {
-      try {
-        const parsedData = CreateListingSchema.partial().parse(formData);
-        reset(parsedData);
-      } catch {
-        router.replace(`?step=${FormStep.LocationDetails}`);
-        reset(defaultValues);
-      }
+    const parsedData = CreateListingSchemaWithCoercion.partial().safeParse(formData);
+    if (parsedData.success) {
+      reset(parsedData.data);
+    } else {
+      logger.error('invalid form data', { formData });
+      router.replace(`?step=${FormStep.LocationDetails}`);
+      reset(defaultValues);
     }
   }, [searchParams, router, reset, updateUrlParams]);
 
@@ -244,13 +233,10 @@ export default function CreateListingForm() {
 
   return (
     <FormProvider {...methods}>
-      <form
-        onSubmit={handleFormSubmit}
-        className='mx-auto w-full max-w-4xl flex-grow space-y-8 p-6'
-      >
+      <form onSubmit={handleFormSubmit} className='mx-auto w-full max-w-4xl flex-grow space-y-8'>
         <ResultMessage result={result} />
 
-        <Card className='w-full border-none shadow-none'>
+        <Card className='w-full border-none bg-transparent shadow-none'>
           <CardHeader>
             <CardTitle>{steps[currentStep].title}</CardTitle>
             <CardDescription>{steps[currentStep].description}</CardDescription>
