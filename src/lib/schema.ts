@@ -11,32 +11,29 @@ import { BookingRequestStatus, Currency } from '@prisma/client';
 import { z } from 'zod';
 
 import {
+  BookingSchema,
+  ListingIncludeSchema,
   ListingSchema,
-  UploadedPhotoSchema as RelatedUploadedPhotoBaseModel,
-  UserSchema as RelatedUserBaseModel,
+  UploadedPhotoSchema,
   UserSchema,
 } from '@/prisma/zod';
 
 //#region Base Schemas
-export const UploadImageSchema = z.object({
-  url: z.string(),
-  key: z.string(),
-  name: z.string(),
+export const UploadImageSchema = UploadedPhotoSchema.omit({
+  listingId: true,
+  id: true,
 });
 
-export const BaseListingSchema = ListingSchema.extend({
-  images: RelatedUploadedPhotoBaseModel.array(),
-  owner: RelatedUserBaseModel,
-});
+export const BaseListingSchema = ListingSchema;
 //#endregion
 
 //#region Authentication & User Schemas
-export const ClientUserSchema = z.object({
-  id: z.string(),
+export const ClientUserSchema = UserSchema.omit({
+  password: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
   email: z.string().email(),
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
-  imageUrl: z.string().nullable(),
 });
 
 export const LoginSchema = z.object({
@@ -48,11 +45,8 @@ export const SuccessfulLoginSchema = z.object({
   user: ClientUserSchema,
 });
 
-export const UpdateUserSchema = z.object({
+export const UpdateUserSchema = UserSchema.partial().extend({
   id: z.string(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  imageUrl: z.string().optional(),
 });
 
 const DevPasswordSchema = z.string().min(1, 'Password is required');
@@ -68,13 +62,7 @@ export const PasswordSchema =
 //#region Listing Schemas
 export const GetListingSchema = z.object({
   id: z.string(),
-  include: z
-    .object({
-      images: z.boolean(),
-      inventory: z.boolean(),
-      owner: z.boolean(),
-    })
-    .optional(),
+  include: ListingIncludeSchema.optional(),
 });
 
 export const GetListingsSchema = z.object({
@@ -99,16 +87,19 @@ export const CreateListingSchema = ListingSchema.omit({
   ownerId: true,
   createdAt: true,
   updatedAt: true,
-}).extend({
-  currency: z.nativeEnum(Currency).optional(),
-  images: z.array(UploadImageSchema),
-  checkInTime: ListingSchema.shape.checkInTime.optional(),
-  checkOutTime: ListingSchema.shape.checkOutTime.optional(),
-  locationRadius: ListingSchema.shape.locationRadius.optional(),
-  petPolicy: ListingSchema.shape.petPolicy.optional(),
-  slug: ListingSchema.shape.slug.optional(),
-  timeZone: ListingSchema.shape.timeZone.optional(),
-});
+})
+  .extend({
+    currency: z.nativeEnum(Currency).optional(),
+    images: z.array(UploadImageSchema),
+  })
+  .partial({
+    checkInTime: true,
+    checkOutTime: true,
+    locationRadius: true,
+    petPolicy: true,
+    slug: true,
+    timeZone: true,
+  });
 
 /**
  * This is used in the frontend where values are stringified in the URL
@@ -154,16 +145,17 @@ export const EditInventorySchema = z.object({
 //#endregion
 
 //#region Booking Schemas
-export const CreateBookingSchema = z.object({
-  listingId: z.number(),
-  checkIn: z.date(),
-  checkOut: z.date(),
+export const CreateBookingSchema = BookingSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  status: true,
+  userId: true,
+  bookingRequestId: true,
 });
 
-export const UpdateBookingSchema = z.object({
-  bookingId: z.string(),
-  startDate: z.date(),
-  endDate: z.date(),
+export const UpdateBookingSchema = BookingSchema.extend({
+  id: z.string(),
 });
 
 export const CancelBookingSchema = z.object({

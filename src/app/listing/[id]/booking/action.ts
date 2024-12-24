@@ -272,10 +272,10 @@ export const updateBooking = actionClient
   .schema(UpdateBookingSchema)
   .action(async ({ parsedInput }) => {
     try {
-      const { bookingId, startDate, endDate } = parsedInput;
+      const { id, checkIn, checkOut } = parsedInput;
 
       const existingBooking = await prisma.booking.findUnique({
-        where: { id: bookingId },
+        where: { id },
         include: {
           listingInventory: {
             include: {
@@ -295,10 +295,10 @@ export const updateBooking = actionClient
       }
 
       const updatedBooking = await prisma.booking.update({
-        where: { id: bookingId },
+        where: { id },
         data: {
-          checkIn: startDate,
-          checkOut: endDate,
+          checkIn,
+          checkOut,
         },
         include: {
           bookingRequest: {
