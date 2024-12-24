@@ -12,11 +12,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Base colors
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
-
-        // UI colors
+        /* UI Colors */
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',
@@ -38,23 +34,45 @@ const config: Config = {
           foreground: 'var(--destructive-foreground)',
         },
 
-        // Border and ring
-        border: 'var(--border)',
-        ring: 'var(--ring)',
-
-        // Input
-        input: 'var(--input)',
-
-        // Card
+        /* System Colors */
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
         card: {
           DEFAULT: 'var(--card)',
           foreground: 'var(--card-foreground)',
         },
-
-        // Popover
         popover: {
           DEFAULT: 'var(--popover)',
           foreground: 'var(--popover-foreground)',
+        },
+
+        /* Border Colors */
+        border: 'var(--border)',
+        input: 'var(--input)',
+        ring: 'var(--ring)',
+
+        /* Additional Status Colors */
+        success: {
+          DEFAULT: 'var(--success)',
+          foreground: 'var(--success-foreground)',
+        },
+        warning: {
+          DEFAULT: 'var(--warning)',
+          foreground: 'var(--warning-foreground)',
+        },
+
+        /* Additional Base Colors */
+        slate: {
+          DEFAULT: 'var(--slate)',
+          foreground: 'var(--slate-foreground)',
+        },
+        stone: {
+          DEFAULT: 'var(--stone)',
+          foreground: 'var(--stone-foreground)',
+        },
+        zinc: {
+          DEFAULT: 'var(--zinc)',
+          foreground: 'var(--zinc-foreground)',
         },
       },
     },
