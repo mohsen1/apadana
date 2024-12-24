@@ -26,8 +26,8 @@ export default function NotFound({
 }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <main className='mt-10 grid grid flex-grow  place-content-center place-items-center'>
-        <section className=' grid h-full place-items-center'>
+      <main className='mt-10 grid flex-grow place-content-center place-items-center'>
+        <section className='grid h-full place-items-center'>
           <div className='layout flex flex-col items-center justify-center text-center'>
             <OctagonAlert
               size={100}

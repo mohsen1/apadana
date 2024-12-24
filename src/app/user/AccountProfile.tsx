@@ -72,7 +72,7 @@ export function AccountProfile() {
 
           {/* Updated Profile Section */}
           <div className='mb-8 flex items-center justify-between'>
-            <div className='flex items-start gap-4 '>
+            <div className='flex items-start gap-4'>
               <label htmlFor='image-uploader-input'>
                 <Avatar className='group relative h-16 w-16 cursor-pointer hover:opacity-90'>
                   <AvatarImage src={user?.imageUrl ?? '/placeholder.png'} />

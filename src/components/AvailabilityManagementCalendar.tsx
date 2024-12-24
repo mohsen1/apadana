@@ -62,7 +62,7 @@ function CalendarTileContent({
   inventory: ListingInventory;
   listing: Listing;
 }) {
-  const unAvailableDash = <div className='border-foreground/10 h-0  w-6 border-2 border-b' />;
+  const unAvailableDash = <div className='border-foreground/10 h-0 w-6 border-2 border-b' />;
   const price = formatCurrency(inventory.price, listing.currency);
   const content = !inventory.isAvailable ? unAvailableDash : price;
   return <div className={cn('/80 py-2 text-center text-sm')}>{content}</div>;

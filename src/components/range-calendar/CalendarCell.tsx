@@ -64,13 +64,10 @@ export function CalendarCell({ state, date, getCellContent, border = true }: Cal
             className={cn(
               'text[1rem] /80 flex h-[2rem] w-[2rem] items-center justify-center p-2 text-center',
               {
-                'bg-ring/90 text-background rounded-full ': isToday,
+                'bg-ring/90 text-background rounded-full': isToday,
                 // Some crazy CSS magic to have a cross line over the cell date
-                [`after:absolute after:inset-0 after:scale-[0.4]
-                  after:bg-[linear-gradient(to_top_left,transparent_calc(50%-2px),gray_calc(50%-2px),gray_calc(50%+2px),transparent_calc(50%+2px))] after:from-transparent 
-                  after:to-transparent after:bg-[length:100%_100%] 
-                  after:bg-no-repeat
-                  `]: isUnavailable,
+                [`after:absolute after:inset-0 after:scale-[0.4] after:bg-[linear-gradient(to_top_left,transparent_calc(50%-2px),gray_calc(50%-2px),gray_calc(50%+2px),transparent_calc(50%+2px))] after:from-transparent after:to-transparent after:bg-[length:100%_100%] after:bg-no-repeat`]:
+                  isUnavailable,
               },
             )}
           >

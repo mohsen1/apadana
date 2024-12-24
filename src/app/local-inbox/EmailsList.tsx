@@ -10,7 +10,7 @@ export default function EmailsList({ emails }: EmailsListProps) {
   const [selectedEmail, setSelectedEmail] = useState<LocalEmail | null>(emails[0] ?? null);
 
   return (
-    <div className='flex flex-col '>
+    <div className='flex flex-col'>
       <header className='border-border border-b'>
         <h1 className='p-4 text-2xl font-semibold'>Local Email Inbox</h1>
       </header>

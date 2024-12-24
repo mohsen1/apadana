@@ -24,10 +24,7 @@ function FormDebugger() {
 
   return (
     <div
-      className={`bg-background border-border text-foreground fixed bottom-4 right-4 w-full
-         max-w-lg rounded-lg border p-1 shadow-lg 
-         transition-all
-         duration-200 ${isMinimized ? 'h-12' : 'h-96'}`}
+      className={`bg-background border-border text-foreground fixed bottom-4 right-4 w-full max-w-lg rounded-lg border p-1 shadow-lg transition-all duration-200 ${isMinimized ? 'h-12' : 'h-96'}`}
     >
       <div className='flex items-center justify-between'>
         <h3 className='text-foreground font-semibold'>Debug Information</h3>

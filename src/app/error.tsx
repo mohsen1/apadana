@@ -53,7 +53,7 @@ function ErrorRender({ error }: { error: Error & { digest?: string } }) {
       <pre className='max-w-screen-lg overflow-x-auto py-8 text-left text-red-500'>
         {error.stack}
       </pre>
-      {error.digest && <pre className='py-8 text-left text-red-500 '>Digest: {error.digest}</pre>}
+      {error.digest && <pre className='py-8 text-left text-red-500'>Digest: {error.digest}</pre>}
     </div>
   );
 }
