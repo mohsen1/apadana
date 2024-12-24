@@ -33,25 +33,25 @@ const UserButton = ({ user }: { user: ClientUser }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className='bg-background border-border w-56' align='end'>
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel className='text-foreground'>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem className='cursor-pointer' asChild>
+          <DropdownMenuItem className='text-foreground cursor-pointer' asChild>
             <a href='/user'>
-              <User className='mr-2 h-4 w-4' />
+              <User className='text-muted-foreground mr-2 h-4 w-4' />
               Profile
             </a>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild className='cursor-pointer'>
+          <DropdownMenuItem asChild className='text-foreground cursor-pointer'>
             <a href='/settings'>
-              <Settings className='mr-2 h-4 w-4' />
+              <Settings className='text-muted-foreground mr-2 h-4 w-4' />
               Settings
             </a>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={signOut} className='cursor-pointer'>
-          <LogOut className='mr-2 h-4 w-4' />
+        <DropdownMenuItem onSelect={signOut} className='text-foreground cursor-pointer'>
+          <LogOut className='text-muted-foreground mr-2 h-4 w-4' />
           Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>

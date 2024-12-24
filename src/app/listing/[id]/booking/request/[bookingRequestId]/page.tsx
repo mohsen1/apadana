@@ -28,33 +28,35 @@ export default async function BookingRequestPage(props: {
 }
 
 function BookingRequestSent({ bookingRequest }: { bookingRequest: FullBookingRequest }) {
+  const locale = getLocale();
+
   return (
     <main className='container mx-auto grid max-w-6xl flex-grow grid-cols-1 place-content-center gap-8 p-4 lg:grid-cols-2'>
       <div>
         <div className='mt-8 flex items-center'>
-          <CheckCircle2 className='h-20 w-20 text-green-500' strokeWidth={1.5} />
+          <CheckCircle2 className='text-primary h-20 w-20' strokeWidth={1.5} />
         </div>
-        <h1 className='mb-4 mt-8 flex items-center text-2xl font-bold'>
+        <h1 className='text-primary mb-4 mt-8 flex items-center text-2xl font-bold'>
           Your booking request has been sent
         </h1>
-        <p className='mb-4'>
+        <p className='text-muted-foreground mb-4'>
           Your booking request has been sent to {bookingRequest.listing.owner.firstName}. Your host
           will review your request and get back to you soon.
         </p>
-        <p>
+        <p className='text-muted-foreground'>
           Check-in date:{' '}
-          <span className='font-bold'>
+          <span className='text-primary font-bold'>
             {bookingRequest.checkIn.toLocaleDateString(getLocale(), {
               month: 'long',
               day: 'numeric',
               year: 'numeric',
             })}{' '}
-            {formatHHMMDate(bookingRequest.listing.checkInTime)}
+            {formatHHMMDate(bookingRequest.checkIn.toLocaleTimeString(locale))}
           </span>
         </p>
-        <p>
+        <p className='text-muted-foreground'>
           Check-out date:{' '}
-          <span className='font-bold'>
+          <span className='text-primary font-bold'>
             {bookingRequest.checkOut.toLocaleDateString(getLocale(), {
               month: 'long',
               day: 'numeric',
@@ -63,14 +65,16 @@ function BookingRequestSent({ bookingRequest }: { bookingRequest: FullBookingReq
             {formatHHMMDate(bookingRequest.listing.checkOutTime)}
           </span>
         </p>
-        <p>
+        <p className='text-muted-foreground'>
           Total price:{' '}
-          <span className='font-bold'>
+          <span className='text-primary font-bold'>
             {formatCurrency(bookingRequest.totalPrice, bookingRequest.listing.currency)}
           </span>
         </p>
-        <p className='my-4'>A confirmation email will be sent to you and your host.</p>
-        <h2 className='my-2 text-lg font-bold'>What happens next?</h2>
+        <p className='text-muted-foreground my-4'>
+          A confirmation email will be sent to you and your host.
+        </p>
+        <h2 className='text-primary my-2 text-lg font-bold'>What happens next?</h2>
         <p>
           You will be notified when the host has accepted or rejected your request. We will send you
           an email to{' '}
@@ -84,7 +88,7 @@ function BookingRequestSent({ bookingRequest }: { bookingRequest: FullBookingReq
         <div>
           <div>
             <Link href={`/listing/${bookingRequest.listing.id}`}>
-              <h3 className='text-md font-heading mb-2 font-bold'>
+              <h3 className='text-md font-heading text-primary mb-2 font-bold'>
                 {bookingRequest.listing.title}
               </h3>
             </Link>

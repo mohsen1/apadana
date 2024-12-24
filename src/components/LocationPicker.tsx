@@ -283,7 +283,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                 <Tooltip>
                   <TooltipTrigger className='absolute right-2 top-1/2 -translate-y-1/2 transform'>
                     <LocateFixed
-                      className='text-muted-foreground hover: cursor-pointer'
+                      className='text-muted-foreground hover:text-primary cursor-pointer'
                       onClick={handleFetchCurrentLocation}
                     />
                   </TooltipTrigger>

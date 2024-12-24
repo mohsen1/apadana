@@ -72,7 +72,9 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
         <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
           {/* Listing Details */}
           <div className='md:col-span-2'>
-            <h1 className='font-heading mb-2 text-4xl  font-bold'>{listingData.title}</h1>
+            <h1 className='font-heading text-foreground mb-2 text-4xl font-bold'>
+              {listingData.title}
+            </h1>
             <p className='text-muted-foreground mb-4'>{listingData.address}</p>
             <h2 className='font-subheading text-foreground mb-4 text-2xl font-semibold'>
               About this place
@@ -194,7 +196,7 @@ export function ListingPage({ listingData }: { listingData: FullListing }) {
 
                 <Button
                   type='submit'
-                  className='mt-4 w-full'
+                  className='bg-primary text-primary-foreground hover:bg-primary/90 mt-4 w-full'
                   disabled={!checkIn || !checkOut || !isRangeAvailable}
                 >
                   {isRangeAvailable ? 'Reserve' : 'Unavailable'}

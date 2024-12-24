@@ -54,7 +54,7 @@ function ForgotPasswordForm() {
       <Card className='w-full max-w-md shadow-lg'>
         <CardHeader>
           <div className='mb-4 flex justify-center'>
-            <CheckCircle2 className='h-12 w-12 text-green-500' />
+            <CheckCircle2 className='text-success h-12 w-12' />
           </div>
           <CardTitle className='text-center text-2xl font-bold'>Check your email</CardTitle>
         </CardHeader>
@@ -64,7 +64,7 @@ function ForgotPasswordForm() {
           </p>
         </CardContent>
         <CardFooter className='justify-center'>
-          <Link href='/sign-in' className='text-primary hover:underline'>
+          <Link href='/sign-in' className='text-primary hover:text-primary/90 hover:underline'>
             Return to sign in
           </Link>
         </CardFooter>

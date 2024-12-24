@@ -9,7 +9,7 @@ interface EarlyAccessEmailProps {
 export const EarlyAccessEmail: React.FC<Readonly<EarlyAccessEmailProps>> = ({ email }) => (
   <Html>
     <Preview>Welcome to Apadana Early Access</Preview>
-    <Body className='bg-white font-sans'>
+    <Body className='bg-background font-sans'>
       <Container className='mx-auto max-w-lg py-5 pb-12'>
         <Heading className='text-foreground text-2xl font-semibold tracking-tight'>
           Welcome to Apadana!
@@ -25,10 +25,10 @@ export const EarlyAccessEmail: React.FC<Readonly<EarlyAccessEmailProps>> = ({ em
           href='https://twitter.com/apadana_app'
           className={clsx(
             'block w-full',
-            'bg-black text-white',
+            'bg-primary text-primary-foreground',
             'text-center text-base',
             'rounded px-4 py-3',
-            'no-underline',
+            'hover:bg-primary/90 no-underline',
           )}
         >
           Follow us on Twitter

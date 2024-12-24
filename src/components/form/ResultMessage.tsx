@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+
 type ErrorMessageProps = {
   title: string;
   content: string | object;
@@ -18,12 +20,14 @@ type ResultMessageProps = {
 };
 
 const ErrorMessage: React.FC<ErrorMessageProps> = ({ title, content }) => (
-  <div className='mt-4 text-sm text-gray-600'>
-    <strong>{title}:</strong>{' '}
+  <div className='text-muted-foreground mt-4 text-sm'>
+    <strong className='text-foreground'>{title}:</strong>{' '}
     {typeof content === 'string' ? (
-      <pre className='overflow-auto whitespace-normal text-left font-mono'>{content}</pre>
+      <pre className='text-foreground overflow-auto whitespace-normal text-left font-mono'>
+        {content}
+      </pre>
     ) : (
-      <pre className='whitespace-normal text-left font-mono'>
+      <pre className='text-foreground whitespace-normal text-left font-mono'>
         {JSON.stringify(content, null, 2)}
       </pre>
     )}
@@ -44,11 +48,12 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ result }) => {
     return (
       <div className='bg-background mx-auto mt-8 max-w-md rounded-lg p-6 shadow-md'>
         <div
-          className={`text-center text-lg font-semibold ${
-            result.data ? 'text-green-600' : 'text-destructive'
-          }`}
+          className={cn('text-center text-lg font-semibold', {
+            'text-success': result.data,
+            'text-destructive': !result.data,
+          })}
         >
-          {result.data ? 'Success!' : <pre className='text-left'>{result.data} </pre>}
+          {result.data ? 'Success!' : <pre className='text-left'>{result.data}</pre>}
         </div>
         {result.fetchError && <ErrorMessage title='Fetch Error' content={result.fetchError} />}
         {result.bindArgsValidationErrors && (

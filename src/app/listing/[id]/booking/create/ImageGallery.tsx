@@ -27,8 +27,10 @@ export function ImageGallery({ listing }: { listing: PublicListing }) {
           </button>
         ))}
       </div>
-      <h2 className='font-heading mb-2 pb-2  pt-6 text-2xl font-bold'>{listing.title}</h2>
-      <div className='mt-4'>{listing.description}</div>
+      <h2 className='font-heading text-foreground mb-2 pb-2 pt-6 text-2xl font-bold'>
+        {listing.title}
+      </h2>
+      <div className='text-muted-foreground mt-4'>{listing.description}</div>
     </div>
   );
 }

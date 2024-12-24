@@ -86,13 +86,13 @@ export default async function CreateBookingPage(props: {
   }
 
   return (
-    <div className='bg-background min-h-screen'>
+    <div className='bg-background text-foreground min-h-screen'>
       <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
           <div className='md:col-span-2'>
             <Card>
               <CardHeader>
-                <CardTitle>Booking Request</CardTitle>
+                <CardTitle className='text-foreground'>Booking Request</CardTitle>
                 <CardDescription>
                   <p className='text-muted-foreground'>
                     Fill out the form below to request a booking

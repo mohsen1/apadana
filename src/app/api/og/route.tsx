@@ -11,7 +11,7 @@ export async function GET() {
           alignItems: 'center',
           justifyContent: 'center',
           flexDirection: 'column',
-          backgroundImage: 'linear-gradient(to bottom, #075568, #2b9389)',
+          backgroundImage: 'linear-gradient(to bottom, var(--primary), var(--primary-foreground))',
           letterSpacing: -2,
           fontWeight: 700,
           textAlign: 'center',
@@ -21,7 +21,7 @@ export async function GET() {
           style={{
             fontSize: 80,
             backgroundImage:
-              'linear-gradient(90deg, rgb(0, 223, 216), rgb(200, 124, 240), rgb(0, 223, 216))',
+              'linear-gradient(90deg, var(--primary), var(--secondary), var(--primary))',
             backgroundClip: 'text',
             ['-webkit-background-clip' as PropertyKey]: 'text',
             color: 'transparent',
@@ -34,14 +34,14 @@ export async function GET() {
             fontSize: 36,
             fontWeight: 100,
             padding: 20,
-            color: 'white',
+            color: 'var(--background)',
           }}
         >
           Create your own website for your short-term rental in minutes
         </div>
         <div
           style={{
-            color: 'rgb(255,255,255)',
+            color: 'var(--background)',
             fontWeight: 100,
             fontSize: 24,
             paddingLeft: 30,

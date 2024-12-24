@@ -16,7 +16,9 @@ export default async function BookingPage(props: { params: Promise<{ id: string 
   }
   return (
     <div>
-      <pre>{JSON.stringify(listing, null, 2)}</pre>
+      <div className='text-foreground'>
+        <pre className='text-muted-foreground'>{JSON.stringify(listing, null, 2)}</pre>
+      </div>
     </div>
   );
 }

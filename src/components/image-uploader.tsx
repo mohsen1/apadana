@@ -89,7 +89,7 @@ const SortableImage = ({
           )}
           {fileState.status === 'uploading' && (
             <Progress
-              className='absolute left-0 right-0 top-0 rounded-t-lg'
+              className='bg-primary/20 absolute left-0 right-0 top-0 rounded-t-lg'
               value={fileState.progress}
               max={100}
             />

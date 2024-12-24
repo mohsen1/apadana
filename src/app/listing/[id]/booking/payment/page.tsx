@@ -12,8 +12,8 @@ export default async function PaymentPage(props: {
   const params = await props.params;
   return (
     <div className='container mx-auto max-w-6xl flex-grow'>
-      <pre>{JSON.stringify(searchParams, null, 2)}</pre>
-      <pre>{JSON.stringify(params, null, 2)}</pre>
+      <pre className='text-muted-foreground'>{JSON.stringify(searchParams, null, 2)}</pre>
+      <pre className='text-muted-foreground'>{JSON.stringify(params, null, 2)}</pre>
     </div>
   );
 }

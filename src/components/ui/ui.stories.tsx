@@ -161,12 +161,12 @@ export const Sheets: Story = {
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Sheet Title</SheetTitle>
-          <SheetDescription>
+          <SheetDescription className='text-muted-foreground'>
             This is a sheet component that slides in from the side.
           </SheetDescription>
         </SheetHeader>
         <div className='py-4'>
-          <p>Sheet content goes here.</p>
+          <p className='text-foreground'>Sheet content goes here.</p>
         </div>
       </SheetContent>
     </Sheet>
@@ -183,7 +183,7 @@ export const ComplexDropdownMenu: Story = {
         <DropdownMenuItem>Profile Settings</DropdownMenuItem>
         <DropdownMenuItem>Billing</DropdownMenuItem>
         <DropdownMenuItem>Team</DropdownMenuItem>
-        <DropdownMenuItem className='text-red-500'>Logout</DropdownMenuItem>
+        <DropdownMenuItem className='text-destructive'>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   ),
@@ -195,7 +195,7 @@ export const ToastNotifications: Story = {
     (Story) => (
       <ToastProvider>
         <Story />
-        <ToastViewport />
+        <ToastViewport className='bg-background' />
       </ToastProvider>
     ),
   ],
@@ -204,8 +204,9 @@ export const ToastNotifications: Story = {
       <Button
         onClick={() => {
           toast({
-            title: 'Scheduled: Catch up',
-            description: 'Friday, February 10, 2024 at 5:57 PM',
+            title: 'Success',
+            description: 'Your action was completed successfully.',
+            variant: 'default',
           });
         }}
       >
@@ -223,12 +224,16 @@ export const InteractiveSheet: Story = {
     return (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
-          <Button variant='outline'>Open Interactive Sheet</Button>
+          <Button variant='outline' className='hover:bg-accent'>
+            Open Interactive Sheet
+          </Button>
         </SheetTrigger>
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Interactive Sheet</SheetTitle>
-            <SheetDescription>This sheet demonstrates state management.</SheetDescription>
+            <SheetDescription className='text-muted-foreground'>
+              This sheet demonstrates state management.
+            </SheetDescription>
           </SheetHeader>
           <div className='py-4'>
             <Button onClick={() => setIsOpen(false)} className='mt-4'>
@@ -266,18 +271,31 @@ export const Badges: Story = {
   ),
 };
 
+export const Buttons: Story = {
+  render: () => (
+    <div className='flex gap-2'>
+      <Button>Primary</Button>
+      <Button variant='secondary'>Secondary</Button>
+      <Button variant='destructive'>Destructive</Button>
+      <Button variant='outline'>Outline</Button>
+      <Button variant='ghost'>Ghost</Button>
+      <Button variant='link'>Link</Button>
+    </div>
+  ),
+};
+
 export const Cards: Story = {
   render: () => (
     <Card className='w-[350px]'>
       <CardHeader>
         <CardTitle>Card Title</CardTitle>
-        <CardDescription>Card Description</CardDescription>
+        <CardDescription className='text-muted-foreground'>Card Description</CardDescription>
       </CardHeader>
       <CardContent>
         <p>Card Content</p>
       </CardContent>
       <CardFooter>
-        <Button>Action</Button>
+        <p>Card Footer</p>
       </CardFooter>
     </Card>
   ),
@@ -383,21 +401,21 @@ export const Tables: Story = {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Role</TableHead>
+          <TableHead className='text-muted-foreground'>Name</TableHead>
+          <TableHead className='text-muted-foreground'>Status</TableHead>
+          <TableHead className='text-muted-foreground'>Role</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         <TableRow>
           <TableCell>John Doe</TableCell>
-          <TableCell>Active</TableCell>
-          <TableCell>Developer</TableCell>
+          <TableCell className='text-success'>Active</TableCell>
+          <TableCell className='text-muted-foreground'>Developer</TableCell>
         </TableRow>
         <TableRow>
           <TableCell>Jane Smith</TableCell>
-          <TableCell>Inactive</TableCell>
-          <TableCell>Designer</TableCell>
+          <TableCell className='text-destructive'>Inactive</TableCell>
+          <TableCell className='text-muted-foreground'>Designer</TableCell>
         </TableRow>
       </TableBody>
     </Table>
@@ -408,10 +426,10 @@ export const TabsExample: Story = {
   render: () => (
     <Tabs defaultValue='account' className='w-[400px]'>
       <TabsList>
-        <TabsTrigger className='data-[state=active]:font-bold' value='account'>
+        <TabsTrigger value='account' className='data-[state=active]:text-primary'>
           Account
         </TabsTrigger>
-        <TabsTrigger className='data-[state=active]:font-bold' value='password'>
+        <TabsTrigger value='password' className='data-[state=active]:text-primary'>
           Password
         </TabsTrigger>
       </TabsList>
@@ -439,7 +457,7 @@ export const TooltipExample: Story = {
         <TooltipTrigger asChild>
           <Button variant='outline'>Hover me</Button>
         </TooltipTrigger>
-        <TooltipContent sideOffset={5}>
+        <TooltipContent sideOffset={5} className='bg-popover text-popover-foreground'>
           <p>Add to library</p>
         </TooltipContent>
       </Tooltip>

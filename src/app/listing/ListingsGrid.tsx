@@ -16,7 +16,7 @@ const ListingsGrid = ({ listings }: ListingsGridProps) => {
       {listings.map((listing) => (
         <div
           key={listing.id}
-          className='bg-card grid grid-rows-[1fr_auto_auto] overflow-hidden rounded-lg shadow-lg transition-transform duration-300'
+          className='bg-card text-card-foreground grid grid-rows-[1fr_auto_auto] overflow-hidden rounded-lg shadow-lg transition-transform duration-300'
         >
           <div className='relative h-48'>
             {listing.images && listing.images[0] && (

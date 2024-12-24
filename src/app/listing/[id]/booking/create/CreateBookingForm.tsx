@@ -114,23 +114,29 @@ export default function BookingPage({
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6 lg:w-1/2'>
           <Card className=''>
             <CardHeader>
-              <CardTitle>Book your stay</CardTitle>
-              <CardDescription>
+              <CardTitle className='text-foreground'>Book your stay</CardTitle>
+              <CardDescription className='text-muted-foreground'>
                 Select your dates and enter your details to book this listing.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className='space-y-2'>
-                <label className='text-sm font-medium'>Selected dates</label>
-                <div>
-                  From <span className='font-semibold'>{format(checkin, 'MMM d, yyyy')}</span> to{' '}
-                  <span className='font-semibold'>{format(checkout, 'MMM d, yyyy')}</span>
+                <label className='text-foreground text-sm font-medium'>Selected dates</label>
+                <div className='text-muted-foreground'>
+                  From{' '}
+                  <span className='text-foreground font-semibold'>
+                    {format(checkin, 'MMM d, yyyy')}
+                  </span>{' '}
+                  to{' '}
+                  <span className='text-foreground font-semibold'>
+                    {format(checkout, 'MMM d, yyyy')}
+                  </span>
                 </div>
               </div>
 
               <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                 <div className='space-y-2 pt-4'>
-                  <label htmlFor='guests' className='text-sm font-medium'>
+                  <label htmlFor='guests' className='text-foreground text-sm font-medium'>
                     Number of guests
                   </label>
                   <Select
@@ -160,9 +166,9 @@ export default function BookingPage({
                     height={32}
                     className='mr-4 rounded-full'
                   />
-                  <div>Hosted by {listing.owner.firstName}</div>
+                  <div className='text-muted-foreground'>Hosted by {listing.owner.firstName}</div>
                 </div>
-                <label htmlFor='message' className='text-sm font-medium'>
+                <label htmlFor='message' className='text-foreground text-sm font-medium'>
                   Message to host
                 </label>
                 <Textarea
@@ -173,19 +179,19 @@ export default function BookingPage({
               </div>
 
               <div className='space-y-2'>
-                <h3 className='text-lg font-semibold'>Price breakdown</h3>
-                <div className='space-y-1'>
+                <h3 className='text-foreground text-lg font-semibold'>Price breakdown</h3>
+                <div className='text-muted-foreground space-y-1'>
                   <div className='flex justify-between'>
                     <span>
                       {formatCurrency(basePrice, listing.currency)} x {nights} nights
                     </span>
-                    <span>${subtotal}</span>
+                    <span className='text-foreground'>${subtotal}</span>
                   </div>
                   <div className='flex justify-between'>
                     <span>Service fee</span>
-                    <span>${serviceFee.toFixed(2)}</span>
+                    <span className='text-foreground'>${serviceFee.toFixed(2)}</span>
                   </div>
-                  <div className='flex justify-between font-semibold'>
+                  <div className='text-foreground flex justify-between font-semibold'>
                     <span>Total</span>
                     <span>${total.toFixed(2)}</span>
                   </div>
@@ -197,7 +203,7 @@ export default function BookingPage({
                 {status === 'executing' ? 'Sending...' : 'Send your booking request'}
               </Button>
               {result.serverError ? (
-                <div className='w-full text-red-500'>{result.serverError.error}</div>
+                <div className='text-destructive w-full'>{result.serverError.error}</div>
               ) : null}
             </CardFooter>
           </Card>
