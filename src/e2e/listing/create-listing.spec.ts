@@ -10,7 +10,7 @@ test.describe.serial('Create and delete a Listing', () => {
   test('create listing ', async ({ page }) => {
     await test.step('Navigate to the create listing page', async () => {
       await page.goto('/listing/create');
-      await expect(page.getByText('Location Details')).toBeVisible();
+      await expect(page.getByText('Where is your property?')).toBeVisible();
     });
 
     await test.step('Enter the address and verify suggestion', async () => {
@@ -26,7 +26,9 @@ test.describe.serial('Create and delete a Listing', () => {
 
     await test.step('Navigate to the next step', async () => {
       await page.getByRole('button', { name: 'Next' }).click();
-      await expect(page.getByRole('heading', { name: 'Basic Information' })).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: 'What kind of property is it?' }),
+      ).toBeVisible();
     });
 
     await test.step('Fill in listing title and description', async () => {
@@ -46,7 +48,9 @@ test.describe.serial('Create and delete a Listing', () => {
     });
 
     await test.step('Navigate to amenities step', async () => {
-      await expect(page.getByRole('heading', { name: 'Amenities' })).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: 'What amenities does it have?' }),
+      ).toBeVisible();
     });
 
     await test.step('Select amenities and verify selection', async () => {
