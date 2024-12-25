@@ -122,8 +122,8 @@ export default function CreateListingForm() {
     },
     onSuccess: (result) => {
       logger.info('create listing success', result);
-      if (result?.data?.listing) {
-        window.location.href = `/listing/${result.data.listing.id}/manage/calendar?newListing=true`;
+      if (result.data) {
+        window.location.href = `/listing/${result.data.id}/manage/calendar?newListing=true`;
       } else {
         logger.error('no listing returned from create listing', result);
         router.replace(`/listings`);
