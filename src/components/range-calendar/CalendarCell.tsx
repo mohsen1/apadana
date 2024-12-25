@@ -5,15 +5,32 @@ import { RangeCalendarState } from 'react-stately';
 
 import { cn } from '@/lib/utils';
 
+/**
+ * CalendarCellProps:
+ * - Extends React Aria's AriaCalendarCellProps
+ * - Accepts a RangeCalendarState object for date and range management
+ * - Allows a function getCellContent() to inject additional content inside each cell
+ * - border?: toggles whether the cell has a border
+ */
 interface CalendarCellProps extends AriaCalendarCellProps {
-  state: RangeCalendarState;
-  date: CalendarDate;
-  getCellContent?: (date: CalendarDate) => React.ReactNode;
-  border?: boolean;
+  state: RangeCalendarState; // State of the RangeCalendar (date selection, range, etc.)
+  date: CalendarDate; // The date to be rendered in the cell
+  getCellContent?: (date: CalendarDate) => React.ReactNode; // Optional custom content function
+  border?: boolean; // Optional toggle for cell border
 }
 
+/**
+ * CalendarCell component:
+ * Renders a single cell in the calendar grid. Handles selection, focus, and styling.
+ * Adds special rounded corners if it's the last day of the selection OR the last day of the month.
+ */
 export function CalendarCell({ state, date, getCellContent, border = true }: CalendarCellProps) {
   const ref = useRef<HTMLDivElement>(null);
+
+  // Visual focus
+  const { focusProps, isFocusVisible } = useFocusRing();
+
+  // Calendar cell logic
   const {
     cellProps,
     buttonProps,
@@ -24,55 +41,63 @@ export function CalendarCell({ state, date, getCellContent, border = true }: Cal
     isUnavailable,
   } = useCalendarCell({ date }, state, ref);
 
-  const isLastDayOfWeek = date.day === date.calendar.getDaysInMonth(date);
-  const isFirstDayOfWeek = date.day === 1;
-  const isSelectionStart = state.highlightedRange
+  // Identify if it's today
+  const isToday = date.compare(today(getLocalTimeZone())) === 0;
+  // Determine the total days in the month
+  const daysInMonth = date.calendar.getDaysInMonth(date);
+  // Flag for first/last day of the month
+  const isFirstDayOfMonth = date.day === 1;
+  const isLastDayOfMonth = date.day === daysInMonth;
+
+  // Check if this date is the start or end of the highlighted selection
+  const startOfSelection = state.highlightedRange
     ? isSameDay(date, state.highlightedRange.start)
     : isSelected;
-  const isSelectionEnd = state.highlightedRange
+  const endOfSelection = state.highlightedRange
     ? isSameDay(date, state.highlightedRange.end)
     : isSelected;
-  const isOnlyOneDaySelected = isSelectionStart && isSelectionEnd;
-  const isRoundedLeft =
-    isSelected && isSelectionStart && !isOnlyOneDaySelected && !isFirstDayOfWeek;
-  const isRoundedRight = isSelected && isSelectionEnd && !isOnlyOneDaySelected && !isLastDayOfWeek;
-  const isToday = date.compare(today(getLocalTimeZone())) === 0;
 
-  const { focusProps, isFocusVisible } = useFocusRing();
+  // One-day selection
+  const oneDayOnly = startOfSelection && endOfSelection;
+
+  // Build classes for the container
+  // If it's the last day of the selection or the last day of the month, we give it some extra rounding.
+  const classes = cn('group grid h-full w-full place-items-center outline-none py-[0.75rem]', {
+    'hover:bg-accent': !isUnavailable,
+    'border-primary-600 border': border,
+    'bg-accent/70': isSelected,
+    'rounded-xlg': oneDayOnly,
+    // Round corners when it's the start or end of the selection, or if it's physically the last day of the month.
+    'rounded-l-xlg':
+      (startOfSelection && !oneDayOnly && !isFirstDayOfMonth) || (isSelected && isFirstDayOfMonth),
+    'rounded-r-xlg':
+      (endOfSelection && !oneDayOnly && !isLastDayOfMonth) || (isSelected && isLastDayOfMonth),
+    'hover:rounded-xlg': !state.focusedDate || !isSelected,
+    'outline-accent outline outline-2 outline-offset-2': isFocusVisible,
+    'cursor-not-allowed opacity-50': isDisabled && !isSelected,
+    'after:content-[""]': isUnavailable,
+  });
+
+  // Classes for the date number
+  const dateNumberClasses = cn(
+    'text-[1rem]/80 flex h-[2rem] w-[2rem] items-center justify-center p-2 text-center',
+    {
+      'bg-border/90 text-foreground rounded-xlg': isToday,
+      'after:absolute after:inset-0 after:scale-[0.4] after:bg-[linear-gradient(to_top_left,transparent_calc(50%-2px),gray_calc(50%-2px),gray_calc(50%+2px),transparent_calc(50%+2px))] after:bg-no-repeat':
+        isUnavailable,
+    },
+  );
 
   return (
-    <td {...cellProps} className={`relative ${isFocusVisible ? 'z-10' : 'z-0'}`}>
+    <td {...cellProps} className={cn('relative', isFocusVisible ? 'z-10' : 'z-0')}>
       <div
         {...mergeProps(buttonProps, focusProps)}
         ref={ref}
         hidden={isOutsideVisibleRange}
-        className={cn('group grid h-full w-full place-items-center outline-none', 'py-[0.75rem]', {
-          'hover:bg-accent/20': !isUnavailable,
-          'border-primary-600 border': border,
-          'rounded-l-xlg': isRoundedLeft,
-          'rounded-r-xlg': isRoundedRight,
-          'rounded-xlg': isOnlyOneDaySelected,
-          'bg-accent': isSelected,
-          'hover:rounded-xlg': !state.focusedDate,
-          'outline-accent outline outline-2 outline-offset-2': isFocusVisible,
-          'cursor-not-allowed opacity-50': isDisabled && !isSelected,
-          'after: after:content-[""]': isUnavailable,
-        })}
+        className={classes}
       >
-        <div className={cn('flex flex-col items-center justify-center', {})}>
-          <div
-            className={cn(
-              'text[1rem] /80 flex h-[2rem] w-[2rem] items-center justify-center p-2 text-center',
-              {
-                'bg-border/90 text-foreground rounded-xlg': isToday,
-                // Some crazy CSS magic to have a cross line over the cell date
-                [`after:absolute after:inset-0 after:scale-[0.4] after:bg-[linear-gradient(to_top_left,transparent_calc(50%-2px),gray_calc(50%-2px),gray_calc(50%+2px),transparent_calc(50%+2px))] after:from-transparent after:to-transparent after:bg-[length:100%_100%] after:bg-no-repeat`]:
-                  isUnavailable,
-              },
-            )}
-          >
-            {formattedDate}
-          </div>
+        <div className='flex flex-col items-center justify-center'>
+          <div className={dateNumberClasses}>{formattedDate}</div>
           {getCellContent?.(date)}
         </div>
       </div>
