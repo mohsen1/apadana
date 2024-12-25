@@ -41,8 +41,8 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
   const [rangeAvailable, setRangeAvailable] = useState<boolean>(isRangeAvailable(range));
   const { execute: executeEditInventory, status: editInventoryStatus } = useAction(editInventory, {
     onSuccess: (result) => {
-      if (result.data) {
-        return refreshInventory();
+      if (result.data?.listing) {
+        setListingInventory(result.data.listing.inventory);
       }
     },
     onError: (error) => {
