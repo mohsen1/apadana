@@ -109,12 +109,13 @@ export const CreateListingSchemaWithCoercion = CreateListingSchema.extend({
   allowPets: z.coerce.boolean(),
   published: z.coerce.boolean(),
   showExactLocation: z.coerce.boolean(),
-  pricePerNight: z.coerce.number(),
-  minimumStay: z.coerce.number().int(),
-  maximumGuests: z.coerce.number().int(),
-  locationRadius: z.coerce.number(),
-  latitude: z.coerce.number(),
-  longitude: z.coerce.number(),
+  pricePerNight: z.coerce.number().or(z.number().nullish()),
+  minimumStay: z.coerce.number().int().or(z.number().nullish()),
+  maximumGuests: z.coerce.number().int().or(z.number().nullish()),
+  locationRadius: z.coerce.number().or(z.number().nullish()),
+  latitude: z.coerce.number().or(z.number().nullish()),
+  longitude: z.coerce.number().or(z.number().nullish()),
+  amenities: z.array(z.string()).optional(),
   images: z
     .array(
       z.object({

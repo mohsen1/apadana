@@ -5,7 +5,7 @@
 @layer base {
   :root {
     /* UI Colors */
-    --primary: #0284c7;
+    --primary: #221d91;
     --primary-foreground: #ffffff;
 
     --secondary: #f1f5f9;
@@ -33,7 +33,7 @@
     /* Border Colors */
     --border: #e2e8f0;
     --input: #e2e8f0;
-    --ring: #0284c7;
+    --ring: #163e53;
 
     /* Additional Status Colors */
     --success: #16a34a;

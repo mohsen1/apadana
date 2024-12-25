@@ -12,6 +12,7 @@ export function PhotosStep() {
     setError,
     clearErrors,
     watch,
+    trigger,
   } = useFormContext<CreateListingWithCoercion>();
 
   const currentImages = watch('images') || [];
@@ -27,6 +28,7 @@ export function PhotosStep() {
             onChange={(images) => {
               clearErrors('images');
               field.onChange(images);
+              void trigger('images');
             }}
             onError={(error) => {
               if (!error) {
@@ -41,7 +43,7 @@ export function PhotosStep() {
           />
         )}
       />
-      {errors.images && <span className='text-red-500'>{errors.images.message}</span>}
+      {errors.images && <span className='text-destructive'>{errors.images.message}</span>}
     </div>
   );
 }

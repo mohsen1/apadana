@@ -7,12 +7,14 @@ import { useAction } from 'next-safe-action/hooks';
 import qs from 'qs';
 import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import {
   CreateListingSchema,
   CreateListingSchemaWithCoercion,
   CreateListingWithCoercion,
 } from '@/lib/schema';
+import { StepConfig, useFormStepper } from '@/hooks/useFormStepper';
 
 import { ResultMessage } from '@/components/form/ResultMessage';
 import { Button } from '@/components/ui/button';
@@ -62,66 +64,66 @@ const defaultValues: Omit<CreateListingWithCoercion, 'latitude' | 'longitude' | 
   petPolicy: '',
   published: false,
   showExactLocation: true,
-  locationRadius: 10,
+  locationRadius: 0,
   images: [],
 };
 
-const stepSchema = {
-  [FormStep.LocationDetails]: CreateListingSchema.pick({
-    address: true,
-    latitude: true,
-    longitude: true,
-  }),
-  [FormStep.BasicInfo]: CreateListingSchema.pick({
-    title: true,
-    description: true,
-    propertyType: true,
-  }),
-  [FormStep.Amenities]: CreateListingSchema.pick({
-    amenities: true,
-  }),
-  [FormStep.Photos]: CreateListingSchema.pick({
-    images: true,
-  }),
-  [FormStep.Pricing]: CreateListingSchema.pick({
-    pricePerNight: true,
-    minimumStay: true,
-    maximumGuests: true,
-  }),
-  [FormStep.HouseRules]: CreateListingSchema.pick({
-    houseRules: true,
-  }),
-};
-
-const steps = [
+const steps: StepConfig<CreateListingWithCoercion>[] = [
   {
     title: 'Where is your property?',
     description:
-      'Enter the address and location information. You can choose to hide the exact location of your property on your website and show an estmiate location',
+      'Enter the address and location information. ' +
+      'You can choose to hide the exact location of your property on your website and show an estimate location',
+    validation: CreateListingSchemaWithCoercion.pick({
+      address: true,
+      latitude: true,
+      longitude: true,
+      locationRadius: true,
+    }),
   },
   {
     title: 'What kind of property is it?',
     description: 'Provide general details about your listing',
+    validation: CreateListingSchemaWithCoercion.pick({
+      title: true,
+      description: true,
+      propertyType: true,
+    }),
   },
   {
     title: 'What amenities are available?',
     description: 'Select the amenities available at your property',
+    validation: CreateListingSchemaWithCoercion.extend({
+      amenities: z.array(z.string()).optional(),
+    }),
   },
-  { title: 'Photos', description: 'Upload photos of your property' },
+  {
+    title: 'Photos',
+    description: 'Upload photos of your property',
+    validation: CreateListingSchemaWithCoercion.pick({
+      images: true,
+    }),
+  },
   {
     title: 'Set your pricing',
     description: 'Set your pricing and availability rules',
+    validation: CreateListingSchemaWithCoercion.pick({
+      pricePerNight: true,
+      minimumStay: true,
+      maximumGuests: true,
+    }),
   },
   {
     title: 'Set your rules',
     description: 'Establish house rules for your guests',
+    validation: CreateListingSchemaWithCoercion.pick({
+      houseRules: true,
+    }),
   },
 ];
 
 export default function CreateListingForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [currentStep, setCurrentStep] = useState<FormStep>(FormStep.LocationDetails);
   const [showLoading, setShowLoading] = useState(false);
 
   const { execute, result } = useAction(createListing, {
@@ -139,161 +141,100 @@ export default function CreateListingForm() {
     },
   });
 
-  const methods = useForm<CreateListingWithCoercion>({
-    resolver: zodResolver(CreateListingSchemaWithCoercion, {
-      errorMap: (error, ctx) => {
-        logger.error(error, ctx);
-        return { message: ctx.defaultError ?? 'Unknown error' };
-      },
-    }),
+  const form = useForm<CreateListingWithCoercion>({
+    resolver: zodResolver(CreateListingSchemaWithCoercion),
     defaultValues,
   });
 
-  const { handleSubmit, formState, getValues, reset } = methods;
-  const { isSubmitting } = formState;
-
-  const updateUrlParams = useCallback(
-    ({ formData, step }: { formData: Partial<CreateListingWithCoercion>; step: number }) => {
-      const params = new URLSearchParams(searchParams);
-      const { images, ...restFormData } = formData;
-      const serialized = qs.stringify({
-        ...restFormData,
-        images: images ?? [],
-      });
-      params.set('form-data', serialized);
-      params.set('step', step.toString());
-      router.push(`?${params.toString()}`);
-    },
-    [searchParams, router],
-  );
-
-  useEffect(() => {
-    const step = searchParams.get('step') || '0';
-    if (step && Object.keys(FormStep).includes(step)) {
-      setCurrentStep(parseInt(step, 10) as FormStep);
-    } else {
-      updateUrlParams({
-        formData: defaultValues,
-        step: FormStep.LocationDetails,
-      });
-    }
-
-    const formData = qs.parse(
-      searchParams.get('form-data') || '{}',
-    ) as Partial<CreateListingWithCoercion>;
-    const parsedData = CreateListingSchemaWithCoercion.partial().safeParse(formData);
-    if (parsedData.success) {
-      reset(parsedData.data);
-    } else {
-      logger.error('invalid form data', { formData }, parsedData.error);
-      router.replace(`?step=${FormStep.LocationDetails}`);
-      reset(defaultValues);
-    }
-  }, [searchParams, router, reset, updateUrlParams]);
-
-  const nextStep = (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    const currentValues = getValues();
-    const nextStepValue = Math.min(currentStep + 1, Object.keys(FormStep).length);
-    updateUrlParams({
-      formData: currentValues,
-      step: nextStepValue,
-    });
-  };
-
-  const prevStep = () => {
-    const prevStepValue = Math.max(currentStep - 1, 0);
-    updateUrlParams({
-      formData: getValues(),
-      step: prevStepValue,
-    });
-  };
-
-  const canGoToNextStep = () => {
-    const schema = stepSchema[currentStep];
-    const values = getValues();
-    const parsed = schema.safeParse(values);
-    return parsed.success;
-  };
+  const {
+    currentStep,
+    currentStepConfig,
+    isFirstStep,
+    isLastStep,
+    canGoNext,
+    nextStep,
+    previousStep,
+  } = useFormStepper({
+    steps,
+    form,
+    defaultValues,
+    paramPrefix: 'listing-create',
+  });
 
   const handleFormSubmit = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (currentStep < steps.length - 1) {
+    async (data: CreateListingWithCoercion) => {
+      if (!isLastStep) {
+        nextStep();
         return;
       }
 
-      // Set up loading state with throttle
       const loadingTimeout = setTimeout(() => {
         setShowLoading(true);
       }, 500);
 
-      return handleSubmit(
-        (data) => {
-          updateUrlParams({
-            formData: data,
-            step: currentStep,
-          });
-          execute(data);
-          clearTimeout(loadingTimeout);
-          setShowLoading(false);
-        },
-        (errors) => {
-          logger.error('submit errors', errors);
-          clearTimeout(loadingTimeout);
-          setShowLoading(false);
-        },
-      )(e);
+      try {
+        const coerced = CreateListingSchemaWithCoercion.parse(data);
+        const parsed = CreateListingSchema.parse(coerced);
+        execute(parsed);
+      } finally {
+        clearTimeout(loadingTimeout);
+        setShowLoading(false);
+      }
     },
-    [currentStep, execute, handleSubmit, updateUrlParams],
+    [isLastStep, nextStep, execute],
   );
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleFormSubmit} className='mx-auto w-full max-w-4xl flex-grow space-y-8'>
+    <FormProvider {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className='mx-auto w-full max-w-4xl flex-grow space-y-8'
+      >
         <ResultMessage result={result} />
 
         <Card className='w-full border-none bg-transparent shadow-none'>
           <CardHeader>
-            <CardTitle>{steps[currentStep].title}</CardTitle>
-            <CardDescription>{steps[currentStep].description}</CardDescription>
+            <CardTitle>{currentStepConfig.title}</CardTitle>
+            <CardDescription>{currentStepConfig.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            {currentStep === FormStep.LocationDetails && <LocationDetailsStep />}
-            {currentStep === FormStep.BasicInfo && <BasicInfoStep />}
-            {currentStep === FormStep.Amenities && <AmenitiesStep />}
-            {currentStep === FormStep.Photos && <PhotosStep />}
-            {currentStep === FormStep.Pricing && <PricingStep />}
-            {currentStep === FormStep.HouseRules && <HouseRulesStep />}
+            {currentStep === 0 && <LocationDetailsStep />}
+            {currentStep === 1 && <BasicInfoStep />}
+            {currentStep === 2 && <AmenitiesStep />}
+            {currentStep === 3 && <PhotosStep />}
+            {currentStep === 4 && <PricingStep />}
+            {currentStep === 5 && <HouseRulesStep />}
           </CardContent>
           <CardFooter className='flex justify-between'>
-            {currentStep !== FormStep.LocationDetails ? (
-              <Button type='button' variant='outline' onClick={prevStep}>
+            {!isFirstStep ? (
+              <Button type='button' variant='outline' onClick={previousStep}>
                 Previous
               </Button>
             ) : (
               <div className='w-4 opacity-0' />
             )}
-            {currentStep < steps.length - 1 ? (
-              <Button type='button' onClick={nextStep} disabled={!canGoToNextStep()}>
-                Next
-              </Button>
-            ) : (
-              <Button
-                type='submit'
-                disabled={isSubmitting || showLoading}
-                className='min-w-[100px]'
-              >
-                {isSubmitting || showLoading ? (
-                  <>
-                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                    Submitting...
-                  </>
-                ) : (
-                  'Submit Listing'
-                )}
-              </Button>
-            )}
+            <Button
+              type='submit'
+              disabled={(!isLastStep && !canGoNext()) || showLoading}
+              onClick={(event) => {
+                if (!isLastStep) {
+                  event.preventDefault();
+                  nextStep();
+                }
+              }}
+              className='min-w-[100px]'
+            >
+              {showLoading ? (
+                <>
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  Submitting...
+                </>
+              ) : isLastStep ? (
+                'Submit Listing'
+              ) : (
+                'Next'
+              )}
+            </Button>
           </CardFooter>
         </Card>
       </form>

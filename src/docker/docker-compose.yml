@@ -78,11 +78,12 @@ services:
     networks:
       - apadana_network
     healthcheck:
-      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3000']
-      interval: 1s
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3000/api/health']
+      interval: 30s
       timeout: 1s
       retries: 500
-      start_period: 3s
+      start_period: 60s
+      start_interval: 1s
     deploy:
       resources:
         limits:
@@ -122,11 +123,12 @@ services:
       - apadana_network
 
     healthcheck:
-      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3030']
-      interval: 10s
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3030/api/health']
+      interval: 30s
       timeout: 5s
       retries: 100
-      start_period: 10s
+      start_period: 60s
+      start_interval: 1s
     deploy:
       resources:
         limits:

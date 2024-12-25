@@ -7,34 +7,6 @@ import logger from '@/utils/logger';
 
 export const runtime = 'nodejs';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
-) {
-  if (!shouldUseFakeUploads) {
-    return new NextResponse('Forbidden', { status: 403 });
-  }
-
-  const { path: pathParam } = await params;
-  const filePath = pathParam.join('/');
-  const fullPath = path.join(process.cwd(), 'e2e', 'uploads', filePath);
-
-  if (!fs.existsSync(fullPath)) {
-    const defaultImage = fs.readFileSync(path.join(process.cwd(), '../public/images/default.jpg'));
-    return new NextResponse(defaultImage, {
-      status: 200,
-    });
-  }
-
-  const fileContent = fs.readFileSync(fullPath);
-
-  const response = new NextResponse(fileContent, {
-    status: 200,
-  });
-
-  return response;
-}
-
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
@@ -46,7 +18,7 @@ export async function PUT(
   try {
     const { path: pathParam } = await params;
     const filePath = pathParam.join('/');
-    const uploadDir = path.join(process.cwd(), 'e2e', 'uploads');
+    const uploadDir = path.join(process.cwd(), 'public', 'images', 'e2e', 'uploads');
     const fullPath = path.join(uploadDir, filePath);
 
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });

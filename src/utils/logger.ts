@@ -8,7 +8,7 @@
 import chalk from 'chalk';
 import path from 'path';
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export class Logger {
   #levelsMap: Record<LogLevel, LogLevel[]> = {

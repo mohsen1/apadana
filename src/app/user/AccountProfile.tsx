@@ -8,9 +8,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { UpdateUser, UpdateUserSchema } from '@/lib/schema';
-import { useAuth } from '@/hooks/use-auth';
-import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { useFileUploader } from '@/hooks/useFileUploader';
+import { useToast } from '@/hooks/useToast';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,7 @@ import { Separator } from '@/components/ui/separator';
 import { updateUser } from './actions';
 
 export function AccountProfile() {
+  const { toast } = useToast();
   const { user, signOut, setUser } = useAuth();
   const form = useForm<UpdateUser>({
     resolver: zodResolver(UpdateUserSchema),

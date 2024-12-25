@@ -127,7 +127,7 @@ model UploadedPhoto {
   id String @id @default(cuid())
 
   // Photo Details
-  /// @zod.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" })
+  /// @zod.string({required_error: "URL is required" })
   url String
 
   /// Unique storage key for the photo

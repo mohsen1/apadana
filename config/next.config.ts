@@ -18,7 +18,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'apadana.app' },
-      { protocol: 'https', hostname: '**.apadana.local' },
+      { protocol: 'https', hostname: 'dev.apadana.local' },
+      { protocol: 'https', hostname: 'prod.apadana.local' },
       {
         protocol: 'https',
         hostname: '**.githubusercontent.com',

@@ -81,7 +81,7 @@ export function useFileUploader({
     const UPLOAD_REGION = process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
 
     if (shouldUseFakeUploads) {
-      return `${window.location.origin}/api/e2e/upload/${key}`;
+      return `/images/e2e/uploads/${key}`;
     }
 
     return `https://${UPLOAD_BUCKET}.s3.${UPLOAD_REGION}.amazonaws.com/${key}`;
