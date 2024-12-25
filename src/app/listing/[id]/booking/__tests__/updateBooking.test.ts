@@ -4,17 +4,14 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { sendBookingAlterationEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
-import { ClientVisibleError } from '@/lib/safe-action';
 
 import {
   createTestBooking,
   createTestBookingRequest,
   createTestListing,
-  createTestListingInventory,
   findOrCreateTestUser,
 } from '@/__tests__/setup/fixtures';
 import { clearDatabase } from '@/__tests__/setup/test-container';
-import { assertError } from '@/utils';
 
 import { updateBooking } from '../action';
 
