@@ -10,8 +10,8 @@ import { FullListing } from '@/lib/types';
 import { areAllDatesAvailable, formatCurrency, getLocale, isDateUnavailable } from '@/lib/utils';
 
 import { Amenity } from '@/components/Amenity';
-import { LightBox } from '@/components/LightBox';
-import { Calendar } from '@/components/range-calendar';
+import { Calendar } from '@/components/calendar/range-calendar';
+import { LightBox } from '@/components/common/LightBox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 

@@ -74,3 +74,8 @@ package-updates-summary.md
 
 # Serialized repo
 repo-serialized/
+
+# Temporary scripts
+*.fish
+*.sh
+*.bash

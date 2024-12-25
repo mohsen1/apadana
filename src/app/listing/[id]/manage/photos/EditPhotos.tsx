@@ -8,7 +8,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { EditListingImages, EditListingImagesSchema } from '@/lib/schema';
 
-import { DisappearingComponent } from '@/components/DisappearingComponent';
+import { DisappearingComponent } from '@/components/common/DisappearingComponent';
 import { ImageUploader } from '@/components/image-uploader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
