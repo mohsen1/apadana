@@ -9,16 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
-export default async function ManageListingPageLayout(props: {
+interface BookingManagementLayoutProps {
   children: React.ReactNode;
-  params: Promise<{ id: string; tab: string }>;
-}) {
-  const params = await props.params;
-
-  const { children } = props;
-
-  const { id, tab } = params;
-
+  id: string;
+  tab: 'calendar' | 'bookings' | 'details' | 'photos' | 'booking-requests';
+}
+// We can't use "layout.tsx" due to this stupid Next.js limitation
+// https://github.com/vercel/next.js/issues/43704
+export async function BookingManagementLayout({ children, id, tab }: BookingManagementLayoutProps) {
   const res = await getListing({ id });
   if (!res?.data?.listing) {
     throw new Error('Failed to get listing');

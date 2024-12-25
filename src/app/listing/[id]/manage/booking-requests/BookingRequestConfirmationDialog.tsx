@@ -18,8 +18,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
-import { BookingRequestActions } from '@/app/listing/[id]/manage/BookingRequestActions';
-import { BookingRequestStatusBadge } from '@/app/listing/[id]/manage/BookingRequestStatusBadge';
+import { BookingRequestActions } from '@/app/listing/[id]/manage/booking-requests/BookingRequestActions';
+import { BookingRequestStatusBadge } from '@/app/listing/[id]/manage/booking-requests/BookingRequestStatusBadge';
 
 export function BookingRequestConfirmationDialog({
   bookingRequest,

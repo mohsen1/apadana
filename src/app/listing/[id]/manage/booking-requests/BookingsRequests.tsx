@@ -16,8 +16,8 @@ import {
 } from '@/components/ui/table';
 
 import { getBookingRequests } from '@/app/listing/[id]/booking/action';
-import { BookingRequestConfirmationDialog } from '@/app/listing/[id]/manage/BookingRequestConfirmationDialog';
-import { BookingRequestStatusBadge } from '@/app/listing/[id]/manage/BookingRequestStatusBadge';
+import { BookingRequestConfirmationDialog } from '@/app/listing/[id]/manage/booking-requests/BookingRequestConfirmationDialog';
+import { BookingRequestStatusBadge } from '@/app/listing/[id]/manage/booking-requests/BookingRequestStatusBadge';
 import NotFound from '@/app/not-found';
 
 export async function BookingRequests({ listing }: { listing: FullListing }) {
