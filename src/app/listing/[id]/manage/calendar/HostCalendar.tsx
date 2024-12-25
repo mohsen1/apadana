@@ -25,7 +25,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 
 import { editInventory } from '@/app/listing/[id]/manage/action';
-import { getListing } from '@/app/listing/action';
 import { RangeValue } from '@/utils/types';
 
 export function HostCalendar({ listingData }: { listingData: FullListing }) {
@@ -49,17 +48,6 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
       throw error;
     },
   });
-
-  /**
-   * Refresh the inventory.
-   * We do this after updating the inventory to get the latest data.
-   */
-  async function refreshInventory() {
-    const res = await getListing({ id: listingData.id });
-    if (res?.data?.listing) {
-      setListingInventory(res.data.listing.inventory);
-    }
-  }
 
   /**
    * Check if the range is available. It checks the availability of all dates in the range.

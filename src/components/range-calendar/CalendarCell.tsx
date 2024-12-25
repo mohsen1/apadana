@@ -5,6 +5,8 @@ import { RangeCalendarState } from 'react-stately';
 
 import { cn } from '@/lib/utils';
 
+import { CircleAround } from '@/components/range-calendar/CircleAround';
+
 /**
  * CalendarCellProps:
  * - Extends React Aria's AriaCalendarCellProps
@@ -80,12 +82,20 @@ export function CalendarCell({ state, date, getCellContent, border = true }: Cal
 
   // Classes for the date number
   const dateNumberClasses = cn(
-    'text-[1rem]/80 flex h-[2rem] w-[2rem] items-center justify-center p-2 text-center',
+    'text-[1rem]/80 flex h-[2rem] w-[2rem] items-center justify-center text-center',
     {
-      'bg-border/90 text-foreground rounded-xlg': isToday,
+      // 'text-foreground rounded-full bg-transparent border border-2 border-border/90': isToday,
       'after:absolute after:inset-0 after:scale-[0.4] after:bg-[linear-gradient(to_top_left,transparent_calc(50%-2px),gray_calc(50%-2px),gray_calc(50%+2px),transparent_calc(50%+2px))] after:bg-no-repeat':
         isUnavailable,
     },
+  );
+
+  const dateNumber = isToday ? (
+    <CircleAround className='pointer-events-none' color='#e60000'>
+      <span className='text-foreground'>{formattedDate}</span>
+    </CircleAround>
+  ) : (
+    formattedDate
   );
 
   return (
@@ -97,7 +107,7 @@ export function CalendarCell({ state, date, getCellContent, border = true }: Cal
         className={classes}
       >
         <div className='flex flex-col items-center justify-center'>
-          <div className={dateNumberClasses}>{formattedDate}</div>
+          <div className={dateNumberClasses}>{dateNumber}</div>
           {getCellContent?.(date)}
         </div>
       </div>

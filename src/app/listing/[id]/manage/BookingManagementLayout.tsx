@@ -39,7 +39,7 @@ export async function BookingManagementLayout({ children, id, tab }: BookingMana
         <div className='relative h-full py-4'>
           <div className='flex flex-col items-start gap-2 px-4 py-2'>
             <OverBlurryImageTextWithTextShadow className='max-w-[calc(100%-2rem)]'>
-              <h1 className='text-foreground overflow-hidden truncate  text-2xl font-bold lg:text-3xl'>
+              <h1 className='text-foreground overflow-hidden truncate text-2xl font-bold lg:text-3xl'>
                 {listing.title}
               </h1>
             </OverBlurryImageTextWithTextShadow>
@@ -96,8 +96,8 @@ function OverBlurryImageTextWithTextShadow({
       style={{
         textShadow: `
           0 0 1px hsl(var(--background)),
-          0 0 5px hsl(var(--background) / 0.55),
-          0 0 5px hsl(var(--background) / 0.6)
+          0 0 2px hsl(var(--background) / 0.55),
+          0 0 3px hsl(var(--background) / 0.33)
         `,
       }}
     >
