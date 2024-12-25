@@ -103,6 +103,9 @@ model EmailAddress {
   // Relationships
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([emailAddress])
+  @@index([userId])
 }
 
 model ExternalAccount {
@@ -238,6 +241,7 @@ model Listing {
   // Indexes
   @@index([ownerId])
   @@index([pricePerNight])
+  @@index([published])
 }
 
 model ListingInventory {

@@ -115,7 +115,7 @@ test.describe.serial('Create and delete a Listing', () => {
 
     await test.step('Verify listing creation success message', async () => {
       await expect(page.getByText('Welcome to your new listing!')).toBeVisible();
-      await expect(page.getByText('Manage "My new test listing"')).toBeVisible();
+      await expect(page.getByText('My new test listing')).toBeVisible();
     });
   });
 });

@@ -21,14 +21,21 @@ export class TestData {
       throw new Error('TestData has been disposed');
     }
 
+    const startTime = performance.now();
     const secret = process.env.E2E_TESTING_SECRET;
-
     const response = await this.#context.post('/api/e2e', {
       headers: secret ? { 'x-e2e-testing-secret': secret } : {},
       data: { command, args: args ?? {} },
     });
     const json = (await response.json()) as CommandResponse<T>;
-
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+    if (duration > 250) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[Playwright TestData] Command "${command}" took ${duration.toFixed(2)}ms to complete`,
+      );
+    }
     if (response.status() !== 200) {
       const error = (json as { message: string }).message ?? 'Unknown error';
       throw new Error(`Failed to run command ${command}: ${error}`);
