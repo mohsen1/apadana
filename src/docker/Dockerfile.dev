@@ -1,44 +1,40 @@
-# Base stage
+# syntax=docker/dockerfile:1.4
 FROM node:20.18.0-slim
-
-RUN apt-get update && apt-get install -y python3 make g++ inotify-tools wget grep && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Enable and prepare pnpm
-RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
+# Install development dependencies
+RUN apt-get update && \
+  apt-get install -y python3 make g++ inotify-tools wget grep && \
+  rm -rf /var/lib/apt/lists/*
 
-# Configure pnpm
+# Setup pnpm
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 RUN pnpm config set store-dir /home/node/.pnpm-store \
   && pnpm config set update-notifier false \
   && pnpm config set node-deprecation-warnings false
-ENV NODE_OPTIONS=--no-warnings
 
-# Fetch dependencies first (caching based solely on pnpm-lock.yaml)
+# Fetch dependencies first
 COPY pnpm-lock.yaml ./
-RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm fetch
+RUN --mount=type=cache,target=/home/node/.pnpm-store,id=pnpm-store \
+  pnpm fetch
 
-# Now copy package.json and install
+# Install dependencies from store
 COPY package.json ./
-RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm install --frozen-lockfile --offline
+RUN --mount=type=cache,target=/home/node/.pnpm-store,id=pnpm-store \
+  pnpm install --offline --frozen-lockfile
 
-# Copy prisma schema and generate client
-COPY src/prisma ./src/prisma
-RUN --mount=type=cache,target=/app/.next/cache pnpm prisma:generate
-
-# Copy source code
-COPY src ./src
-
-ENV NODE_ENV=development
-ENV NEXT_PUBLIC_S3_UPLOAD_BUCKET=$NEXT_PUBLIC_S3_UPLOAD_BUCKET
-ENV NEXT_PUBLIC_S3_UPLOAD_REGION=$NEXT_PUBLIC_S3_UPLOAD_REGION
+ENV NODE_ENV=development \
+  NODE_OPTIONS=--no-warnings
 
 EXPOSE 3000 6006 5555
 
+# Copy source code
+COPY . .
+
+# Setup entrypoint
 COPY src/docker/docker-entrypoint.dev.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.dev.sh
 
-COPY . .
-
 ENTRYPOINT ["docker-entrypoint.dev.sh"]
-CMD ["pnpm", "run", "dev"]
+

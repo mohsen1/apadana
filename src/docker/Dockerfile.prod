@@ -1,38 +1,48 @@
-FROM node:20.18.0-slim AS builder
+# syntax=docker/dockerfile:1.4
+FROM node:20.18.0-slim
 
-RUN apt-get update && apt-get install -y python3 make g++ wget grep && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 
-# Configure pnpm with cache directory in /home/node
+# Install build dependencies
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt-get update && \
+  apt-get install -y python3 make g++ wget grep && \
+  rm -rf /var/lib/apt/lists/*
+
+# Setup pnpm
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 RUN pnpm config set store-dir /home/node/.pnpm-store \
   && pnpm config set update-notifier false \
   && pnpm config set node-deprecation-warnings false
+
+
+# Add to PATH permanently
+ENV PATH="/usr/local/share/pnpm:$PATH"
+
+# Install http-server globally
+RUN mkdir -p /usr/local/share/pnpm && \
+  pnpm config set global-bin-dir /usr/local/share/pnpm && \
+  pnpm install --global http-server
+
+
+# Install dependencies with cache
+COPY pnpm-lock.yaml ./
+RUN --mount=type=cache,target=/home/node/.pnpm-store \
+  pnpm fetch
+
+COPY package.json ./
+RUN --mount=type=cache,target=/home/node/.pnpm-store \
+  pnpm install --frozen-lockfile --offline
+
+# Copy application files
+COPY . .
 ENV NODE_OPTIONS=--no-warnings
 
-FROM builder AS deps
-
-# Fetch dependencies first (caching based solely on pnpm-lock.yaml)
-COPY pnpm-lock.yaml ./
-RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm fetch
-
-# Now copy package.json and install
-COPY package.json ./
-RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm install --frozen-lockfile --offline
-
-FROM builder AS build
-COPY --from=deps /app/node_modules /app/node_modules
-COPY . .
-
-# Use cache mount for Prisma and Next.js
-RUN --mount=type=cache,target=/app/.next/cache pnpm prisma:generate
-RUN pnpm exec next telemetry disable
-ARG DATABASE_URL
-ARG VERCEL_URL
-ENV DATABASE_URL=${DATABASE_URL}\
-  VERCEL_URL=${VERCEL_URL}
-RUN --mount=type=cache,target=/app/.next/cache pnpm build --experimental-app-only
-
-FROM builder AS final
-COPY --from=build /app /app
 EXPOSE 3030
+ENV PORT=3030 \
+  NODE_ENV=production
+
+COPY src/docker/docker-entrypoint.prod.sh /usr/local/bin/docker-entrypoint.prod.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.prod.sh
+ENTRYPOINT ["docker-entrypoint.prod.sh"]

@@ -4,6 +4,8 @@ import fs from 'fs/promises';
 import ignore, { Ignore } from 'ignore';
 import _ from 'lodash';
 import path from 'path';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 import logger from '@/utils/logger';
 
@@ -70,17 +72,24 @@ async function isTextFile(filePath: string): Promise<boolean> {
   }
 }
 
-async function* walkDirectory(dir: string, ig: Ignore, base = ''): AsyncGenerator<string> {
+async function* walkDirectory(
+  dir: string,
+  ig: Ignore,
+  basePath?: string,
+  base = '',
+): AsyncGenerator<string> {
   const entries = await fs.readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
     const relativePath = path.join(base, entry.name);
     const fullPath = path.join(dir, entry.name);
 
+    // Skip if path is outside basePath
+    if (basePath && !fullPath.startsWith(basePath)) continue;
     if (ig.ignores(relativePath)) continue;
 
     if (entry.isDirectory()) {
-      yield* walkDirectory(fullPath, ig, relativePath);
+      yield* walkDirectory(fullPath, ig, basePath, relativePath);
     } else if (entry.isFile() && (await isTextFile(fullPath))) {
       yield fullPath;
     }
@@ -124,15 +133,27 @@ async function getRepoChecksum(chunkSize: number): Promise<string> {
 }
 
 async function writeChunk(files: FileEntry[], index: number, outputDir: string): Promise<void> {
-  const chunk = files.map((file) => `### ${file.path}\n${file.content}`).join('\n\n');
+  const chunk = files.map((file) => `>>>> ${file.path}\n${file.content}`).join('\n\n');
   const outputPath = path.join(outputDir, `chunk-${index}.txt`);
   await fs.writeFile(outputPath, chunk, 'utf-8');
   logger.info(`Written chunk ${index} with ${files.length} files`);
 }
 
-async function serializeRepo(chunkSizeMB: number): Promise<string> {
+// Add new interface for options
+interface SerializeOptions {
+  chunkSizeMB: number;
+  basePath?: string;
+}
+
+// Modify serializeRepo to accept options
+async function serializeRepo(options: SerializeOptions): Promise<string> {
+  const { chunkSizeMB, basePath } = options;
   const checksum = await getRepoChecksum(chunkSizeMB);
-  const dirName = chunkSizeMB === Infinity ? checksum : `${checksum}_${chunkSizeMB}mb`;
+  const pathSuffix = basePath ? `_${path.basename(basePath)}` : '';
+  const dirName =
+    chunkSizeMB === Infinity
+      ? `${checksum}${pathSuffix}`
+      : `${checksum}${pathSuffix}_${chunkSizeMB}mb`;
   const outputDir = path.join(process.cwd(), 'repo-serialized', dirName);
 
   await fs.mkdir(outputDir, { recursive: true });
@@ -142,7 +163,9 @@ async function serializeRepo(chunkSizeMB: number): Promise<string> {
   let currentChunkSize = 0;
   let chunkIndex = 0;
 
-  for await (const filePath of walkDirectory(process.cwd(), ig)) {
+  const startPath = basePath ? path.resolve(process.cwd(), basePath) : process.cwd();
+
+  for await (const filePath of walkDirectory(startPath, ig, startPath)) {
     try {
       const content = await fs.readFile(filePath, 'utf-8');
       const fileSize = Buffer.byteLength(content, 'utf-8');
@@ -172,22 +195,51 @@ async function serializeRepo(chunkSizeMB: number): Promise<string> {
 
   return outputDir;
 }
+const argv = yargs(hideBin(process.argv))
+  .option('size', {
+    alias: 's',
+    type: 'number',
+    description: 'Chunk size in megabytes',
+    default: Infinity,
+  })
+  .option('path', {
+    alias: 'p',
+    type: 'string',
+    description: 'Base path to serialize (optional)',
+  })
+  .check(async (argv) => {
+    if (isNaN(argv.size) || argv.size <= 0) {
+      throw new Error('Please provide a valid chunk size in megabytes');
+    }
 
-// Handle CLI argument
-const chunkSize = Number(process.argv[2]) || Infinity;
-if (isNaN(chunkSize) || chunkSize <= 0) {
-  logger.error('Please provide a valid chunk size in megabytes');
-  process.exit(1);
+    if (
+      argv.path &&
+      !(await fs
+        .access(argv.path)
+        .then(() => true)
+        .catch(() => false))
+    ) {
+      throw new Error('Provided path does not exist');
+    }
+
+    return true;
+  })
+  .help().argv;
+
+async function main() {
+  const { size, path: basePath } = await argv;
+  logger.info(
+    `Serializing repo from ${basePath || 'root'} ${size !== Infinity ? ` with chunk size ${size}MB` : ''}`,
+  );
+  const outputDir = await serializeRepo({ chunkSizeMB: size, basePath });
+
+  logger.info(`✨ Repository serialized successfully!`);
+
+  if (size !== Infinity) {
+    logger.info(`📝 Use 'ls ${outputDir}' to see the chunks`);
+  } else {
+    logger.info(`📁 Output location: ${outputDir}/chunk-0.txt`);
+  }
 }
 
-serializeRepo(chunkSize)
-  .then((outputDir) => {
-    logger.info(`✨ Repository serialized successfully!`);
-    logger.info(`📁 Output location: ${outputDir}`);
-    logger.info(`📝 Use 'ls ${outputDir}' to see the chunks`);
-  })
-  .catch((error) => {
-    assertError(error);
-    logger.error('Failed to serialize repository:', error.message);
-    process.exit(1);
-  });
+void main();
