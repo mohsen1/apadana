@@ -124,6 +124,7 @@ export const CreateListingSchemaWithCoercion = CreateListingSchema.extend({
         name: z.string(),
       }),
     )
+    .min(1, 'At least one image is required')
     .default([]),
 });
 

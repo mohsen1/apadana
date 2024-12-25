@@ -88,6 +88,11 @@ services:
       resources:
         limits:
           memory: 4G
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
 
   app_prod:
     container_name: app_prod

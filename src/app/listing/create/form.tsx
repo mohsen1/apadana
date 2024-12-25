@@ -37,14 +37,6 @@ import { LocationDetailsStep } from './LocationDetailsStep';
 import { PhotosStep } from './PhotosStep';
 import { PricingStep } from './PricingStep';
 
-enum FormStep {
-  LocationDetails = 0,
-  BasicInfo = 1,
-  Amenities = 2,
-  Photos = 3,
-  Pricing = 4,
-  HouseRules = 5,
-}
 const defaultValues: Omit<CreateListingWithCoercion, 'latitude' | 'longitude' | 'address'> = {
   amenities: ['Wi-Fi'],
   title: 'My listing',
@@ -92,8 +84,8 @@ const steps: StepConfig<CreateListingWithCoercion>[] = [
   {
     title: 'What amenities are available?',
     description: 'Select the amenities available at your property',
-    validation: CreateListingSchemaWithCoercion.extend({
-      amenities: z.array(z.string()).optional(),
+    validation: CreateListingSchemaWithCoercion.pick({
+      amenities: true,
     }),
   },
   {
@@ -123,9 +115,8 @@ const steps: StepConfig<CreateListingWithCoercion>[] = [
 
 export default function CreateListingForm() {
   const router = useRouter();
-  const [showLoading, setShowLoading] = useState(false);
 
-  const { execute, result } = useAction(createListing, {
+  const { execute, result, isPending } = useAction(createListing, {
     onError: (error) => {
       logger.error('create listing error', error);
     },
@@ -162,23 +153,9 @@ export default function CreateListingForm() {
 
   const handleFormSubmit = useCallback(
     async (data: CreateListingWithCoercion) => {
-      if (!isLastStep) {
-        nextStep();
-        return;
-      }
-
-      const loadingTimeout = setTimeout(() => {
-        setShowLoading(true);
-      }, 500);
-
-      try {
-        const coerced = CreateListingSchemaWithCoercion.parse(data);
-        const parsed = CreateListingSchema.parse(coerced);
-        execute(parsed);
-      } finally {
-        clearTimeout(loadingTimeout);
-        setShowLoading(false);
-      }
+      const coerced = CreateListingSchemaWithCoercion.parse(data);
+      const parsed = CreateListingSchema.parse(coerced);
+      execute(parsed);
     },
     [isLastStep, nextStep, execute],
   );
@@ -189,7 +166,7 @@ export default function CreateListingForm() {
         onSubmit={form.handleSubmit(handleFormSubmit)}
         className='mx-auto w-full max-w-4xl flex-grow space-y-8'
       >
-        <ResultMessage result={result} />
+        {process.env.NODE_ENV === 'development' && <ResultMessage result={result} />}
 
         <Card className='w-full border-none bg-transparent shadow-none'>
           <CardHeader>
@@ -202,7 +179,7 @@ export default function CreateListingForm() {
             {currentStep === 2 && <AmenitiesStep />}
             {currentStep === 3 && <PhotosStep />}
             {currentStep === 4 && <PricingStep />}
-            {currentStep === 5 && <HouseRulesStep />}
+            {currentStep === 5 && <HouseRulesStep disabled={isPending} />}
           </CardContent>
           <CardFooter className='flex justify-between'>
             {!isFirstStep ? (
@@ -214,16 +191,17 @@ export default function CreateListingForm() {
             )}
             <Button
               type='submit'
-              disabled={(!isLastStep && !canGoNext()) || showLoading}
+              disabled={(!isLastStep && !canGoNext()) || isPending}
+              className='min-w-[100px]'
               onClick={(event) => {
                 if (!isLastStep) {
                   event.preventDefault();
                   nextStep();
+                  return;
                 }
               }}
-              className='min-w-[100px]'
             >
-              {showLoading ? (
+              {isPending ? (
                 <>
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                   Submitting...

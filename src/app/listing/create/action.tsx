@@ -14,7 +14,6 @@ export const createListing = actionClient
   .schema(CreateListingSchema)
   .outputSchema(z.object({ listing: GetListingSchema }))
   .action(async ({ parsedInput, ctx: { userId } }) => {
-    logger.info('createListing', { parsedInput, userId });
     if (!userId) {
       throw new UnauthorizedError();
     }

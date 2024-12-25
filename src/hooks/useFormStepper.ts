@@ -51,9 +51,14 @@ export function useFormStepper<TFormData extends FieldValues>({
   const getUrlParams = useCallback(() => {
     const step = searchParams.get(`${paramPrefix}-step`);
     const formData = searchParams.get(`${paramPrefix}-data`);
+    // Use qs.parse for the form data and defaultValues to ensure consistent parsing
+    const parsedFormData = formData ? qs.parse(formData) : {};
+    const parsedDefaults = qs.parse(qs.stringify(defaultValues));
+    // Use qs.parse to perform a deep merge by stringifying and re-parsing
+    const mergedFormData = qs.parse(qs.stringify({ ...parsedDefaults, ...parsedFormData }));
     return {
       step: step ? parseInt(step, 10) : 0,
-      formData: formData ? qs.parse(formData) : defaultValues,
+      formData: mergedFormData,
     };
   }, [searchParams, defaultValues, paramPrefix]);
 
