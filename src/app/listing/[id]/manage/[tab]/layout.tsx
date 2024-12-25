@@ -30,26 +30,25 @@ export default async function ManageListingPageLayout(props: {
   }
 
   return (
-    <div className='container mx-auto flex-grow p-4'>
-      <h1 className='mb-6 text-3xl font-bold'>
-        <Link href={`/listing/${id}`}>
-          <Image
-            src={listing.images[0].url}
-            alt={listing.title}
-            width={96}
-            height={96}
-            className='mr-2 inline object-cover'
-          />
-          <span>Manage "{listing.title.slice()}"</span>
-          <Button variant='outline' size='icon' className='ml-6'>
-            <Link href={`/listing/${id}`}>
-              <ArrowRight className='h-4 w-4' />
-            </Link>
+    <div className='container mx-auto flex-grow'>
+      <Link href={`/listing/${id}`} className='grid grid-cols-[96px_1fr] items-start gap-2 p-2'>
+        <Image
+          src={listing.images[0].url}
+          alt={listing.title}
+          width={96}
+          height={96}
+          className='mr-2 inline aspect-square object-cover'
+        />
+        <div className='flex flex-col items-start justify-start'>
+          <span className='bold overflow-hidden truncate text-3xl'>{listing.title}</span>
+          <Button variant='link' href={`/listing/${id}`} className='flex items-center gap-2 px-0'>
+            <span>View listing</span>
+            <ArrowRight className='h-4 w-4' />
           </Button>
-        </Link>
-      </h1>
-      <Tabs defaultValue={tab} className='space-y-4'>
-        <TabsList>
+        </div>
+      </Link>
+      <Tabs defaultValue={tab} className='w-full space-y-4'>
+        <TabsList className='w-full overflow-y-auto'>
           <TabsTrigger value='calendar'>
             <Link href={`/listing/${id}/manage/calendar`}>Calendar</Link>
           </TabsTrigger>
@@ -66,7 +65,9 @@ export default async function ManageListingPageLayout(props: {
             <Link href={`/listing/${id}/manage/booking-requests`}>Booking Requests</Link>
           </TabsTrigger>
         </TabsList>
-        <TabsContent value={tab}>{children}</TabsContent>
+        <TabsContent className='p-0' value={tab}>
+          {children}
+        </TabsContent>
       </Tabs>
     </div>
   );

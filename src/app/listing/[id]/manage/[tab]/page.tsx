@@ -1,9 +1,10 @@
+import { Banner } from '@/components/Banner';
+
 import { Bookings } from '@/app/listing/[id]/manage/Bookings';
 import { BookingRequests } from '@/app/listing/[id]/manage/BookingsRequests';
 import { EditPhotos } from '@/app/listing/[id]/manage/EditPhotos';
 import { HostCalendar } from '@/app/listing/[id]/manage/HostCalendar';
 import UpdateListingForm from '@/app/listing/[id]/manage/UpdateListingForm';
-import { WelcomeToNewListing } from '@/app/listing/[id]/manage/WelcomeToNewListing';
 import { getListing } from '@/app/listing/action';
 import NotFound from '@/app/not-found';
 
@@ -12,11 +13,7 @@ export default async function ManageListingPage(props: {
     id: string;
     tab: string;
   }>;
-  searchParams: Promise<{
-    newListing?: string;
-  }>;
 }) {
-  const searchParams = await props.searchParams;
   const params = await props.params;
   const res = await getListing({
     id: params.id,
@@ -40,7 +37,11 @@ export default async function ManageListingPage(props: {
     case 'calendar':
       return (
         <>
-          {searchParams.newListing && <WelcomeToNewListing />}
+          <Banner
+            title='Welcome to your new listing!'
+            description='You can now start adding your listing details and setting up your availability and pricing.'
+            queryParam='newListing'
+          />
           <HostCalendar listingData={listing} />
         </>
       );

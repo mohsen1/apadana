@@ -135,8 +135,8 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
     });
   }
   return (
-    <Card className='box-shadow-none mt-6 border-none'>
-      <CardContent>
+    <Card className='box-shadow-none bg-background mt-6 border-none'>
+      <CardContent className='px-2'>
         <div className='grid gap-8 lg:grid-cols-[1fr_auto]'>
           <div className=''>
             <AvailabilityManagementCalendar
