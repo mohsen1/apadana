@@ -18,6 +18,7 @@ import {
 } from '@/lib/utils';
 
 import { AvailabilityManagementCalendar } from '@/components/AvailabilityManagementCalendar';
+import { Banner } from '@/components/Banner';
 import { LabledInput } from '@/components/range-calendar/LabledInput';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -122,8 +123,14 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
       inventory,
     });
   }
+
   return (
     <Card className='box-shadow-none bg-background mt-6 border-none'>
+      <Banner
+        title='Welcome to your new listing!'
+        description='You can now start adding your listing details and setting up your availability and pricing.'
+        queryParam='newListing'
+      />
       <CardContent className='px-2'>
         <div className='grid gap-8 lg:grid-cols-[1fr_auto]'>
           <div className=''>
