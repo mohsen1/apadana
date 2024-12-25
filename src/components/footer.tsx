@@ -92,7 +92,9 @@ const Footer = ({ className }: { className?: string }) => {
           <p className='text-muted-foreground text-sm'>
             &copy; {new Date().getFullYear()} Apadana. All rights reserved.
           </p>
-          <ThemeToggle />
+          <div className='mt-4 flex items-center justify-center gap-2'>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </footer>

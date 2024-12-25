@@ -9,12 +9,11 @@ import { FormEvent, useState } from 'react';
 import { FullListing } from '@/lib/types';
 import { areAllDatesAvailable, formatCurrency, getLocale, isDateUnavailable } from '@/lib/utils';
 
+import { Amenity } from '@/components/Amenity';
 import { LightBox } from '@/components/LightBox';
 import { Calendar } from '@/components/range-calendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-
-import { Amenity } from '@/app/listing/[id]/Amenity';
 
 export function ListingPage({ listingData }: { listingData: FullListing }) {
   const router = useRouter();

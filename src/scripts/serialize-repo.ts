@@ -1,3 +1,9 @@
+/**
+ * This script reads all text-based files in a Git repository or a specified directory,
+ * splits them into chunks based on size, and writes those chunks to disk in a structured format.
+ * It also calculates a checksum to keep track of repository state.
+ */
+
 import { execSync } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs/promises';
@@ -9,34 +15,51 @@ import { hideBin } from 'yargs/helpers';
 
 import logger from '@/utils/logger';
 
+/**
+ * Set of known file extensions that are typically binary.
+ * Files with these extensions won't be read for textual content.
+ */
+// prettier-ignore
 const BINARY_FILE_EXTENSIONS = new Set([
-  '.jpg',
-  '.jpeg',
-  '.png',
-  '.gif',
-  '.ico',
-  '.webp',
-  '.pdf',
-  '.mp4',
-  '.webm',
-  '.mov',
-  '.mp3',
-  '.wav',
-  '.ttf',
-  '.woff',
-  '.woff2',
-  '.eot',
+  '.jpg',       '.pdf',      '.mid',      '.blend',    '.p12',      '.rco',      '.tgz',
+  '.jpeg',      '.mp4',      '.midi',     '.crt',      '.p7b',      '.ovl',      '.bz2',
+  '.png',       '.webm',     '.aac',      '.key',      '.gbr',      '.mo',       '.xz',
+  '.gif',       '.mov',      '.flac',     '.pem',      '.pcb',      '.nib',      '.dat',
+  '.ico',       '.mp3',      '.bmp',      '.der',      '.icns',     '.xap',      '.lib',
+  '.webp',      '.wav',      '.psd',      '.png2',     '.xdf',      '.psf',      '.jar',
+  '.ttf',       '.exe',      '.ai',       '.jp2',      '.zip',      '.pak',      '.vhd',
+  '.woff',      '.dll',      '.eps',      '.swc',      '.rar',      '.img3',     '.gho',
+  '.woff2',     '.bin',      '.raw',      '.mso',      '.7z',       '.img4',     '.efi',
+  '.eot',       '.iso',      '.tif',      '.class',    '.gz',       '.msi',      '.ocx',
+  '.sys',       '.img',      '.tiff',     '.apk',      '.tar',      '.cab',      '.scr',
+  '.so',        '.dmg',      '.3ds',      '.com',      '.elf',
+  '.o',         '.max',      '.obj',      '.drv',      '.rom',
+  '.a',         '.vhdx',     '.fbx',      '.bpl',      '.cpl',
 ]);
 
+/**
+ * Represents a single file entry with its path and content.
+ */
 interface FileEntry {
+  /** Relative file path */
   path: string;
+  /** File content as a string */
   content: string;
 }
 
+/**
+ * Narrows any unknown type error to a standard Error object.
+ * @param error The unknown type to be asserted
+ * @throws {Error} Throws if the provided error is not an instance of Error
+ */
 function assertError(error: unknown): asserts error is Error {
   if (!(error instanceof Error)) throw new Error('Unknown error type');
 }
 
+/**
+ * Reads the .gitignore file to configure file exclusion for the repository.
+ * @returns An Ignore instance configured with the .gitignore rules
+ */
 async function readGitignore(): Promise<Ignore> {
   const ig = ignore();
   try {
@@ -49,6 +72,11 @@ async function readGitignore(): Promise<Ignore> {
   return ig;
 }
 
+/**
+ * Checks if a file is a text file based on its extension or content.
+ * @param filePath The path to the file to check
+ * @returns True if the file is a text file, false otherwise
+ */
 async function isTextFile(filePath: string): Promise<boolean> {
   const ext = path.extname(filePath).toLowerCase();
   if (BINARY_FILE_EXTENSIONS.has(ext)) return false;
@@ -72,6 +100,14 @@ async function isTextFile(filePath: string): Promise<boolean> {
   }
 }
 
+/**
+ * Recursively walks through a directory and yields file paths.
+ * @param dir The directory to walk through
+ * @param ig The Ignore instance to apply for file exclusion
+ * @param basePath The base path to limit the search
+ * @param base The current base path for relative paths
+ * @returns An async generator of file paths
+ */
 async function* walkDirectory(
   dir: string,
   ig: Ignore,
@@ -96,6 +132,11 @@ async function* walkDirectory(
   }
 }
 
+/**
+ * Calculates a checksum for the current repository state.
+ * @param chunkSize The maximum chunk size in megabytes
+ * @returns A string checksum of the repository state
+ */
 async function getRepoChecksum(chunkSize: number): Promise<string> {
   try {
     // Get list of tracked files excluding ignored ones
@@ -132,6 +173,12 @@ async function getRepoChecksum(chunkSize: number): Promise<string> {
   }
 }
 
+/**
+ * Writes a chunk of files to a text file.
+ * @param files The list of files to include in the chunk
+ * @param index The index of the chunk
+ * @param outputDir The directory to write the chunk file to
+ */
 async function writeChunk(files: FileEntry[], index: number, outputDir: string): Promise<void> {
   const chunk = files.map((file) => `>>>> ${file.path}\n${file.content}`).join('\n\n');
   const outputPath = path.join(outputDir, `chunk-${index}.txt`);
@@ -139,13 +186,22 @@ async function writeChunk(files: FileEntry[], index: number, outputDir: string):
   logger.info(`Written chunk ${index} with ${files.length} files`);
 }
 
-// Add new interface for options
+/**
+ * Options controlling repository serialization behavior.
+ */
 interface SerializeOptions {
+  /** Maximum chunk size in megabytes. Use Infinity for a single-chunk output */
   chunkSizeMB: number;
+  /** Base path to serialize. Defaults to the current working directory if omitted */
   basePath?: string;
 }
 
-// Modify serializeRepo to accept options
+/**
+ * Serializes text-based files in a repository or subdirectory into chunks.
+ * Each chunk is written as a single text file containing multiple file contents.
+ * @param options The serialization options including chunk size and optional base path
+ * @returns The output directory path where all chunk files are stored
+ */
 async function serializeRepo(options: SerializeOptions): Promise<string> {
   const { chunkSizeMB, basePath } = options;
   const checksum = await getRepoChecksum(chunkSizeMB);
@@ -195,6 +251,11 @@ async function serializeRepo(options: SerializeOptions): Promise<string> {
 
   return outputDir;
 }
+
+/**
+ * Parses command-line arguments and validates them.
+ * @returns The parsed options including chunk size and base path
+ */
 const argv = yargs(hideBin(process.argv))
   .option('size', {
     alias: 's',
@@ -207,6 +268,10 @@ const argv = yargs(hideBin(process.argv))
     type: 'string',
     description: 'Base path to serialize (optional)',
   })
+  .example('pnpm serialize-repo', 'Serialize entire repository into a single file')
+  .example('pnpm serialize-repo -s 10', 'Split repository into 10MB chunks')
+  .example('pnpm serialize-repo -p src/app', 'Serialize only the src/app directory')
+  .example('pnpm serialize-repo -s 5 -p src/components', 'Split src/components into 5MB chunks')
   .check(async (argv) => {
     if (isNaN(argv.size) || argv.size <= 0) {
       throw new Error('Please provide a valid chunk size in megabytes');
@@ -226,6 +291,9 @@ const argv = yargs(hideBin(process.argv))
   })
   .help().argv;
 
+/**
+ * Main entry point. Parses command-line options, then serializes the repository.
+ */
 async function main() {
   const { size, path: basePath } = await argv;
   logger.info(
@@ -236,9 +304,14 @@ async function main() {
   logger.info(`✨ Repository serialized successfully!`);
 
   if (size !== Infinity) {
-    logger.info(`📝 Use 'ls ${outputDir}' to see the chunks`);
+    const files = await fs.readdir(outputDir);
+    logger.info(`Generated chunks:`);
+    for (const file of files) {
+      logger.info(path.join(outputDir, file));
+    }
   } else {
-    logger.info(`📁 Output location: ${outputDir}/chunk-0.txt`);
+    logger.info(`Outputed file:`);
+    logger.info(path.join(outputDir, 'chunk-0.txt'));
   }
 }
 

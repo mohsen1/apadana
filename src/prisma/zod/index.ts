@@ -152,7 +152,7 @@ export type ExternalAccount = z.infer<typeof ExternalAccountSchema>
 
 export const UploadedPhotoSchema = z.object({
   id: z.string().cuid(),
-  url: z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),
+  url: z.string({required_error: "URL is required" }),
   /**
    * Unique storage key for the photo
    */
@@ -1135,7 +1135,7 @@ export const UploadedPhotoWhereUniqueInputSchema: z.ZodType<Prisma.UploadedPhoto
   AND: z.union([ z.lazy(() => UploadedPhotoWhereInputSchema),z.lazy(() => UploadedPhotoWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => UploadedPhotoWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => UploadedPhotoWhereInputSchema),z.lazy(() => UploadedPhotoWhereInputSchema).array() ]).optional(),
-  url: z.union([ z.lazy(() => StringFilterSchema),z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }) ]).optional(),
+  url: z.union([ z.lazy(() => StringFilterSchema),z.string({required_error: "URL is required" }) ]).optional(),
   name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   listingId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   Listing: z.union([ z.lazy(() => ListingNullableScalarRelationFilterSchema),z.lazy(() => ListingWhereInputSchema) ]).optional().nullable(),
@@ -2129,7 +2129,7 @@ export const ExternalAccountUncheckedUpdateManyInputSchema: z.ZodType<Prisma.Ext
 
 export const UploadedPhotoCreateInputSchema: z.ZodType<Prisma.UploadedPhotoCreateInput> = z.object({
   id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),
+  url: z.string({required_error: "URL is required" }),
   key: z.string(),
   name: z.string(),
   Listing: z.lazy(() => ListingCreateNestedOneWithoutImagesInputSchema).optional()
@@ -2137,7 +2137,7 @@ export const UploadedPhotoCreateInputSchema: z.ZodType<Prisma.UploadedPhotoCreat
 
 export const UploadedPhotoUncheckedCreateInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedCreateInput> = z.object({
   id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),
+  url: z.string({required_error: "URL is required" }),
   key: z.string(),
   name: z.string(),
   listingId: z.string().optional().nullable()
@@ -2145,7 +2145,7 @@ export const UploadedPhotoUncheckedCreateInputSchema: z.ZodType<Prisma.UploadedP
 
 export const UploadedPhotoUpdateInputSchema: z.ZodType<Prisma.UploadedPhotoUpdateInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   Listing: z.lazy(() => ListingUpdateOneWithoutImagesNestedInputSchema).optional()
@@ -2153,7 +2153,7 @@ export const UploadedPhotoUpdateInputSchema: z.ZodType<Prisma.UploadedPhotoUpdat
 
 export const UploadedPhotoUncheckedUpdateInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedUpdateInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   listingId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
@@ -2161,7 +2161,7 @@ export const UploadedPhotoUncheckedUpdateInputSchema: z.ZodType<Prisma.UploadedP
 
 export const UploadedPhotoCreateManyInputSchema: z.ZodType<Prisma.UploadedPhotoCreateManyInput> = z.object({
   id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),
+  url: z.string({required_error: "URL is required" }),
   key: z.string(),
   name: z.string(),
   listingId: z.string().optional().nullable()
@@ -2169,14 +2169,14 @@ export const UploadedPhotoCreateManyInputSchema: z.ZodType<Prisma.UploadedPhotoC
 
 export const UploadedPhotoUpdateManyMutationInputSchema: z.ZodType<Prisma.UploadedPhotoUpdateManyMutationInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UploadedPhotoUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedUpdateManyInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   listingId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
@@ -6048,14 +6048,14 @@ export const UserCreateOrConnectWithoutListingsInputSchema: z.ZodType<Prisma.Use
 
 export const UploadedPhotoCreateWithoutListingInputSchema: z.ZodType<Prisma.UploadedPhotoCreateWithoutListingInput> = z.object({
   id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),
+  url: z.string({required_error: "URL is required" }),
   key: z.string(),
   name: z.string()
 }).strict();
 
 export const UploadedPhotoUncheckedCreateWithoutListingInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedCreateWithoutListingInput> = z.object({
   id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),
+  url: z.string({required_error: "URL is required" }),
   key: z.string(),
   name: z.string()
 }).strict();
@@ -7632,7 +7632,7 @@ export const PasswordResetUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<P
 
 export const UploadedPhotoCreateManyListingInputSchema: z.ZodType<Prisma.UploadedPhotoCreateManyListingInput> = z.object({
   id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),
+  url: z.string({required_error: "URL is required" }),
   key: z.string(),
   name: z.string()
 }).strict();
@@ -7662,21 +7662,21 @@ export const BookingRequestCreateManyListingInputSchema: z.ZodType<Prisma.Bookin
 
 export const UploadedPhotoUpdateWithoutListingInputSchema: z.ZodType<Prisma.UploadedPhotoUpdateWithoutListingInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UploadedPhotoUncheckedUpdateWithoutListingInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedUpdateWithoutListingInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UploadedPhotoUncheckedUpdateManyWithoutListingInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedUpdateManyWithoutListingInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();

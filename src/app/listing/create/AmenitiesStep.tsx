@@ -1,7 +1,7 @@
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { CreateListing } from '@/lib/schema';
+import { CreateListingWithCoercion } from '@/lib/schema';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { amenitiesList } from '@/shared/ameneties';
 
 export function AmenitiesStep() {
-  const { control } = useFormContext<CreateListing>();
+  const { control, trigger } = useFormContext<CreateListingWithCoercion>();
 
   return (
     <div className='space-y-4'>
@@ -28,6 +28,7 @@ export function AmenitiesStep() {
                     ? [...(field.value || []), amenity]
                     : (field.value || []).filter((item: string) => item !== amenity);
                   field.onChange(updatedAmenities);
+                  void trigger('amenities');
                 }}
               />
             )}

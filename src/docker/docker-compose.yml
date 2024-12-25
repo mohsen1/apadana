@@ -78,15 +78,17 @@ services:
     networks:
       - apadana_network
     healthcheck:
-      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3000']
-      interval: 1s
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3000/api/health']
+      interval: 30s
       timeout: 1s
       retries: 500
-      start_period: 3s
-    deploy:
-      resources:
-        limits:
-          memory: 4G
+      start_period: 60s
+      start_interval: 1s
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
 
   app_prod:
     container_name: app_prod
@@ -122,15 +124,12 @@ services:
       - apadana_network
 
     healthcheck:
-      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3030']
-      interval: 10s
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3030/api/health']
+      interval: 30s
       timeout: 5s
       retries: 100
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          memory: 4G
+      start_period: 60s
+      start_interval: 1s
     command: >
       sh -c "
         pnpm next:start

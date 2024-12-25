@@ -18,6 +18,7 @@ import {
 } from '@/lib/utils';
 
 import { AvailabilityManagementCalendar } from '@/components/AvailabilityManagementCalendar';
+import { Banner } from '@/components/Banner';
 import { LabledInput } from '@/components/range-calendar/LabledInput';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,7 +26,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 
 import { editInventory } from '@/app/listing/[id]/manage/action';
-import { getListing } from '@/app/listing/action';
 import { RangeValue } from '@/utils/types';
 
 export function HostCalendar({ listingData }: { listingData: FullListing }) {
@@ -41,25 +41,14 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
   const [rangeAvailable, setRangeAvailable] = useState<boolean>(isRangeAvailable(range));
   const { execute: executeEditInventory, status: editInventoryStatus } = useAction(editInventory, {
     onSuccess: (result) => {
-      if (result.data) {
-        return refreshInventory();
+      if (result.data?.listing) {
+        setListingInventory(result.data.listing.inventory);
       }
     },
     onError: (error) => {
       throw error;
     },
   });
-
-  /**
-   * Refresh the inventory.
-   * We do this after updating the inventory to get the latest data.
-   */
-  async function refreshInventory() {
-    const res = await getListing({ id: listingData.id });
-    if (res?.data?.listing) {
-      setListingInventory(res.data.listing.inventory);
-    }
-  }
 
   /**
    * Check if the range is available. It checks the availability of all dates in the range.
@@ -134,9 +123,15 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
       inventory,
     });
   }
+
   return (
-    <Card className='box-shadow-none mt-6 border-none'>
-      <CardContent>
+    <Card className='box-shadow-none bg-background mt-6 border-none'>
+      <Banner
+        title='Welcome to your new listing!'
+        description='You can now start adding your listing details and setting up your availability and pricing.'
+        queryParam='newListing'
+      />
+      <CardContent className='px-2'>
         <div className='grid gap-8 lg:grid-cols-[1fr_auto]'>
           <div className=''>
             <AvailabilityManagementCalendar

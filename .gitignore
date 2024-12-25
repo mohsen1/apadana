@@ -51,7 +51,7 @@ storybook-static/
 playwright/.auth
 
 # Test uploads
-e2e/uploads/
+public/images/e2e/uploads/
 
 # Unit test
 !.env.test

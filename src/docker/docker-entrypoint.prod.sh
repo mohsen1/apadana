@@ -5,7 +5,7 @@ set -e
 trap 'kill -TERM $PID' TERM INT
 
 echo "[docker-entrypoint.prod.sh] Starting placeholder server on port 3030..."
-http-server /app/src/docker/placeholder-server -p 3030 --silent &
+node /app/src/docker/placeholder-server/server.js &
 PLACEHOLDER_PID=$!
 
 echo "[docker-entrypoint.prod.sh] Building production server..."

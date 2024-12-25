@@ -19,6 +19,7 @@
     "dev:prisma": "prisma generate --schema=src/prisma/schema.prisma --no-hints --watch",
     "dev:prisma:seed": "prisma db seed",
     "dev:prisma:studio": "nodemon --watch prisma/schema.prisma --exec 'prisma studio --schema=src/prisma/schema.prisma --browser none'",
+    "dev:prisma:migrate": "prisma migrate dev --schema=src/prisma/schema.prisma --name $(date +%Y%m%d%H%M%S)",
     "prisma:generate": "prisma generate --schema=src/prisma/schema.prisma --no-hints",
     "prisma:watch": "pnpm prisma generate --schema=src/prisma/schema.prisma --watch",
     "prisma:migrate": "prisma migrate deploy --schema=src/prisma/schema.prisma",

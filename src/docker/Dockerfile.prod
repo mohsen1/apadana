@@ -17,13 +17,10 @@ RUN pnpm config set store-dir /home/node/.pnpm-store \
   && pnpm config set node-deprecation-warnings false
 
 
-# Add to PATH permanently
-ENV PATH="/usr/local/share/pnpm:$PATH"
 
 # Install http-server globally
 RUN mkdir -p /usr/local/share/pnpm && \
-  pnpm config set global-bin-dir /usr/local/share/pnpm && \
-  pnpm install --global http-server
+  pnpm config set global-bin-dir /usr/local/share/pnpm
 
 
 # Install dependencies with cache

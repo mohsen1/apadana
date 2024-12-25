@@ -1,20 +1,16 @@
 'use server';
 
 import slugify from 'slugify';
-import { z } from 'zod';
 
 import { getTimeZone } from '@/lib/google-maps-api';
 import prisma from '@/lib/prisma/client';
 import { actionClient, UnauthorizedError } from '@/lib/safe-action';
 import { CreateListingSchema, GetListingSchema } from '@/lib/schema';
 
-import logger from '@/utils/logger';
-
 export const createListing = actionClient
   .schema(CreateListingSchema)
-  .outputSchema(z.object({ listing: GetListingSchema }))
+  .outputSchema(GetListingSchema)
   .action(async ({ parsedInput, ctx: { userId } }) => {
-    logger.info('createListing', { parsedInput, userId });
     if (!userId) {
       throw new UnauthorizedError();
     }
@@ -56,7 +52,5 @@ export const createListing = actionClient
       },
     });
 
-    logger.info('created listing', { listing });
-
-    return { listing };
+    return listing;
   });

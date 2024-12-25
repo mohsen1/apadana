@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/useToast';
 
 import {
   AlertDialog,

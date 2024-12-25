@@ -103,6 +103,9 @@ model EmailAddress {
   // Relationships
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([emailAddress])
+  @@index([userId])
 }
 
 model ExternalAccount {
@@ -127,7 +130,7 @@ model UploadedPhoto {
   id String @id @default(cuid())
 
   // Photo Details
-  /// @zod.string({required_error: "URL is required" }).url({ message: "Must be a valid URL" })
+  /// @zod.string({required_error: "URL is required" })
   url String
 
   /// Unique storage key for the photo
@@ -238,6 +241,7 @@ model Listing {
   // Indexes
   @@index([ownerId])
   @@index([pricePerNight])
+  @@index([published])
 }
 
 model ListingInventory {
