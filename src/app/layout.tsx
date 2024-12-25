@@ -7,7 +7,7 @@ import '@/styles/globals.css';
 
 import { cn } from '@/lib/utils';
 
-import Footer from '@/components/footer';
+import Footer from '@/components/layout/Footer';
 import { Header } from '@/components/layout/header';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ToastProvider } from '@/components/ui/toast';

@@ -22,7 +22,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { FileUploadState, useFileUploader } from '@/hooks/useFileUploader';
 
-import ImageLoader from '@/components/ImageLoader';
+import ImageLoader from '@/components/common/ImageLoader';
 import { Progress } from '@/components/ui/progress';
 
 export interface ImageUploaderImage {

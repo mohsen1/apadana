@@ -5,7 +5,7 @@ import { RangeCalendarState } from 'react-stately';
 
 import { cn } from '@/lib/utils';
 
-import { CircleAround } from '@/components/range-calendar/CircleAround';
+import { CircleAround } from '@/components/calendar/range-calendar/CircleAround';
 
 /**
  * CalendarCellProps:
