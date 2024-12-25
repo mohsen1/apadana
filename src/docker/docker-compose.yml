@@ -38,6 +38,10 @@ services:
     build:
       context: ../..
       dockerfile: src/docker/Dockerfile.dev
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        HUSKY: 0
+        NODE_ENV: development
     expose:
       - '3000'
       - '6006'
@@ -67,26 +71,37 @@ services:
     depends_on:
       db_dev:
         condition: service_healthy
+    command: >
+      sh -c "
+        pnpm dev
+      "
     networks:
       - apadana_network
     healthcheck:
-      # make sure it is built and running
       test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3000']
-      interval: 10s
-      timeout: 5s
-      retries: 100
-      start_period: 10s
+      interval: 1s
+      timeout: 1s
+      retries: 500
+      start_period: 3s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
 
   app_prod:
     container_name: app_prod
     build:
       context: ../..
       dockerfile: src/docker/Dockerfile.prod
-      # To build the production image, we need to provide these
-      # environment variables as arguments to the Dockerfile.prod.
       args:
-        - VERCEL_URL=prod.apadana.local
-        - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
+        NODE_ENV: production
+        E2E_TESTING_SECRET: e2e_testing_secret_for_prod
+        HUSKY: 0
+        BUILDKIT_INLINE_CACHE: 1
+        VERCEL_URL: prod.apadana.local
+        DATABASE_URL: postgresql://admin:admin@db_prod:5432/apadana
+    tmpfs:
+      - /tmp
     expose:
       - '3030'
     env_file:
@@ -105,18 +120,21 @@ services:
         condition: service_healthy
     networks:
       - apadana_network
-    command: >
-      sh -c "
-        pnpm prisma:migrate && 
-        pnpm prisma db seed && 
-        pnpm next:start
-      "
+
     healthcheck:
-      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3030/api/health']
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3030']
       interval: 10s
       timeout: 5s
       retries: 100
       start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    command: >
+      sh -c "
+        pnpm next:start
+      "
 
   db_dev:
     container_name: db_dev
@@ -189,3 +207,4 @@ volumes:
   next_cache:
   postgres_data_dev:
   postgres_data_prod:
+  buildx_cache:

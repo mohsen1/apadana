@@ -3,12 +3,12 @@
   "version": "0.1.1",
   "private": true,
   "scripts": {
-    "start": "pnpm run setup:local && docker-compose -f src/docker/docker-compose.yml up --build",
+    "start": "pnpm run setup:local && DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f src/docker/docker-compose.yml up --build",
     "docker:prune": "docker system prune -af --volumes",
     "docker:clean": "docker-compose -f src/docker/docker-compose.yml down -v",
     "docker:down": "docker-compose -f src/docker/docker-compose.yml down",
-    "docker:build": "docker-compose -f src/docker/docker-compose.yml build",
-    "docker:prod:rebuild": "docker-compose -f src/docker/docker-compose.yml build app_prod",
+    "docker:build": "DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml build --parallel",
+    "docker:prod:rebuild": "docker-compose -f src/docker/docker-compose.yml build app_prod --parallel",
     "docker:prod:restart": "docker-compose -f src/docker/docker-compose.yml up -d --no-deps app_prod",
     "docker:prod:redeploy": "pnpm docker:prod:rebuild && pnpm docker:prod:restart",
     "next:start": "next start",
@@ -44,7 +44,9 @@
     "test:cleanup": "docker-compose -f src/docker/docker-compose.test.yml down",
     "setup:local": "tsx src/scripts/setup-local-dev.ts",
     "update-packages": "tsx src/scripts/update-packages.ts",
-    "serialize-repo": "tsx src/scripts/serialize-repo.ts"
+    "serialize-repo": "tsx src/scripts/serialize-repo.ts",
+    "docker:dev": "DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml up app_dev",
+    "docker:prod": "DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml up app_prod"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.717.0",
