@@ -18,11 +18,11 @@ export function useLogger(prefix?: string, level: LogLevel = 'debug') {
     return createLogger(new Error().stack?.split('\n')[2] ?? 'unknown', level);
   }, [prefix, level]);
 
-  const debug = useCallback((...args: any[]) => logger.debug(...args), [logger]);
-  const info = useCallback((...args: any[]) => logger.info(...args), [logger]);
-  const warn = useCallback((...args: any[]) => logger.warn(...args), [logger]);
-  const error = useCallback((...args: any[]) => logger.error(...args), [logger]);
-  const log = useCallback((...args: any[]) => logger.log(...args), [logger]);
+  const debug = useCallback(logger.debug.bind(logger), [logger]);
+  const info = useCallback(logger.info.bind(logger), [logger]);
+  const warn = useCallback(logger.warn.bind(logger), [logger]);
+  const error = useCallback(logger.error.bind(logger), [logger]);
+  const log = useCallback(logger.log.bind(logger), [logger]);
 
   return {
     debug,

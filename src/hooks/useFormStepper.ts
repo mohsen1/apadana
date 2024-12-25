@@ -71,7 +71,6 @@ export function useFormStepper<TFormData extends FieldValues>({
       const parsed = schema.safeParse(formData);
 
       if (!parsed.success) {
-        console.error('Form data validation failed:', parsed.error);
         return false;
       }
 
