@@ -104,6 +104,8 @@ model EmailAddress {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  verified Boolean @default(false)
+
   @@index([emailAddress])
   @@index([userId])
 }

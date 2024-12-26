@@ -18,7 +18,7 @@ export const UserPermissionScalarFieldEnumSchema = z.enum(['id','permission','us
 
 export const UserScalarFieldEnumSchema = z.enum(['id','createdAt','updatedAt','firstName','lastName','imageUrl','password']);
 
-export const EmailAddressScalarFieldEnumSchema = z.enum(['id','emailAddress','isPrimary','verification','userId']);
+export const EmailAddressScalarFieldEnumSchema = z.enum(['id','emailAddress','isPrimary','verification','userId','verified']);
 
 export const ExternalAccountScalarFieldEnumSchema = z.enum(['id','provider','externalId','userId']);
 
@@ -126,6 +126,7 @@ export const EmailAddressSchema = z.object({
    */
   verification: z.string().nullable(),
   userId: z.string(),
+  verified: z.boolean(),
 })
 
 export type EmailAddress = z.infer<typeof EmailAddressSchema>
@@ -473,6 +474,7 @@ export const EmailAddressSelectSchema: z.ZodType<Prisma.EmailAddressSelect> = z.
   isPrimary: z.boolean().optional(),
   verification: z.boolean().optional(),
   userId: z.boolean().optional(),
+  verified: z.boolean().optional(),
   user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
 }).strict()
 
@@ -975,6 +977,7 @@ export const EmailAddressWhereInputSchema: z.ZodType<Prisma.EmailAddressWhereInp
   isPrimary: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
   verification: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  verified: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
 }).strict();
 
@@ -984,6 +987,7 @@ export const EmailAddressOrderByWithRelationInputSchema: z.ZodType<Prisma.EmailA
   isPrimary: z.lazy(() => SortOrderSchema).optional(),
   verification: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
+  verified: z.lazy(() => SortOrderSchema).optional(),
   user: z.lazy(() => UserOrderByWithRelationInputSchema).optional()
 }).strict();
 
@@ -1008,6 +1012,7 @@ export const EmailAddressWhereUniqueInputSchema: z.ZodType<Prisma.EmailAddressWh
   isPrimary: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
   verification: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  verified: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
 }).strict());
 
@@ -1017,6 +1022,7 @@ export const EmailAddressOrderByWithAggregationInputSchema: z.ZodType<Prisma.Ema
   isPrimary: z.lazy(() => SortOrderSchema).optional(),
   verification: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
+  verified: z.lazy(() => SortOrderSchema).optional(),
   _count: z.lazy(() => EmailAddressCountOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => EmailAddressMaxOrderByAggregateInputSchema).optional(),
   _min: z.lazy(() => EmailAddressMinOrderByAggregateInputSchema).optional()
@@ -1031,6 +1037,7 @@ export const EmailAddressScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.
   isPrimary: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema),z.boolean() ]).optional(),
   verification: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   userId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  verified: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema),z.boolean() ]).optional(),
 }).strict();
 
 export const ExternalAccountWhereInputSchema: z.ZodType<Prisma.ExternalAccountWhereInput> = z.object({
@@ -2029,6 +2036,7 @@ export const EmailAddressCreateInputSchema: z.ZodType<Prisma.EmailAddressCreateI
   emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
   isPrimary: z.boolean().optional(),
   verification: z.string().optional().nullable(),
+  verified: z.boolean().optional(),
   user: z.lazy(() => UserCreateNestedOneWithoutEmailAddressesInputSchema)
 }).strict();
 
@@ -2037,7 +2045,8 @@ export const EmailAddressUncheckedCreateInputSchema: z.ZodType<Prisma.EmailAddre
   emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
   isPrimary: z.boolean().optional(),
   verification: z.string().optional().nullable(),
-  userId: z.string()
+  userId: z.string(),
+  verified: z.boolean().optional()
 }).strict();
 
 export const EmailAddressUpdateInputSchema: z.ZodType<Prisma.EmailAddressUpdateInput> = z.object({
@@ -2045,6 +2054,7 @@ export const EmailAddressUpdateInputSchema: z.ZodType<Prisma.EmailAddressUpdateI
   emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutEmailAddressesNestedInputSchema).optional()
 }).strict();
 
@@ -2054,6 +2064,7 @@ export const EmailAddressUncheckedUpdateInputSchema: z.ZodType<Prisma.EmailAddre
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const EmailAddressCreateManyInputSchema: z.ZodType<Prisma.EmailAddressCreateManyInput> = z.object({
@@ -2061,7 +2072,8 @@ export const EmailAddressCreateManyInputSchema: z.ZodType<Prisma.EmailAddressCre
   emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
   isPrimary: z.boolean().optional(),
   verification: z.string().optional().nullable(),
-  userId: z.string()
+  userId: z.string(),
+  verified: z.boolean().optional()
 }).strict();
 
 export const EmailAddressUpdateManyMutationInputSchema: z.ZodType<Prisma.EmailAddressUpdateManyMutationInput> = z.object({
@@ -2069,6 +2081,7 @@ export const EmailAddressUpdateManyMutationInputSchema: z.ZodType<Prisma.EmailAd
   emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const EmailAddressUncheckedUpdateManyInputSchema: z.ZodType<Prisma.EmailAddressUncheckedUpdateManyInput> = z.object({
@@ -2077,6 +2090,7 @@ export const EmailAddressUncheckedUpdateManyInputSchema: z.ZodType<Prisma.EmailA
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ExternalAccountCreateInputSchema: z.ZodType<Prisma.ExternalAccountCreateInput> = z.object({
@@ -3212,7 +3226,8 @@ export const EmailAddressCountOrderByAggregateInputSchema: z.ZodType<Prisma.Emai
   emailAddress: z.lazy(() => SortOrderSchema).optional(),
   isPrimary: z.lazy(() => SortOrderSchema).optional(),
   verification: z.lazy(() => SortOrderSchema).optional(),
-  userId: z.lazy(() => SortOrderSchema).optional()
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  verified: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const EmailAddressMaxOrderByAggregateInputSchema: z.ZodType<Prisma.EmailAddressMaxOrderByAggregateInput> = z.object({
@@ -3220,7 +3235,8 @@ export const EmailAddressMaxOrderByAggregateInputSchema: z.ZodType<Prisma.EmailA
   emailAddress: z.lazy(() => SortOrderSchema).optional(),
   isPrimary: z.lazy(() => SortOrderSchema).optional(),
   verification: z.lazy(() => SortOrderSchema).optional(),
-  userId: z.lazy(() => SortOrderSchema).optional()
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  verified: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const EmailAddressMinOrderByAggregateInputSchema: z.ZodType<Prisma.EmailAddressMinOrderByAggregateInput> = z.object({
@@ -3228,7 +3244,8 @@ export const EmailAddressMinOrderByAggregateInputSchema: z.ZodType<Prisma.EmailA
   emailAddress: z.lazy(() => SortOrderSchema).optional(),
   isPrimary: z.lazy(() => SortOrderSchema).optional(),
   verification: z.lazy(() => SortOrderSchema).optional(),
-  userId: z.lazy(() => SortOrderSchema).optional()
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  verified: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const BoolWithAggregatesFilterSchema: z.ZodType<Prisma.BoolWithAggregatesFilter> = z.object({
@@ -5150,14 +5167,16 @@ export const EmailAddressCreateWithoutUserInputSchema: z.ZodType<Prisma.EmailAdd
   id: z.string().cuid().optional(),
   emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
   isPrimary: z.boolean().optional(),
-  verification: z.string().optional().nullable()
+  verification: z.string().optional().nullable(),
+  verified: z.boolean().optional()
 }).strict();
 
 export const EmailAddressUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.EmailAddressUncheckedCreateWithoutUserInput> = z.object({
   id: z.string().cuid().optional(),
   emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
   isPrimary: z.boolean().optional(),
-  verification: z.string().optional().nullable()
+  verification: z.string().optional().nullable(),
+  verified: z.boolean().optional()
 }).strict();
 
 export const EmailAddressCreateOrConnectWithoutUserInputSchema: z.ZodType<Prisma.EmailAddressCreateOrConnectWithoutUserInput> = z.object({
@@ -5449,6 +5468,7 @@ export const EmailAddressScalarWhereInputSchema: z.ZodType<Prisma.EmailAddressSc
   isPrimary: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
   verification: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  verified: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
 }).strict();
 
 export const ExternalAccountUpsertWithWhereUniqueWithoutUserInputSchema: z.ZodType<Prisma.ExternalAccountUpsertWithWhereUniqueWithoutUserInput> = z.object({
@@ -7268,7 +7288,8 @@ export const EmailAddressCreateManyUserInputSchema: z.ZodType<Prisma.EmailAddres
   id: z.string().cuid().optional(),
   emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
   isPrimary: z.boolean().optional(),
-  verification: z.string().optional().nullable()
+  verification: z.string().optional().nullable(),
+  verified: z.boolean().optional()
 }).strict();
 
 export const ExternalAccountCreateManyUserInputSchema: z.ZodType<Prisma.ExternalAccountCreateManyUserInput> = z.object({
@@ -7358,6 +7379,7 @@ export const EmailAddressUpdateWithoutUserInputSchema: z.ZodType<Prisma.EmailAdd
   emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const EmailAddressUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.EmailAddressUncheckedUpdateWithoutUserInput> = z.object({
@@ -7365,6 +7387,7 @@ export const EmailAddressUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma
   emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const EmailAddressUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.EmailAddressUncheckedUpdateManyWithoutUserInput> = z.object({
@@ -7372,6 +7395,7 @@ export const EmailAddressUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Pr
   emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ExternalAccountUpdateWithoutUserInputSchema: z.ZodType<Prisma.ExternalAccountUpdateWithoutUserInput> = z.object({

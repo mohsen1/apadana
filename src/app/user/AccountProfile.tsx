@@ -32,6 +32,7 @@ import { Separator } from '@/components/ui/separator';
 
 import { updateUser } from './actions';
 import { addEmailAddress, deleteEmailAddress, setPrimaryEmail } from './actions';
+import { resendEmailVerification } from './actions';
 
 export function AccountProfile() {
   const { toast } = useToast();
@@ -136,6 +137,21 @@ export function AccountProfile() {
       toast({
         title: 'Error deleting email',
         description: error.error.serverError?.error || 'Failed to delete email',
+        variant: 'destructive',
+      });
+    },
+  });
+  const { execute: resendVerificationAction } = useAction(resendEmailVerification, {
+    onSuccess: () => {
+      toast({
+        title: 'Verification email sent',
+        description: 'Please check your inbox for verification instructions.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error sending verification email',
+        description: error.error.serverError?.error || 'Failed to send verification email',
         variant: 'destructive',
       });
     },
@@ -268,13 +284,7 @@ export function AccountProfile() {
                     <Button
                       variant='ghost'
                       size='sm'
-                      onClick={() => {
-                        // TODO: Implement resend verification
-                        toast({
-                          title: 'Verification email sent',
-                          description: 'Please check your inbox.',
-                        });
-                      }}
+                      onClick={() => resendVerificationAction({ emailAddress: email.emailAddress })}
                     >
                       Resend Verification
                     </Button>

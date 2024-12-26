@@ -1,6 +1,13 @@
 'use client';
+
 import { LocalEmail } from '@prisma/client';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
+
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+import { EmailContent } from './EmailContent';
+import { EmailListItem } from './EmailListItem';
 
 interface EmailsListProps {
   emails: LocalEmail[];
@@ -10,65 +17,44 @@ export default function EmailsList({ emails }: EmailsListProps) {
   const [selectedEmail, setSelectedEmail] = useState<LocalEmail | null>(emails[0] ?? null);
 
   return (
-    <div className='flex flex-col'>
-      <header className='border-border border-b'>
-        <h1 className='p-4 text-2xl font-semibold'>Local Email Inbox</h1>
+    <div className='flex h-screen flex-col'>
+      <header className='border-border border-b p-4'>
+        <h1 className='text-2xl font-semibold'>Local Email Inbox</h1>
       </header>
 
-      <div className='grid grid-cols-2 gap-4'>
-        {/* Email List */}
-        <div className='border-border col-span-1 overflow-auto border-r'>
+      <div className='grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-3'>
+        <ScrollArea className='border-border md:col-span-1 md:border-r'>
           <ul>
             {emails.map((email) => (
-              <li
+              <EmailListItem
                 key={email.id}
-                className={`border-border hover:bg-accent cursor-pointer border-b p-4 ${
-                  selectedEmail?.id === email.id ? 'bg-accent border-l-primary border-l-4' : ''
-                }`}
+                email={email}
+                isSelected={selectedEmail?.id === email.id}
                 onClick={() => setSelectedEmail(email)}
-              >
-                <h2 className='font-medium'>{email.subject}</h2>
-                <p className='text-sm text-gray-600'>{email.to}</p>
-                <p className='text-muted-foreground text-xs' suppressHydrationWarning>
-                  {new Date(email.createdAt).toLocaleString()}
-                </p>
-              </li>
+              />
             ))}
           </ul>
-        </div>
+        </ScrollArea>
 
-        {/* Email Content */}
-        <div className='col-span-2 flex flex-col overflow-auto'>
-          {selectedEmail ? (
-            <div className='flex flex-1 flex-col'>
-              <div className='border-border border-b p-8'>
-                <h2 className='mb-4 text-2xl font-bold'>{selectedEmail.subject}</h2>
-                <p className='mb-2'>
-                  <strong>From:</strong> {selectedEmail.from}
-                </p>
-                <p className='mb-2'>
-                  <strong>To:</strong> {selectedEmail.to}
-                </p>
-              </div>
-
-              <div className='flex-1 overflow-auto p-8'>
-                <div
-                  className='prose max-w-none'
-                  dangerouslySetInnerHTML={{ __html: selectedEmail.html }}
-                />
-              </div>
-
-              <footer className='border-border mt-auto border-t p-4'>
-                <p className='text-sm text-gray-600'>
-                  Sent at: {new Date(selectedEmail.createdAt).toLocaleString()}
-                </p>
-              </footer>
-            </div>
-          ) : (
-            <div className='flex h-full items-center justify-center'>
-              <p className='text-muted-foreground'>Select an email to view its content</p>
-            </div>
-          )}
+        <div className='flex flex-col overflow-hidden md:col-span-2'>
+          <AnimatePresence mode='wait'>
+            <motion.div
+              key={selectedEmail?.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className='flex-1 overflow-hidden'
+            >
+              {selectedEmail ? (
+                <EmailContent email={selectedEmail} />
+              ) : (
+                <div className='flex h-full items-center justify-center'>
+                  <p className='text-muted-foreground'>Select an email to view its content</p>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

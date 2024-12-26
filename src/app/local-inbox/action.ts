@@ -5,6 +5,10 @@ import { actionClient } from '@/lib/safe-action';
 import { LocalEmailSchema } from '@/lib/schema';
 
 export const getEmails = actionClient.outputSchema(z.array(LocalEmailSchema)).action(async () => {
-  const emails = await prisma.localEmail.findMany();
+  const emails = await prisma.localEmail.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
   return emails;
 });

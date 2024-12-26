@@ -34,35 +34,52 @@ install_deps() {
         echo "[docker-entrypoint.dev.sh] ❌ Fatal: package.json is invalid and no backup exists"
         return 1
     fi
-    pnpm install --prefer-offline --reporter=append-only --force
+    # Remove --force flag and keep --prefer-offline for better caching
+    pnpm install --prefer-offline --reporter=append-only
     pnpm prisma generate --schema=src/prisma/schema.prisma
     touch node_modules/.install-stamp
 }
 
 # Initial installation if needed
-if [ ! -f "node_modules/.install-stamp" ] || [ "package.json" -nt "node_modules/.install-stamp" ]; then
+if [ ! -f "node_modules/.install-stamp" ] || [ "pnpm-lock.yaml" -nt "node_modules/.install-stamp" ]; then
     install_deps
 fi
 
+# Function to handle Prisma schema changes
+handle_prisma_change() {
+    echo "[docker-entrypoint.dev.sh] 🔄 Prisma schema changed, regenerating to migrate..."
+    pnpm prisma generate --schema=src/prisma/schema.prisma
+    # Kill the dev server to trigger restart
+    kill $PID 2>/dev/null
+    # Start the application again
+    exec "$@" &
+    PID=$!
+}
+
+# Watch only lock file and prisma schema
 (
     while true; do
-        if ! inotifywait -e modify,create,delete,move -q /app/package.json 2>watch_error.log; then
-            echo "[docker-entrypoint.dev.sh] ⚠️ Error watching package.json:"
+        if ! inotifywait -e modify,create,delete,move -q \
+            /app/pnpm-lock.yaml \
+            /app/src/prisma/schema.prisma 2>watch_error.log; then
+            echo "[docker-entrypoint.dev.sh] ⚠️ Error watching files:"
             cat watch_error.log
             echo "[docker-entrypoint.dev.sh] Retrying in 5 seconds..."
             sleep 5
             continue
         fi
-        echo "[docker-entrypoint.dev.sh] 📦 package.json changed, validating..."
-        # Add small delay to ensure file write is complete
-        sleep 1
-        if ! validate_package_json; then
-            echo "[docker-entrypoint.dev.sh] ⚠️ Skipping invalid package.json update"
-            continue
-        fi
-        if ! install_deps 2>deps_error.log; then
-            echo "[docker-entrypoint.dev.sh] ⚠️ Error installing dependencies:"
-            cat deps_error.log
+
+        # Check which file changed
+        if [ "${BASH_SOURCE[1]}" = "/app/src/prisma/schema.prisma" ]; then
+            handle_prisma_change "$@"
+        elif [ "${BASH_SOURCE[1]}" = "/app/pnpm-lock.yaml" ]; then
+            echo "[docker-entrypoint.dev.sh] 📦 Lock file changed, installing dependencies..."
+            # Add small delay to ensure file write is complete
+            sleep 1
+            if ! install_deps 2>deps_error.log; then
+                echo "[docker-entrypoint.dev.sh] ⚠️ Error installing dependencies:"
+                cat deps_error.log
+            fi
         fi
         sleep 1
     done

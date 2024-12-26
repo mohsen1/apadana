@@ -3,10 +3,12 @@
 import { z } from 'zod';
 
 import { sanitizeUserForClient } from '@/lib/auth/utils';
+import { sendEmailVerificationEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
 import { ClientUserSchema, UpdateUserSchema } from '@/lib/schema';
 
+import { assertError } from '@/utils';
 import logger from '@/utils/logger';
 
 export const updateUser = actionClient
@@ -70,14 +72,17 @@ export const addEmailAddress = actionClient
       throw new UnauthorizedError();
     }
 
-    // Check if email already exists
+    // Check if email already exists but don't reveal if it does
     const existingEmail = await prisma.emailAddress.findUnique({
       where: { emailAddress: parsedInput.emailAddress },
     });
 
     if (existingEmail) {
-      throw new ClientVisibleError('This email address is already in use');
+      // Return success even if email exists to prevent email enumeration
+      return { success: true };
     }
+
+    const verificationCode = crypto.randomUUID();
 
     // Add new email address with verification code
     const newEmail = await prisma.emailAddress.create({
@@ -85,14 +90,23 @@ export const addEmailAddress = actionClient
         emailAddress: parsedInput.emailAddress,
         userId: ctx.userId,
         isPrimary: false,
-        verification: crypto.randomUUID(), // Generate verification code
+        verification: verificationCode,
+        verified: false,
       },
     });
 
-    // TODO: Send verification email
-    // await sendEmailVerification(newEmail.emailAddress, newEmail.verification);
+    try {
+      await sendEmailVerificationEmail({
+        to: parsedInput.emailAddress,
+        verificationCode,
+      });
+    } catch (error) {
+      assertError(error);
+      logger.error('Failed to send verification email', { error });
+      throw new ClientVisibleError('Failed to send verification email');
+    }
 
-    return { email: newEmail };
+    return { success: true };
   });
 
 const setPrimaryEmailSchema = z.object({
@@ -164,6 +178,40 @@ export const deleteEmailAddress = actionClient
     await prisma.emailAddress.delete({
       where: { id: parsedInput.emailAddressId },
     });
+
+    return { success: true };
+  });
+
+export const resendEmailVerification = actionClient
+  .schema(addEmailSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    if (!ctx.userId) {
+      throw new UnauthorizedError();
+    }
+
+    const verificationCode = crypto.randomUUID();
+
+    // Update existing email with new verification code
+    await prisma.emailAddress.update({
+      where: {
+        emailAddress: parsedInput.emailAddress,
+        userId: ctx.userId,
+      },
+      data: {
+        verification: verificationCode,
+      },
+    });
+
+    try {
+      await sendEmailVerificationEmail({
+        to: parsedInput.emailAddress,
+        verificationCode,
+      });
+    } catch (error) {
+      assertError(error);
+      logger.error('Failed to send verification email', { error });
+      throw new ClientVisibleError('Failed to send verification email');
+    }
 
     return { success: true };
   });
