@@ -68,7 +68,7 @@ model User {
   /// @zod.string({required_error: "Last name is required" })
   lastName String?
 
-  /// @zod.string({required_error: "Image URL must be valid" }).url()
+  /// @zod.string({required_error: "Image URL must be valid" })
   imageUrl String?
 
   // Authentication
@@ -103,6 +103,8 @@ model EmailAddress {
   // Relationships
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  verified Boolean @default(false)
 
   @@index([emailAddress])
   @@index([userId])

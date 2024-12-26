@@ -28,7 +28,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   const fetchUser = useCallback(async () => {
     const result = await getCurrentUser();
     setUser(result?.data?.user ?? null);
-  }, []);
+  }, [getCurrentUser]);
 
   const signOut = useCallback(async () => {
     try {
