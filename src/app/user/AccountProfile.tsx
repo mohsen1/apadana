@@ -7,11 +7,22 @@ import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { UpdateUser, UpdateUserSchema } from '@/lib/schema';
+import { EmailAddress, UpdateUser, UpdateUserSchema } from '@/lib/schema';
 import { useAuth } from '@/hooks/useAuth';
 import { useFileUploader } from '@/hooks/useFileUploader';
 import { useToast } from '@/hooks/useToast';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,13 +31,15 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 
 import { updateUser } from './actions';
+import { addEmailAddress, deleteEmailAddress, setPrimaryEmail } from './actions';
 
 export function AccountProfile() {
   const { toast } = useToast();
-  const { user, signOut, setUser } = useAuth();
+  const { user, signOut, fetchUser } = useAuth();
   const form = useForm<UpdateUser>({
     resolver: zodResolver(UpdateUserSchema),
     defaultValues: {
+      id: user?.id ?? undefined,
       firstName: user?.firstName ?? undefined,
       lastName: user?.lastName ?? undefined,
       imageUrl: user?.imageUrl ?? undefined,
@@ -46,6 +59,12 @@ export function AccountProfile() {
     onUploadSuccess: ([file]) => {
       execute({ ...form.getValues(), imageUrl: file.uploadedUrl });
     },
+    onUploadError: (error) => {
+      toast({
+        title: 'Error uploading file',
+        description: error.message,
+      });
+    },
   });
 
   const { execute, status } = useAction(updateUser, {
@@ -55,7 +74,7 @@ export function AccountProfile() {
         toast({
           title: 'Settings updated successfully',
         });
-        setUser(result.data.user);
+        fetchUser();
       }
     },
     onError: (error) => {
@@ -73,6 +92,54 @@ export function AccountProfile() {
   const userInitials = `${user?.firstName?.[0] ?? ''} ${user?.lastName?.[0] ?? ''}`;
 
   const [isEditing, setIsEditing] = useState(false);
+  const [showAddEmail, setShowAddEmail] = useState(false);
+  const { execute: addEmailAction, status: addEmailStatus } = useAction(addEmailAddress, {
+    onSuccess: () => {
+      toast({
+        title: 'Email added successfully',
+        description: 'Please check your inbox for verification instructions.',
+      });
+      setShowAddEmail(false);
+      fetchUser();
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error adding email',
+        description: error.error.serverError?.error || 'Failed to add email',
+        variant: 'destructive',
+      });
+    },
+  });
+  const { execute: setPrimaryEmailAction } = useAction(setPrimaryEmail, {
+    onSuccess: () => {
+      toast({
+        title: 'Primary email updated successfully',
+      });
+      fetchUser();
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error updating primary email',
+        description: error.error.serverError?.error || 'Failed to update primary email',
+        variant: 'destructive',
+      });
+    },
+  });
+  const { execute: deleteEmailAction } = useAction(deleteEmailAddress, {
+    onSuccess: () => {
+      toast({
+        title: 'Email address deleted',
+      });
+      fetchUser();
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error deleting email',
+        description: error.error.serverError?.error || 'Failed to delete email',
+        variant: 'destructive',
+      });
+    },
+  });
 
   return (
     <div className='w-full'>
@@ -168,23 +235,119 @@ export function AccountProfile() {
           <div className='mb-8'>
             <div className='mb-4 flex items-center justify-between'>
               <h3 className='text-lg font-medium'>Email addresses</h3>
-              <Button variant='ghost' size='sm' className='border-border hover:bg-accent'>
-                ...
-              </Button>
             </div>
-            <div className='mb-2 flex items-center justify-between'>
-              <div className='flex items-center gap-2'>
-                <span>john@example.com</span>
-                <Badge variant='secondary'>Primary</Badge>
+
+            {user?.emailAddresses?.map((email: EmailAddress) => (
+              <div key={email.id} className='mb-2 flex items-center justify-between'>
+                <div className='flex items-center gap-2'>
+                  <span>{email.emailAddress}</span>
+                  <div className='flex gap-1'>
+                    {email.isPrimary && <Badge variant='secondary'>Primary</Badge>}
+                    {email.verification ? (
+                      <Badge variant='outline' className='text-muted-foreground'>
+                        Unverified
+                      </Badge>
+                    ) : (
+                      <Badge variant='secondary' className='bg-green-500/10 text-green-500'>
+                        Verified
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <div className='flex gap-2'>
+                  {!email.isPrimary && !email.verification && (
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => setPrimaryEmailAction({ emailAddressId: email.id })}
+                    >
+                      Make Primary
+                    </Button>
+                  )}
+                  {email.verification && (
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => {
+                        // TODO: Implement resend verification
+                        toast({
+                          title: 'Verification email sent',
+                          description: 'Please check your inbox.',
+                        });
+                      }}
+                    >
+                      Resend Verification
+                    </Button>
+                  )}
+                  {!email.isPrimary && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant='ghost' size='sm' className='text-destructive'>
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete email address?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete {email.emailAddress}? This action cannot
+                            be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => deleteEmailAction({ emailAddressId: email.id })}
+                            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
               </div>
-            </div>
-            <Button variant='outline' size='sm' className='border-border mt-4'>
-              <span className='mr-2'>+</span> Add email address
-            </Button>
+            ))}
+
+            {showAddEmail ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const email = formData.get('email') as string;
+                  addEmailAction({ emailAddress: email });
+                }}
+                className='mt-4 flex gap-2'
+              >
+                <Input
+                  name='email'
+                  type='email'
+                  placeholder='Enter email address'
+                  className='border-border'
+                  required
+                />
+                <Button type='submit' disabled={addEmailStatus === 'executing'}>
+                  {addEmailStatus === 'executing' ? 'Adding...' : 'Add'}
+                </Button>
+                <Button type='button' variant='ghost' onClick={() => setShowAddEmail(false)}>
+                  Cancel
+                </Button>
+              </form>
+            ) : (
+              <Button
+                variant='outline'
+                size='sm'
+                className='border-border mt-4'
+                onClick={() => setShowAddEmail(true)}
+              >
+                <span className='mr-2'>+</span> Add email address
+              </Button>
+            )}
           </div>
 
-          {/* Connected Accounts Section */}
-          <div>
+          {/* TODO: Add back Connected Accounts Section */}
+          {/* <div>
             <div className='mb-4 flex items-center justify-between'>
               <h3 className='text-lg font-medium'>Connected accounts</h3>
               <Button variant='ghost' size='sm' className='border-border'>
@@ -218,7 +381,7 @@ export function AccountProfile() {
             <Button variant='outline' size='sm' className='border-border mt-4'>
               <span className='mr-2'>+</span> Connect account
             </Button>
-          </div>
+          </div> */}
 
           <Separator className='border-border my-8' />
 

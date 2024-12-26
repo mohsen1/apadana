@@ -58,3 +58,112 @@ export const deleteAccount = actionClient
 
     return { user: null };
   });
+
+const addEmailSchema = z.object({
+  emailAddress: z.string().email('Please enter a valid email address'),
+});
+
+export const addEmailAddress = actionClient
+  .schema(addEmailSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    if (!ctx.userId) {
+      throw new UnauthorizedError();
+    }
+
+    // Check if email already exists
+    const existingEmail = await prisma.emailAddress.findUnique({
+      where: { emailAddress: parsedInput.emailAddress },
+    });
+
+    if (existingEmail) {
+      throw new ClientVisibleError('This email address is already in use');
+    }
+
+    // Add new email address with verification code
+    const newEmail = await prisma.emailAddress.create({
+      data: {
+        emailAddress: parsedInput.emailAddress,
+        userId: ctx.userId,
+        isPrimary: false,
+        verification: crypto.randomUUID(), // Generate verification code
+      },
+    });
+
+    // TODO: Send verification email
+    // await sendEmailVerification(newEmail.emailAddress, newEmail.verification);
+
+    return { email: newEmail };
+  });
+
+const setPrimaryEmailSchema = z.object({
+  emailAddressId: z.string(),
+});
+
+export const setPrimaryEmail = actionClient
+  .schema(setPrimaryEmailSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    if (!ctx.userId) {
+      throw new UnauthorizedError();
+    }
+
+    // Check if email is verified
+    const emailToMakePrimary = await prisma.emailAddress.findFirst({
+      where: {
+        id: parsedInput.emailAddressId,
+        userId: ctx.userId,
+        verification: null, // Only verified emails can be made primary
+      },
+    });
+
+    if (!emailToMakePrimary) {
+      throw new ClientVisibleError('Email must be verified before it can be made primary');
+    }
+
+    // Start a transaction to update primary status
+    await prisma.$transaction(async (tx) => {
+      // First, set all user's email addresses to non-primary
+      await tx.emailAddress.updateMany({
+        where: { userId: ctx.userId! },
+        data: { isPrimary: false },
+      });
+
+      // Then set the selected email as primary
+      await tx.emailAddress.update({
+        where: { id: parsedInput.emailAddressId },
+        data: { isPrimary: true },
+      });
+    });
+
+    return { success: true, emailAddressId: parsedInput.emailAddressId };
+  });
+
+const deleteEmailSchema = z.object({
+  emailAddressId: z.string(),
+});
+
+export const deleteEmailAddress = actionClient
+  .schema(deleteEmailSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    if (!ctx.userId) {
+      throw new UnauthorizedError();
+    }
+
+    // Check if email exists and is not primary
+    const emailToDelete = await prisma.emailAddress.findFirst({
+      where: {
+        id: parsedInput.emailAddressId,
+        userId: ctx.userId,
+        isPrimary: false,
+      },
+    });
+
+    if (!emailToDelete) {
+      throw new ClientVisibleError('Cannot delete primary email address');
+    }
+
+    await prisma.emailAddress.delete({
+      where: { id: parsedInput.emailAddressId },
+    });
+
+    return { success: true };
+  });

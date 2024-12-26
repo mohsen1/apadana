@@ -21,6 +21,7 @@ import { z } from 'zod';
 
 import {
   BookingSchema,
+  EmailAddressSchema,
   ListingIncludeSchema,
   ListingSchema,
   UploadedPhotoSchema,
@@ -56,12 +57,19 @@ export const BaseListingSchema = ListingSchema.refine(
 //#endregion
 
 //#region Authentication & User Schemas
-export const ClientUserSchema = UserSchema.omit({
-  password: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
-  email: z.string().email(),
+
+export const ClientUserSchema = z.object({
+  id: z.string(),
+  firstName: z.string().nullable(),
+  lastName: z.string().nullable(),
+  imageUrl: z.string().nullable(),
+  email: z.string().describe('The primary email address of the user'),
+  emailAddresses: z.array(EmailAddressSchema),
+
+  // Ensure that these fields are not included in the schema
+  password: z.never().describe('not included in the client user schema').optional(),
+  createdAt: z.never().describe('not included in the client user schema').optional(),
+  updatedAt: z.never().describe('not included in the client user schema').optional(),
 });
 
 export const LoginSchema = z.object({
@@ -300,4 +308,6 @@ export type BookingRequestResponse = z.infer<typeof BookingRequestResponseSchema
 export type ChangeBookingRequestStatus = z.infer<typeof ChangeBookingRequestStatusSchema>;
 export type GetBookings = z.infer<typeof GetBookingsSchema>;
 export type UpdateUser = z.infer<typeof UpdateUserSchema>;
+export type ClientUser = z.infer<typeof ClientUserSchema>;
+export type EmailAddress = z.infer<typeof EmailAddressSchema>;
 //#endregion

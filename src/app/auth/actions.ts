@@ -33,7 +33,6 @@ export const login = actionClient
     });
 
     if (!user) {
-      // This should never happen, but if it does, we don't want to leak information
       throw new ClientVisibleError('Invalid email or password');
     }
 
@@ -56,19 +55,11 @@ export const login = actionClient
       },
     });
 
-    // Get primary email
-    const primaryEmail = user.emailAddresses.find((e) => e.isPrimary)?.emailAddress;
-
-    if (!primaryEmail) {
-      throw new Error('Primary email not found');
-    }
-
     ctx.setSession(session);
 
     const clientUser = sanitizeUserForClient(user);
-
     if (!clientUser) {
-      throw new Error('User not found');
+      throw new Error('Failed to create user');
     }
 
     return {
@@ -160,7 +151,9 @@ const getCurrentUserOutput = z
 
 export const getCurrentUser = actionClient.outputSchema(getCurrentUserOutput).action(async () => {
   const user = await getUserInServer();
+  if (!user) return { user: null };
   const clientUser = sanitizeUserForClient(user);
+  if (!clientUser) return { user: null };
   return { user: clientUser };
 });
 

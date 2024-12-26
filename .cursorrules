@@ -35,6 +35,9 @@ Backend Rules:
 - Use Prisma ORM for database interactions: `import prisma from '@/lib/prisma/client'`.
 - Use React-Hook-Form and `next-safe-action` for form handling.
 - Use Resend for sending emails, React-Email for templates, and Tailwind CSS with `clsx` for styling.
+- Pay attention to src/prisma/schema.prisma to understand the database schema.
+- Always try to import model schemas from `src/prisma/schema.ts` or `src/prisma/zod/index.ts`
+- Avoid defining duplicate schemas and interfaces that can be imported from above file
 - Use this API signature for actions:
 
   ```typescript

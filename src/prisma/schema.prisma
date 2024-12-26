@@ -68,7 +68,7 @@ model User {
   /// @zod.string({required_error: "Last name is required" })
   lastName String?
 
-  /// @zod.string({required_error: "Image URL must be valid" }).url()
+  /// @zod.string({required_error: "Image URL must be valid" })
   imageUrl String?
 
   // Authentication
