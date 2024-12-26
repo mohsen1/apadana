@@ -29,7 +29,7 @@ export function AccountSecurity() {
     try {
       setIsDeleting(true);
       await deleteAccount();
-      router.push('/sign-in');
+      router.push('/signin');
     } catch (error) {
       logger.error('Error deleting account:', error);
     } finally {

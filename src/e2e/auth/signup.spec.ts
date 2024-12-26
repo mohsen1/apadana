@@ -50,6 +50,6 @@ test.describe('Signup Page', () => {
   test('navigates to login page', async ({ page }) => {
     await page.goto('/signup');
     await page.getByText(/Log in/i).click();
-    await expect(page).toHaveURL('/sign-in');
+    await expect(page).toHaveURL('/signin');
   });
 });

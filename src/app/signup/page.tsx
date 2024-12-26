@@ -108,7 +108,7 @@ function SignUpForm() {
         <CardFooter className='justify-center'>
           <p className='text-muted-foreground text-sm'>
             Already have an account?{' '}
-            <Link href='/sign-in' className='text-primary hover:underline'>
+            <Link href='/signin' className='text-primary hover:underline'>
               Log in
             </Link>
           </p>
