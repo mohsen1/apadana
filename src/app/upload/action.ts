@@ -32,8 +32,6 @@ const getUploadSignedUrl = actionClient
   .schema(inputSchema)
   .outputSchema(outputSchema)
   .action(async ({ parsedInput }) => {
-    const { NEXT_PUBLIC_S3_UPLOAD_REGION, S3_UPLOAD_KEY, S3_UPLOAD_SECRET } = process.env;
-
     if (shouldUseFakeUploads) {
       // Return fake signed URLs for e2e testing
       const urls = parsedInput.files.map((file) => {
@@ -49,10 +47,10 @@ const getUploadSignedUrl = actionClient
 
     // Initialize S3 client
     const s3Client = new S3Client({
-      region: NEXT_PUBLIC_S3_UPLOAD_REGION,
+      region: process.env.NEXT_PUBLIC_S3_UPLOAD_REGION,
       credentials: {
-        accessKeyId: S3_UPLOAD_KEY,
-        secretAccessKey: S3_UPLOAD_SECRET,
+        accessKeyId: process.env.S3_UPLOAD_KEY,
+        secretAccessKey: process.env.S3_UPLOAD_SECRET,
       },
     });
     try {
