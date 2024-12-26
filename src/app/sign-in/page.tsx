@@ -59,7 +59,7 @@ function SignInPage() {
   });
 
   return (
-    <div className='bg-muted flex min-h-screen items-center justify-center p-4'>
+    <div className='flex min-h-screen items-center justify-center bg-zinc-900 p-4 dark:bg-zinc-50'>
       <Card className={cn('w-full max-w-md shadow-lg', hasErrored && 'shadow-red-500')}>
         <CardHeader>
           <CardTitle className='text-center text-2xl font-bold'>Login to your account</CardTitle>
