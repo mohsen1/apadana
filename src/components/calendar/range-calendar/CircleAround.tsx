@@ -35,7 +35,11 @@ export function CircleAround({
                 100% { stroke-dashoffset: 0; }
               }
               #arc {
-                animation: revealCircle ${animationDuration}s forwards ease-in-out;
+                animation-name: revealCircle;
+                animation-duration: ${animationDuration}s;
+                animation-timing-function: ease-in-out;
+                animation-delay: 600ms;
+                animation-fill-mode: forwards;
               }
             `}
           </style>

@@ -5,7 +5,12 @@ import { Button } from '@/components/ui/button';
 
 const Footer = ({ className }: { className?: string }) => {
   return (
-    <footer className={cn('text-foreground mx-auto max-w-6xl flex-1 py-8', className)}>
+    <footer
+      className={cn(
+        'text-foreground mx-auto max-w-6xl flex-1 border-t border-zinc-200 bg-zinc-50 py-8',
+        className,
+      )}
+    >
       <div className='container mx-auto px-4'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
           <div className='w-full'>
