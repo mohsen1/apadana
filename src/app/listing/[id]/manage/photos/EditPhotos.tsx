@@ -2,15 +2,13 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Listing, UploadedPhoto } from '@prisma/client';
-import { Loader2, SaveIcon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Controller, useForm } from 'react-hook-form';
 
 import { EditListingImages, EditListingImagesSchema } from '@/lib/schema';
 
-import { DisappearingComponent } from '@/components/common/DisappearingComponent';
+import { SaveButton } from '@/components/common/SaveButton';
 import { ImageUploader } from '@/components/image-uploader';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { editListingImages } from '@/app/listing/[id]/manage/action';
@@ -66,30 +64,14 @@ export function EditPhotos({ listing }: EditPhotosProps) {
             />
             {errors.images && <div className='text-destructive'>{errors.images.message}</div>}
           </div>
-          <div className='flex items-center justify-start'>
-            <Button
-              disabled={isSubmitting || !formState.isDirty}
-              type='submit'
-              className='flex items-center gap-2'
-            >
-              {status === 'executing' ? (
-                <>
-                  <Loader2 />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <SaveIcon />
-                  <span>Save Changes</span>
-                </>
-              )}
-            </Button>
-            {formState.isSubmitSuccessful && !formState.isSubmitting && (
-              <DisappearingComponent disappearIn={3} className='mx-2 text-green-600'>
-                Your changes have been saved
-              </DisappearingComponent>
-            )}
-          </div>
+          <SaveButton
+            isSubmitting={isSubmitting}
+            isValid={true}
+            isDirty={formState.isDirty}
+            status={status}
+            isSubmitSuccessful={formState.isSubmitSuccessful}
+            successMessage='Photos have been saved successfully'
+          />
         </form>
       </CardContent>
     </Card>
