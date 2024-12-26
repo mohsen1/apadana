@@ -16,6 +16,7 @@ interface LocationPickerProps {
   initialAddress?: string;
   initialLatitude?: number | null;
   initialLongitude?: number | null;
+  showExactLocationSwitch?: boolean;
   initialShowExactLocation?: boolean;
   onAddressChange?: (address: string) => void;
   onLocationChange?: (lat: number, lng: number) => void;
@@ -29,6 +30,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   initialAddress = '',
   initialLatitude,
   initialLongitude,
+  showExactLocationSwitch = true,
   initialShowExactLocation = true,
   onAddressChange,
   onLocationChange,
@@ -321,19 +323,21 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
           {mapCenter && (
             <>
-              <div className='mt-4 flex items-center'>
-                <Switch
-                  id='showExactLocation'
-                  checked={showExactLocation}
-                  onCheckedChange={(checked) => {
-                    setShowExactLocation(checked);
-                    onShowExactLocationChange?.(checked);
-                  }}
-                />
-                <Label htmlFor='showExactLocation' className='ml-2'>
-                  Show exact location
-                </Label>
-              </div>
+              {showExactLocationSwitch && (
+                <div className='mt-4 flex items-center'>
+                  <Switch
+                    id='showExactLocation'
+                    checked={showExactLocation}
+                    onCheckedChange={(checked) => {
+                      setShowExactLocation(checked);
+                      onShowExactLocationChange?.(checked);
+                    }}
+                  />
+                  <Label htmlFor='showExactLocation' className='ml-2'>
+                    Show exact location
+                  </Label>
+                </div>
+              )}
               <div className='mt-4 h-64 w-full'>
                 <GoogleMap
                   onLoad={(map) => {
