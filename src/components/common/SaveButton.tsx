@@ -14,6 +14,9 @@ interface SaveButtonProps {
   isSubmitSuccessful?: boolean;
 }
 
+/**
+ * Sticks to the bottom of the screen and shows a save button
+ */
 export function SaveButton({
   isSubmitting,
   isValid = true,
@@ -23,7 +26,7 @@ export function SaveButton({
   isSubmitSuccessful = false,
 }: SaveButtonProps) {
   return (
-    <div className='bg-background sticky bottom-0 left-0 flex items-center justify-start py-4'>
+    <div className='bg-background sticky bottom-0 left-0 flex items-center justify-start px-2 py-4 md:px-0'>
       <Button
         disabled={isSubmitting || !isValid || !isDirty}
         type='submit'

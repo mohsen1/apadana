@@ -27,7 +27,7 @@ export default function UpdateListingForm({ listing }: { listing: Listing }) {
   const { execute, status } = useAction(editListing, {});
   const { errors, isSubmitting } = formState;
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6 px-2 md:px-0'>
       <div className='space-y-2'>
         <h2 className='text-2xl font-semibold tracking-tight'>Listing Details</h2>
         <p className='text-muted-foreground text-sm'>Edit your listing information</p>
