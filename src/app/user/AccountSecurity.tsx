@@ -39,38 +39,57 @@ export function AccountSecurity() {
 
   return (
     <div className='flex-1 p-6'>
-      <div className='max-w-3xl space-y-6'>
-        <h2 className='text-2xl font-semibold'>Security Settings</h2>
+      <div className='max-w-3xl'>
+        <div className='space-y-6'>
+          <div>
+            <h3 className='text-lg font-medium'>Security Settings</h3>
+            <p className='text-muted-foreground text-sm'>Manage your account security and data.</p>
+          </div>
 
-        <div className='border-t pt-6'>
-          <h3 className='text-destructive mb-2 text-lg font-medium'>Danger Zone</h3>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant='destructive' disabled={isDeleting}>
-                <Trash2 className='mr-2 h-4 w-4' />
-                Delete Account
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your account and remove
-                  all of your data from our servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteAccount}
-                  className='bg-destructive hover:bg-destructive/90'
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? 'Deleting...' : 'Delete Account'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <div className='my-8 space-y-4'>
+            <div>
+              <h3 className='text-destructive text-lg font-medium'>Danger Zone</h3>
+              <p className='my-2 text-sm'>
+                Once you delete your account, there is no going back. Please be certain.
+              </p>
+              <p className='my-2 text-sm'>
+                This action cannot be undone. This will permanently delete your account and remove
+                all of your data from our servers.
+              </p>
+              <p className='my-2 text-sm'>
+                If you have current bookings or booking requests, you can not delete your account.
+              </p>
+              <p className='my-2 text-sm'>If you have any questions, please contact support.</p>
+            </div>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant='destructive' disabled={isDeleting}>
+                  <Trash2 className='mr-2 h-4 w-4' />
+                  Delete Account
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your account and
+                    remove all of your data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    className='bg-destructive hover:bg-destructive/90'
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? 'Deleting...' : 'Delete Account'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </div>
     </div>
