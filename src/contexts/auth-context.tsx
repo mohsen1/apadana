@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useEffect, useState } from 'react';
 
-import { ClientUser, getCurrentUser } from '@/app/auth/actions';
+import { ClientUser, getCurrentUser, logOut } from '@/app/auth/actions';
 import { createLogger } from '@/utils/logger';
 
 export type { ClientUser };
@@ -32,9 +32,10 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 
   const signOut = useCallback(async () => {
     try {
-      const res = await fetch('/api/auth/logout', { method: 'POST' });
-      if (!res.ok) throw new Error('Failed to log out');
-      setUser(null);
+      const result = await logOut();
+      if (result?.data?.user) {
+        setUser(null);
+      }
     } catch (error) {
       logger.error('Error logging out in AuthProvider:', error);
     }

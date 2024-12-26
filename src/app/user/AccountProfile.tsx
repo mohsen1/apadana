@@ -286,11 +286,11 @@ export function AccountProfile() {
               {user?.emailAddresses?.map((email: EmailAddress) => (
                 <div
                   key={email.id}
-                  className='flex min-h-20 items-center justify-between rounded-lg border p-4'
+                  className='flex min-h-20 flex-col items-start justify-between space-y-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:space-y-0'
                 >
-                  <div className='grid gap-1'>
-                    <div className='flex items-center gap-2'>
-                      <p className='text-sm font-medium'>{email.emailAddress}</p>
+                  <div className='w-full space-y-2 sm:w-auto'>
+                    <p className='break-all text-sm font-medium'>{email.emailAddress}</p>
+                    <div className='flex flex-wrap items-center gap-2'>
                       {email.isPrimary && <Badge variant='secondary'>Primary</Badge>}
                       {email.verification ? (
                         <Badge variant='outline' className='text-muted-foreground'>
@@ -303,7 +303,7 @@ export function AccountProfile() {
                       )}
                     </div>
                   </div>
-                  <div className='flex gap-2'>
+                  <div className='flex w-full justify-end gap-2 sm:w-auto'>
                     {!email.isPrimary && !email.verification && (
                       <Button
                         variant='ghost'
