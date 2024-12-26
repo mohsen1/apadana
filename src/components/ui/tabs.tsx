@@ -14,7 +14,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      `text-muted-foreground border-b-foreground/50 inline-flex w-full items-center justify-start rounded-md rounded-b-none border-b-2`,
+      `text-muted-foreground border-b-foreground inline-flex w-full items-center justify-start rounded-md rounded-b-none border-b-2 px-2`,
       className,
     )}
     {...props}
@@ -29,17 +29,29 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'ring-offset-background focus-visible:ring-ring inline-flex items-center',
+      'ring-offset-background focus-visible:ring-ring relative inline-flex items-center',
       'justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium',
       'rounded-none transition-all focus-visible:outline-none focus-visible:ring-2',
       'focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-      'state-active:bg-foreground/50 state-active:text-background state-active:rounded-tl',
-      'state-active:rounded-tr',
+      'state-active:border-t-2 state-active:border-t-foreground state-active:text-foreground',
+      'state-active:rounded-t-lg state-active:rounded-b-none',
+      'state-active:border-l-2 state-active:border-l-foreground state-active:border-r-2 state-active:border-r-foreground',
+      'state-active:bg-foreground state-active:text-background',
+      // Add pseudo-elements for bottom corners with borders
+      'state-active:after:absolute state-active:after:bottom-[-2px] state-active:after:right-[-16px]',
+      'state-active:after:h-4 state-active:after:w-4 state-active:after:bg-transparent',
+      'state-active:after:border-b-2 state-active:after:border-foreground state-active:after:border-l-2',
+      'state-active:after:rounded-bl-lg',
+      'state-active:before:absolute state-active:before:bottom-[-2px] state-active:before:left-[-16px]',
+      'state-active:before:h-4 state-active:before:w-4 state-active:before:bg-transparent',
+      'state-active:before:border-b-2 state-active:before:border-foreground state-active:before:border-r-2',
+      'state-active:before:rounded-br-lg',
       className,
     )}
     {...props}
   />
 ));
+
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
 
 const TabsContent = React.forwardRef<

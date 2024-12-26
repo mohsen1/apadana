@@ -59,19 +59,19 @@ export async function BookingManagementLayout({ children, id, tab }: BookingMana
 
       <Tabs defaultValue={tab} className='w-full space-y-4'>
         <TabsList className='w-full overflow-y-auto'>
-          <TabsTrigger value='calendar'>
+          <TabsTrigger value='calendar' className='text-xl'>
             <Link href={`/listing/${id}/manage/calendar`}>Calendar</Link>
           </TabsTrigger>
-          <TabsTrigger value='details'>
+          <TabsTrigger value='details' className='text-xl'>
             <Link href={`/listing/${id}/manage/details`}>Details</Link>
           </TabsTrigger>
-          <TabsTrigger value='photos'>
+          <TabsTrigger value='photos' className='text-xl'>
             <Link href={`/listing/${id}/manage/photos`}>Photos</Link>
           </TabsTrigger>
-          <TabsTrigger value='bookings'>
+          <TabsTrigger value='bookings' className='text-xl'>
             <Link href={`/listing/${id}/manage/bookings`}>Bookings</Link>
           </TabsTrigger>
-          <TabsTrigger value='booking-requests'>
+          <TabsTrigger value='booking-requests' className='text-xl'>
             <Link href={`/listing/${id}/manage/booking-requests`}>Booking Requests</Link>
           </TabsTrigger>
         </TabsList>
