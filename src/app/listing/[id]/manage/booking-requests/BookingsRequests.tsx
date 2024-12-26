@@ -4,8 +4,8 @@ import { differenceInDays } from 'date-fns';
 import { FullListing } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 
+import { EmptyState } from '@/components/common/EmptyState';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -39,73 +39,81 @@ export async function BookingRequests({ listing }: { listing: FullListing }) {
   }
 
   return (
-    <Card className='box-shadow-none border-none'>
-      <CardHeader>
-        <CardTitle>Booking Requests</CardTitle>
-        <CardDescription>View current and past booking requests</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
+    <div>
+      <div className='space-y-1.5 pb-6'>
+        <h2 className='text-2xl font-semibold'>Booking Requests</h2>
+        <p className='text-muted-foreground text-sm'>View current and past booking requests</p>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Booking ID</TableHead>
+            <TableHead>Check In</TableHead>
+            <TableHead>Check Out</TableHead>
+            <TableHead>Guest</TableHead>
+            <TableHead>Total Price</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {bookingRequests.length === 0 && (
             <TableRow>
-              <TableHead>Booking ID</TableHead>
-              <TableHead>Check In</TableHead>
-              <TableHead>Check Out</TableHead>
-              <TableHead>Guest</TableHead>
-              <TableHead>Total Price</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableCell colSpan={8} className='text-center'>
+                <EmptyState>
+                  No booking requests found. When guests request to book your listing, they will
+                  appear here.
+                </EmptyState>
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {bookingRequests.map((bookingRequest) => (
-              <TableRow key={bookingRequest.id}>
-                <TableCell>
-                  <div className='flex items-center gap-2'>
-                    <Avatar>
-                      <AvatarImage
-                        src={bookingRequest.user.imageUrl ?? ''}
-                        alt={bookingRequest.user.firstName ?? ''}
-                      />
-                      <AvatarFallback>
-                        {bookingRequest.user.firstName?.charAt(0)}
-                        {bookingRequest.user.lastName?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span>
-                      {bookingRequest.user.firstName} {bookingRequest.user.lastName}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {bookingRequest.checkIn.toLocaleDateString()}
-                  <div className='text-muted-foreground'>
-                    Arriving in {differenceInDays(bookingRequest.checkIn, new Date()) + 1} days
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {bookingRequest.checkOut.toLocaleDateString()}
-                  <div className='text-muted-foreground'>
-                    Staying for {differenceInDays(bookingRequest.checkOut, bookingRequest.checkIn)}{' '}
-                    nights
-                  </div>
-                </TableCell>
-                <TableCell>{bookingRequest.guests}</TableCell>
-                <TableCell>{formatCurrency(bookingRequest.totalPrice, listing.currency)}</TableCell>
-                <TableCell>
-                  <BookingRequestStatusBadge status={bookingRequest.status} />
-                </TableCell>
-                <TableCell>
-                  <BookingRequestConfirmationDialog
-                    bookingRequest={bookingRequest}
-                    listing={listing}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+          )}
+          {bookingRequests.map((bookingRequest) => (
+            <TableRow key={bookingRequest.id}>
+              <TableCell>
+                <div className='flex items-center gap-2'>
+                  <Avatar>
+                    <AvatarImage
+                      src={bookingRequest.user.imageUrl ?? ''}
+                      alt={bookingRequest.user.firstName ?? ''}
+                    />
+                    <AvatarFallback>
+                      {bookingRequest.user.firstName?.charAt(0)}
+                      {bookingRequest.user.lastName?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span>
+                    {bookingRequest.user.firstName} {bookingRequest.user.lastName}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell>
+                {bookingRequest.checkIn.toLocaleDateString()}
+                <div className='text-muted-foreground'>
+                  Arriving in {differenceInDays(bookingRequest.checkIn, new Date()) + 1} days
+                </div>
+              </TableCell>
+              <TableCell>
+                {bookingRequest.checkOut.toLocaleDateString()}
+                <div className='text-muted-foreground'>
+                  Staying for {differenceInDays(bookingRequest.checkOut, bookingRequest.checkIn)}{' '}
+                  nights
+                </div>
+              </TableCell>
+              <TableCell>{bookingRequest.guests}</TableCell>
+              <TableCell>{formatCurrency(bookingRequest.totalPrice, listing.currency)}</TableCell>
+              <TableCell>
+                <BookingRequestStatusBadge status={bookingRequest.status} />
+              </TableCell>
+              <TableCell>
+                <BookingRequestConfirmationDialog
+                  bookingRequest={bookingRequest}
+                  listing={listing}
+                />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

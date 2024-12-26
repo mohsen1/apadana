@@ -8,7 +8,6 @@ const Footer = ({ className }: { className?: string }) => {
     <footer
       className={cn(
         'text-foreground mx-auto max-w-6xl flex-1 border-t border-zinc-200 bg-zinc-50 py-8',
-        'dark:border-zinc-800 dark:bg-zinc-950',
         className,
       )}
     >

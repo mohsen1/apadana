@@ -2,15 +2,12 @@
 
 import { getLocalTimeZone, today as getToday } from '@internationalized/date';
 import { ListingInventory } from '@prisma/client';
-import { RefreshCcw } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { DateValue } from 'react-aria';
 
 import { FullListing } from '@/lib/types';
 import {
-  formatCurrencySymbol,
-  formatHHMMDate,
   formatTimezone,
   getLocale,
   isCurrentlyAnotherDayInTimeZone,
@@ -18,14 +15,11 @@ import {
 } from '@/lib/utils';
 
 import { AvailabilityManagementCalendar } from '@/components/calendar/AvailabilityManagementCalendar';
-import { LabledInput } from '@/components/calendar/range-calendar/LabledInput';
 import { Banner } from '@/components/common/Banner';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 
 import { editInventory } from '@/app/listing/[id]/manage/action';
+import PriceEditor from '@/app/listing/[id]/manage/calendar/PriceEditor';
 import { RangeValue } from '@/utils/types';
 
 export function HostCalendar({ listingData }: { listingData: FullListing }) {
@@ -132,7 +126,7 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
         queryParam='newListing'
       />
       <CardContent className='px-2'>
-        <div className='grid gap-8 lg:grid-cols-[1fr_auto]'>
+        <div className='grid gap-8 lg:grid-cols-[1fr_max-content]'>
           <div className=''>
             <AvailabilityManagementCalendar
               value={range}
@@ -150,96 +144,20 @@ export function HostCalendar({ listingData }: { listingData: FullListing }) {
           </div>
           <div className='min-w-[300px] space-y-4'>
             {range && (
-              <>
-                <div className='space-y-2'>
-                  <Label htmlFor='datePrice' className='text-lg'>
-                    Set the price for{' '}
-                    <div>
-                      <span className='font-bold' suppressHydrationWarning>
-                        {range?.start
-                          ?.toDate(listingData.timeZone)
-                          .toLocaleDateString(getLocale(), {
-                            month: 'long',
-                            day: 'numeric',
-                          })}
-                      </span>
-                      {range?.end && range?.end.compare(range.start) > 0 ? (
-                        <>
-                          {' to '}
-                          <span className='font-bold'>
-                            {range?.end
-                              ?.toDate(listingData.timeZone)
-                              .toLocaleDateString(getLocale(), {
-                                month: 'long',
-                                day: 'numeric',
-                              })}
-                          </span>
-                        </>
-                      ) : null}
-                    </div>
-                  </Label>
-                  <div className='relative pt-4'>
-                    <LabledInput
-                      label={
-                        <span className='text-right text-2xl'>
-                          {formatCurrencySymbol(listingData.currency)}
-                        </span>
-                      }
-                      disabled={editInventoryStatus === 'executing' || !rangeAvailable}
-                      id='datePrice'
-                      inputMode='decimal'
-                      pattern='^\d*\.?\d*$'
-                      type='text'
-                      step='1'
-                      min='1'
-                      className='l-8 py-6 text-2xl'
-                      placeholder='100.00'
-                      value={rangePrice}
-                      onChange={(e) => {
-                        setRangePrice(parseFloat(e.target.value));
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className='ml-12 flex items-center space-x-2 pt-2'>
-                  <Switch
-                    id='dateAvailable'
-                    disabled={editInventoryStatus === 'executing'}
-                    checked={rangeAvailable}
-                    className='scale-150'
-                    onCheckedChange={(checked) => {
-                      setRangeAvailable(checked);
-                    }}
-                  />
-                  <Label className='pl-2 text-lg' htmlFor='dateAvailable'>
-                    {rangeAvailable ? 'Available' : 'Unavailable'}
-                  </Label>
-                </div>
-                <div className='flex items-end justify-end space-x-2 py-8'>
-                  <Button
-                    disabled={editInventoryStatus === 'executing'}
-                    className='flex items-center gap-2 space-x-2'
-                    onClick={async (e) => {
-                      e.preventDefault();
-
-                      if (!range) {
-                        return;
-                      }
-                      return onSubmit(range);
-                    }}
-                  >
-                    <RefreshCcw
-                      className={editInventoryStatus === 'executing' ? 'animate-spin' : ''}
-                    />
-                    {range.start.compare(range.end) === 0 ? 'Update Date' : 'Update Dates'}
-                  </Button>
-                </div>
-              </>
+              <PriceEditor
+                range={{
+                  start: range.start.toDate(listingData.timeZone),
+                  end: range.end?.toDate(listingData.timeZone),
+                }}
+                listingData={listingData}
+                rangePrice={rangePrice}
+                setRangePrice={setRangePrice}
+                rangeAvailable={rangeAvailable}
+                setRangeAvailable={setRangeAvailable}
+                editInventoryStatus={editInventoryStatus}
+                onSubmit={() => onSubmit(range)}
+              />
             )}
-            <div className='text-muted-foreground mt-2 text-sm'>
-              <p>Check-in: {formatHHMMDate(listingData.checkInTime)}</p>
-              <p>Check-out: {formatHHMMDate(listingData.checkOutTime)}</p>
-            </div>
           </div>
         </div>
       </CardContent>
