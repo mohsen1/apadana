@@ -77,7 +77,7 @@ export function useFileUploader({
   const getUploadedUrl = (key?: string) => {
     if (!key) return undefined;
 
-    const UPLOAD_BUCKET = process.env.UPLOAD_BUCKET;
+    const UPLOAD_BUCKET = process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET;
     const UPLOAD_REGION = process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
 
     if (shouldUseFakeUploads) {
