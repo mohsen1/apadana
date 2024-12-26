@@ -103,6 +103,163 @@
     --zinc-foreground: 255 255 255; /* #ffffff */
   }
 
+  /* This class name is used by the SpectrumProvider component */
+  /* div. specifity is here to override the default theme */
+  div.spectrum-global--apanda {
+    /* Spectrum Alias Variables - mapped to our existing colors */
+    --spectrum-alias-background-color-default: rgb(var(--background));
+    --spectrum-alias-background-color-disabled: rgb(var(--muted));
+    --spectrum-alias-text-color: rgb(var(--foreground));
+    --spectrum-alias-text-color-disabled: rgb(var(--muted-foreground));
+    --spectrum-alias-border-color: rgb(var(--border));
+    --spectrum-alias-border-color-disabled: rgb(var(--muted));
+    --spectrum-alias-focus-color: rgb(var(--ring));
+    --spectrum-alias-input-border-color-key-focus: rgb(var(--ring));
+    --spectrum-alias-background-color-hover: rgb(var(--accent));
+    --spectrum-alias-background-color-down: rgb(var(--accent));
+    --spectrum-alias-background-color-key-focus: rgb(var(--accent));
+    --spectrum-accent-background-color-default: rgb(var(--primary));
+
+    /* Spectrum Status Colors */
+    --spectrum-semantic-negative-color-default: rgb(var(--destructive));
+    --spectrum-semantic-negative-color-background: rgb(var(--destructive));
+    --spectrum-semantic-positive-color-default: rgb(var(--success));
+    --spectrum-semantic-notice-color-default: rgb(var(--warning));
+
+    /* Base units for calculations */
+    --apadana-spectrum-base-unit: 3.5px;
+    --apadana-spectrum-base-font: 14px;
+
+    /* Size variables using calc() */
+    --spectrum-global-dimension-size-0: 0px;
+    --spectrum-global-dimension-size-10: calc(var(--apadana-spectrum-base-unit) * 0.5); /* 2px */
+    --spectrum-global-dimension-size-25: calc(var(--apadana-spectrum-base-unit) * 1); /* 4px */
+    --spectrum-global-dimension-size-40: calc(var(--apadana-spectrum-base-unit) * 1.5); /* 6px */
+    --spectrum-global-dimension-size-50: calc(var(--apadana-spectrum-base-unit) * 2); /* 8px */
+    --spectrum-global-dimension-size-65: calc(var(--apadana-spectrum-base-unit) * 2.5); /* 10px */
+    --spectrum-global-dimension-size-75: calc(var(--apadana-spectrum-base-unit) * 3); /* 12px */
+    --spectrum-global-dimension-size-85: calc(var(--apadana-spectrum-base-unit) * 3.5); /* 14px */
+    --spectrum-global-dimension-size-100: calc(var(--apadana-spectrum-base-unit) * 4); /* 16px */
+    --spectrum-global-dimension-size-115: calc(var(--apadana-spectrum-base-unit) * 4.5); /* 18px */
+    --spectrum-global-dimension-size-125: calc(var(--apadana-spectrum-base-unit) * 5); /* 20px */
+    --spectrum-global-dimension-size-130: calc(var(--apadana-spectrum-base-unit) * 5.5); /* 22px */
+    --spectrum-global-dimension-size-150: calc(var(--apadana-spectrum-base-unit) * 6); /* 24px */
+    --spectrum-global-dimension-size-160: calc(var(--apadana-spectrum-base-unit) * 6.5); /* 26px */
+    --spectrum-global-dimension-size-175: calc(var(--apadana-spectrum-base-unit) * 7); /* 28px */
+    --spectrum-global-dimension-size-200: calc(var(--apadana-spectrum-base-unit) * 8); /* 32px */
+    --spectrum-global-dimension-size-225: calc(var(--apadana-spectrum-base-unit) * 9); /* 36px */
+    --spectrum-global-dimension-size-250: calc(var(--apadana-spectrum-base-unit) * 10); /* 40px */
+    --spectrum-global-dimension-size-275: calc(var(--apadana-spectrum-base-unit) * 11); /* 44px */
+    --spectrum-global-dimension-size-300: calc(
+      var(--apadana-spectrum-base-unit) * 11.25
+    ); /* 45px */
+    --spectrum-global-dimension-size-325: calc(var(--apadana-spectrum-base-unit) * 11.5); /* 46px */
+    --spectrum-global-dimension-size-350: calc(
+      var(--apadana-spectrum-base-unit) * 11.625
+    ); /* 46.5px */
+    --spectrum-global-dimension-size-400: calc(
+      var(--apadana-spectrum-base-unit) * 11.75
+    ); /* 47px */
+    --spectrum-global-dimension-size-450: calc(var(--apadana-spectrum-base-unit) * 12); /* 48px */
+    --spectrum-global-dimension-size-500: calc(var(--apadana-spectrum-base-unit) * 13); /* 52px */
+    --spectrum-global-dimension-size-550: calc(var(--apadana-spectrum-base-unit) * 14); /* 56px */
+    --spectrum-global-dimension-size-600: calc(var(--apadana-spectrum-base-unit) * 15); /* 60px */
+    --spectrum-global-dimension-size-675: calc(var(--apadana-spectrum-base-unit) * 16); /* 64px */
+    --spectrum-global-dimension-size-700: calc(var(--apadana-spectrum-base-unit) * 17); /* 68px */
+    --spectrum-global-dimension-size-800: calc(var(--apadana-spectrum-base-unit) * 18); /* 72px */
+    --spectrum-global-dimension-size-900: calc(var(--apadana-spectrum-base-unit) * 20); /* 80px */
+    --spectrum-global-dimension-size-1000: calc(var(--apadana-spectrum-base-unit) * 22); /* 88px */
+    --spectrum-global-dimension-size-1200: calc(var(--apadana-spectrum-base-unit) * 24); /* 96px */
+    --spectrum-global-dimension-size-1250: calc(var(--apadana-spectrum-base-unit) * 25); /* 100px */
+    --spectrum-global-dimension-size-1600: calc(var(--apadana-spectrum-base-unit) * 32); /* 128px */
+    --spectrum-global-dimension-size-1700: calc(var(--apadana-spectrum-base-unit) * 34); /* 136px */
+    --spectrum-global-dimension-size-2000: calc(var(--apadana-spectrum-base-unit) * 40); /* 160px */
+    --spectrum-global-dimension-size-2400: calc(var(--apadana-spectrum-base-unit) * 48); /* 192px */
+    --spectrum-global-dimension-size-3000: calc(var(--apadana-spectrum-base-unit) * 60); /* 240px */
+    --spectrum-global-dimension-size-3400: calc(var(--apadana-spectrum-base-unit) * 68); /* 272px */
+    --spectrum-global-dimension-size-3600: calc(var(--apadana-spectrum-base-unit) * 72); /* 288px */
+    --spectrum-global-dimension-size-4600: calc(var(--apadana-spectrum-base-unit) * 92); /* 368px */
+    --spectrum-global-dimension-size-5000: calc(
+      var(--apadana-spectrum-base-unit) * 100
+    ); /* 400px */
+    --spectrum-global-dimension-size-6000: calc(
+      var(--apadana-spectrum-base-unit) * 120
+    ); /* 480px */
+
+    /* Font sizes using calc() */
+    --spectrum-global-dimension-font-size-25: calc(
+      var(--apadana-spectrum-base-font) * 0.5
+    ); /* 8px */
+    --spectrum-global-dimension-font-size-50: calc(
+      var(--apadana-spectrum-base-font) * 0.75
+    ); /* 12px */
+    --spectrum-global-dimension-font-size-75: calc(
+      var(--apadana-spectrum-base-font) * 0.875
+    ); /* 14px */
+    --spectrum-global-dimension-font-size-100: var(--apadana-spectrum-base-font); /* 16px */
+    --spectrum-global-dimension-font-size-150: calc(
+      var(--apadana-spectrum-base-font) * 1.125
+    ); /* 18px */
+    --spectrum-global-dimension-font-size-200: calc(
+      var(--apadana-spectrum-base-font) * 1.25
+    ); /* 20px */
+    --spectrum-global-dimension-font-size-300: calc(
+      var(--apadana-spectrum-base-font) * 1.5
+    ); /* 24px */
+    --spectrum-global-dimension-font-size-400: calc(
+      var(--apadana-spectrum-base-font) * 1.75
+    ); /* 28px */
+    --spectrum-global-dimension-font-size-500: calc(
+      var(--apadana-spectrum-base-font) * 2
+    ); /* 32px */
+    --spectrum-global-dimension-font-size-600: calc(
+      var(--apadana-spectrum-base-font) * 2.25
+    ); /* 36px */
+    --spectrum-global-dimension-font-size-700: calc(
+      var(--apadana-spectrum-base-font) * 2.5
+    ); /* 40px */
+    --spectrum-global-dimension-font-size-800: calc(
+      var(--apadana-spectrum-base-font) * 2.75
+    ); /* 44px */
+    --spectrum-global-dimension-font-size-900: calc(
+      var(--apadana-spectrum-base-font) * 3
+    ); /* 48px */
+    --spectrum-global-dimension-font-size-1000: calc(
+      var(--apadana-spectrum-base-font) * 3.25
+    ); /* 52px */
+    --spectrum-global-dimension-font-size-1100: calc(
+      var(--apadana-spectrum-base-font) * 3.5
+    ); /* 56px */
+    --spectrum-global-dimension-font-size-1200: calc(
+      var(--apadana-spectrum-base-font) * 3.75
+    ); /* 60px */
+    --spectrum-global-dimension-font-size-1300: calc(
+      var(--apadana-spectrum-base-font) * 4
+    ); /* 64px */
+
+    /* Spectrum Border Radius */
+    --spectrum-alias-border-radius-xsmall: 2px; /* sm: 2px */
+    --spectrum-alias-border-radius-small: 4px; /* DEFAULT: 4px */
+    --spectrum-alias-border-radius-regular: 6px; /* md: 6px */
+    --spectrum-alias-border-radius-medium: 8px; /* lg: 8px */
+    --spectrum-alias-border-radius-large: 12px; /* xl: 12px */
+
+    /* Spectrum Border Width */
+    --spectrum-alias-input-border-size: 1px;
+    --spectrum-alias-focus-ring-size: 2px; /* sm: 2px */
+    --spectrum-alias-focus-color: rgb(var(--ring)); /* Controls focus outline color */
+    --spectrum-alias-focus-color-disabled: rgb(var(--muted));
+    --spectrum-textfield-border-color-key-focus: rgb(var(--ring));
+    --spectrum-alias-input-border-size: 1px;
+
+    /* focus ring */
+    --spectrum-focus-ring-border-radius: 4px;
+    --spectrum-focus-ring-gap: 2px;
+    --spectrum-focus-ring-size: 4px;
+    --spectrum-focus-ring-border-size: 3px;
+    --spectrum-focus-ring-color: rgb(255 157 31);
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings:

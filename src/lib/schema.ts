@@ -2,6 +2,15 @@
  * @fileoverview This file contains the schemas that are not
  * available in @/prisma/zod.
  *
+ * @todo
+ * Re-export all of the schemas from @/prisma/zod here
+ * and add an ESLint rule to enforce that all schemas are
+ * imported from here. Banning imports from @/prisma/zod
+ * directly will make it easier to manage the schemas.
+ *
+ * All of the extensions and custom schemas should be defined
+ * here.
+ *
  * Avoid defining more custom schemas here and try to use the
  * ones available in @/prisma/zod. Since those schemas are
  * generated from the Prisma models, they are more likely to
@@ -17,6 +26,7 @@ import {
   UploadedPhotoSchema,
   UserSchema,
 } from '@/prisma/zod';
+import { compareTimeStrings, TimeString } from '@/utils/time';
 
 //#region Base Schemas
 export const UploadImageSchema = UploadedPhotoSchema.omit({
@@ -24,7 +34,25 @@ export const UploadImageSchema = UploadedPhotoSchema.omit({
   id: true,
 });
 
-export const BaseListingSchema = ListingSchema;
+// Ideally we want to use Rich Comments in the Prisma Schema
+// to validate the check-in and check-out times. but unfortunately
+// this package doesn't support multi-line rich comments.
+export const BaseListingSchema = ListingSchema.refine(
+  (data) => /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(data.checkInTime),
+  {
+    message: 'Check-in time must be in HH:MM format',
+  },
+)
+  .refine((data) => /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(data.checkOutTime), {
+    message: 'Check-out time must be in HH:MM format',
+  })
+  .refine(
+    (data) =>
+      compareTimeStrings(data.checkInTime as TimeString, data.checkOutTime as TimeString) >= 0,
+    {
+      message: 'Check-out time must be after check-in time',
+    },
+  );
 //#endregion
 
 //#region Authentication & User Schemas
