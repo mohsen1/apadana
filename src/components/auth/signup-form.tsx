@@ -38,38 +38,42 @@ export function SignupForm() {
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    try {
-      const result = await signUp(data);
+    const handleSubmit = async () => {
+      try {
+        const result = await signUp(data);
 
-      if (!result?.data?.user) {
+        if (!result?.data?.user) {
+          toast({
+            title: 'Error',
+            description:
+              typeof result?.serverError === 'string'
+                ? result.serverError
+                : result?.serverError?.error,
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        toast({
+          title: 'Success',
+          description: 'Your account has been created successfully',
+        });
+
+        // Refresh the current route and fetch new data from the server
+        router.refresh();
+
+        // Redirect to the dashboard or home page
+        router.push('/');
+      } catch {
         toast({
           title: 'Error',
-          description:
-            typeof result?.serverError === 'string'
-              ? result.serverError
-              : result?.serverError?.error,
+          description: 'Something went wrong. Please try again.',
           variant: 'destructive',
         });
-        return;
       }
+    };
 
-      toast({
-        title: 'Success',
-        description: 'Your account has been created successfully',
-      });
-
-      // Refresh the current route and fetch new data from the server
-      router.refresh();
-
-      // Redirect to the dashboard or home page
-      router.push('/');
-    } catch {
-      toast({
-        title: 'Error',
-        description: 'Something went wrong. Please try again.',
-        variant: 'destructive',
-      });
-    }
+    await handleSubmit();
   };
 
   return (
