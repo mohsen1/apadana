@@ -47,9 +47,9 @@ export function Banner({ title, description, onClose, queryParam }: BannerProps)
   }
 
   return (
-    <div className='bg-accent relative flex h-full flex-col items-center justify-center rounded-md p-4'>
+    <div className='bg-accent relative mx-2 my-2 flex h-full flex-col items-center justify-center rounded-md p-4 lg:mx-0'>
       <X
-        className='hover:bg-background/30 absolute right-[-1px] top-[-1px] hover:cursor-pointer hover:rounded-full'
+        className='hover:bg-background/30 absolute right-1 top-1 hover:cursor-pointer hover:rounded-full'
         onClick={handleClose}
       />
       <h1 className='text-2xl font-semibold'>{title}</h1>
