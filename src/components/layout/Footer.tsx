@@ -61,7 +61,7 @@ const Footer = ({ className }: { className?: string }) => {
               </li>
             </ul>
           </div>
-          <div className='w-full md:w-1/4'>
+          <div className='w-full'>
             <h3 className='mb-4 text-lg font-semibold'>Follow Us</h3>
             <div className='flex space-x-4'>
               <a href='#' className='text-muted-foreground hover:text-primary'>

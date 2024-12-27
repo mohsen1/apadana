@@ -58,7 +58,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         <div
           className={cn(
             'border-border w-full border-b p-6 lg:w-64 lg:min-w-64 lg:border-b-0 lg:border-r',
-            'bg-background fixed top-0 z-50 lg:relative',
+            'bg-background fixed top-0 z-10 lg:relative',
             'transition-transform duration-200 ease-in-out',
             isSidebarOpen ? 'translate-y-0' : '-translate-y-[150%] lg:translate-y-0',
           )}

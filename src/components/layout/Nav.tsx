@@ -22,6 +22,7 @@ import { ClientUser } from '@/contexts/auth-context';
 const UserButton = ({ user }: { user: ClientUser }) => {
   const { signOut } = useAuth();
   const router = useRouter();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
