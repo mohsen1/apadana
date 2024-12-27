@@ -85,7 +85,7 @@ export const addEmailAddress = actionClient
     const verificationCode = crypto.randomUUID();
 
     // Add new email address with verification code
-    const newEmail = await prisma.emailAddress.create({
+    await prisma.emailAddress.create({
       data: {
         emailAddress: parsedInput.emailAddress,
         userId: ctx.userId,
