@@ -138,7 +138,16 @@ export const signUp = actionClient
       },
     });
 
-    ctx.setSession(user.sessions[0]);
+    const session = user.sessions[0];
+
+    const { set: setCookie } = await cookies();
+
+    setCookie(SESSION_COOKIE_NAME, session.id, {
+      path: '/',
+      expires: session.expiresAt,
+      httpOnly: true,
+      secure: true,
+    });
 
     // Send welcome email
     await sendWelcomeEmail(parsedInput.email, parsedInput.firstName);
