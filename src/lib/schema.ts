@@ -65,6 +65,7 @@ export const ClientUserSchema = z.object({
   imageUrl: z.string().nullable(),
   email: z.string().describe('The primary email address of the user'),
   emailAddresses: z.array(EmailAddressSchema),
+  isAdmin: z.boolean().describe('Whether the user is an admin'),
 
   // Ensure that these fields are not included in the schema
   password: z.never().describe('not included in the client user schema').optional(),
@@ -121,9 +122,27 @@ export const GetListingSchema = z.object({
   include: ListingIncludeSchema.optional(),
 });
 
-export const GetListingsSchema = z.object({
-  take: z.number().optional().default(10).describe('Limit of how many listings to return'),
-  skip: z.number().optional().default(0).describe('Offset of how many listings to skip'),
+export const PaginationSchema = z.object({
+  take: z
+    .number()
+    .int()
+    .min(1, 'Take must be at least 1')
+    .max(100, 'Take must be less than 100')
+    .default(10)
+    .describe('Limit of how many items to return'),
+  skip: z
+    .number()
+    .int()
+    .min(0, 'Can not skip less than 0')
+    .default(0)
+    .describe('Offset of how many items to skip'),
+  search: z.string().optional().describe('Search query for filtering items'),
+});
+
+export const PaginationQueryParamsSchema = z.object({
+  take: z.coerce.number().optional().default(10).describe('Limit of how many items to return'),
+  skip: z.coerce.number().optional().default(0).describe('Offset of how many items to skip'),
+  search: z.string().optional().describe('Search query for filtering items'),
 });
 
 export const EditListingSchema = ListingSchema.merge(

@@ -8,9 +8,13 @@ import { createLogger } from '@/utils/logger';
 export type { ClientUser };
 
 interface AuthContextValue {
+  /** Current user */
   user: ClientUser | null;
+  /** Sign out the current user */
   signOut: () => Promise<void>;
+  /** Fetch the current user. This will cause a re-render of the entire app. */
   fetchUser: () => void;
+  /** Set the current user */
   setUser: (user: ClientUser | null) => void;
 }
 

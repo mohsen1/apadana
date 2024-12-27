@@ -1,5 +1,6 @@
 'use server';
 
+import { Role } from '@prisma/client';
 import { z } from 'zod';
 
 import { deleteServerSession, getUserInServer } from '@/lib/auth';
@@ -117,6 +118,9 @@ export const signUp = actionClient
               isPrimary: true,
             },
           ],
+        },
+        roles: {
+          create: [{ role: Role.HOST }],
         },
         sessions: {
           create: {

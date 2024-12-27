@@ -14,7 +14,7 @@ import {
   EditListingSchema,
   GetBookingsSchema,
   GetListingSchema,
-  GetListingsSchema,
+  PaginationSchema,
 } from '@/lib/schema';
 
 export const getBookings = actionClient
@@ -251,7 +251,7 @@ export const editInventory = actionClient
  * Get all listings for the user
  */
 export const getListings = actionClient
-  .schema(GetListingsSchema)
+  .schema(PaginationSchema)
   .outputSchema(z.object({ listings: z.array(GetListingSchema), totalCount: z.number() }))
   .action(async ({ parsedInput: { take, skip }, ctx: { userId } }) => {
     const listings = await prisma.listing.findMany({

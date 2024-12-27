@@ -1,5 +1,12 @@
 import { Session } from '@prisma/client';
-import { cookies } from 'next/headers';
+
+async function cookies() {
+  if (typeof window !== 'undefined') {
+    throw new Error('Auth is not available in the browser');
+  }
+  const { cookies } = await import('next/headers');
+  return cookies();
+}
 
 import prisma from '@/lib/prisma/client';
 

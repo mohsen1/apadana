@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LogOut, X } from 'lucide-react';
+import { LogOut, Shield, X } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
@@ -405,6 +405,19 @@ export function AccountProfile() {
             Sign out
           </Button>
         </div>
+
+        {user?.isAdmin && (
+          <div className='text-muted-foreground mt-4 flex items-center gap-2'>
+            <Shield className='h-4 w-4' />
+            <span className='text-sm'>Administrator</span>
+          </div>
+        )}
+
+        {user?.isAdmin && (
+          <Button variant='outline' className='mt-4' href='/admin' asChild>
+            Admin Tools
+          </Button>
+        )}
       </div>
     </div>
   );
