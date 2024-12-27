@@ -42,19 +42,40 @@ jobs:
         with:
           script: |
             try {
-              const workflowRuns = await github.rest.actions.getWorkflowRun({
+              const workflowRuns = await github.rest.actions.listWorkflowRuns({
                 owner: context.repo.owner,
-              repo: context.repo.repo,
-              head_sha: context.sha,
-            });
-            const ciRun = workflowRuns.data.workflow_runs.find(run => run.path === '.github/workflows/ci.yml');
+                repo: context.repo.repo,
+                head_sha: context.sha,
+              });
+              
+              const ciRun = workflowRuns.data.workflow_runs.find(run => run.path === '.github/workflows/ci.yml');
+              
+              if (!ciRun) {
+                console.log('No CI workflow found for this SHA.');
+                core.setOutput('skip', 'true');
+                return;
+              }
+
+              // Get the jobs for this workflow run
+              const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: ciRun.id
+              });
+
+              // Check validate jobs
+              const validateJobs = jobs.jobs.filter(job => job.name.startsWith('Validate'));
+              const allValidateJobsPassed = validateJobs.every(job => job.conclusion === 'success');
+
               core.setOutput('ci_status', ciRun.conclusion);
-              const failed = ciRun.conclusion !== 'success';
-              if (failed) {
-                console.log('CI workflow not successful for this SHA.');
+              core.setOutput('validate_status', allValidateJobsPassed ? 'success' : 'failure');
+
+              if (ciRun.conclusion !== 'success' || !allValidateJobsPassed) {
+                console.log('CI workflow or validate jobs not successful for this SHA.');
                 core.setOutput('skip', 'true');
               }
             } catch (error) {
+              console.error('Error checking workflow status:', error);
               core.setOutput('skip', 'true');
             }
 
