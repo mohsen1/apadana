@@ -7,7 +7,7 @@ import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { EmailAddress, UpdateUser, UpdateUserSchema } from '@/lib/schema';
+import { UpdateUser, UpdateUserSchema } from '@/lib/schema';
 import { useAuth } from '@/hooks/useAuth';
 import { useFileUploader } from '@/hooks/useFileUploader';
 import { useToast } from '@/hooks/useToast';
@@ -282,7 +282,7 @@ export function AccountProfile() {
             </div>
 
             <div className='space-y-4'>
-              {user?.emailAddresses?.map((email: EmailAddress) => (
+              {user?.emailAddresses?.map((email) => (
                 <div
                   key={email.id}
                   className='border-border flex min-h-20 flex-col items-start justify-between space-y-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:space-y-0'
@@ -291,7 +291,7 @@ export function AccountProfile() {
                     <p className='break-all text-sm font-medium'>{email.emailAddress}</p>
                     <div className='flex flex-wrap items-center gap-2'>
                       {email.isPrimary && <Badge variant='secondary'>Primary</Badge>}
-                      {email.verification ? (
+                      {email.verified ? (
                         <Badge variant='outline' className='text-muted-foreground'>
                           Unverified
                         </Badge>
@@ -303,7 +303,7 @@ export function AccountProfile() {
                     </div>
                   </div>
                   <div className='flex w-full justify-end gap-2 sm:w-auto'>
-                    {!email.isPrimary && !email.verification && (
+                    {!email.isPrimary && !email.verified && (
                       <Button
                         variant='ghost'
                         size='sm'
@@ -312,7 +312,7 @@ export function AccountProfile() {
                         Make Primary
                       </Button>
                     )}
-                    {email.verification && (
+                    {email.verified && (
                       <Button
                         variant='ghost'
                         size='sm'

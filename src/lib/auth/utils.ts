@@ -1,6 +1,5 @@
 import { EmailAddress, Permission, Role, User, UserRole } from '@prisma/client';
 import _ from 'lodash';
-import { z } from 'zod';
 
 import { ClientUser } from '@/contexts/auth-context';
 

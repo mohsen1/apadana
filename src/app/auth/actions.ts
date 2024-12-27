@@ -11,7 +11,7 @@ import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
-import { ClientUserSchema, LoginSchema, SuccessfulLoginSchema } from '@/lib/schema';
+import { ClientUserSchema, LoginSchema, SignUpSchema, SuccessfulLoginSchema } from '@/lib/schema';
 
 import logger from '@/utils/logger';
 
@@ -76,26 +76,13 @@ export const login = actionClient
     };
   });
 
-const signUpSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email(),
-  password:
-    process.env.NODE_ENV === 'development'
-      ? z.string().min(1, 'Password is required')
-      : z
-          .string()
-          .min(8, 'Password must be at least 8 characters')
-          .max(100, 'Password must be less than 100 characters'),
-});
-
-const successfulSignUp = z.object({
-  user: ClientUserSchema,
-});
-
 export const signUp = actionClient
-  .schema(signUpSchema)
-  .outputSchema(successfulSignUp)
+  .schema(SignUpSchema)
+  .outputSchema(
+    z.object({
+      user: ClientUserSchema,
+    }),
+  )
   .action(async ({ parsedInput }) => {
     // ensure email is not already in use
     const existingUser = await prisma.user.findFirst({
@@ -124,11 +111,14 @@ export const signUp = actionClient
             {
               emailAddress: parsedInput.email,
               isPrimary: true,
+              verified: parsedInput.email === process.env.ADMIN_EMAIL,
             },
           ],
         },
         roles: {
-          create: [{ role: Role.HOST }],
+          create: [
+            { role: parsedInput.email === process.env.ADMIN_EMAIL ? Role.ADMIN : Role.HOST },
+          ],
         },
         sessions: {
           create: {
