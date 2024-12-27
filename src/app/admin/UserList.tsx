@@ -1,14 +1,14 @@
 'use client';
 
 import { EmailAddress, Role, User, UserRole } from '@prisma/client';
-import { ChevronLeft, ChevronRight, Loader2, Shield } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Loader2, Shield } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { useMemo, useState } from 'react';
 
 import { useToast } from '@/hooks/useToast';
 
 import { EmptyState } from '@/components/common/EmptyState';
+import { Pagination } from '@/components/common/Pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -44,9 +44,6 @@ export function UserList({
   };
 }) {
   const { toast } = useToast();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { execute: executeGetUsers, result: usersResult } = useAction(getUsers);
   const [openDialog, setOpenDialog] = useState<string | null>(null);
 
@@ -77,13 +74,6 @@ export function UserList({
   const users = useMemo(() => {
     return usersResult?.data?.users ?? initialUsers;
   }, [usersResult, initialUsers]);
-
-  const updateQueryParams = (skip: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('skip', skip.toString());
-    params.set('take', pagination.take.toString());
-    router.push(`${pathname}?${params.toString()}`);
-  };
 
   return (
     <div className='space-y-4'>
@@ -174,40 +164,15 @@ export function UserList({
             </TableBody>
           </Table>
 
-          <div className='flex items-center justify-end space-x-2'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                const newSkip = Math.max(0, pagination.skip - pagination.take);
-                updateQueryParams(newSkip);
-                executeGetUsers({
-                  skip: newSkip,
-                  take: pagination.take,
-                });
-              }}
-              disabled={pagination.skip === 0}
-            >
-              <ChevronLeft className='h-4 w-4' />
-              Previous
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                const newSkip = pagination.skip + pagination.take;
-                updateQueryParams(newSkip);
-                executeGetUsers({
-                  skip: newSkip,
-                  take: pagination.take,
-                });
-              }}
-              disabled={pagination.skip + pagination.take >= pagination.total}
-            >
-              Next
-              <ChevronRight className='h-4 w-4' />
-            </Button>
-          </div>
+          <Pagination
+            {...pagination}
+            onPageChange={(skip, take) => {
+              executeGetUsers({
+                skip,
+                take,
+              });
+            }}
+          />
         </>
       )}
     </div>

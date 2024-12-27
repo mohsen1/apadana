@@ -21,7 +21,9 @@ export function Header({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        'bg-background/75 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 flex h-16 items-center justify-between px-4 backdrop-blur-sm',
+        'bg-background/75 supports-[backdrop-filter]:bg-background/60',
+        'sticky top-0 z-50 flex h-16 items-center',
+        'justify-between px-4 backdrop-blur-sm',
         'border-border border-b',
         className,
       )}

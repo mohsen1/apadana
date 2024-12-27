@@ -5,13 +5,23 @@ on:
       - main
   pull_request:
     branches: ['main']
+  deployment_status:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  checks: write
+  deployments: read
+  statuses: read
 
 jobs:
   validate:
-    name: Validate
+    name: ${{ matrix.task.name }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     strategy:
+      fail-fast: true
       matrix:
         task:
           - name: Lint
@@ -21,16 +31,15 @@ jobs:
           - name: Format check
             run: pnpm run format:check
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup
-        uses: ./.github/actions/setup
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - name: ${{ matrix.task.name }}
         run: ${{ matrix.task.run }}
 
   test:
     name: Run Vitest
     runs-on: ubuntu-24.04
+    needs: [validate]
     timeout-minutes: 10
     services:
       postgres:
@@ -46,15 +55,11 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup
-        uses: ./.github/actions/setup
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - run: touch .env.local
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v3
       - run: pnpm run test
         env:
           DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/apadana_test_ci'
@@ -64,44 +69,158 @@ jobs:
     name: Fix and commit code style
     needs: [validate]
     runs-on: ubuntu-24.04
-    # Only run this job on pull requests and when lint or prettier fails
     if: |
       github.event_name == 'pull_request' && 
-      failure() && 
-      contains(needs.*.result, 'failure')
-
-    permissions:
-      contents: write
-      pull-requests: write
-
+      needs.validate.result == 'failure'
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-
-      - name: Setup
-        uses: ./.github/actions/setup
-
+      - uses: ./.github/actions/setup
       - name: Configure Git
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git checkout ${{ github.head_ref }}
-
-      - name: Run fixes
-        run: pnpm run fix
-
+      - run: pnpm run fix
       - name: Check for changes
         id: git-check
         run: |
           git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
-
-      - name: Commit and push if changed
-        if: steps.git-check.outputs.changes == 'true'
+      - if: steps.git-check.outputs.changes == 'true'
         run: |
           git add -A
           git commit -m "style: automatically fix code style issues"
           git push
+
+  e2e:
+    name: E2E
+    needs: [test]
+    runs-on: ubuntu-24.04
+    if: |
+      github.event_name == 'deployment_status' && 
+      github.event.deployment_status.state == 'success'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/playwright
+
+      - name: Find PR number
+        id: find-pr
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const commits = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner,
+              repo,
+              commit_sha: context.sha,
+            });
+            if (commits.data.length > 0) {
+              core.setOutput('pr_number', commits.data[0].number);
+            }
+
+      - name: Update PR Comment
+        if: steps.find-pr.outputs.pr_number
+        uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ steps.find-pr.outputs.pr_number }}
+        with:
+          script: |
+            const deploymentUrl = '${{ github.event.deployment_status.target_url }}';
+            const comment = `### E2E Tests 🔄\n\nRunning tests against [${deploymentUrl}](${deploymentUrl})...\n\n`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR_NUMBER),
+            });
+
+            const botComment = comments.find(c => 
+              c.user.type === 'Bot' && 
+              c.body.includes('E2E Tests')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: Number(process.env.PR_NUMBER),
+                body: comment
+              });
+            }
+
+      - name: Run E2E Tests
+        id: test-run
+        run: pnpm run e2e:ci
+        env:
+          BASE_URL: ${{ github.event.deployment_status.target_url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          E2E_TESTING_SECRET: ${{ secrets.E2E_TESTING_SECRET }}
+
+      - name: Upload Test Report
+        if: always() && hashFiles('.next/playwright-report/**') != ''
+        id: upload-results
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: apadana-e2e
+          source_dir: '.next/playwright-report'
+          destination_dir: ${{ github.sha }}
+
+      - name: Update Final PR Comment
+        if: always() && steps.find-pr.outputs.pr_number && steps.upload-results.outputs.object_locations
+        uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ steps.find-pr.outputs.pr_number }}
+        with:
+          script: |
+            const testStatus = '${{ steps.test-run.outcome }}';
+            const deploymentUrl = '${{ github.event.deployment_status.target_url }}';
+            const locations = ${{ steps.upload-results.outputs.object_locations }};
+            const htmlReportUrl = locations.find(url => url.endsWith('html/index.html'));
+            const isSuccess = testStatus === 'success';
+            const statusEmoji = isSuccess ? '✅' : '❌';
+
+            const comment = `### E2E Tests ${statusEmoji}\n\n` +
+              `Ran against [${deploymentUrl}](${deploymentUrl})\n\n` +
+              (htmlReportUrl ? `[View Full Report](${htmlReportUrl})\n\n` : '') +
+              `<sub>Updated at: ${new Date().toISOString()}</sub>`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt(process.env.PR_NUMBER),
+            });
+
+            const botComment = comments.find(c => 
+              c.user.type === 'Bot' && 
+              c.body.includes('E2E Tests')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: parseInt(process.env.PR_NUMBER),
+                body: comment
+              });
+            }

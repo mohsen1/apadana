@@ -59,9 +59,11 @@ handle_prisma_change() {
 # Watch only lock file and prisma schema
 (
     while true; do
-        if ! inotifywait -e modify,create,delete,move -q \
+        changed_file=$(inotifywait -e modify,create,delete,move -q \
             /app/pnpm-lock.yaml \
-            /app/src/prisma/schema.prisma 2>watch_error.log; then
+            /app/src/prisma/schema.prisma 2>watch_error.log)
+
+        if [ $? -ne 0 ]; then
             echo "[docker-entrypoint.dev.sh] ⚠️ Error watching files:"
             cat watch_error.log
             echo "[docker-entrypoint.dev.sh] Retrying in 5 seconds..."
@@ -70,9 +72,9 @@ handle_prisma_change() {
         fi
 
         # Check which file changed
-        if [ "${BASH_SOURCE[1]}" = "/app/src/prisma/schema.prisma" ]; then
+        if [[ "$changed_file" == *"/app/src/prisma/schema.prisma"* ]]; then
             handle_prisma_change "$@"
-        elif [ "${BASH_SOURCE[1]}" = "/app/pnpm-lock.yaml" ]; then
+        elif [[ "$changed_file" == *"/app/pnpm-lock.yaml"* ]]; then
             echo "[docker-entrypoint.dev.sh] 📦 Lock file changed, installing dependencies..."
             # Add small delay to ensure file write is complete
             sleep 1

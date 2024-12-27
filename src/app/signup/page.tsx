@@ -39,11 +39,11 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 
 function SignUpForm() {
   const router = useRouter();
-  const { setUser } = useAuth();
+  const { fetchUser } = useAuth();
   const { execute, status, hasErrored, result } = useAction(signUp, {
     onSuccess: ({ data }) => {
       if (data?.user) {
-        setUser(data.user);
+        fetchUser();
         router.push('/user');
       }
     },
