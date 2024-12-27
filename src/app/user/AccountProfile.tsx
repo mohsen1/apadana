@@ -292,12 +292,12 @@ export function AccountProfile() {
                     <div className='flex flex-wrap items-center gap-2'>
                       {email.isPrimary && <Badge variant='secondary'>Primary</Badge>}
                       {email.verified ? (
-                        <Badge variant='outline' className='text-muted-foreground'>
-                          Unverified
-                        </Badge>
-                      ) : (
                         <Badge variant='secondary' className='bg-green-500/10 text-green-500'>
                           Verified
+                        </Badge>
+                      ) : (
+                        <Badge variant='outline' className='text-muted-foreground'>
+                          Unverified
                         </Badge>
                       )}
                     </div>

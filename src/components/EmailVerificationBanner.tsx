@@ -1,35 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useAction } from 'next-safe-action/hooks';
+import { useCallback, useEffect } from 'react';
 
 import { toast } from '@/hooks/useToast';
 
 import { resendEmailVerification } from '@/app/user/actions';
-import { assertError } from '@/utils';
 
 import { Button } from './ui/button';
 
 export function EmailVerificationBanner({ email }: { email: string }) {
-  const [isResending, setIsResending] = useState(false);
+  const { execute, result, isPending } = useAction(resendEmailVerification);
 
-  const handleResend = async () => {
-    try {
-      setIsResending(true);
-      await resendEmailVerification({ emailAddress: email });
-      toast({
-        title: 'Verification email sent',
-        variant: 'default',
-      });
-    } catch (error) {
-      assertError(error);
+  const handleResend = useCallback(() => {
+    execute({ emailAddress: email });
+  }, [email, execute]);
+
+  useEffect(() => {
+    if (result?.serverError) {
       toast({
         title: 'Failed to send verification email',
+        description: result.serverError.error ?? 'An unknown error occurred',
         variant: 'destructive',
       });
-    } finally {
-      setIsResending(false);
+    } else if (result?.data) {
+      toast({
+        title: 'Verification email sent',
+        description: 'Please check your inbox',
+      });
     }
-  };
+  }, [result]);
 
   return (
     <div className='w-full bg-yellow-50 p-4 dark:bg-yellow-900/20'>
@@ -42,10 +42,10 @@ export function EmailVerificationBanner({ email }: { email: string }) {
           <Button
             variant='link'
             className='h-auto p-0 text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300'
-            disabled={isResending}
+            disabled={isPending}
             onClick={handleResend}
           >
-            {isResending ? 'Sending...' : 'Resend verification email'}
+            {isPending ? 'Sending...' : 'Resend verification email'}
           </Button>
         </div>
       </div>
