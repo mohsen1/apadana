@@ -12,6 +12,8 @@ import { Logger } from '@/utils/logger';
 
 const logger = new Logger('', 'debug');
 
+const IGNORE_PACKAGES = ['chalk', 'sudo-prompt', 'react', 'react-dom', '@types/react'];
+
 const PACKAGE_GROUPS = [
   {
     name: 'Radix UI',
@@ -441,6 +443,7 @@ async function main() {
         ...update,
         packageName,
       }))
+      .filter((update) => !IGNORE_PACKAGES.includes(update.packageName))
       .slice(0, limit);
 
     logger.info(chalk.bold.cyan(`📋 Found ${updates.length} packages to update`));

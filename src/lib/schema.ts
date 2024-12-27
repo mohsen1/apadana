@@ -353,6 +353,7 @@ export const LocalEmailSchema = z.object({
 //#endregion
 
 //#region Type Exports
+export type SignupFormData = z.infer<typeof SignUpSchema>;
 export type UploadImage = z.infer<typeof UploadImageSchema>;
 export type CreateBooking = z.infer<typeof CreateBookingSchema>;
 export type GetListing = z.infer<typeof GetListingSchema>;

@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
+import { SignupFormData, SignUpSchema } from '@/lib/schema';
 import { useToast } from '@/hooks/useToast';
 
 import { Button } from '@/components/ui/button';
@@ -22,36 +22,12 @@ import { Input } from '@/components/ui/input';
 
 import { signUp } from '@/app/auth/actions';
 
-const signupSchema = z
-  .object({
-    firstName: z
-      .string()
-      .min(2, 'First name must be at least 2 characters')
-      .max(50, 'First name must be less than 50 characters'),
-    lastName: z
-      .string()
-      .min(2, 'Last name must be at least 2 characters')
-      .max(50, 'Last name must be less than 50 characters'),
-    email: z.string().email('Please enter a valid email address'),
-    password: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .max(100, 'Password must be less than 100 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
-
-type SignupFormData = z.infer<typeof signupSchema>;
-
 export function SignupForm() {
   const router = useRouter();
   const { toast } = useToast();
 
   const form = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
+    resolver: zodResolver(SignUpSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -62,38 +38,42 @@ export function SignupForm() {
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    try {
-      const result = await signUp(data);
+    const handleSubmit = async () => {
+      try {
+        const result = await signUp(data);
 
-      if (!result?.data?.user) {
+        if (!result?.data?.user) {
+          toast({
+            title: 'Error',
+            description:
+              typeof result?.serverError === 'string'
+                ? result.serverError
+                : result?.serverError?.error,
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        toast({
+          title: 'Success',
+          description: 'Your account has been created successfully',
+        });
+
+        // Refresh the current route and fetch new data from the server
+        router.refresh();
+
+        // Redirect to the dashboard or home page
+        router.push('/');
+      } catch {
         toast({
           title: 'Error',
-          description:
-            typeof result?.serverError === 'string'
-              ? result.serverError
-              : result?.serverError?.error,
+          description: 'Something went wrong. Please try again.',
           variant: 'destructive',
         });
-        return;
       }
+    };
 
-      toast({
-        title: 'Success',
-        description: 'Your account has been created successfully',
-      });
-
-      // Refresh the current route and fetch new data from the server
-      router.refresh();
-
-      // Redirect to the dashboard or home page
-      router.push('/');
-    } catch {
-      toast({
-        title: 'Error',
-        description: 'Something went wrong. Please try again.',
-        variant: 'destructive',
-      });
-    }
+    await handleSubmit();
   };
 
   return (

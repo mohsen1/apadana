@@ -17,6 +17,7 @@ permissions:
 
 jobs:
   validate:
+    if: github.event_name != 'deployment_status'
     name: ${{ matrix.task.name }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -37,6 +38,7 @@ jobs:
         run: ${{ matrix.task.run }}
 
   test:
+    if: github.event_name != 'deployment_status'
     name: Run Vitest
     runs-on: ubuntu-24.04
     needs: [validate]

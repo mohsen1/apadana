@@ -85,6 +85,8 @@ model User {
   BookingRequest   BookingRequest[]
   sessions         Session[]
   passwordReset    PasswordReset[]
+
+  @@index([id])
 }
 
 model EmailAddress {

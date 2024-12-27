@@ -43,7 +43,6 @@ export default function EmailsList({ emails }: EmailsListProps) {
         variant: 'default',
         duration: 500,
       });
-      setSelectedEmail(null);
       router.refresh();
     },
     onError: (result) => {
@@ -87,6 +86,7 @@ export default function EmailsList({ emails }: EmailsListProps) {
           <ul>
             {emails.map((email) => (
               <EmailListItem
+                data-testid='email-list-item'
                 key={email.id}
                 email={email}
                 isSelected={selectedEmail?.id === email.id}

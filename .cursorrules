@@ -19,6 +19,7 @@ Typescript Rules:
 - Use `assertError` to assert errors
 - Use modern syntax: ?. ?? #private AsyncIterators for..of and anything ES2022+
 - in catch blocks, use `assertError` to assert errors
+- Instead of `private` use `#`
 
 Next.js Rules:
 
