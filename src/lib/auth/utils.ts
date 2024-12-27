@@ -1,4 +1,4 @@
-import { EmailAddress, Role, User, UserRole } from '@prisma/client';
+import { EmailAddress, Permission, Role, User, UserRole } from '@prisma/client';
 import _ from 'lodash';
 
 import { ClientUser } from '@/contexts/auth-context';
@@ -8,7 +8,11 @@ import { ClientUser } from '@/contexts/auth-context';
  * code, but we need to sanitize the user for client side code.
  */
 export function sanitizeUserForClient(
-  user: User & { emailAddresses: EmailAddress[]; roles: UserRole[] },
+  user: User & {
+    emailAddresses: EmailAddress[];
+    roles: UserRole[];
+    permissions: { permission: Permission }[];
+  },
 ): ClientUser | null {
   if (!user) return null;
 
@@ -20,8 +24,8 @@ export function sanitizeUserForClient(
 
   return {
     id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
+    firstName: user.firstName ?? '',
+    lastName: user.lastName ?? '',
     imageUrl: user.imageUrl,
     email: primaryEmail,
     emailAddresses: user.emailAddresses,

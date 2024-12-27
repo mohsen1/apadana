@@ -9,7 +9,7 @@ interface EmailContentProps {
 
 export function EmailContent({ email }: EmailContentProps) {
   return (
-    <div className='flex h-full flex-1 flex-col rounded-lg border-2 border-zinc-200'>
+    <div className='m-6 flex h-full flex-1 flex-col rounded-lg border-2 border-zinc-200'>
       <header className='border-border bg-zinc-200 p-4'>
         <h2 className='mb-4 text-2xl font-bold'>{email.subject}</h2>
         <p className='text-muted-foreground mb-2'>

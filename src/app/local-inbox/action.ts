@@ -1,3 +1,4 @@
+'use server';
 import { z } from 'zod';
 
 import prisma from '@/lib/prisma/client';
@@ -11,4 +12,11 @@ export const getEmails = actionClient.outputSchema(z.array(LocalEmailSchema)).ac
     },
   });
   return emails;
+});
+
+export const deleteAllEmails = actionClient.schema(z.void()).action(async () => {
+  await prisma.localEmail.deleteMany({
+    where: {},
+  });
+  return { success: true };
 });

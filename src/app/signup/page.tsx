@@ -9,6 +9,7 @@ import { Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { SignUpSchema } from '@/lib/schema';
 import { useAuth } from '@/hooks/useAuth';
 
 import { Button } from '@/components/ui/button';
@@ -18,28 +19,11 @@ import { Label } from '@/components/ui/label';
 
 import { signUp } from '@/app/auth/actions';
 
-// Define the form schema
-const signUpSchema = z
-  .object({
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    email: z.string().email('Invalid email address'),
-    password:
-      process.env.NODE_ENV === 'development'
-        ? z.string().min(1, 'Password is required')
-        : z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
-
-type SignUpFormData = z.infer<typeof signUpSchema>;
+type SignUpFormData = z.infer<typeof SignUpSchema>;
 
 function SignUpForm() {
   const router = useRouter();
-  const { fetchUser } = useAuth();
+  const { fetchUser, user } = useAuth();
   const { execute, status, hasErrored, result } = useAction(signUp, {
     onSuccess: ({ data }) => {
       if (data?.user) {
@@ -54,8 +38,12 @@ function SignUpForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(SignUpSchema),
   });
+
+  if (user) {
+    router.push('/user');
+  }
 
   return (
     <div className='flex min-h-screen items-center justify-center bg-zinc-900 p-4 dark:bg-zinc-50'>

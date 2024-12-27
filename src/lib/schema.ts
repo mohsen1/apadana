@@ -60,11 +60,18 @@ export const BaseListingSchema = ListingSchema.refine(
 
 export const ClientUserSchema = z.object({
   id: z.string(),
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
+  firstName: z.string(),
+  lastName: z.string(),
   imageUrl: z.string().nullable(),
   email: z.string().describe('The primary email address of the user'),
-  emailAddresses: z.array(EmailAddressSchema),
+  emailAddresses: z.array(
+    z.object({
+      id: z.string(),
+      emailAddress: z.string(),
+      isPrimary: z.boolean(),
+      verified: z.boolean(),
+    }),
+  ),
   isAdmin: z.boolean().describe('Whether the user is an admin'),
 
   // Ensure that these fields are not included in the schema
@@ -77,7 +84,21 @@ export const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
-
+export const SignUpSchema = z
+  .object({
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    email: z.string().email('Invalid email address'),
+    password:
+      process.env.NODE_ENV === 'development'
+        ? z.string().min(1, 'Password is required')
+        : z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 export const SuccessfulLoginSchema = z.object({
   user: ClientUserSchema,
 });

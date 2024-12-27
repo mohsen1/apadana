@@ -9,11 +9,17 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const email = searchParams.get('email');
 
+  let redirectUrl = '/user/profile?success=email-verified';
+
   if (!code || !email) {
-    redirect('/user/profile?error=invalid-verification');
+    redirectUrl = '/user/profile?error=invalid-verification';
   }
 
   try {
+    if (!email) {
+      throw new Error('Email is required');
+    }
+
     const emailAddress = await prisma.emailAddress.findFirst({
       where: {
         emailAddress: email,
@@ -22,7 +28,8 @@ export async function GET(request: Request) {
     });
 
     if (!emailAddress) {
-      redirect('/user/profile?error=invalid-verification');
+      redirectUrl = '/user/profile?error=invalid-verification';
+      throw new Error('Email address not found');
     }
 
     await prisma.emailAddress.update({
@@ -34,9 +41,10 @@ export async function GET(request: Request) {
     });
 
     logger.info('Email verified successfully', { emailId: emailAddress.id });
-    redirect('/user/profile?success=email-verified');
   } catch (error) {
     logger.error('Error verifying email', { error });
-    redirect('/user/profile?error=verification-failed');
+    redirectUrl = '/user/profile?error=verification-failed';
   }
+
+  redirect(redirectUrl);
 }
