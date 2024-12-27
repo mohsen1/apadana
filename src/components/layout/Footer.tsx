@@ -7,7 +7,7 @@ const Footer = ({ className }: { className?: string }) => {
   return (
     <footer
       className={cn(
-        'text-foreground mx-auto max-w-6xl flex-1 border-t border-zinc-200 bg-zinc-50 py-8',
+        'text-foreground mx-auto w-full flex-1 border-t border-zinc-200 bg-zinc-50 py-8',
         className,
       )}
     >

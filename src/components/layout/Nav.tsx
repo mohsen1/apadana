@@ -1,6 +1,6 @@
 'use client';
 
-import { LogOut, Settings, User } from 'lucide-react';
+import { Lock, LogOut, User } from 'lucide-react';
 
 import { useAuth } from '@/hooks/useAuth';
 
@@ -43,9 +43,9 @@ const UserButton = ({ user }: { user: ClientUser }) => {
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className='cursor-pointer'>
-            <a href='/settings'>
-              <Settings className='mr-2 h-4 w-4' />
-              Settings
+            <a href='/user/security'>
+              <Lock className='mr-2 h-4 w-4' />
+              Security
             </a>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -69,7 +69,7 @@ export function Nav() {
         <UserButton user={user} />
       ) : !isProd ? (
         <Button variant='default' size='sm' asChild>
-          <a href='/sign-in'>Sign In</a>
+          <a href='/signin'>Sign In</a>
         </Button>
       ) : null}
     </nav>

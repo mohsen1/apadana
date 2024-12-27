@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
 
+import Loading from '@/components/ui/loading';
+
 import { getEmails } from '@/app/local-inbox/action';
 
 import EmailsList from './EmailsList';
@@ -18,7 +20,7 @@ export default async function EmailsPage() {
   const emails = result?.data ?? [];
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loading />}>
       <EmailsList emails={emails} />
     </Suspense>
   );

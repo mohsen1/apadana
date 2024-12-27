@@ -120,8 +120,8 @@
     --popover-foreground: 255 255 255; /* #ffffff */
 
     /* Border Colors */
-    --border: 30 41 59; /* #1e293b */
-    --input: 30 41 59; /* #1e293b */
+    --border: 76 76 76; /* #4c4c4c - darker border color */
+    --input: 76 76 76; /* #4c4c4c - matching input border */
     --ring: 14 165 233; /* #0ea5e9 */
 
     /* Additional Status Colors */

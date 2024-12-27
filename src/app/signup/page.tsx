@@ -58,7 +58,7 @@ function SignUpForm() {
   });
 
   return (
-    <div className='bg-muted flex min-h-screen items-center justify-center p-4'>
+    <div className='flex min-h-screen items-center justify-center bg-zinc-900 p-4 dark:bg-zinc-50'>
       <Card className='w-full max-w-md shadow-lg'>
         <CardHeader>
           <CardTitle className='text-center text-2xl font-bold'>Sign Up for an account</CardTitle>
@@ -108,7 +108,7 @@ function SignUpForm() {
         <CardFooter className='justify-center'>
           <p className='text-muted-foreground text-sm'>
             Already have an account?{' '}
-            <Link href='/sign-in' className='text-primary hover:underline'>
+            <Link href='/signin' className='text-primary hover:underline'>
               Log in
             </Link>
           </p>

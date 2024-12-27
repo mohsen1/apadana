@@ -20,7 +20,7 @@ export function PasswordResetEmail({ resetLink }: PasswordResetEmailProps) {
       <Head />
       <Preview>Reset your password</Preview>
       <Tailwind>
-        <Body className='mx-auto my-12 bg-white font-sans'>
+        <Body className='mx-auto my-12 bg-white p-4 font-sans'>
           <Container className='mx-auto max-w-md rounded-lg border border-solid border-gray-200 p-10'>
             <Section>
               <Text className='text-2xl font-bold text-gray-900'>Reset Your Password</Text>

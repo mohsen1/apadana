@@ -59,8 +59,8 @@ function SignInPage() {
   });
 
   return (
-    <div className='bg-muted flex min-h-screen items-center justify-center p-4'>
-      <Card className={cn('w-full max-w-md shadow-lg', hasErrored && 'shadow-red-500')}>
+    <div className='flex min-h-screen items-center justify-center bg-zinc-900 p-4 dark:bg-zinc-50'>
+      <Card className={cn('w-full max-w-md shadow-lg', hasErrored && 'shadow-destructive')}>
         <CardHeader>
           <CardTitle className='text-center text-2xl font-bold'>Login to your account</CardTitle>
         </CardHeader>
@@ -80,7 +80,7 @@ function SignInPage() {
                 {...register('email')}
                 aria-invalid={!!errors.email}
               />
-              {errors.email && <p className='text-sm text-red-500'>{errors.email.message}</p>}
+              {errors.email && <p className='text-destructive text-sm'>{errors.email.message}</p>}
             </div>
             <div className='space-y-2'>
               <Label htmlFor='password'>Password</Label>
@@ -91,7 +91,9 @@ function SignInPage() {
                 {...register('password')}
                 aria-invalid={!!errors.password}
               />
-              {errors.password && <p className='text-sm text-red-500'>{errors.password.message}</p>}
+              {errors.password && (
+                <p className='text-destructive text-sm'>{errors.password.message}</p>
+              )}
             </div>
             {failedAttempts >= 2 && (
               <div className='text-center text-sm'>
@@ -103,7 +105,7 @@ function SignInPage() {
                 </Link>
               </div>
             )}
-            {hasErrored && <p className='text-sm text-red-500'>{result?.serverError?.error}</p>}
+            {hasErrored && <p className='text-destructive text-sm'>{result?.serverError?.error}</p>}
             <Button
               type='submit'
               className='w-full'
