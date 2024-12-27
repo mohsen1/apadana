@@ -1,4 +1,4 @@
-import { Session, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { createSafeActionClient } from 'next-safe-action';
 import stripAnsi from 'strip-ansi';
 

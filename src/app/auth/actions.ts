@@ -96,7 +96,7 @@ const successfulSignUp = z.object({
 export const signUp = actionClient
   .schema(signUpSchema)
   .outputSchema(successfulSignUp)
-  .action(async ({ parsedInput, ctx }) => {
+  .action(async ({ parsedInput }) => {
     // ensure email is not already in use
     const existingUser = await prisma.user.findFirst({
       where: {

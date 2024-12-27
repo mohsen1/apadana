@@ -71,8 +71,7 @@ jobs:
     runs-on: ubuntu-24.04
     if: |
       github.event_name == 'pull_request' && 
-      failure() && 
-      contains(needs.*.result, 'failure')
+      needs.validate.result == 'failure'
     steps:
       - uses: actions/checkout@v4
         with:
