@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import { setServerSession } from '@/lib/auth';
+import { argon } from '@/lib/auth/argon';
 import { SESSION_COOKIE_NAME, SESSION_DURATION } from '@/lib/auth/constants';
 import prisma from '@/lib/prisma/client';
 
@@ -95,12 +96,13 @@ export async function POST(request: Request) {
         }
 
         // If user doesn't exist, create a new one
+        const hashedPassword = await argon.hash(body.args.password);
         const newUser = await prisma.user.create({
           data: {
             emailAddresses: {
               create: { emailAddress: body.args.email, isPrimary: true },
             },
-            password: body.args.password,
+            password: hashedPassword,
             firstName: 'Test',
             lastName: 'User',
           },
@@ -174,15 +176,20 @@ export async function POST(request: Request) {
       }
 
       case 'deleteAllE2eListings': {
-        await prisma.listing.deleteMany({
-          where: {
-            owner: {
-              emailAddresses: {
-                some: { emailAddress: prodE2eTestHostUser.email },
+        const listingsCount = await prisma.listing.count({
+          where: {},
+        });
+        if (listingsCount !== 0) {
+          await prisma.listing.deleteMany({
+            where: {
+              owner: {
+                emailAddresses: {
+                  some: { emailAddress: prodE2eTestHostUser.email },
+                },
               },
             },
-          },
-        });
+          });
+        }
         return new Response(
           JSON.stringify({
             message: 'All E2E listings deleted',

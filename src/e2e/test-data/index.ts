@@ -82,6 +82,11 @@ export class TestData {
     return response;
   }
 
+  async logOut(page: Page) {
+    await page.context().clearCookies();
+    await page.goto('/');
+  }
+
   createListing(listing: Prisma.ListingCreateInput) {
     return this.#runCommand('createListing', listing);
   }

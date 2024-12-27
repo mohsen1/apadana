@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
+import { SignupFormData, SignUpSchema } from '@/lib/schema';
 import { useToast } from '@/hooks/useToast';
 
 import { Button } from '@/components/ui/button';
@@ -22,36 +22,12 @@ import { Input } from '@/components/ui/input';
 
 import { signUp } from '@/app/auth/actions';
 
-const signupSchema = z
-  .object({
-    firstName: z
-      .string()
-      .min(2, 'First name must be at least 2 characters')
-      .max(50, 'First name must be less than 50 characters'),
-    lastName: z
-      .string()
-      .min(2, 'Last name must be at least 2 characters')
-      .max(50, 'Last name must be less than 50 characters'),
-    email: z.string().email('Please enter a valid email address'),
-    password: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .max(100, 'Password must be less than 100 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
-
-type SignupFormData = z.infer<typeof signupSchema>;
-
 export function SignupForm() {
   const router = useRouter();
   const { toast } = useToast();
 
   const form = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
+    resolver: zodResolver(SignUpSchema),
     defaultValues: {
       firstName: '',
       lastName: '',

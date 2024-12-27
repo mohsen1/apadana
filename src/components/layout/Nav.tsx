@@ -70,14 +70,15 @@ const UserButton = ({ user }: { user: ClientUser }) => {
 
 export function Nav() {
   const { user } = useAuth();
-  const isProd = process.env.NODE_ENV === 'production';
+  const isProd =
+    process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e';
 
   return (
-    <nav className='flex items-center gap-4'>
+    <nav className='flex items-center gap-4' data-testid='main-nav'>
       {user ? (
-        <UserButton user={user} />
+        <UserButton user={user} data-testid='user-button' />
       ) : !isProd ? (
-        <Button variant='default' size='sm' asChild>
+        <Button variant='default' size='sm' asChild data-testid='sign-in-button'>
           <a href='/signin'>Sign In</a>
         </Button>
       ) : null}

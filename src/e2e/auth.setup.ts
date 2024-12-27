@@ -5,9 +5,10 @@ import { expect, test as setup } from './base';
 
 setup('authenticate', async ({ page, data }) => {
   await data.deleteAllE2eListings();
+  await data.deleteUser(prodE2eTestHostUser.email);
   await data.createUser(prodE2eTestHostUser.email, prodE2eTestHostUser.password);
   await data.login(prodE2eTestHostUser.email, page);
-  await page.goto('/');
+  await page.goto('/user/profile');
 
   // Verify that the user-specific link is visible
   await expect(page.getByTestId('nav-user-name')).toBeVisible();
