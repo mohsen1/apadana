@@ -15,6 +15,7 @@
   },
   "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "tailwindCSS.classAttributes": ["class", "className", "classNames", "containerClassName"],
+  "tailwindCSS.tailwindConfig": "config/tailwind.config.mjs",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "files.exclude": {
     "build": true,
