@@ -13,6 +13,7 @@ General Rules:
 - prefer `import _ from 'lodash'` over destructuring
 - Prisma schema and seed are in `src/prisma/schema` directory
 - AVOID CREATING NEW DIRECTORIES DIRECTLY IN ROOT
+- Component stories are sibling to the component. NOT IN **stories**
 
 Typescript Rules:
 
