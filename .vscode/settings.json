@@ -5,6 +5,9 @@
   "debug.javascript.autoAttachFilter": "onlyWithFlag",
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": "active",
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
   "debug.javascript.terminalOptions": {
     "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
   },
@@ -15,7 +18,7 @@
   },
   "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "tailwindCSS.classAttributes": ["class", "className", "classNames", "containerClassName"],
-  "tailwindCSS.tailwindConfig": "config/tailwind.config.mjs",
+  "tailwindCSS.experimental.configFile": "config/tailwind.config.ts",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "files.exclude": {
     "build": true,

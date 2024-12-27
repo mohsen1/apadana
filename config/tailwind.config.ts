@@ -65,7 +65,10 @@ const config: Config = {
         },
 
         /* Border Colors */
-        border: 'rgb(var(--border))',
+        border: {
+          DEFAULT: 'rgb(var(--border))',
+          hover: 'color-mix(in srgb, rgb(var(--border)) 85%, black)',
+        },
         input: 'rgb(var(--input))',
         ring: 'rgb(var(--ring))',
 

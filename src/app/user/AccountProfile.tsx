@@ -28,7 +28,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 
 import { updateUser } from './actions';
 import { addEmailAddress, deleteEmailAddress, setPrimaryEmail } from './actions';
@@ -286,7 +285,7 @@ export function AccountProfile() {
               {user?.emailAddresses?.map((email: EmailAddress) => (
                 <div
                   key={email.id}
-                  className='flex min-h-20 flex-col items-start justify-between space-y-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:space-y-0'
+                  className='border-border flex min-h-20 flex-col items-start justify-between space-y-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:space-y-0'
                 >
                   <div className='w-full space-y-2 sm:w-auto'>
                     <p className='break-all text-sm font-medium'>{email.emailAddress}</p>
@@ -393,7 +392,7 @@ export function AccountProfile() {
           </div>
         </div>
 
-        <div className='mt-6 border-t pt-6'>
+        <div className='border-border mt-6 border-t pt-6'>
           <Button
             variant='outline'
             onClick={async () => {
