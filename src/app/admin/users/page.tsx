@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { PaginationSchema } from '@/lib/schema';
+import { PaginationQueryParamsSchema } from '@/lib/schema';
 
 import { EmptyState } from '@/components/common/EmptyState';
 import Loading from '@/components/ui/loading';
@@ -9,15 +9,19 @@ import { getUsers } from '../actions';
 import { UserList } from '../UserList';
 
 export default async function UsersPage({
-  params,
+  searchParams,
 }: {
-  params: Promise<{ take: number; skip: number; search: string }>;
+  searchParams: Promise<{
+    take: string;
+    skip: string;
+    search: string;
+  }>;
 }) {
+  const paramsParsed = PaginationQueryParamsSchema.safeParse(await searchParams);
+
   let take = 10;
   let skip = 0;
   let search = '';
-
-  const paramsParsed = PaginationSchema.safeParse(await params);
 
   if (paramsParsed.success) {
     take = paramsParsed.data.take;

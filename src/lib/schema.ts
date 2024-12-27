@@ -123,8 +123,25 @@ export const GetListingSchema = z.object({
 });
 
 export const PaginationSchema = z.object({
-  take: z.number().optional().default(10).describe('Limit of how many items to return'),
-  skip: z.number().optional().default(0).describe('Offset of how many items to skip'),
+  take: z
+    .number()
+    .int()
+    .min(1, 'Take must be at least 1')
+    .max(100, 'Take must be less than 100')
+    .default(10)
+    .describe('Limit of how many items to return'),
+  skip: z
+    .number()
+    .int()
+    .min(0, 'Can not skip less than 0')
+    .default(0)
+    .describe('Offset of how many items to skip'),
+  search: z.string().optional().describe('Search query for filtering items'),
+});
+
+export const PaginationQueryParamsSchema = z.object({
+  take: z.coerce.number().optional().default(10).describe('Limit of how many items to return'),
+  skip: z.coerce.number().optional().default(0).describe('Offset of how many items to skip'),
   search: z.string().optional().describe('Search query for filtering items'),
 });
 
