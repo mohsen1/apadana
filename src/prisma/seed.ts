@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { faker } from '@faker-js/faker';
+import { Role } from '@prisma/client';
 
 import { argon } from '@/lib/auth/argon';
 import prisma from '@/lib/prisma/client';
@@ -48,6 +49,9 @@ async function createUser(email: string, password: string) {
       password: hashedPassword,
       emailAddresses: {
         create: [{ emailAddress: email, isPrimary: true }],
+      },
+      roles: {
+        create: [{ role: email === process.env.ADMIN_EMAIL ? Role.ADMIN : Role.HOST }],
       },
     },
   });

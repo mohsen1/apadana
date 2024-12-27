@@ -11,6 +11,8 @@ General Rules:
 - We use Vitest for unit testing.
 - Use data-fns for date operations.
 - prefer `import _ from 'lodash'` over destructuring
+- Prisma schema and seed are in `src/prisma/schema` directory
+- AVOID CREATING NEW DIRECTORIES DIRECTLY IN ROOT
 
 Typescript Rules:
 
@@ -20,13 +22,15 @@ Typescript Rules:
 
 Next.js Rules:
 
-- Use the latest stable versions of Next.js, TypeScript, React, Node.js, Shaden UI, Tailwind CSS, Prisma, and Lucide icons.
+- Use the latest stable versions of Next.js, TypeScript, React, Node.js, ShadCDN UI, Tailwind CSS, Prisma, and Lucide icons.
+- Look into `tailwind.config.ts` to understand the theme and use only colors defined in the theme.
 - Use the App Router with source code in the `src` directory.
 - Do not add new directories directly under `src/app` unless it's for a route.
-- Non-page common components are in `src/components`; Shaden UI components are in `src/components/ui`.
+- Non-page common components are in `src/components`; ShadCDN UI components are in `src/components/ui`.
 - Hooks are in `src/hooks`; emails are in `src/components/emails`.
 - Use theme-defined colors instead of hardcoded ones; available colors include Gray, Red, Yellow, Green, Blue, Indigo, Purple, and Pink.
 - Always handle dark mode in components.
+- for links use `Button` from ShadCDN UI
 
 Backend Rules:
 
@@ -39,6 +43,8 @@ Backend Rules:
 - Pay attention to src/prisma/schema.prisma to understand the database schema.
 - Always try to import model schemas from `src/prisma/schema.ts` or `src/prisma/zod/index.ts`
 - Avoid defining duplicate schemas and interfaces that can be imported from above file
+- We are NOT USING NextAuth. In server user getUserInServer
+- We are NOT USING react-query. Query directly from Prisma Client in backend
 - Use this API signature for actions:
 
   ```typescript

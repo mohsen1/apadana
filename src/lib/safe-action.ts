@@ -6,7 +6,7 @@ import { getUserInServer, setServerSession } from '@/lib/auth';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger('safe-action');
 
 /**
  * An error that is visible to the client. Throw this error to return an error message to the client.

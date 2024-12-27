@@ -29,6 +29,9 @@ const schema = z.object({
 
   // E2E
   E2E_TESTING_SECRET: z.string().min(20).max(60).optional(),
+
+  // Admin
+  ADMIN_EMAIL: z.string().email(),
 });
 
 /**
