@@ -1,8 +1,7 @@
 'use client';
 
 import { EmailAddress, Role, User, UserRole } from '@prisma/client';
-import { ChevronLeft, ChevronRight, Loader2, Shield } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Loader2, Shield } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { useMemo, useState } from 'react';
 

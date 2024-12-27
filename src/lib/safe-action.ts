@@ -2,7 +2,7 @@ import { Session, User } from '@prisma/client';
 import { createSafeActionClient } from 'next-safe-action';
 import stripAnsi from 'strip-ansi';
 
-import { getUserInServer, setServerSession } from '@/lib/auth';
+import { getUserInServer } from '@/lib/auth';
 
 import { createLogger } from '@/utils/logger';
 
@@ -61,7 +61,6 @@ export const actionClient = baseClient.use<SafeActionContext>(async ({ next }) =
     ctx: {
       user,
       userId: user?.id ?? null,
-      setSession: setServerSession,
     },
   });
 });

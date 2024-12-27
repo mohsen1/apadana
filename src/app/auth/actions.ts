@@ -1,11 +1,12 @@
 'use server';
 
 import { Role } from '@prisma/client';
+import { cookies } from 'next/headers';
 import { z } from 'zod';
 
 import { deleteServerSession, getUserInServer } from '@/lib/auth';
 import { argon } from '@/lib/auth/argon';
-import { RESET_TOKEN_DURATION, SESSION_DURATION } from '@/lib/auth/constants';
+import { RESET_TOKEN_DURATION, SESSION_COOKIE_NAME, SESSION_DURATION } from '@/lib/auth/constants';
 import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
@@ -17,7 +18,7 @@ import logger from '@/utils/logger';
 export const login = actionClient
   .schema(LoginSchema)
   .outputSchema(SuccessfulLoginSchema)
-  .action(async ({ parsedInput, ctx }) => {
+  .action(async ({ parsedInput }) => {
     const user = await prisma.user.findFirst({
       where: {
         emailAddresses: {
@@ -56,7 +57,14 @@ export const login = actionClient
       },
     });
 
-    ctx.setSession(session);
+    const { set: setCookie } = await cookies();
+
+    setCookie(SESSION_COOKIE_NAME, session.id, {
+      path: '/',
+      expires: session.expiresAt,
+      httpOnly: true,
+      secure: true,
+    });
 
     const clientUser = sanitizeUserForClient(user);
     if (!clientUser) {

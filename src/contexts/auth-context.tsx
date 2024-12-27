@@ -15,7 +15,6 @@ interface AuthContextValue {
   /** Fetch the current user. This will cause a re-render of the entire app. */
   fetchUser: () => void;
   /** Set the current user */
-  setUser: (user: ClientUser | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -37,8 +36,10 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   const signOut = useCallback(async () => {
     try {
       const result = await logOut();
-      if (result?.data?.user) {
+      if (result?.data?.user === null) {
         setUser(null);
+      } else {
+        throw new Error('Failed to log out');
       }
     } catch (error) {
       logger.error('Error logging out in AuthProvider:', error);
@@ -53,7 +54,6 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
     user,
     signOut,
     fetchUser,
-    setUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

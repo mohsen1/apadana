@@ -1,3 +1,5 @@
+'use server';
+
 import { Session } from '@prisma/client';
 
 async function cookies() {

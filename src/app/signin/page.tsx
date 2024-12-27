@@ -9,7 +9,6 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,17 +26,15 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 function SignInPage() {
-  const { setUser } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
   const initialEmail = searchParams.get('email') || '';
   const [failedAttempts, setFailedAttempts] = useState(0);
 
-  const { execute, status, hasErrored, result } = useAction(login, {
+  const { execute, status, hasErrored, result, isPending } = useAction(login, {
     onSuccess: ({ data }) => {
       if (data?.user) {
-        setUser(data.user);
         router.push(redirect || '/');
       }
     },
@@ -58,6 +55,10 @@ function SignInPage() {
     },
   });
 
+  if (status === 'hasSucceeded') {
+    return null;
+  }
+
   return (
     <div className='flex min-h-screen items-center justify-center bg-zinc-900 p-4 dark:bg-zinc-50'>
       <Card className={cn('w-full max-w-md shadow-lg', hasErrored && 'shadow-destructive')}>
@@ -77,6 +78,7 @@ function SignInPage() {
               <Input
                 id='email'
                 placeholder='Enter your email'
+                disabled={isPending}
                 {...register('email')}
                 aria-invalid={!!errors.email}
               />
@@ -88,6 +90,7 @@ function SignInPage() {
                 id='password'
                 type='password'
                 placeholder='Enter your password'
+                disabled={isPending}
                 {...register('password')}
                 aria-invalid={!!errors.password}
               />
@@ -109,7 +112,7 @@ function SignInPage() {
             <Button
               type='submit'
               className='w-full'
-              disabled={isSubmitting || status === 'executing'}
+              disabled={isSubmitting || status === 'executing' || isPending}
             >
               {status === 'executing' ? 'Logging in...' : 'Log in'}
             </Button>

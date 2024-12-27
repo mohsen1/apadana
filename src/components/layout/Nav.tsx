@@ -1,6 +1,7 @@
 'use client';
 
 import { Lock, LogOut, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/hooks/useAuth';
 
@@ -20,6 +21,7 @@ import { ClientUser } from '@/contexts/auth-context';
 
 const UserButton = ({ user }: { user: ClientUser }) => {
   const { signOut } = useAuth();
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -50,7 +52,13 @@ const UserButton = ({ user }: { user: ClientUser }) => {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={signOut} className='cursor-pointer'>
+        <DropdownMenuItem
+          onSelect={async () => {
+            await signOut();
+            router.push('/');
+          }}
+          className='cursor-pointer'
+        >
           <LogOut className='mr-2 h-4 w-4' />
           Sign out
         </DropdownMenuItem>
