@@ -32,7 +32,7 @@ async function createUser(email: string, password: string) {
   const existingUser = await prisma.user.findFirst({
     where: {
       emailAddresses: {
-        some: { emailAddress: email },
+        some: { emailAddress: email, isPrimary: true },
       },
     },
   });

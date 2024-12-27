@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +27,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 function SignInPage() {
+  const { fetchUser } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
@@ -35,6 +37,7 @@ function SignInPage() {
   const { execute, status, hasErrored, result, isPending } = useAction(login, {
     onSuccess: ({ data }) => {
       if (data?.user) {
+        fetchUser();
         router.push(redirect || '/');
       }
     },

@@ -164,7 +164,9 @@ const getCurrentUserOutput = z
 export const getCurrentUser = actionClient.outputSchema(getCurrentUserOutput).action(async () => {
   const user = await getUserInServer();
   if (!user) return { user: null };
+  console.log('user in getCurrentUser', user);
   const clientUser = sanitizeUserForClient(user);
+  console.log('clientUser', clientUser);
   if (!clientUser) return { user: null };
   return { user: clientUser };
 });

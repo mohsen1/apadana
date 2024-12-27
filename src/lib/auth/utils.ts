@@ -13,7 +13,9 @@ export function sanitizeUserForClient(
   if (!user) return null;
 
   const primaryEmail = user.emailAddresses.find((e) => e.isPrimary)?.emailAddress;
-  if (!primaryEmail) return null;
+  if (!primaryEmail) {
+    return null;
+  }
   const isAdmin = user.roles.some((role) => role.role === Role.ADMIN);
 
   return {
