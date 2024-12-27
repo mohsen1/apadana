@@ -17,7 +17,7 @@ export default function EmailsList({ emails }: EmailsListProps) {
   const [selectedEmail, setSelectedEmail] = useState<LocalEmail | null>(emails[0] ?? null);
 
   return (
-    <div className='flex h-screen flex-col'>
+    <div className='flex h-full min-h-screen flex-1 flex-col'>
       <header className='border-border border-b p-4'>
         <h1 className='text-2xl font-semibold'>Local Email Inbox</h1>
       </header>
@@ -44,7 +44,7 @@ export default function EmailsList({ emails }: EmailsListProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.2 }}
-              className='flex-1 overflow-hidden'
+              className='flex-1 overflow-hidden overflow-y-auto'
             >
               {selectedEmail ? (
                 <EmailContent email={selectedEmail} />

@@ -7,6 +7,7 @@ import '@/styles/globals.css';
 
 import { cn } from '@/lib/utils';
 
+import { EmailVerificationBanner } from '@/components/EmailVerificationBanner';
 import Footer from '@/components/layout/Footer';
 import { Header } from '@/components/layout/header';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -59,6 +60,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const result = await getCurrentUser();
   const user = result?.data?.user;
 
+  const primaryEmail = user?.emailAddresses.find((email) => email.isPrimary);
+  const needsVerification = primaryEmail && !primaryEmail.verified;
+
   return (
     <AuthProvider initialUser={user}>
       <html lang='en' suppressHydrationWarning>
@@ -80,6 +84,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
             <ToastProvider>
               <Header className='h-16' />
+              {needsVerification && <EmailVerificationBanner email={primaryEmail.emailAddress} />}
               <main className='mx-auto min-h-[calc(100vh-4rem)] w-full flex-1'>{children}</main>
               <Footer className='mt-auto' />
               <Toaster />

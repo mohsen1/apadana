@@ -10,7 +10,7 @@ export interface BannerProps {
   title: string;
 
   /** The description of the banner */
-  description: string;
+  description: React.ReactNode;
 
   /**
    * The query param name to check to decide if the banner should be shown

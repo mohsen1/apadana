@@ -60,11 +60,18 @@ export const BaseListingSchema = ListingSchema.refine(
 
 export const ClientUserSchema = z.object({
   id: z.string(),
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
+  firstName: z.string(),
+  lastName: z.string(),
   imageUrl: z.string().nullable(),
   email: z.string().describe('The primary email address of the user'),
-  emailAddresses: z.array(EmailAddressSchema),
+  emailAddresses: z.array(
+    z.object({
+      id: z.string(),
+      emailAddress: z.string(),
+      isPrimary: z.boolean(),
+      verified: z.boolean(),
+    }),
+  ),
   isAdmin: z.boolean().describe('Whether the user is an admin'),
 
   // Ensure that these fields are not included in the schema
