@@ -2,6 +2,7 @@
 
 import { EmailAddress, Role, User, UserRole } from '@prisma/client';
 import { ChevronLeft, ChevronRight, Loader2, Shield } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { useMemo, useState } from 'react';
 
@@ -43,6 +44,9 @@ export function UserList({
   };
 }) {
   const { toast } = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { execute: executeGetUsers, result: usersResult } = useAction(getUsers);
   const [openDialog, setOpenDialog] = useState<string | null>(null);
 
@@ -73,6 +77,13 @@ export function UserList({
   const users = useMemo(() => {
     return usersResult?.data?.users ?? initialUsers;
   }, [usersResult, initialUsers]);
+
+  const updateQueryParams = (skip: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('skip', skip.toString());
+    params.set('take', pagination.take.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className='space-y-4'>
@@ -167,12 +178,14 @@ export function UserList({
             <Button
               variant='outline'
               size='sm'
-              onClick={() =>
+              onClick={() => {
+                const newSkip = Math.max(0, pagination.skip - pagination.take);
+                updateQueryParams(newSkip);
                 executeGetUsers({
-                  skip: Math.max(0, pagination.skip - pagination.take),
+                  skip: newSkip,
                   take: pagination.take,
-                })
-              }
+                });
+              }}
               disabled={pagination.skip === 0}
             >
               <ChevronLeft className='h-4 w-4' />
@@ -181,12 +194,14 @@ export function UserList({
             <Button
               variant='outline'
               size='sm'
-              onClick={() =>
+              onClick={() => {
+                const newSkip = pagination.skip + pagination.take;
+                updateQueryParams(newSkip);
                 executeGetUsers({
-                  skip: pagination.skip + pagination.take,
+                  skip: newSkip,
                   take: pagination.take,
-                })
-              }
+                });
+              }}
               disabled={pagination.skip + pagination.take >= pagination.total}
             >
               Next
