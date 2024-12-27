@@ -84,22 +84,22 @@ export const addEmailAddress = actionClient
 
     const verificationCode = crypto.randomUUID();
 
-    // Add new email address with verification code
-    await prisma.emailAddress.create({
-      data: {
-        emailAddress: parsedInput.emailAddress,
-        userId: ctx.userId,
-        isPrimary: false,
-        verification: verificationCode,
-        verified: false,
-      },
-    });
-
     try {
-      await sendEmailVerificationEmail({
-        to: parsedInput.emailAddress,
-        verificationCode,
-      });
+      await Promise.all([
+        prisma.emailAddress.create({
+          data: {
+            emailAddress: parsedInput.emailAddress,
+            userId: ctx.userId,
+            isPrimary: false,
+            verification: verificationCode,
+            verified: false,
+          },
+        }),
+        sendEmailVerificationEmail({
+          to: parsedInput.emailAddress,
+          verificationCode,
+        }),
+      ]);
     } catch (error) {
       assertError(error);
       logger.error('Failed to send verification email', { error });
