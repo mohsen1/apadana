@@ -1,8 +1,6 @@
 name: Install Playwright
 description: Install Playwright and dependencies with cache
 
-# https://github.com/microsoft/playwright/issues/7249#issuecomment-2334627973
-
 inputs:
   working-directory:
     description: Where to install Playwright
@@ -27,8 +25,6 @@ runs:
       id: version
       with:
         script: |
-          // https://github.com/actions/toolkit/issues/1624
-          // const workingDirectory = core.getInput("working-directory");
           const workingDirectory = "${{ inputs.working-directory }}";
           console.debug("Specified working directory:", workingDirectory);
           if (workingDirectory) process.chdir(workingDirectory);

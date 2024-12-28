@@ -31,7 +31,6 @@ runs:
           const isSuccess = testStatus === 'success';
           const statusEmoji = isSuccess ? '✅' : '❌';
 
-          // Create section for this test type
           let sectionContent = `### ${testType} Tests ${statusEmoji}\n\n`;
 
           if (deploymentUrl) {
@@ -55,14 +54,11 @@ runs:
             c.body.includes('Test Results')
           );
 
-          // Wrap section in HTML comments
           const sectionWrapper = `<!-- ${testType}-tests-start -->\n${sectionContent}\n<!-- ${testType}-tests-end -->\n\n`;
 
           let commentBody;
           if (botComment) {
             const existingBody = botComment.body;
-            
-            // Replace existing section if it exists, or add new section
             const sectionRegex = new RegExp(
               `<!-- ${testType}-tests-start -->([\\s\\S]*?)<!-- ${testType}-tests-end -->\\n*`,
               'g'
@@ -74,7 +70,6 @@ runs:
               commentBody = existingBody + sectionWrapper;
             }
             
-            // Clean up double newlines
             commentBody = commentBody.replace(/\n{3,}/g, '\n\n').trim() + '\n';
             
             await github.rest.issues.updateComment({
@@ -84,7 +79,6 @@ runs:
               body: commentBody
             });
           } else {
-            // Create new comment with header and first section
             commentBody = `# Test Results\n\n${sectionWrapper}`;
             
             await github.rest.issues.createComment({
