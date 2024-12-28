@@ -19,7 +19,7 @@ jobs:
     name: Playwright
     runs-on: ubuntu-24.04
     if: |
-      (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success') &&
+      (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success') ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
       - uses: actions/checkout@v4
@@ -75,7 +75,7 @@ jobs:
     name: Storybook
     runs-on: macos-14
     if: |
-      (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success') &&
+      (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success') ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     timeout-minutes: 20
     steps:
