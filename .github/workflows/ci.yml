@@ -103,10 +103,25 @@ jobs:
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
 
-      - name: Set PR number
+      - name: Find PR number
         id: find-pr
-        if: ${{ github.event_name == 'pull_request' }}
-        run: echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const { data: pulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+            const pr = pulls.find(p => p.head.sha === process.env.GITHUB_SHA);
+            if (pr) {
+              console.log(`Found PR #${pr.number}`);
+              core.setOutput('pr_number', pr.number.toString());
+            } else {
+              console.log('No PR found for this commit');
+            }
 
       - run: pnpm dlx playwright install
 
