@@ -108,7 +108,7 @@ describe('Booking Requests Actions', () => {
         guests: 2,
         totalPrice: 240,
         currency: 'USD',
-        listingId: expect.any(String),
+        listingId: expect.any(String) as string,
       });
     });
 
