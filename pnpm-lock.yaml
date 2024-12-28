@@ -140,6 +140,9 @@ importers:
       date-fns-tz:
         specifier: ^3.2.0
         version: 3.2.0(date-fns@4.1.0)
+      fast-glob:
+        specifier: ^3.3.2
+        version: 3.3.2
       framer-motion:
         specifier: ^11.15.0
         version: 11.15.0(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)

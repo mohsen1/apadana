@@ -1,11 +1,7 @@
 import type { Config } from 'tailwindcss';
 import plugin from 'tailwindcss/plugin';
 
-const content = [
-  'src/**/*.{js,ts,jsx,tsx,mdx}',
-  'app/**/*.{js,ts,jsx,tsx,mdx}',
-  '.storybook/**/*.{js,ts,jsx,tsx,mdx}',
-].map((path) => `${process.cwd()}/${path}`);
+const content = ['./src/**/*.{js,ts,jsx,tsx,mdx}', './.storybook/**/*.{js,ts,jsx,tsx,mdx}'];
 
 const config: Config = {
   content,
@@ -30,6 +26,16 @@ const config: Config = {
           DEFAULT: 'rgb(var(--primary))',
           foreground: 'rgb(var(--primary-foreground))',
           hover: 'color-mix(in srgb, rgb(var(--primary)) 85%, black)',
+          100: 'rgb(var(--primary-100))',
+          200: 'rgb(var(--primary-200))',
+          300: 'rgb(var(--primary-300))',
+          400: 'rgb(var(--primary-400))',
+          500: 'rgb(var(--primary-500))',
+          600: 'rgb(var(--primary-600))',
+          700: 'rgb(var(--primary-700))',
+          800: 'rgb(var(--primary-800))',
+          900: 'rgb(var(--primary-900))',
+          950: 'rgb(var(--primary-950))',
         },
         secondary: {
           DEFAULT: 'rgb(var(--secondary))',
@@ -45,11 +51,31 @@ const config: Config = {
           DEFAULT: 'rgb(var(--accent))',
           foreground: 'rgb(var(--accent-foreground))',
           hover: 'color-mix(in srgb, rgb(var(--accent)) 85%, black)',
+          100: 'rgb(var(--accent-100))',
+          200: 'rgb(var(--accent-200))',
+          300: 'rgb(var(--accent-300))',
+          400: 'rgb(var(--accent-400))',
+          500: 'rgb(var(--accent-500))',
+          600: 'rgb(var(--accent-600))',
+          700: 'rgb(var(--accent-700))',
+          800: 'rgb(var(--accent-800))',
+          900: 'rgb(var(--accent-900))',
+          950: 'rgb(var(--accent-950))',
         },
         destructive: {
           DEFAULT: 'rgb(var(--destructive))',
           foreground: 'rgb(var(--destructive-foreground))',
           hover: 'color-mix(in srgb, rgb(var(--destructive)) 85%, black)',
+          100: 'rgb(var(--destructive-100))',
+          200: 'rgb(var(--destructive-200))',
+          300: 'rgb(var(--destructive-300))',
+          400: 'rgb(var(--destructive-400))',
+          500: 'rgb(var(--destructive-500))',
+          600: 'rgb(var(--destructive-600))',
+          700: 'rgb(var(--destructive-700))',
+          800: 'rgb(var(--destructive-800))',
+          900: 'rgb(var(--destructive-900))',
+          950: 'rgb(var(--destructive-950))',
         },
 
         /* System Colors */
@@ -70,18 +96,50 @@ const config: Config = {
           hover: 'color-mix(in srgb, rgb(var(--border)) 85%, black)',
         },
         input: 'rgb(var(--input))',
-        ring: 'rgb(var(--ring))',
+        ring: {
+          DEFAULT: 'rgb(var(--ring))',
+          100: 'rgb(var(--ring-100))',
+          200: 'rgb(var(--ring-200))',
+          300: 'rgb(var(--ring-300))',
+          400: 'rgb(var(--ring-400))',
+          500: 'rgb(var(--ring-500))',
+          600: 'rgb(var(--ring-600))',
+          700: 'rgb(var(--ring-700))',
+          800: 'rgb(var(--ring-800))',
+          900: 'rgb(var(--ring-900))',
+          950: 'rgb(var(--ring-950))',
+        },
 
         /* Additional Status Colors */
         success: {
           DEFAULT: 'rgb(var(--success))',
           foreground: 'rgb(var(--success-foreground))',
           hover: 'color-mix(in srgb, rgb(var(--success)) 85%, black)',
+          100: 'rgb(var(--success-100))',
+          200: 'rgb(var(--success-200))',
+          300: 'rgb(var(--success-300))',
+          400: 'rgb(var(--success-400))',
+          500: 'rgb(var(--success-500))',
+          600: 'rgb(var(--success-600))',
+          700: 'rgb(var(--success-700))',
+          800: 'rgb(var(--success-800))',
+          900: 'rgb(var(--success-900))',
+          950: 'rgb(var(--success-950))',
         },
         warning: {
           DEFAULT: 'rgb(var(--warning))',
           foreground: 'rgb(var(--warning-foreground))',
           hover: 'color-mix(in srgb, rgb(var(--warning)) 85%, black)',
+          100: 'rgb(var(--warning-100))',
+          200: 'rgb(var(--warning-200))',
+          300: 'rgb(var(--warning-300))',
+          400: 'rgb(var(--warning-400))',
+          500: 'rgb(var(--warning-500))',
+          600: 'rgb(var(--warning-600))',
+          700: 'rgb(var(--warning-700))',
+          800: 'rgb(var(--warning-800))',
+          900: 'rgb(var(--warning-900))',
+          950: 'rgb(var(--warning-950))',
         },
 
         /* Additional Base Colors */

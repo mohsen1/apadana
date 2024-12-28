@@ -1,0 +1,147 @@
+name: E2E
+on:
+  workflow_run:
+    workflows: ['CI']
+    types:
+      - completed
+  deployment_status:
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+  checks: write
+  deployments: read
+  statuses: read
+
+jobs:
+  e2e:
+    name: Playwright
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
+    steps:
+      - name: Skip if CI tests failed
+        id: skip-check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const workflows = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'ci.yml',
+              branch: context.ref.replace('refs/heads/', ''),
+              per_page: 1,
+            });
+            if (workflows.data.workflow_runs.length > 0) {
+              const workflowRun = workflows.data.workflow_runs[0];
+              const jobs = await github.rest.actions.listJobsForWorkflowRun({
+                owner,
+                repo,
+                run_id: workflowRun.id,
+              });
+              const testJob = jobs.data.jobs.find((job) => job.name === 'test');
+              if (!testJob || testJob.conclusion !== 'success') {
+                core.setOutput('skip', 'true');
+              }
+            }
+
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/playwright
+
+      - name: Find PR number
+        id: find-pr
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const commits = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner,
+              repo,
+              commit_sha: context.sha,
+            });
+            if (commits.data.length > 0) {
+              core.setOutput('pr_number', commits.data[0].number);
+            }
+
+      - name: Run E2E Tests
+        if: steps.skip-check.outputs.skip != 'true'
+        id: test-run
+        run: pnpm run e2e:ci
+        env:
+          BASE_URL: ${{ github.event.deployment_status.target_url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          E2E_TESTING_SECRET: ${{ secrets.E2E_TESTING_SECRET }}
+
+      - name: Upload Test Report
+        if: always() && hashFiles('.next/playwright-report/**') != ''
+        id: upload-results
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: apadana-e2e
+          source_dir: '.next/playwright-report'
+          destination_dir: ${{ github.sha }}/e2e/html
+
+      - name: Update PR Comment for E2E
+        if: always() && steps.find-pr.outputs.pr_number
+        uses: ./.github/actions/update-pr-comment
+        with:
+          pr_number: ${{ steps.find-pr.outputs.pr_number }}
+          test_status: ${{ steps.test-run.outcome }}
+          report_url: ${{ steps.upload-results.outputs.object_locations && fromJSON(steps.upload-results.outputs.object_locations)[0] }}
+          test_type: 'E2E'
+          deployment_url: ${{ github.event.deployment_status.target_url }}
+
+  storybook:
+    name: Storybook
+    runs-on: macos-14
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/playwright
+
+      - name: Find PR number
+        id: find-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const commits = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner,
+              repo,
+              commit_sha: context.sha,
+            });
+            if (commits.data.length > 0) {
+              core.setOutput('pr_number', commits.data[0].number);
+            }
+
+      - run: pnpm dlx playwright install
+
+      - name: Test Storybook
+        id: test-run
+        run: pnpm run test:storybook
+
+      - name: Upload Storybook Results
+        if: always() && hashFiles('storybook-e2e-html-report/**') != ''
+        id: upload-results
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: apadana-e2e
+          source_dir: 'storybook-e2e-html-report'
+          destination_dir: ${{ github.sha }}/storybook/html
+
+      - name: Update PR Comment for Storybook
+        if: always() && steps.find-pr.outputs.pr_number
+        uses: ./.github/actions/update-pr-comment
+        with:
+          pr_number: ${{ steps.find-pr.outputs.pr_number }}
+          test_status: ${{ steps.test-run.outcome }}
+          report_url: ${{ fromJSON(steps.upload-results.outputs.object_locations)[0] }}/index.html
+          test_type: 'Storybook'

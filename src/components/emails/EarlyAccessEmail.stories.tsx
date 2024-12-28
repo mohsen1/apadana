@@ -21,12 +21,14 @@ export default meta;
 type Story = StoryObj<typeof EarlyAccessEmail>;
 
 export const Default: Story = {
+  name: 'Default',
   args: {
     email: 'user@example.com',
   },
 };
 
 export const LongEmail: Story = {
+  name: 'Long Email',
   args: {
     email: 'very.long.email.address@really.long.domain.example.com',
   },

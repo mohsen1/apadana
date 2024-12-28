@@ -7,6 +7,8 @@ import { z } from 'zod';
 
 import { toast } from '@/hooks/useToast';
 
+import { AVATAR1 } from '@/components/emails/constants';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -75,6 +77,7 @@ const formSchema = z.object({
 });
 
 export const ComplexForm: Story = {
+  name: 'Complex Form',
   render: () => {
     const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -130,6 +133,7 @@ export const ComplexForm: Story = {
 };
 
 export const AlertDialogs: Story = {
+  name: 'Alert Dialogs',
   render: () => (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -153,6 +157,7 @@ export const AlertDialogs: Story = {
 };
 
 export const Sheets: Story = {
+  name: 'Sheets',
   render: () => (
     <Sheet>
       <SheetTrigger asChild>
@@ -174,6 +179,7 @@ export const Sheets: Story = {
 };
 
 export const ComplexDropdownMenu: Story = {
+  name: 'Complex Dropdown Menu',
   render: () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -191,6 +197,7 @@ export const ComplexDropdownMenu: Story = {
 
 // TODO: Fix the ToastNotifications story
 export const ToastNotifications: Story = {
+  name: 'Toast Notifications',
   decorators: [
     (Story) => (
       <ToastProvider>
@@ -217,6 +224,7 @@ export const ToastNotifications: Story = {
 
 // TODO: Fix the InteractiveSheet story
 export const InteractiveSheet: Story = {
+  name: 'Interactive Sheet',
   render: function InteractiveSheetStory() {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -242,10 +250,11 @@ export const InteractiveSheet: Story = {
 };
 
 export const Avatars: Story = {
+  name: 'Avatars',
   render: () => (
     <div className='flex gap-4'>
       <Avatar>
-        <AvatarImage src='https://github.com/shadcn.png' alt='@shadcn' />
+        <AvatarImage src={AVATAR1} alt='@shadcn' />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
       <Avatar>
@@ -256,6 +265,7 @@ export const Avatars: Story = {
 };
 
 export const Badges: Story = {
+  name: 'Badges',
   render: () => (
     <div className='flex gap-2'>
       <Badge>Default</Badge>
@@ -267,6 +277,7 @@ export const Badges: Story = {
 };
 
 export const Cards: Story = {
+  name: 'Cards',
   render: () => (
     <Card className='w-[350px]'>
       <CardHeader>
@@ -284,6 +295,7 @@ export const Cards: Story = {
 };
 
 export const Checkboxes: Story = {
+  name: 'Checkboxes',
   render: () => (
     <div className='flex items-center space-x-2'>
       <Checkbox id='terms' />
@@ -298,6 +310,7 @@ export const Checkboxes: Story = {
 };
 
 export const ProgressBars: Story = {
+  name: 'Progress Bars',
   render: () => (
     <div className='w-[400px]'>
       <div className='w-[60%] space-y-4'>
@@ -310,6 +323,7 @@ export const ProgressBars: Story = {
 };
 
 export const RadioGroupExample: Story = {
+  name: 'Radio Group',
   render: () => (
     <RadioGroup defaultValue='option-one'>
       <div className='flex items-center space-x-2'>
@@ -325,6 +339,7 @@ export const RadioGroupExample: Story = {
 };
 
 export const SelectMenus: Story = {
+  name: 'Select Menus',
   render: () => (
     <Select>
       <SelectTrigger className='w-[180px]'>
@@ -340,6 +355,7 @@ export const SelectMenus: Story = {
 };
 
 export const Separators: Story = {
+  name: 'Separators',
   render: () => (
     <div className='space-y-4'>
       <div>
@@ -358,6 +374,7 @@ export const Separators: Story = {
 };
 
 export const Skeletons: Story = {
+  name: 'Skeletons',
   render: () => (
     <div className='flex items-center space-x-4'>
       <Skeleton className='h-12 w-12 rounded-full' />
@@ -370,6 +387,7 @@ export const Skeletons: Story = {
 };
 
 export const Switches: Story = {
+  name: 'Switches',
   render: () => (
     <div className='flex items-center space-x-2'>
       <Switch id='airplane-mode' />
@@ -379,6 +397,7 @@ export const Switches: Story = {
 };
 
 export const Tables: Story = {
+  name: 'Tables',
   render: () => (
     <Table>
       <TableHeader>
@@ -405,6 +424,7 @@ export const Tables: Story = {
 };
 
 export const TabsExample: Story = {
+  name: 'Tabs',
   render: () => (
     <Tabs defaultValue='account' className='w-[400px]'>
       <TabsList>
@@ -422,10 +442,12 @@ export const TabsExample: Story = {
 };
 
 export const TextareaExample: Story = {
-  render: () => <Textarea placeholder='Type your message here.' />,
+  name: 'Textarea',
+  render: () => <Textarea className='w-[600px]' placeholder='Type your message here.' />,
 };
 
 export const TooltipExample: Story = {
+  name: 'Tooltip',
   decorators: [
     (Story) => (
       <div className='flex items-center justify-center p-20'>

@@ -1,0 +1,90 @@
+name: Update PR Comment
+description: Updates or creates a PR comment with test results
+
+inputs:
+  pr_number:
+    required: true
+    description: PR number to update
+  test_status:
+    required: true
+    description: Status of the test run (success/failure)
+  report_url:
+    required: false
+    description: URL to the test report
+  test_type:
+    required: true
+    description: Type of test (E2E/Storybook)
+  deployment_url:
+    required: false
+    description: URL of the deployment being tested
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/github-script@v7
+      with:
+        script: |
+          const testStatus = '${{ inputs.test_status }}';
+          const reportUrl = '${{ inputs.report_url }}';
+          const testType = '${{ inputs.test_type }}';
+          const deploymentUrl = '${{ inputs.deployment_url }}';
+          const isSuccess = testStatus === 'success';
+          const statusEmoji = isSuccess ? '✅' : '❌';
+
+          let sectionContent = `### ${testType} Tests ${statusEmoji}\n\n`;
+
+          if (deploymentUrl) {
+            sectionContent += `Ran against [${deploymentUrl}](${deploymentUrl})\n\n`;
+          }
+
+          if (reportUrl) {
+            sectionContent += `[View ${testType} Report](${reportUrl})\n\n`;
+          }
+
+          sectionContent += `<sub>Updated at: ${new Date().toISOString()}</sub>`;
+
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: parseInt('${{ inputs.pr_number }}'),
+          });
+
+          const botComment = comments.find(c => 
+            c.user.type === 'Bot' && 
+            c.body.includes('Test Results')
+          );
+
+          const sectionWrapper = `<!-- ${testType}-tests-start -->\n${sectionContent}\n<!-- ${testType}-tests-end -->\n\n`;
+
+          let commentBody;
+          if (botComment) {
+            const existingBody = botComment.body;
+            const sectionRegex = new RegExp(
+              `<!-- ${testType}-tests-start -->([\\s\\S]*?)<!-- ${testType}-tests-end -->\\n*`,
+              'g'
+            );
+            
+            if (existingBody.includes(`<!-- ${testType}-tests-start -->`)) {
+              commentBody = existingBody.replace(sectionRegex, sectionWrapper);
+            } else {
+              commentBody = existingBody + sectionWrapper;
+            }
+            
+            commentBody = commentBody.replace(/\n{3,}/g, '\n\n').trim() + '\n';
+            
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: commentBody
+            });
+          } else {
+            commentBody = `# Test Results\n\n${sectionWrapper}`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt('${{ inputs.pr_number }}'),
+              body: commentBody
+            });
+          }

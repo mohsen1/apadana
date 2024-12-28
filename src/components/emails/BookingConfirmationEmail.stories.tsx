@@ -26,6 +26,7 @@ type Story = StoryObj<typeof BookingRequestEmail>;
 const baseDate = new Date();
 
 export const Default: Story = {
+  name: 'Default',
   args: {
     guest: {
       name: 'John Doe',
@@ -61,6 +62,7 @@ export const Default: Story = {
 };
 
 export const NoMessage: Story = {
+  name: 'No Message',
   args: {
     ...Default.args,
     message: undefined,
@@ -68,6 +70,7 @@ export const NoMessage: Story = {
 };
 
 export const FirstTimeGuest: Story = {
+  name: 'First Time Guest',
   args: {
     ...Default.args,
     guest: {

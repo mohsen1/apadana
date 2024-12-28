@@ -5,6 +5,7 @@ import type webpack from 'webpack';
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.NEXT_PUBLIC_TEST_ENV === 'e2e',
   reactStrictMode: true,
+  logging: false,
   typescript: {
     ignoreBuildErrors: true,
   },

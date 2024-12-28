@@ -22,12 +22,14 @@ export default meta;
 type Story = StoryObj<typeof PasswordResetEmail>;
 
 export const Default: Story = {
+  name: 'Default',
   args: {
     resetLink: 'https://apadana.app/reset-password?token=example-token',
   },
 };
 
 export const LongLink: Story = {
+  name: 'Long Link',
   args: {
     resetLink:
       'https://apadana.app/reset-password?token=very-long-token-string-for-testing-overflow-behavior-12345',

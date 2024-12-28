@@ -43,6 +43,8 @@ sitemap-*.xml
 *storybook.log
 storybook-static/
 /test-results/
+**-test-results/
+**-html-report/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
