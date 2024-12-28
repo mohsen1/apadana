@@ -6,7 +6,7 @@ import resend from '@/lib/email/resend';
 import prisma from '@/lib/prisma/client';
 import { actionClient } from '@/lib/safe-action';
 
-import EarlyAccessEmail from '@/components/emails/early-access-email';
+import { EarlyAccessEmail } from '@/components/emails/EarlyAccessEmail';
 
 import logger from '@/utils/logger';
 

@@ -1,13 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { Suspense } from 'react';
 
-import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
-
-import { EarlyAccessEmail } from './early-access-email';
+import { EarlyAccessEmail } from './EarlyAccessEmail';
+import { ReactEmailStoryRenderer } from './ReactEmailStoryRenderer';
 
 const meta: Meta<typeof EarlyAccessEmail> = {
   title: 'Emails/EarlyAccessEmail',
-  component: EarlyAccessEmail,
-  render: (args) => <ReactEmailStoryRenderer Component={EarlyAccessEmail} props={args} />,
+  component: (props) => (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ReactEmailStoryRenderer Component={EarlyAccessEmail} props={props} />
+    </Suspense>
+  ),
   parameters: {
     layout: 'centered',
   },

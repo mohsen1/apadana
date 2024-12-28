@@ -81,6 +81,7 @@ describe('createBookingRequest', () => {
       guests: 2,
       totalPrice: 240,
       currency: 'USD',
+      listingId: expect.any(String) as string,
     });
   });
 });

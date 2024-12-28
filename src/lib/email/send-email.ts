@@ -1,13 +1,14 @@
 import resend from '@/lib/email/resend';
 
-import { BookingRequestEmail } from '@/components/emails/booking-request-email';
-import BookingAlterationEmail from '@/components/emails/BookingAlterationEmail';
-import { EarlyAccessEmail } from '@/components/emails/early-access-email';
+import { BookingAlterationEmail } from '@/components/emails/BookingAlterationEmail';
+import { BookingRequestEmail } from '@/components/emails/BookingRequestEmail';
+import { EarlyAccessEmail } from '@/components/emails/EarlyAccessEmail';
 import EmailVerification from '@/components/emails/EmailVerification';
-import { PasswordResetEmail } from '@/components/emails/password-reset-email';
-import WelcomeEmail from '@/components/emails/welcome-email';
+import { PasswordResetEmail } from '@/components/emails/PasswordResetEmail';
+import { WelcomeEmail } from '@/components/emails/WelcomeEmail';
 
 import { createLogger } from '@/utils/logger';
+import { createListingUrl, createVerificationUrl } from '@/utils/url';
 
 const logger = createLogger(__filename);
 
@@ -40,6 +41,7 @@ function sendEmail({
   });
 }
 
+// TODO: add a function to send a booking confirmation email
 /**
  * Send a booking request email to the host when a guest requests a booking.
  */
@@ -52,6 +54,7 @@ export async function sendBookingRequestEmail({
   guests,
   totalPrice,
   currency,
+  listingId,
 }: {
   hostEmail: string;
   guestName: string;
@@ -61,20 +64,39 @@ export async function sendBookingRequestEmail({
   guests: number;
   totalPrice: number;
   currency: string;
+  listingId: string;
 }) {
   try {
+    const hostDashboardUrl = createListingUrl(`${listingId}/manage`);
     await sendEmail({
       email: hostEmail,
       subject: `New Booking Request: ${listingTitle}`,
       from: BOOKING_EMAIL,
       react: BookingRequestEmail({
-        guestName,
-        listingTitle,
+        guest: {
+          name: guestName,
+          email: 'TODO',
+        },
+        listing: {
+          title: listingTitle,
+          location: 'TODO',
+          checkInTime: 'TODO',
+          checkOutTime: 'TODO',
+          id: listingId,
+        },
         checkIn,
         checkOut,
         guests,
-        totalPrice,
-        currency,
+        pricing: {
+          total: totalPrice,
+          currency,
+          nightlyRate: 0,
+          nights: 0,
+          cleaningFee: 0,
+          serviceFee: 0,
+        },
+        responseDeadline: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
+        hostDashboardUrl,
       }),
     });
   } catch {
@@ -128,12 +150,12 @@ export async function sendEarlyAccessEmail(email: string) {
 }
 
 // TODO: Implement sendWelcomeEmail
-export async function sendWelcomeEmail(email: string, name: string) {
+export async function sendWelcomeEmail(email: string, firstName: string, verificationUrl: string) {
   return sendEmail({
     email,
     from: ONBOARDING_EMAIL,
     subject: 'Welcome to the app',
-    react: WelcomeEmail({ name }),
+    react: WelcomeEmail({ firstName, verificationUrl }),
   });
 }
 
@@ -150,9 +172,7 @@ export async function sendPasswordResetEmail(email: string, resetLink: string) {
 }
 
 export async function sendEmailVerificationEmail(params: { to: string; verificationCode: string }) {
-  const verificationUrl = `https://${process.env.VERCEL_URL}/api/verify-email?code=${
-    params.verificationCode
-  }&email=${encodeURIComponent(params.to)}`;
+  const verificationUrl = createVerificationUrl(params.verificationCode, params.to);
 
   try {
     return sendEmail({

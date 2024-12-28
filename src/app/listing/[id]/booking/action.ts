@@ -29,7 +29,7 @@ import {
   UpdateBookingSchema,
 } from '@/lib/schema';
 
-import BookingAlterationEmail from '@/components/emails/BookingAlterationEmail';
+import { BookingAlterationEmail } from '@/components/emails/BookingAlterationEmail';
 
 import logger from '@/utils/logger';
 
@@ -229,6 +229,7 @@ export const createBookingRequest = actionClient
           guests,
           totalPrice,
           currency: listing.currency,
+          listingId: listing.id,
         });
       } catch (error) {
         logger.error('Failed to send booking request email:', error);

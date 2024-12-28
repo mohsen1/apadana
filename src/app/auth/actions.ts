@@ -14,6 +14,7 @@ import { actionClient, ClientVisibleError } from '@/lib/safe-action';
 import { ClientUserSchema, LoginSchema, SignUpSchema, SuccessfulLoginSchema } from '@/lib/schema';
 
 import logger from '@/utils/logger';
+import { createPasswordResetUrl, createVerificationUrl } from '@/utils/url';
 
 export const login = actionClient
   .schema(LoginSchema)
@@ -95,6 +96,7 @@ export const signUp = actionClient
     }
 
     const hashedPassword = await argon.hash(parsedInput.password);
+    const verificationCode = crypto.randomUUID();
     const user = await prisma.user.create({
       include: {
         emailAddresses: true,
@@ -112,6 +114,7 @@ export const signUp = actionClient
               emailAddress: parsedInput.email,
               isPrimary: true,
               verified: parsedInput.email === process.env.ADMIN_EMAIL,
+              verification: verificationCode,
             },
           ],
         },
@@ -139,8 +142,10 @@ export const signUp = actionClient
       secure: true,
     });
 
+    const verificationUrl = createVerificationUrl(verificationCode, parsedInput.email);
+
     // Send welcome email
-    await sendWelcomeEmail(parsedInput.email, parsedInput.firstName);
+    await sendWelcomeEmail(parsedInput.email, parsedInput.firstName, verificationUrl);
 
     const clientUser = sanitizeUserForClient(user);
     if (!clientUser) {
@@ -230,7 +235,7 @@ export const requestPasswordReset = actionClient
       });
 
       // Generate reset link
-      const resetLink = `https://${process.env.VERCEL_URL}/reset-password?token=${resetToken.token}&email=${encodeURIComponent(parsedInput.email)}`;
+      const resetLink = createPasswordResetUrl(resetToken.token, parsedInput.email);
 
       // Send reset email
       await sendPasswordResetEmail(parsedInput.email, resetLink);
