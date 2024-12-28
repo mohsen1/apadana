@@ -18,8 +18,10 @@ jobs:
   e2e:
     name: Playwright
     runs-on: ubuntu-24.04
-    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' || github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
     steps:
+      - uses: actions/checkout@v4
+
       - name: Skip if CI tests failed
         id: skip-check
         uses: actions/github-script@v7
@@ -98,7 +100,7 @@ jobs:
   storybook:
     name: Storybook
     runs-on: macos-14
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
