@@ -13,7 +13,8 @@ export default defineConfig({
 
   reporter: [['html', { outputFolder: path.join(process.cwd(), './storybook-e2e-html-report') }]],
 
-  snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{testFilePath}/{arg}{ext}',
+  snapshotPathTemplate:
+    '{testDir}/__screenshots__/{projectName}/{testFilePath}/{platform}/{arg}{ext}',
   use: {
     baseURL: 'http://localhost:6006',
     trace: 'on-first-retry',

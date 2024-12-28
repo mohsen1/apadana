@@ -19,7 +19,7 @@ jobs:
   validate:
     if: github.event_name != 'deployment_status'
     name: ${{ matrix.task.name }}
-    runs-on: ubuntu-24.04
+    runs-on: macos-14
     timeout-minutes: 10
     strategy:
       fail-fast: true
@@ -203,7 +203,7 @@ jobs:
   storybook:
     name: Storybook Screenshots
     needs: [test]
-    runs-on: ubuntu-24.04
+    runs-on: macos-14
     if: github.event_name != 'deployment_status'
     timeout-minutes: 20
     steps:
