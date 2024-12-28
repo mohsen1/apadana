@@ -226,6 +226,9 @@ jobs:
               core.setOutput('pr_number', commits.data[0].number);
             }
 
+      - name: Install Playwright
+        run: pnpm dlx playwright install
+
       - name: Test Storybook
         id: test-run
         run: pnpm run test:storybook
