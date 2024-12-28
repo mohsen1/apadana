@@ -108,8 +108,14 @@ jobs:
         if: always()
         run: |
           PR_NUMBER=$(gh pr list --search "${{ github.sha }}" --json number -q '.[0].number')
-          if [ ! -z "$PR_NUMBER" ]; then
+          if [ -n "$PR_NUMBER" ]; then
+            echo "Found PR number: $PR_NUMBER"
             echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          else
+            echo "No PR found for this commit"
+            echo "output of gh pr list:"
+            gh pr list --search "${{ github.sha }}" --json number -q '.[0].number'
+            echo "pr_number=" >> $GITHUB_OUTPUT
           fi
         env:
           GH_TOKEN: ${{ github.token }}
