@@ -103,11 +103,12 @@ describe('Booking Requests Actions', () => {
         hostEmail: 'host@example.com',
         guestName: 'Guest User',
         listingTitle: 'Test Listing',
-        checkIn,
-        checkOut,
+        checkIn: new Date('2030-01-01'),
+        checkOut: new Date('2030-01-03'),
         guests: 2,
         totalPrice: 240,
         currency: 'USD',
+        listingId: expect.any(String),
       });
     });
 
