@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Suspense } from 'react';
 
-import { EarlyAccessEmail } from './early-access-email';
+import { EarlyAccessEmail } from './EarlyAccessEmail';
 import { ReactEmailStoryRenderer } from './ReactEmailStoryRenderer';
 
 const meta: Meta<typeof EarlyAccessEmail> = {

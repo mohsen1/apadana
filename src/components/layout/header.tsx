@@ -1,5 +1,6 @@
 'use client';
 
+import { Menu } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -31,7 +32,10 @@ export function Header({ className }: { className?: string }) {
       <div className='flex items-center gap-4'>
         <Link href='/' className='text-foreground flex items-center gap-2 whitespace-nowrap'>
           <Logo />
-          <span className='font-bold'>Apadana {isDev ? '(Dev)' : null}</span>
+          <span className='font-outfit font-weight-400 text-2xl font-bold'>apadana</span>
+          {isDev ? (
+            <span className='text-muted-foreground font-outfit font-weight-700'>dev</span>
+          ) : null}
         </Link>
 
         {user && (

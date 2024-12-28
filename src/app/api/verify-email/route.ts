@@ -2,21 +2,25 @@ import { redirect } from 'next/navigation';
 
 import prisma from '@/lib/prisma/client';
 
+import { assertError } from '@/utils';
 import logger from '@/utils/logger';
+import { createProfileUrl } from '@/utils/url';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const email = searchParams.get('email');
 
-  let redirectUrl = '/user/profile?success=email-verified';
-
-  if (!code || !email) {
-    redirectUrl = '/user/profile?error=invalid-verification';
-  }
+  const redirectSearchParams = new URLSearchParams();
 
   try {
+    if (!code) {
+      redirectSearchParams.set('error', 'no-verification-code');
+      throw new Error('Code is required');
+    }
+
     if (!email) {
+      redirectSearchParams.set('error', 'no-email');
       throw new Error('Email is required');
     }
 
@@ -28,7 +32,7 @@ export async function GET(request: Request) {
     });
 
     if (!emailAddress) {
-      redirectUrl = '/user/profile?error=invalid-verification';
+      redirectSearchParams.set('error', 'invalid-verification-code');
       throw new Error('Email address not found');
     }
 
@@ -42,9 +46,17 @@ export async function GET(request: Request) {
 
     logger.info('Email verified successfully', { emailId: emailAddress.id });
   } catch (error) {
+    assertError(error);
     logger.error('Error verifying email', { error });
-    redirectUrl = '/user/profile?error=verification-failed';
+
+    if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_TEST_ENV === 'e2e') {
+      redirectSearchParams.set('error_message', error.message);
+    }
   }
 
-  redirect(redirectUrl);
+  if (!redirectSearchParams.has('error')) {
+    redirectSearchParams.set('success', 'email-verified');
+  }
+
+  redirect(createProfileUrl(redirectSearchParams));
 }

@@ -8,8 +8,11 @@ export function EmailCallToActionButton({
   children: React.ReactNode;
 }) {
   return (
-    <Link href={href} className='bg-primary mt-6 inline-block rounded-md px-6 py-3 font-medium'>
-      <span className='inline-block text-white'>{children}</span>
+    <Link
+      href={href}
+      className='bg-primary hover:bg-primary-hover text-primary-foreground mt-6 inline-block rounded-md px-6 py-3 font-medium'
+    >
+      <span className='text-background inline-block'>{children}</span>
     </Link>
   );
 }

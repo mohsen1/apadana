@@ -47,6 +47,7 @@ Backend Rules:
 - Avoid defining duplicate schemas and interfaces that can be imported from above file
 - We are NOT USING NextAuth. In server user getUserInServer
 - We are NOT USING react-query. Query directly from Prisma Client in backend
+- Access env variables directly from process.env
 - Use this API signature for actions:
 
   ```typescript

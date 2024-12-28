@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 
 import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
 
-import { PasswordResetEmail } from './password-reset-email';
+import { PasswordResetEmail } from './PasswordResetEmail';
 
 const meta: Meta<typeof PasswordResetEmail> = {
   title: 'Emails/PasswordResetEmail',

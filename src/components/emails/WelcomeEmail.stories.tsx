@@ -3,19 +3,19 @@ import { Suspense } from 'react';
 
 import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
 
-import { Welcome } from './Welcome';
+import { WelcomeEmail } from './WelcomeEmail';
 
 const meta = {
   title: 'Emails/Welcome',
   component: (props) => (
     <Suspense fallback={<div>Loading...</div>}>
-      <ReactEmailStoryRenderer Component={Welcome} props={props} />
+      <ReactEmailStoryRenderer Component={WelcomeEmail} props={props} />
     </Suspense>
   ),
   parameters: {
     layout: 'centered',
   },
-} satisfies Meta<typeof Welcome>;
+} satisfies Meta<typeof WelcomeEmail>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

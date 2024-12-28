@@ -13,6 +13,8 @@ import {
 } from '@react-email/components';
 import React from 'react';
 
+import { LOGO_WHITE_JPG } from '@/components/emails/constants';
+
 interface EmailLayoutProps {
   preview: string;
   children: React.ReactNode;
@@ -22,17 +24,11 @@ export const EmailLayout: React.FC<EmailLayoutProps> = ({ preview, children }) =
   <Html>
     <Head />
     <Preview>{preview}</Preview>
-    <Body className='font-sans'>
+    <Body className='bg-background font-sans'>
       <Container className='mx-auto mb-1 py-5'>
         {/* Header */}
-        <Section className='border-b border-zinc-300 px-10 py-8'>
-          <Img
-            src='https://apadana.app/images/logo@2x.png'
-            width='120'
-            height='40'
-            alt='Apadana'
-            className='mx-auto'
-          />
+        <Section className='border-border border-b px-10 py-8'>
+          <Img src={LOGO_WHITE_JPG} width='400' height='80' alt='Apadana' className='mx-auto' />
         </Section>
 
         {/* Main Content */}
@@ -46,13 +42,16 @@ export const EmailLayout: React.FC<EmailLayoutProps> = ({ preview, children }) =
                 © {new Date().getFullYear()} Apadana. All rights reserved.
               </Text>
               <Text className='text-muted-foreground text-center text-sm leading-4'>
-                <Link href='https://apadana.app/terms' className='text-muted-foreground underline'>
+                <Link
+                  href='https://apadana.app/terms'
+                  className='text-muted-foreground hover:text-muted-hover underline'
+                >
                   Terms of Service
                 </Link>
                 {' • '}
                 <Link
                   href='https://apadana.app/privacy'
-                  className='text-muted-foreground underline'
+                  className='text-muted-foreground hover:text-muted-hover underline'
                 >
                   Privacy Policy
                 </Link>
@@ -63,19 +62,19 @@ export const EmailLayout: React.FC<EmailLayoutProps> = ({ preview, children }) =
             <Column align='center' className='mt-3'>
               <Link
                 href='https://facebook.com/apadana_app'
-                className='text-muted-foreground mx-2 inline-block text-sm underline'
+                className='text-muted-foreground hover:text-muted-hover mx-2 inline-block text-sm underline'
               >
                 Facebook
               </Link>
               <Link
                 href='https://twitter.com/apadana_app'
-                className='text-muted-foreground mx-2 inline-block text-sm underline'
+                className='text-muted-foreground hover:text-muted-hover mx-2 inline-block text-sm underline'
               >
                 Twitter
               </Link>
               <Link
                 href='https://instagram.com/apadana_app'
-                className='text-muted-foreground mx-2 inline-block text-sm underline'
+                className='text-muted-foreground hover:text-muted-hover mx-2 inline-block text-sm underline'
               >
                 Instagram
               </Link>

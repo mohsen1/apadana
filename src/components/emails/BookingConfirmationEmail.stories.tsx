@@ -2,9 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { addDays, addHours } from 'date-fns';
 import { Suspense } from 'react';
 
+import { AVATAR1, LISTING_PHOTO1 } from '@/components/emails/constants';
 import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
 
-import BookingRequestEmail from './booking-request-email';
+import { BookingRequestEmail } from './BookingRequestEmail';
 
 const meta: Meta<typeof BookingRequestEmail> = {
   title: 'Emails/BookingRequestEmail',
@@ -29,13 +30,14 @@ export const Default: Story = {
     guest: {
       name: 'John Doe',
       email: 'john@example.com',
-      avatar: '/placeholder.svg?height=96&width=96',
+      avatar: AVATAR1,
       previousBookings: 3,
     },
     listing: {
+      id: '123',
       title: 'Luxury Beach Villa',
       location: 'Malibu, California',
-      image: '/placeholder.svg?height=300&width=600',
+      image: LISTING_PHOTO1,
       checkInTime: '3:00 PM',
       checkOutTime: '11:00 AM',
       amenities: ['Pool', 'Ocean View', 'WiFi'],

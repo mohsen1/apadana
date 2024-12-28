@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Suspense } from 'react';
 
-import { ContactHostEmail, ContactHostEmailProps } from '@/components/emails/contact-host-email';
+import { ContactHostEmail, ContactHostEmailProps } from '@/components/emails/ContactHostEmail';
 import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
 
 const meta = {

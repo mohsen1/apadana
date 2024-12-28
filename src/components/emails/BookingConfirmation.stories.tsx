@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Suspense } from 'react';
 
-import { BookingConfirmationEmail } from '@/components/emails/booking-confirmation-email';
+import { BookingConfirmationEmail } from '@/components/emails/BookingConfirmationEmail';
 import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
 
 const meta: Meta<typeof BookingConfirmationEmail> = {
