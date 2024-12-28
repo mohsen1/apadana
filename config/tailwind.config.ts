@@ -134,12 +134,6 @@ const config: Config = {
           950: 'rgb(var(--zinc-950))',
         },
       },
-      fontFamily: {
-        sans: ['var(--font-sans)'],
-        heading: ['var(--font-heading)'],
-        subheading: ['var(--font-subheading)'],
-        outfit: ['var(--font-outfit)'],
-      },
     },
   },
   plugins: [
