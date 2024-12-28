@@ -99,8 +99,8 @@ importers:
         specifier: ^1.0.4
         version: 1.0.4(react@19.0.0-rc-66855b96-20241106)
       '@react-google-maps/api':
-        specifier: ^2.20.4
-        version: 2.20.4(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
+        specifier: ^2.20.5
+        version: 2.20.5(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
       '@storybook/addon-themes':
         specifier: ^8.4.7
         version: 8.4.7(storybook@8.4.7(bufferutil@4.0.8)(prettier@3.4.2)(utf-8-validate@6.0.4))
@@ -3126,8 +3126,8 @@ packages:
     peerDependencies:
       react: ^18.0 || ^19.0 || ^19.0.0-rc
 
-  '@react-google-maps/api@2.20.4':
-    resolution: {integrity: sha512-lxXO8fSI4gsU7PAabW/Po9RWATKfR2nawm1Q5TJE9g9DATOk4VrXYqo0zRCGca6/aeRCKgXueBs6ZK6lNI+zGQ==}
+  '@react-google-maps/api@2.20.5':
+    resolution: {integrity: sha512-Dx3faV4d7JXFSD7SB8ePIt5LOB72mNGHKFp/hIQVaPEsLJlEi4ID+XL6HM3Xw10AzGbr4KS/eQSi3OAaN7YttQ==}
     peerDependencies:
       react: ^16.8 || ^17 || ^18 || ^19
       react-dom: ^16.8 || ^17 || ^18 || ^19
@@ -12697,7 +12697,7 @@ snapshots:
     dependencies:
       react: 19.0.0-rc-66855b96-20241106
 
-  '@react-google-maps/api@2.20.4(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)':
+  '@react-google-maps/api@2.20.5(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)':
     dependencies:
       '@googlemaps/js-api-loader': 1.16.8
       '@googlemaps/markerclusterer': 2.5.3
