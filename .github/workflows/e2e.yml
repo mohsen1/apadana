@@ -18,11 +18,33 @@ jobs:
   e2e:
     name: Playwright
     runs-on: ubuntu-24.04
-    if: |
-      (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success') ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     steps:
-      - uses: actions/checkout@v4
+      - name: Skip if CI tests failed
+        id: skip-check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const workflows = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'ci.yml',
+              branch: context.ref.replace('refs/heads/', ''),
+              per_page: 1
+            });
+            if (workflows.data.workflow_runs.length > 0) {
+              const workflowRun = workflows.data.workflow_runs[0];
+              const jobs = await github.rest.actions.listJobsForWorkflowRun({
+                owner,
+                repo,
+                run_id: workflowRun.id
+              });
+              const testJob = jobs.data.jobs.find(job => job.name === 'test');
+              if (!testJob || testJob.conclusion !== 'success') {
+                core.setOutput('skip', 'true');
+            }
+
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
 
@@ -43,6 +65,7 @@ jobs:
             }
 
       - name: Run E2E Tests
+        if: steps.skip-check.outputs.skip != 'true'
         id: test-run
         run: pnpm run e2e:ci
         env:
@@ -67,16 +90,14 @@ jobs:
         with:
           pr_number: ${{ steps.find-pr.outputs.pr_number }}
           test_status: ${{ steps.test-run.outcome }}
-          report_url: ${{ steps.upload-results.outputs.object_locations && fromJSON(steps.upload-results.outputs.object_locations)[0] }}/index.html
+          report_url: ${{ steps.upload-results.outputs.object_locations && fromJSON(steps.upload-results.outputs.object_locations)[0] }}
           test_type: 'E2E'
           deployment_url: ${{ github.event.deployment_status.target_url }}
 
   storybook:
     name: Storybook
     runs-on: macos-14
-    if: |
-      (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success') ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
