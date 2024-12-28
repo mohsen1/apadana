@@ -100,28 +100,26 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - name: Install GitHub CLI
-        run: |
-          brew install gh
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
 
       - name: Find PR number
         id: find-pr
         if: always()
-        run: |
-          PR_NUMBER=$(gh pr list --search "${{ github.sha }}" --json number -q '.[0].number')
-          if [ -n "$PR_NUMBER" ]; then
-            echo "Found PR number: $PR_NUMBER"
-            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
-          else
-            echo "No PR found for this commit"
-            echo "output of gh pr list:"
-            gh pr list --search "${{ github.sha }}" --json number -q '.[0].number'
-            echo "pr_number=" >> $GITHUB_OUTPUT
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: prs } = await github.rest.search.issuesAndPullRequests({
+              q: `${context.sha} is:pr`,
+            });
+
+            if (prs.items.length > 0) {
+              console.log(`Found PR number: ${prs.items[0].number}`);
+              core.setOutput('pr_number', prs.items[0].number);
+            } else {
+              console.log('No PR found for this commit');
+              core.setOutput('pr_number', '');
+            }
 
       - run: pnpm dlx playwright install
 
