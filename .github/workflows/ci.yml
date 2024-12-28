@@ -145,7 +145,7 @@ jobs:
           LOCATIONS: ${{ steps.upload-results.outputs.object_locations }}
 
       - name: Update PR Comment for Storybook
-        if: always() && steps.find-pr.outputs.pr_number
+        if: always() && steps.find-pr.outputs.pr_number != ''
         uses: ./.github/actions/update-pr-comment
         with:
           pr_number: ${{ steps.find-pr.outputs.pr_number }}
