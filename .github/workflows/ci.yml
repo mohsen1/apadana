@@ -93,3 +93,62 @@ jobs:
           git add -A
           git commit -m "style: automatically fix code style issues"
           git push
+  storybook:
+    name: Storybook
+    runs-on: macos-14
+    needs: [test]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/playwright
+
+      - name: Find PR number
+        id: find-pr
+        if: always()
+        run: |
+          PR_NUMBER=$(gh pr list --search "${{ github.sha }}" --json number -q '.[0].number')
+          if [ ! -z "$PR_NUMBER" ]; then
+            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - run: pnpm dlx playwright install
+
+      - name: Test Storybook
+        id: test-run
+        run: pnpm run test:storybook
+
+      - name: Upload Storybook Results
+        if: always() && hashFiles('storybook-e2e-html-report/**') != ''
+        id: upload-results
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: apadana-e2e
+          source_dir: 'storybook-e2e-html-report'
+          destination_dir: ${{ github.sha }}/storybook
+
+      - name: Process Storybook Report URL
+        id: process-storybook-url
+        if: steps.upload-results.outputs.object_locations
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const locations = JSON.parse(process.env.LOCATIONS);
+            const htmlUrl = locations.find(location => location.endsWith('storybook/index.html'));
+            if (!htmlUrl) { console.log("No index.html found"); }
+            core.setOutput('report_url', htmlUrl);
+        env:
+          LOCATIONS: ${{ steps.upload-results.outputs.object_locations }}
+
+      - name: Update PR Comment for Storybook
+        if: always() && steps.find-pr.outputs.pr_number
+        uses: ./.github/actions/update-pr-comment
+        with:
+          pr_number: ${{ steps.find-pr.outputs.pr_number }}
+          test_status: ${{ steps.test-run.outcome }}
+          report_url: ${{ steps.process-storybook-url.outputs.report_url }}
+          test_type: 'Storybook'
