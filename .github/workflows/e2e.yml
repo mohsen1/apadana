@@ -59,7 +59,7 @@ jobs:
         with:
           script: |
             const locations = JSON.parse(process.env.LOCATIONS);
-            const htmlUrl = locations.find(location => location.endsWith('playwright/index.html'));
+            const htmlUrl = locations.find(location => location.endsWith('playwright/html/index.html'));
             if (!htmlUrl) { console.log("No index.html found"); }
             core.setOutput('report_url', htmlUrl);
         env:
