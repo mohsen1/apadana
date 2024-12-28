@@ -10,6 +10,7 @@
 
 # next.js
 /.next/
+.cache
 /out/
 
 # production
@@ -59,7 +60,6 @@ public/images/e2e/uploads/
 !.env.test
 
 # Do not allow new files in root
-.*
 package-updates-summary.md
 
 # Files that *are* allowed in root

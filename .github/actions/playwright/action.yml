@@ -29,6 +29,7 @@ runs:
           console.debug("Specified working directory:", workingDirectory);
           if (workingDirectory) process.chdir(workingDirectory);
           console.debug("Actual working directory:", process.cwd());
+
           let version = "";
           try {
             version = require("@playwright/test/package.json").version;

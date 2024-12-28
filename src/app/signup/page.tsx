@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -41,9 +41,11 @@ function SignUpForm() {
     resolver: zodResolver(SignUpSchema),
   });
 
-  if (user) {
-    router.push('/user');
-  }
+  useEffect(() => {
+    if (user) {
+      router.push('/user');
+    }
+  }, [user, router]);
 
   return (
     <div className='flex min-h-screen items-center justify-center bg-zinc-900 p-4 dark:bg-zinc-50'>
