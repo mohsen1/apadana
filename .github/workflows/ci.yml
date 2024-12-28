@@ -100,6 +100,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Install GitHub CLI
+        run: |
+          brew install gh
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
 
