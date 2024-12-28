@@ -13,11 +13,21 @@ const config: StorybookConfig = {
   ],
   framework: {
     name: '@storybook/nextjs',
-    options: {},
+    options: {
+      strictMode: false,
+    },
   },
   staticDirs: ['../public'],
   logLevel: 'error',
   webpackFinal: async (config) => {
+    if (config.resolve) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'next/router': 'next-router-mock',
+        'next/navigation': 'next-router-mock',
+      };
+    }
+
     if (config.module?.rules) {
       config.module.rules.push({
         test: /\.css$/,

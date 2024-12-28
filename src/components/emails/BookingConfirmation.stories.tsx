@@ -1,17 +1,23 @@
-import { BookingConfirmationEmail } from '@/components/emails/booking-confirmation-email'
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react';
+import { Suspense } from 'react';
 
+import { BookingConfirmationEmail } from '@/components/emails/booking-confirmation-email';
+import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
 
-const meta = {
+const meta: Meta<typeof BookingConfirmationEmail> = {
   title: 'Emails/BookingConfirmation',
-  component: BookingConfirmationEmail,
+  component: (props) => (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ReactEmailStoryRenderer Component={BookingConfirmationEmail} props={props} />
+    </Suspense>
+  ),
   parameters: {
     layout: 'centered',
   },
-} satisfies Meta<typeof BookingConfirmationEmail>
+} satisfies Meta<typeof BookingConfirmationEmail>;
 
-export default meta
-type Story = StoryObj<typeof meta>
+export default meta;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
@@ -23,4 +29,4 @@ export const Default: Story = {
     hostName: 'Jane Smith',
     totalPrice: 500,
   },
-} 
+};

@@ -1,12 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { addDays, addHours } from 'date-fns';
+import { Suspense } from 'react';
 
 import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
 
-import { BookingRequestEmail } from './booking-request-email';
+import BookingRequestEmail from './booking-request-email';
 
 const meta: Meta<typeof BookingRequestEmail> = {
   title: 'Emails/BookingRequestEmail',
-  render: (args) => <ReactEmailStoryRenderer Component={BookingRequestEmail} props={args} />,
+  component: (props) => (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ReactEmailStoryRenderer Component={BookingRequestEmail} props={props} />
+    </Suspense>
+  ),
   parameters: {
     layout: 'centered',
   },
@@ -16,38 +22,56 @@ const meta: Meta<typeof BookingRequestEmail> = {
 export default meta;
 type Story = StoryObj<typeof BookingRequestEmail>;
 
+const baseDate = new Date();
+
 export const Default: Story = {
   args: {
-    guestName: 'John Doe',
-    listingTitle: 'Luxury Beach Villa',
-    checkIn: new Date('2024-07-01'),
-    checkOut: new Date('2024-07-07'),
+    guest: {
+      name: 'John Doe',
+      email: 'john@example.com',
+      avatar: '/placeholder.svg?height=96&width=96',
+      previousBookings: 3,
+    },
+    listing: {
+      title: 'Luxury Beach Villa',
+      location: 'Malibu, California',
+      image: '/placeholder.svg?height=300&width=600',
+      checkInTime: '3:00 PM',
+      checkOutTime: '11:00 AM',
+      amenities: ['Pool', 'Ocean View', 'WiFi'],
+    },
+    checkIn: addDays(baseDate, 30),
+    checkOut: addDays(baseDate, 37),
     guests: 2,
-    totalPrice: 1200,
-    currency: 'USD',
+    pricing: {
+      nightlyRate: 200,
+      nights: 7,
+      cleaningFee: 100,
+      serviceFee: 150,
+      total: 1650,
+      currency: 'USD',
+    },
+    message:
+      "Hi, I'm looking forward to staying at your beautiful property. We're coming to celebrate our anniversary and would love to know if you offer any special arrangements for such occasions.",
+    responseDeadline: addHours(baseDate, 24),
+    hostDashboardUrl: 'https://apadana.app/host/requests/123',
   },
 };
 
-export const LongStay: Story = {
+export const NoMessage: Story = {
   args: {
-    guestName: 'Jane Smith',
-    listingTitle: 'Mountain Retreat Cabin',
-    checkIn: new Date('2024-08-01'),
-    checkOut: new Date('2024-08-31'),
-    guests: 4,
-    totalPrice: 5500,
-    currency: 'EUR',
+    ...Default.args,
+    message: undefined,
   },
 };
 
-export const SingleNight: Story = {
+export const FirstTimeGuest: Story = {
   args: {
-    guestName: 'Mike Johnson',
-    listingTitle: 'City Center Apartment',
-    checkIn: new Date('2024-06-15'),
-    checkOut: new Date('2024-06-16'),
-    guests: 1,
-    totalPrice: 150,
-    currency: 'GBP',
+    ...Default.args,
+    guest: {
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      previousBookings: 0,
+    },
   },
 };

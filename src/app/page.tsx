@@ -4,7 +4,6 @@ import { Novatrix } from 'uvcanvas';
 
 import { EarlyAccessForm } from '@/components/early-access-form';
 import { Logo } from '@/components/Logo';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function HomePage() {

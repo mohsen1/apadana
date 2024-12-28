@@ -7,14 +7,14 @@ import {
   Preview,
   Section,
   Text,
-} from '@react-email/components'
-import { Tailwind } from '@react-email/tailwind'
+} from '@react-email/components';
+import { Tailwind } from '@react-email/tailwind';
 
-interface ContactHostEmailProps {
-  guestName: string
-  hostName: string
-  message: string
-  listingTitle: string
+export interface ContactHostEmailProps {
+  guestName: string;
+  hostName: string;
+  message: string;
+  listingTitle: string;
 }
 
 export function ContactHostEmail({
@@ -26,32 +26,30 @@ export function ContactHostEmail({
   return (
     <Html>
       <Head />
-      <Preview>New message from {guestName} about {listingTitle}</Preview>
+      <Preview>
+        New message from {guestName} about {listingTitle}
+      </Preview>
       <Tailwind>
-        <Body className="bg-white">
-          <Container className="mx-auto py-8 px-4">
-            <Heading className="text-2xl font-bold text-gray-900">
+        <Body className='bg-white'>
+          <Container className='mx-auto px-4 py-8'>
+            <Heading className='text-2xl font-bold text-gray-900'>
               New Message About Your Listing
             </Heading>
-            <Text className="text-gray-700 mt-4">
-              Hi {hostName},
-            </Text>
-            <Text className="text-gray-700">
+            <Text className='mt-4 text-gray-700'>Hi {hostName},</Text>
+            <Text className='text-gray-700'>
               You have received a new message from {guestName} about your listing: {listingTitle}
             </Text>
-            
-            <Section className="mt-6 bg-gray-50 p-4 rounded-lg">
-              <Text className="text-gray-700 italic">
-                "{message}"
-              </Text>
+
+            <Section className='mt-6 rounded-lg bg-gray-50 p-4'>
+              <Text className='italic text-gray-700'>"{message}"</Text>
             </Section>
 
-            <Text className="text-gray-700 mt-6">
+            <Text className='mt-6 text-gray-700'>
               You can respond to this message through the Apadana messaging system.
             </Text>
           </Container>
         </Body>
       </Tailwind>
     </Html>
-  )
-} 
+  );
+}
