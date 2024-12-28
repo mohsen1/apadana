@@ -20,6 +20,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
+  name: 'Default',
   args: {
     bookingId: 'booking_123',
     listingTitle: 'Cozy Downtown Apartment',
