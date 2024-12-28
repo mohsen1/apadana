@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Novatrix } from 'uvcanvas';
 
 import { EarlyAccessForm } from '@/components/early-access-form';
+import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -21,16 +22,24 @@ export default function HomePage() {
             <div className='mx-auto w-full max-w-6xl px-4 md:px-6'>
               <div className='flex flex-col items-center space-y-4 text-center'>
                 <div className='space-y-2'>
-                  <h1 className='text-4xl font-bold'>Welcome to Apadana</h1>
+                  <h1 className='text-4xl font-bold'>
+                    Manage Your Short-Term Rentals Without Extra Fees with Apadana
+                  </h1>
                   <p className='text-muted-foreground mx-auto max-w-[700px] md:text-xl'>
                     Create your own website for your short-term rental in minutes. Get direct
                     bookings, manage your calendar, and communicate with guests - all without extra
                     fees.
                   </p>
                 </div>
+
                 <div className='space-x-4'>
                   <EarlyAccessForm />
                 </div>
+              </div>
+            </div>
+            <div className='container mx-auto mt-24 max-w-6xl px-4 md:px-6'>
+              <div className='flex items-center justify-center pt-12'>
+                <Logo className='text-shadow-sm' size={200} />
               </div>
             </div>
             <div className='container mx-auto mt-24 max-w-6xl px-4 md:px-6'>
@@ -147,120 +156,6 @@ export default function HomePage() {
           </div>
         </section>
         <div className='mx-auto max-w-6xl md:px-6'>
-          <section className='w-full'>
-            <div className='container px-4 md:px-6'>
-              <h2 className='font-subheading mb-12 mt-8 text-center text-3xl font-bold tracking-tighter sm:text-5xl'>
-                What Our Hosts Say
-              </h2>
-              <div className='grid gap-6 lg:grid-cols-3'>
-                <Card>
-                  <CardContent className='mt-4'>
-                    <p className='-muted'>
-                      "This platform has revolutionized how I manage my vacation rental. The direct
-                      bookings and lack of fees have significantly increased my profits."
-                    </p>
-                    <p className='mt-4 font-bold'>- Sarah T., Beach House Owner</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className='mt-4'>
-                    <p className='-muted'>
-                      "The calendar sync feature is a game-changer. I no longer worry about double
-                      bookings across different platforms."
-                    </p>
-                    <p className='mt-4 font-bold'>- Michael R., City Apartment Host</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className='mt-4'>
-                    <p className='-muted'>
-                      "Having my own website has given my rental a professional edge. Guests love
-                      booking directly through our site."
-                    </p>
-                    <p className='mt-4 font-bold'>- Emma L., Mountain Cabin Owner</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </section>
-          <section className='w-full py-12 md:py-24 lg:py-48'>
-            <div className='container px-4 md:px-6'>
-              <h2 className='font-subheading mb-12 text-center text-3xl font-bold tracking-tighter sm:text-5xl'>
-                Simple Pricing
-              </h2>
-              <div className='grid gap-6 lg:grid-cols-3'>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Basic</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className='text-4xl font-bold'>$9.99/mo</p>
-                    <ul className='mt-4 space-y-2'>
-                      <li className='flex items-center'>
-                        <CheckCircle className='mr-2 text-green-500' />
-                        Custom domain
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='mr-2 text-green-500' />
-                        Calendar management
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='mr-2 text-green-500' />
-                        Direct payments
-                      </li>
-                    </ul>
-                    <Button className='mt-6 w-full'>Choose Plan</Button>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Pro</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className='text-4xl font-bold'>$19.99/mo</p>
-                    <ul className='mt-4 space-y-2'>
-                      <li className='flex items-center'>
-                        <CheckCircle className='mr-2 text-green-500' />
-                        All Basic features
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='mr-2 text-green-500' />
-                        Calendar sync
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='mr-2 text-green-500' />
-                        Identity verification
-                      </li>
-                    </ul>
-                    <Button className='mt-6 w-full'>Choose Plan</Button>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Enterprise</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className='text-4xl font-bold'>Custom</p>
-                    <ul className='mt-4 space-y-2'>
-                      <li className='flex items-center'>
-                        <CheckCircle className='mr-2 text-green-500' />
-                        All Pro features
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='mr-2 text-green-500' />
-                        Multiple properties
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='mr-2 text-green-500' />
-                        Priority support
-                      </li>
-                    </ul>
-                    <Button className='mt-6 w-full'>Contact Sales</Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </section>
           <section className='w-full py-12 md:py-24 lg:py-32'>
             <div className='container px-4 md:px-6'>
               <div className='flex flex-col items-center space-y-4 text-center'>
