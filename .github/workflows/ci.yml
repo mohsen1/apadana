@@ -125,6 +125,12 @@ jobs:
               core.setOutput('pr_number', commits.data[0].number);
             }
 
+      - name: Install Playwright
+        run: pnpm dlx playwright install
+
+      - name: Run E2E Tests
+        run: pnpm run e2e:ci
+
       - name: Update PR Comment for E2E
         if: always() && steps.find-pr.outputs.pr_number
         uses: ./.github/actions/update-pr-comment
@@ -179,6 +185,8 @@ jobs:
             if (commits.data.length > 0) {
               core.setOutput('pr_number', commits.data[0].number);
             }
+
+      - run: pnpm dlx playwright install
 
       - name: Test Storybook
         id: test-run

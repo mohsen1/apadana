@@ -2,10 +2,9 @@ import type { Config } from 'tailwindcss';
 import plugin from 'tailwindcss/plugin';
 
 const content = [
-  'src/**/*.{js,ts,jsx,tsx,mdx}',
-  'app/**/*.{js,ts,jsx,tsx,mdx}',
-  '.storybook/**/*.{js,ts,jsx,tsx,mdx}',
-].map((path) => `${process.cwd()}/${path}`);
+  './src/**/*.{js,ts,jsx,tsx,mdx}',
+  './.storybook/**/*.{js,ts,jsx,tsx,mdx}',
+];
 
 const config: Config = {
   content,
