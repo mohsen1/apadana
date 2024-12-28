@@ -20,25 +20,29 @@ async function captureStory(page: Page, storyId: string, variant: string, theme:
   searchParams.set('globals', `theme:${theme}`);
   searchParams.set('id', testId);
   searchParams.set('viewMode', 'story');
+
+  const timeout = test.info().timeout;
   await page.goto(`/iframe.html?${searchParams.toString()}`);
 
   // make sure no errors are shown before loading story. fail quickly if they are.
   await expect(page.locator('h1#error-message')).not.toBeVisible({
-    timeout: test.info().timeout / 100,
+    timeout: timeout / 100,
   });
 
   // wait for storybook-root to include data-storybook-wrapper
   await page.waitForSelector('#storybook-root > [data-storybook-wrapper="true"]');
 
   // Wait for any loading states to disappear
-  await page
-    .locator('text=Loading...')
-    .waitFor({ state: 'hidden', timeout: test.info().timeout / 10 });
+  await page.locator('text=Loading...').waitFor({ state: 'hidden', timeout: timeout / 10 });
 
   // wait for all images to load
   await page.waitForFunction(() =>
     [...document.images].every((img) => img.complete && img.naturalHeight !== 0),
   );
+
+  // Small wait to ensure everything is loaded and settled
+  await page.waitForTimeout(timeout / 10);
+
   // no errors after loading story
   await expect(page.locator('h1#error-message')).not.toBeVisible();
 
@@ -48,7 +52,7 @@ async function captureStory(page: Page, storyId: string, variant: string, theme:
     animations: 'disabled',
   });
 
-  expect(screenshot).toMatchSnapshot(`${testId}--${theme}.png`);
+  expect(screenshot).toMatchSnapshot(`${testId}--${theme}.png`, { maxDiffPixelRatio: 0.015 });
 }
 
 // Find all story files

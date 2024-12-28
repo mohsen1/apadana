@@ -7,6 +7,8 @@ import { z } from 'zod';
 
 import { toast } from '@/hooks/useToast';
 
+import { AVATAR1 } from '@/components/emails/constants';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -252,7 +254,7 @@ export const Avatars: Story = {
   render: () => (
     <div className='flex gap-4'>
       <Avatar>
-        <AvatarImage src='https://github.com/shadcn.png' alt='@shadcn' />
+        <AvatarImage src={AVATAR1} alt='@shadcn' />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
       <Avatar>
@@ -441,7 +443,7 @@ export const TabsExample: Story = {
 
 export const TextareaExample: Story = {
   name: 'Textarea',
-  render: () => <Textarea placeholder='Type your message here.' />,
+  render: () => <Textarea className='w-[600px]' placeholder='Type your message here.' />,
 };
 
 export const TooltipExample: Story = {

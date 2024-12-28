@@ -1,6 +1,6 @@
 {
   "name": "apadana",
-  "version": "0.1.1",
+  "version": "1.1.1",
   "private": true,
   "scripts": {
     "start": "pnpm run setup:local && DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f src/docker/docker-compose.yml up --build",
