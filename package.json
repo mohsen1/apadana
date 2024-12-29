@@ -168,6 +168,7 @@
     "next-router-mock": "^0.9.13",
     "next-sitemap": "^4.2.3",
     "nodemon": "^3.1.9",
+    "openai-gpt-token-counter": "^1.1.1",
     "postcss": "^8.4.49",
     "postcss-loader": "^8.1.1",
     "prettier": "^3.4.2",

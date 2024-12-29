@@ -2,6 +2,7 @@
  * This script reads all text-based files in a Git repository or a specified directory,
  * splits them into chunks based on size, and writes those chunks to disk in a structured format.
  * It also calculates a checksum to keep track of repository state.
+ * Files are prioritized based on their importance to the codebase.
  */
 
 import { execSync } from 'child_process';
@@ -9,11 +10,21 @@ import crypto from 'crypto';
 import fs from 'fs/promises';
 import ignore, { Ignore } from 'ignore';
 import _ from 'lodash';
+import openaiTokenCounter, { ModelType as OldModelTypes } from 'openai-gpt-token-counter';
 import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import logger from '@/utils/logger';
+
+type ModelType =
+  | 'chatgpt-4o-latest'
+  | 'gpt-4'
+  | 'gpt-4-32k'
+  | 'gpt-3.5-turbo'
+  | 'gpt-3.5-turbo-16k'
+  | 'o1'
+  | 'o1-mini';
 
 /**
  * Set of known file extensions that are typically binary.
@@ -174,70 +185,307 @@ async function getRepoChecksum(chunkSize: number): Promise<string> {
 }
 
 /**
- * Writes a chunk of files to a text file.
- * @param files The list of files to include in the chunk
- * @param index The index of the chunk
- * @param outputDir The directory to write the chunk file to
+ * Counts tokens or characters in a text string
  */
-async function writeChunk(files: FileEntry[], index: number, outputDir: string): Promise<void> {
+function countSize(text: string, options: { countTokens: boolean; model: ModelType }): number {
+  if (options.countTokens) {
+    return openaiTokenCounter.text(text, options.model as OldModelTypes);
+  }
+  return Buffer.byteLength(text, 'utf-8');
+}
+
+/**
+ * Formats a byte size into a human-readable string
+ */
+function formatBytes(bytes: number): string {
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let size = bytes;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  return `${size.toFixed(1)} ${units[unitIndex]}`;
+}
+
+/**
+ * Formats a size value based on type (bytes or tokens)
+ */
+function formatSize(size: number, isTokens: boolean): string {
+  if (isTokens) {
+    return size.toLocaleString() + ' tokens';
+  }
+  return formatBytes(size);
+}
+
+/**
+ * Writes a chunk of files to a text file or streams to stdout.
+ */
+async function writeChunk(
+  files: FileEntry[],
+  index: number,
+  outputDir: string,
+  options: { model: ModelType; stream: boolean; countTokens: boolean },
+): Promise<number> {
   const chunk = files.map((file) => `>>>> ${file.path}\n${file.content}`).join('\n\n');
-  const outputPath = path.join(outputDir, `chunk-${index}.txt`);
-  await fs.writeFile(outputPath, chunk, 'utf-8');
-  logger.info(`Written chunk ${index} with ${files.length} files`);
+  const size = countSize(chunk, { countTokens: options.countTokens, model: options.model });
+
+  if (options.stream) {
+    process.stdout.write(chunk);
+  } else {
+    const outputPath = path.join(outputDir, `chunk-${index}.txt`);
+    await fs.writeFile(outputPath, chunk, 'utf-8');
+    logger.info(
+      `Written chunk ${index} with ${files.length} files (${formatSize(size, options.countTokens)})`,
+    );
+  }
+
+  return size;
 }
 
 /**
  * Options controlling repository serialization behavior.
  */
 interface SerializeOptions {
-  /** Maximum chunk size in megabytes. Use Infinity for a single-chunk output */
-  chunkSizeMB: number;
+  /** Maximum tokens per chunk. Use Infinity for a single-chunk output */
+  maxTokens: number;
   /** Base path to serialize. Defaults to the current working directory if omitted */
   basePath?: string;
+  /** OpenAI model to use for token counting. Defaults to gpt-4o-latest */
+  model?: ModelType;
+  /** Whether to stream output to stdout instead of writing to files */
+  stream?: boolean;
+  /** Whether to count tokens. If false, maxTokens will be treated as character count */
+  countTokens?: boolean;
+}
+
+/**
+ * Priority scoring for different file types and paths
+ */
+const PRIORITY_SCORES = {
+  // Database schema (highest priority)
+  SCHEMA: {
+    score: 100,
+    patterns: [/^prisma\/schema\.prisma$/],
+  },
+  // Core configuration files (very high priority)
+  CONFIG_FILES: {
+    score: 95,
+    patterns: [
+      /^package\.json$/,
+      /^pnpm-lock\.yaml$/,
+      /^tsconfig\.json$/,
+      /^config\/next\.config\.ts$/,
+      /^config\/tailwind\.config\.ts$/,
+      /^config\/eslint\.config\.mjs$/,
+      /^config\/vitest\.config\.ts$/,
+      /^\.env\.example$/,
+      /^\.gitignore$/,
+      /^README\.md$/,
+      /^vercel\.json$/,
+      /^components\.json$/,
+    ],
+  },
+  // Core business logic (very high priority)
+  CORE_LOGIC: {
+    score: 90,
+    patterns: [
+      /^src\/lib\//,
+      /^src\/utils\//,
+      /^src\/contexts\//,
+      /^src\/hooks\//,
+      /^src\/constant\//,
+      /^src\/shared\//,
+    ],
+  },
+  // Core app and API routes
+  APP_ROUTES: {
+    score: 85,
+    patterns: [
+      /^src\/app\/api\//,
+      /^src\/app\/layout\.tsx$/,
+      /^src\/app\/page\.tsx$/,
+      /^src\/app\/error\.tsx$/,
+      /^src\/app\/not-found\.tsx$/,
+    ],
+  },
+  // Feature routes and components
+  FEATURES: {
+    score: 80,
+    patterns: [/^src\/app\/.*\.tsx$/, /^src\/components\/(?!ui|emails|.*\.stories\.[jt]sx?$)/],
+  },
+  // UI Components and Design System
+  UI: {
+    score: 75,
+    patterns: [
+      /^src\/components\/ui\//,
+      /^src\/app\/.*\/.*\.tsx$/,
+      /^src\/design-system\/(?!.*\.stories\.[jt]sx?$)/,
+      /^src\/styles\//,
+    ],
+  },
+  // Database migrations and seeds
+  DATABASE: {
+    score: 70,
+    patterns: [/^prisma\/migrations\//, /^prisma\/seed\.ts$/, /^src\/prisma\//],
+  },
+  // Tests and E2E
+  TESTS: {
+    score: 65,
+    patterns: [
+      /^src\/e2e\//,
+      /^src\/__tests__\//,
+      /^src\/.*\.test\.[jt]sx?$/,
+      /^src\/.*\.spec\.[jt]sx?$/,
+      /^src\/__mocks__\//,
+    ],
+  },
+  // Build and deployment
+  BUILD: {
+    score: 60,
+    patterns: [/^\.github\//, /^src\/docker\//, /^src\/scripts\//, /^config\//],
+  },
+  // Stories and Email templates (lower priority)
+  STORIES_AND_EMAILS: {
+    score: 55,
+    patterns: [/^src\/.*\.stories\.[jt]sx?$/, /^src\/components\/emails\//],
+  },
+  // Public assets (lowest priority)
+  ASSETS: {
+    score: 50,
+    patterns: [/^public\//],
+  },
+  // Default score for unmatched files
+  DEFAULT: {
+    score: 40,
+    patterns: [/.*/],
+  },
+};
+
+/**
+ * Files to completely ignore during serialization
+ */
+const IGNORE_PATTERNS = [
+  // Generated files
+  /^\.next\//,
+  /^node_modules\//,
+  /\.gitignore/,
+  /pnpm-lock\.yaml/,
+  /^\.vercel\//,
+  /^\.turbo\//,
+  /^coverage\//,
+  /serialize-repo/,
+  /^storybook-static\//,
+  /^storybook-e2e-html-report\//,
+  /^storybook-e2e-test-results\//,
+  /^test-results\//,
+  // Binary and large files
+  /\.(jpg|jpeg|png|gif|ico|woff|woff2|ttf|eot)$/,
+  /\.(mp4|webm|ogg|mp3|wav|flac|aac)$/,
+  /\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/,
+  /\.(zip|tar|gz|tgz|rar|7z)$/,
+  // Temporary and cache files
+  /\.DS_Store$/,
+  /Thumbs\.db$/,
+  /\.env\.local$/,
+  /\.env\.development\.local$/,
+  /\.env\.test\.local$/,
+  /\.env\.production\.local$/,
+  /test\.env$/,
+];
+
+/**
+ * Calculate priority score for a file path
+ */
+function getFilePriority(filePath: string): number {
+  // Check if file should be ignored
+  if (IGNORE_PATTERNS.some((pattern) => pattern.test(filePath))) {
+    return -1;
+  }
+
+  // Find highest matching priority score
+  for (const { patterns, score } of Object.values(PRIORITY_SCORES)) {
+    if (patterns.some((pattern) => pattern.test(filePath))) {
+      return score;
+    }
+  }
+
+  return PRIORITY_SCORES.DEFAULT.score;
 }
 
 /**
  * Serializes text-based files in a repository or subdirectory into chunks.
- * Each chunk is written as a single text file containing multiple file contents.
- * @param options The serialization options including chunk size and optional base path
- * @returns The output directory path where all chunk files are stored
  */
-async function serializeRepo(options: SerializeOptions): Promise<string> {
-  const { chunkSizeMB, basePath } = options;
-  const checksum = await getRepoChecksum(chunkSizeMB);
-  const pathSuffix = basePath ? `_${path.basename(basePath)}` : '';
-  const dirName =
-    chunkSizeMB === Infinity
-      ? `${checksum}${pathSuffix}`
-      : `${checksum}${pathSuffix}_${chunkSizeMB}mb`;
-  const outputDir = path.join(process.cwd(), 'repo-serialized', dirName);
+async function serializeRepo(options: SerializeOptions): Promise<string | undefined> {
+  const {
+    maxTokens,
+    basePath,
+    model = 'chatgpt-4o-latest',
+    stream = false,
+    countTokens: shouldCountTokens = false,
+  } = options;
+  let outputDir: string | undefined;
 
-  await fs.mkdir(outputDir, { recursive: true });
+  if (!stream) {
+    const checksum = await getRepoChecksum(maxTokens);
+    const pathSuffix = basePath ? `_${path.basename(basePath)}` : '';
+    const sizeType = shouldCountTokens ? 'tokens' : 'bytes';
+    const dirName =
+      maxTokens === Infinity
+        ? `${checksum}${pathSuffix}`
+        : `${checksum}${pathSuffix}_${maxTokens}${sizeType}`;
+    outputDir = path.join(process.cwd(), 'repo-serialized', dirName);
+    await fs.mkdir(outputDir, { recursive: true });
+  }
 
   const ig = await readGitignore();
   const files: FileEntry[] = [];
-  let currentChunkSize = 0;
+  let currentSize = 0;
   let chunkIndex = 0;
+  let totalSize = 0;
 
   const startPath = basePath ? path.resolve(process.cwd(), basePath) : process.cwd();
 
+  // Collect all files first
+  const allFiles: { path: string; priority: number }[] = [];
   for await (const filePath of walkDirectory(startPath, ig, startPath)) {
+    const priority = getFilePriority(path.relative(process.cwd(), filePath));
+    if (priority >= 0) {
+      allFiles.push({ path: filePath, priority });
+    }
+  }
+
+  // Sort files by priority (highest first)
+  const sortedFiles = _.sortBy(allFiles, (file) => -file.priority);
+
+  // Process files in priority order
+  for (const { path: filePath } of sortedFiles) {
     try {
       const content = await fs.readFile(filePath, 'utf-8');
-      const fileSize = Buffer.byteLength(content, 'utf-8');
+      const fileSize = countSize(`>>>> ${path.relative(process.cwd(), filePath)}\n${content}`, {
+        countTokens: shouldCountTokens,
+        model,
+      });
 
-      if (currentChunkSize + fileSize > chunkSizeMB * 1024 * 1024) {
+      if (currentSize + fileSize > maxTokens) {
         // Write current chunk
-        await writeChunk(files, chunkIndex++, outputDir);
+        const chunkSize = await writeChunk(files, chunkIndex++, outputDir || '', {
+          model,
+          stream,
+          countTokens: shouldCountTokens,
+        });
+        totalSize += chunkSize;
         files.length = 0;
-        currentChunkSize = 0;
+        currentSize = 0;
       }
 
       files.push({
         path: path.relative(process.cwd(), filePath),
         content,
       });
-      currentChunkSize += fileSize;
+      currentSize += fileSize;
     } catch (error) {
       assertError(error);
       logger.error(`Error processing file ${filePath}:`, error.message);
@@ -246,21 +494,30 @@ async function serializeRepo(options: SerializeOptions): Promise<string> {
 
   // Write final chunk if there are remaining files
   if (files.length > 0) {
-    await writeChunk(files, chunkIndex, outputDir);
+    const chunkSize = await writeChunk(files, chunkIndex, outputDir || '', {
+      model,
+      stream,
+      countTokens: shouldCountTokens,
+    });
+    totalSize += chunkSize;
   }
 
-  return outputDir;
+  if (!stream) {
+    const sizeType = shouldCountTokens ? 'tokens' : 'bytes';
+    logger.info(`Total size: ${formatSize(totalSize, shouldCountTokens)} ${sizeType}`);
+    return outputDir;
+  }
+  return undefined;
 }
 
 /**
  * Parses command-line arguments and validates them.
- * @returns The parsed options including chunk size and base path
  */
 const argv = yargs(hideBin(process.argv))
-  .option('size', {
-    alias: 's',
+  .option('tokens', {
+    alias: 't',
     type: 'number',
-    description: 'Chunk size in megabytes',
+    description: 'Maximum tokens/bytes per chunk (default: Infinity)',
     default: Infinity,
   })
   .option('path', {
@@ -268,13 +525,41 @@ const argv = yargs(hideBin(process.argv))
     type: 'string',
     description: 'Base path to serialize (optional)',
   })
+  .option('model', {
+    alias: 'm',
+    type: 'string',
+    description: 'OpenAI model to use for token counting',
+    default: 'chatgpt-4o-latest' as ModelType,
+    choices: [
+      'chatgpt-4o-latest',
+      'gpt-4',
+      'gpt-4-32k',
+      'gpt-3.5-turbo',
+      'gpt-3.5-turbo-16k',
+      'o1',
+      'o1-mini',
+    ] as ModelType[],
+  })
+  .option('count-tokens', {
+    alias: 'c',
+    type: 'boolean',
+    description: 'Count tokens instead of bytes (slower but more accurate)',
+    default: false,
+  })
+  .option('stream', {
+    alias: 's',
+    type: 'boolean',
+    description: 'Stream output to stdout instead of writing to files',
+    default: false,
+  })
   .example('pnpm serialize-repo', 'Serialize entire repository into a single file')
-  .example('pnpm serialize-repo -s 10', 'Split repository into 10MB chunks')
+  .example('pnpm serialize-repo -t 128000', 'Split repository into chunks of max 128KB')
+  .example('pnpm serialize-repo -t 128000 -c', 'Split into chunks of max 128K tokens (slower)')
   .example('pnpm serialize-repo -p src/app', 'Serialize only the src/app directory')
-  .example('pnpm serialize-repo -s 5 -p src/components', 'Split src/components into 5MB chunks')
+  .example('pnpm serialize-repo -s | pbcopy', 'Stream output to clipboard on macOS')
   .check(async (argv) => {
-    if (isNaN(argv.size) || argv.size <= 0) {
-      throw new Error('Please provide a valid chunk size in megabytes');
+    if (isNaN(argv.tokens) || argv.tokens <= 0) {
+      throw new Error('Please provide a valid token limit');
     }
 
     if (
@@ -295,24 +580,54 @@ const argv = yargs(hideBin(process.argv))
  * Main entry point. Parses command-line options, then serializes the repository.
  */
 async function main() {
-  const { size, path: basePath } = await argv;
-  logger.info(
-    `Serializing repo from ${basePath || 'root'} ${size !== Infinity ? ` with chunk size ${size}MB` : ''}`,
-  );
-  const outputDir = await serializeRepo({ chunkSizeMB: size, basePath });
-
-  logger.info(`✨ Repository serialized successfully!`);
-
-  if (size !== Infinity) {
-    const files = await fs.readdir(outputDir);
-    logger.info(`Generated chunks:`);
-    for (const file of files) {
-      logger.info(path.join(outputDir, file));
+  try {
+    const { tokens, path: basePath, model, stream, countTokens } = await argv;
+    if (!stream) {
+      const sizeType = countTokens ? 'tokens' : 'bytes';
+      const limit =
+        tokens === Infinity ? '' : ` with max ${formatSize(tokens, countTokens)} per chunk`;
+      logger.info(
+        `Serializing repo from ${basePath || 'root'}${limit}${
+          countTokens ? ` using ${model} with token counting` : ''
+        }`,
+      );
     }
-  } else {
-    logger.info(`Outputed file:`);
-    logger.info(path.join(outputDir, 'chunk-0.txt'));
+
+    const outputDir = await serializeRepo({
+      maxTokens: tokens,
+      basePath,
+      model,
+      stream,
+      countTokens,
+    });
+
+    if (!stream) {
+      logger.info(`✨ Repository serialized successfully!`);
+
+      if (tokens !== Infinity) {
+        const files = await fs.readdir(outputDir!);
+        logger.info(`Generated chunks:`);
+        for (const file of files) {
+          logger.info(path.join(outputDir!, file));
+        }
+      } else {
+        logger.info(`Outputed file:`);
+        logger.info(path.join(outputDir!, 'chunk-0.txt'));
+      }
+    }
+    process.exit(0);
+  } catch (error) {
+    assertError(error);
+    logger.error('Failed to serialize repository:', error.message);
+    process.exit(1);
   }
 }
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (error) => {
+  assertError(error);
+  logger.error('Unhandled promise rejection:', error.message);
+  process.exit(1);
+});
 
 void main();
