@@ -2,11 +2,13 @@ import { APIRequestContext, Page } from '@playwright/test';
 import { Prisma } from '@prisma/client';
 
 import { Command, CommandArgs, CommandResponse } from '@/app/api/e2e/route';
+import { createLogger } from '@/utils/logger';
 
 export class TestData {
   #context: APIRequestContext;
   #baseURL: string;
   #disposed = false;
+  #logger = createLogger('e2e/test-data');
 
   constructor(context: APIRequestContext, baseURL: string) {
     this.#context = context;
@@ -31,10 +33,7 @@ export class TestData {
     const endTime = performance.now();
     const duration = endTime - startTime;
     if (duration > 250) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `[Playwright TestData] Command "${command}" took ${duration.toFixed(2)}ms to complete`,
-      );
+      this.#logger.warn(`Command "${command}" took ${duration.toFixed(2)}ms to complete`);
     }
     if (response.status() !== 200) {
       const error = (json as { message: string }).message ?? 'Unknown error';

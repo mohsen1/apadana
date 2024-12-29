@@ -123,10 +123,21 @@ export class BuildChecker {
         fs.mkdirSync('.cache');
       }
 
+      const buildTimestamp = path.join(process.cwd(), '.cache/prod-build-timestamp');
       let previousChecksum = '';
       if (fs.existsSync(this.#CACHE_FILE)) {
         previousChecksum = fs.readFileSync(this.#CACHE_FILE, 'utf8');
         logger.debug(`Previous checksum: ${previousChecksum}`);
+
+        if (fs.existsSync(buildTimestamp)) {
+          logger.info('Recently built, skipping building again. waiting for build to complete...');
+          await this.#waitForBuild();
+          // rm build timestamp file
+          fs.unlinkSync(buildTimestamp);
+          fs.writeFileSync(this.#CACHE_FILE, currentChecksum);
+          logger.info('Recently built, skipping building again');
+          return;
+        }
       } else {
         logger.debug('No previous checksum found');
       }

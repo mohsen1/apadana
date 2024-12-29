@@ -17,6 +17,10 @@ const DOMAINS = [
 const HOSTS_FILE = '/etc/hosts';
 
 async function setupLocalDomains() {
+  // set build timestamp
+  fs.mkdirSync('.cache', { recursive: true });
+  fs.writeFileSync('.cache/prod-build-timestamp', Date.now().toString());
+
   const certDir = `${process.cwd()}/src/docker/certs`;
   const certFile = `${certDir}/cert.pem`;
   const keyFile = `${certDir}/key.pem`;
