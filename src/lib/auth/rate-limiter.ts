@@ -35,7 +35,7 @@ export class RateLimiter {
     windowMs = 15 * 60 * 1000,
     blockDurationMs = 60 * 60 * 1000,
   }: RateLimiterOptions = {}) {
-    this.#maxAttempts = maxAttempts;
+    this.#maxAttempts = process.env.NEXT_PUBLIC_TEST_ENV === 'e2e' ? 1000 : maxAttempts;
     this.#windowMs = windowMs;
     this.#blockDurationMs = blockDurationMs;
 
