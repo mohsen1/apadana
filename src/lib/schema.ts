@@ -137,6 +137,25 @@ export const PasswordSchema =
   process.env.NODE_ENV === 'development' ? DevPasswordSchema : ProdPasswordSchema;
 //#endregion
 
+//#region Upload Schemas
+export const FileUploadInputSchema = z.object({
+  files: z.array(
+    z.object({
+      filename: z.string(),
+      contentType: z.string(),
+    }),
+  ),
+});
+
+export const FileUploadOutputSchema = z.object({
+  urls: z.array(
+    z.object({
+      url: z.string(),
+      key: z.string(),
+    }),
+  ),
+});
+//#endregion
 //#region Listing Schemas
 export const GetListingSchema = z.object({
   id: z.string(),

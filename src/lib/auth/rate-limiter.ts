@@ -195,3 +195,9 @@ export const signupRateLimiter = new RateLimiter({
   windowMs: 30 * 60 * 1000,
   blockDurationMs: 2 * 60 * 60 * 1000, // 2 hour block duration
 });
+
+export const uploadRateLimiter = new RateLimiter({
+  maxAttempts: 50,
+  windowMs: 60 * 1000,
+  blockDurationMs: 60 * 60 * 1000, // 1 hour block duration
+});

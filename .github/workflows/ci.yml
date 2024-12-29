@@ -157,10 +157,12 @@ jobs:
 
       - name: Create a Check with the Report URL
         if: always() && steps.process-storybook-url.outputs.report_url
-        run: |
-          gh check create --name "Storybook" --status "completed" --details-url ${{ steps.process-storybook-url.outputs.report_url }}
-        env:
-          GH_TOKEN: ${{ github.token }}
+        uses: ./.github/actions/test-report
+        with:
+          test-name: 'Storybook'
+          test-outcome: ${{ steps.test-run.outcome }}
+          report-url: ${{ steps.process-storybook-url.outputs.report_url }}
+          github-token: ${{ github.token }}
 
       - name: Update PR Comment for Storybook
         if: always() && steps.find-pr.outputs.pr_number != ''

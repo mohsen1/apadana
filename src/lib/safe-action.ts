@@ -16,6 +16,13 @@ export class ClientVisibleError extends Error {
 }
 
 /**
+ * An error that is thrown when the user or IP address is rate limited.
+ */
+export class RateLimitedError extends Error {
+  name = 'RateLimitedError';
+}
+
+/**
  * An error that is thrown when the user is not authorized to perform the action.
  */
 export class UnauthorizedError extends Error {
@@ -34,6 +41,12 @@ export const baseClient = createSafeActionClient({
     if (error instanceof ClientVisibleError) {
       return {
         error: error.message,
+      };
+    }
+
+    if (error instanceof RateLimitedError) {
+      return {
+        error: 'Too many attempts',
       };
     }
 

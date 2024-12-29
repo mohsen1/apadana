@@ -11,7 +11,7 @@ import { loginRateLimiter, signupRateLimiter } from '@/lib/auth/rate-limiter';
 import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
-import { actionClient, ClientVisibleError } from '@/lib/safe-action';
+import { actionClient, ClientVisibleError, RateLimitedError } from '@/lib/safe-action';
 import { ClientUserSchema, LoginSchema, SignUpSchema, SuccessfulLoginSchema } from '@/lib/schema';
 
 import logger from '@/utils/logger';
@@ -51,7 +51,7 @@ export const login = actionClient
     await loginRateLimiter.increment(parsedInput.email);
 
     if (!user) {
-      throw new ClientVisibleError(
+      throw new RateLimitedError(
         remainingAttempts > 0
           ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
           : 'Invalid email or password.',
@@ -60,7 +60,7 @@ export const login = actionClient
 
     // Check if user exists and has password
     if (!user.password) {
-      throw new ClientVisibleError(
+      throw new RateLimitedError(
         remainingAttempts > 0
           ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
           : 'Invalid email or password.',
@@ -70,7 +70,7 @@ export const login = actionClient
     // Verify password
     const validPassword = await argon.verify(user.password, parsedInput.password);
     if (!validPassword) {
-      throw new ClientVisibleError(
+      throw new RateLimitedError(
         remainingAttempts > 0
           ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
           : 'Invalid email or password.',
@@ -121,7 +121,7 @@ export const signUp = actionClient
     );
     if (blocked) {
       const minutesLeft = Math.ceil(msBeforeNextAttempt / (60 * 1000));
-      throw new ClientVisibleError(
+      throw new RateLimitedError(
         `Too many signup attempts. Please try again in ${minutesLeft} minutes.`,
       );
     }
@@ -136,7 +136,7 @@ export const signUp = actionClient
       },
     });
     if (existingUser) {
-      throw new ClientVisibleError(
+      throw new RateLimitedError(
         remainingAttempts > 0
           ? `There is already an account with this email. Please login with that email. ${remainingAttempts} attempts remaining.`
           : 'There is already an account with this email. Please login with that email.',

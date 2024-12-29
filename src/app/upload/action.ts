@@ -3,35 +3,31 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import crypto from 'crypto';
-import { z } from 'zod';
 
-import { actionClient } from '@/lib/safe-action';
+import { uploadRateLimiter } from '@/lib/auth/rate-limiter';
+import { actionClient, RateLimitedError } from '@/lib/safe-action';
+import { FileUploadInputSchema, FileUploadOutputSchema } from '@/lib/schema';
 
 import { shouldUseFakeUploads } from '@/app/upload/constants';
 import logger from '@/utils/logger';
 
-const inputSchema = z.object({
-  files: z.array(
-    z.object({
-      filename: z.string(),
-      contentType: z.string(),
-    }),
-  ),
-});
+export const getUploadSignedUrl = actionClient
+  .schema(FileUploadInputSchema)
+  .outputSchema(FileUploadOutputSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    if (!ctx.userId) {
+      throw new Error('User ID is required');
+    }
 
-const outputSchema = z.object({
-  urls: z.array(
-    z.object({
-      url: z.string(),
-      key: z.string(),
-    }),
-  ),
-});
+    // Rate limit the request
+    const { blocked, msBeforeNextAttempt } = await uploadRateLimiter.check(ctx.userId);
+    if (blocked) {
+      throw new RateLimitedError(
+        `Too many uploads. Try again in ${msBeforeNextAttempt / 1000} seconds.`,
+      );
+    }
+    await uploadRateLimiter.increment(parsedInput.files[0].filename);
 
-const getUploadSignedUrl = actionClient
-  .schema(inputSchema)
-  .outputSchema(outputSchema)
-  .action(async ({ parsedInput }) => {
     if (shouldUseFakeUploads) {
       // Return fake signed URLs for e2e testing
       const urls = parsedInput.files.map((file) => {
@@ -80,5 +76,3 @@ const getUploadSignedUrl = actionClient
       throw new Error('Failed to generate upload URLs');
     }
   });
-
-export { getUploadSignedUrl };

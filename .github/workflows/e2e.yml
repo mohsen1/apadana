@@ -71,12 +71,14 @@ jobs:
         env:
           LOCATIONS: ${{ steps.upload-results.outputs.object_locations }}
 
-      - name: Create a Check with the Report URL
+      - name: Create or Update Check with Report URL
         if: always() && steps.process-url.outputs.report_url
-        run: |
-          gh check create --name "E2E Tests" --status "completed" --details-url ${{ steps.process-url.outputs.report_url }}
-        env:
-          GH_TOKEN: ${{ github.token }}
+        uses: ./.github/actions/test-report
+        with:
+          test-name: 'E2E Tests'
+          test-outcome: ${{ steps.test-run.outcome }}
+          report-url: ${{ steps.process-url.outputs.report_url }}
+          github-token: ${{ github.token }}
 
       - name: Update PR Comment for E2E
         if: always() && steps.find-pr.outputs.pr_number
