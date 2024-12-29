@@ -25,14 +25,12 @@ jobs:
       - name: Run E2E Tests
         id: test-run
         run: |
-          if [ "$DEPLOYMENT_ENV" = "production" ]; then
-            export BASE_URL="https://apadana.app"
+          if [ "${{ github.event.deployment_status.environment }}" == "production" ]; then
             pnpm run e2e:prod
           else
             pnpm run e2e:ci
           fi
         env:
-          DEPLOYMENT_ENV: ${{ github.event.deployment_status.environment }}
           BASE_URL: ${{ github.event.deployment_status.target_url }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           E2E_TESTING_SECRET: ${{ secrets.E2E_TESTING_SECRET }}
