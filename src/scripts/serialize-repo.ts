@@ -583,7 +583,6 @@ async function main() {
   try {
     const { tokens, path: basePath, model, stream, countTokens } = await argv;
     if (!stream) {
-      const sizeType = countTokens ? 'tokens' : 'bytes';
       const limit =
         tokens === Infinity ? '' : ` with max ${formatSize(tokens, countTokens)} per chunk`;
       logger.info(

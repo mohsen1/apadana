@@ -60,7 +60,7 @@ jobs:
 
       - name: Process Report URL
         id: process-url
-        if: steps.upload-results.outputs.object_locations
+        if: always() && steps.upload-results.outputs.object_locations
         uses: actions/github-script@v7
         with:
           script: |
@@ -70,6 +70,15 @@ jobs:
             core.setOutput('report_url', htmlUrl);
         env:
           LOCATIONS: ${{ steps.upload-results.outputs.object_locations }}
+
+      - name: Create or Update Check with Report URL
+        if: always() && steps.process-url.outputs.report_url
+        uses: ./.github/actions/test-report
+        with:
+          test-name: 'E2E Tests'
+          test-outcome: ${{ steps.test-run.outcome }}
+          report-url: ${{ steps.process-url.outputs.report_url }}
+          github-token: ${{ github.token }}
 
       - name: Update PR Comment for E2E
         if: always() && steps.find-pr.outputs.pr_number
