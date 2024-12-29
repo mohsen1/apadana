@@ -25,12 +25,13 @@ jobs:
       - name: Run E2E Tests
         id: test-run
         run: |
-          if [ "${{ github.event.deployment_status.environment }}" == "production" ]; then
+          if [ "${ENVIRONMENT,,}" == "production" ]; then
             pnpm run e2e:prod
           else
             pnpm run e2e:ci
           fi
         env:
+          ENVIRONMENT: ${{ github.event.deployment_status.environment }}
           BASE_URL: ${{ github.event.deployment_status.target_url }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           E2E_TESTING_SECRET: ${{ secrets.E2E_TESTING_SECRET }}
