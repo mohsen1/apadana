@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { deleteServerSession, getUserInServer } from '@/lib/auth';
 import { argon } from '@/lib/auth/argon';
 import { RESET_TOKEN_DURATION, SESSION_COOKIE_NAME, SESSION_DURATION } from '@/lib/auth/constants';
+import { loginRateLimiter, signupRateLimiter } from '@/lib/auth/rate-limiter';
 import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
@@ -20,6 +21,17 @@ export const login = actionClient
   .schema(LoginSchema)
   .outputSchema(SuccessfulLoginSchema)
   .action(async ({ parsedInput }) => {
+    // Check rate limit
+    const { blocked, remainingAttempts, msBeforeNextAttempt } = await loginRateLimiter.check(
+      parsedInput.email,
+    );
+    if (blocked) {
+      const minutesLeft = Math.ceil(msBeforeNextAttempt / (60 * 1000));
+      throw new ClientVisibleError(
+        `Too many login attempts. Please try again in ${minutesLeft} minutes.`,
+      );
+    }
+
     const user = await prisma.user.findFirst({
       where: {
         emailAddresses: {
@@ -35,20 +47,38 @@ export const login = actionClient
       },
     });
 
+    // Increment attempt counter before checking credentials
+    await loginRateLimiter.increment(parsedInput.email);
+
     if (!user) {
-      throw new ClientVisibleError('Invalid email or password');
+      throw new ClientVisibleError(
+        remainingAttempts > 0
+          ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
+          : 'Invalid email or password.',
+      );
     }
 
     // Check if user exists and has password
     if (!user.password) {
-      throw new ClientVisibleError('Invalid email or password');
+      throw new ClientVisibleError(
+        remainingAttempts > 0
+          ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
+          : 'Invalid email or password.',
+      );
     }
 
     // Verify password
     const validPassword = await argon.verify(user.password, parsedInput.password);
     if (!validPassword) {
-      throw new ClientVisibleError('Invalid email or password');
+      throw new ClientVisibleError(
+        remainingAttempts > 0
+          ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
+          : 'Invalid email or password.',
+      );
     }
+
+    // Reset rate limiter on successful login
+    await loginRateLimiter.reset(parsedInput.email);
 
     // Create new session
     const session = await prisma.session.create({
@@ -85,6 +115,20 @@ export const signUp = actionClient
     }),
   )
   .action(async ({ parsedInput }) => {
+    // Check rate limit
+    const { blocked, remainingAttempts, msBeforeNextAttempt } = await signupRateLimiter.check(
+      parsedInput.email,
+    );
+    if (blocked) {
+      const minutesLeft = Math.ceil(msBeforeNextAttempt / (60 * 1000));
+      throw new ClientVisibleError(
+        `Too many signup attempts. Please try again in ${minutesLeft} minutes.`,
+      );
+    }
+
+    // Increment attempt counter before checking
+    await signupRateLimiter.increment(parsedInput.email);
+
     // ensure email is not already in use
     const existingUser = await prisma.user.findFirst({
       where: {
@@ -92,7 +136,11 @@ export const signUp = actionClient
       },
     });
     if (existingUser) {
-      throw new Error('There is already an account with this email. Please login with that email.');
+      throw new ClientVisibleError(
+        remainingAttempts > 0
+          ? `There is already an account with this email. Please login with that email. ${remainingAttempts} attempts remaining.`
+          : 'There is already an account with this email. Please login with that email.',
+      );
     }
 
     const hashedPassword = await argon.hash(parsedInput.password);
@@ -130,6 +178,9 @@ export const signUp = actionClient
         },
       },
     });
+
+    // Reset rate limiter on successful signup
+    await signupRateLimiter.reset(parsedInput.email);
 
     const session = user.sessions[0];
 

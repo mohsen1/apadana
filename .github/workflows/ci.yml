@@ -99,6 +99,8 @@ jobs:
     needs: [test]
     timeout-minutes: 20
     steps:
+      - name: Install gh
+        run: brew install gh
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
@@ -152,6 +154,13 @@ jobs:
             core.setOutput('report_url', htmlUrl);
         env:
           LOCATIONS: ${{ steps.upload-results.outputs.object_locations }}
+
+      - name: Create a Check with the Report URL
+        if: always() && steps.process-storybook-url.outputs.report_url
+        run: |
+          gh check create --name "Storybook" --status "completed" --details-url ${{ steps.process-storybook-url.outputs.report_url }}
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Update PR Comment for Storybook
         if: always() && steps.find-pr.outputs.pr_number != ''
