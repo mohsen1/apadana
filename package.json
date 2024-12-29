@@ -37,7 +37,7 @@
     "e2e": "BASE_URL=https://prod.apadana.local E2E_TESTING_SECRET=e2e_testing_secret_for_prod playwright test --config=src/e2e/playwright.config.ts",
     "e2e:dev": "BASE_URL=https://dev.apadana.local E2E_TESTING_SECRET=e2e_testing_secret_for_dev playwright test --config=src/e2e/playwright.config.ts",
     "e2e:ci": "playwright test --config=src/e2e/playwright.config.ts",
-    "e2e:prod": "BASE_URL=https://apadana.app playwright test --config=src/e2e/playwright.config.ts",
+    "e2e:prod": "BASE_URL=https://www.apadana.app playwright test --config=src/e2e/playwright.config.ts",
     "postbuild": "next-sitemap --config config/next-sitemap.config.js",
     "prepare": "husky install",
     "storybook": "storybook dev -p 6006 --quiet",

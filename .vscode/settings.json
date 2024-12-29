@@ -21,6 +21,7 @@
   "tailwindCSS.experimental.configFile": "config/tailwind.config.ts",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "files.exclude": {
+    "repo-serialized": true,
     "build": true,
     "node_modules": true,
     ".pnpm-store": true,
@@ -30,6 +31,7 @@
     ".vercel": true
   },
   "search.exclude": {
+    "repo-serialized": true,
     "build": true,
     "node_modules": true,
     ".pnpm-store": true,
