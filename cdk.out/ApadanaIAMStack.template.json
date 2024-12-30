@@ -1,0 +1,311 @@
+{
+  "Resources": {
+    "CDKDeploymentPolicyD9528D8D": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "Description": "",
+        "ManagedPolicyName": "ApadanaCDKDeploymentPolicy",
+        "Path": "/",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:iam::207567801782:role/cdk-*-deploy-role-207567801782-us-east-1",
+                "arn:aws:iam::207567801782:role/cdk-*-file-publishing-role-207567801782-us-east-1",
+                "arn:aws:iam::207567801782:role/cdk-*-lookup-role-207567801782-us-east-1"
+              ]
+            },
+            {
+              "Action": [
+                "cloudformation:DescribeStacks",
+                "cloudformation:ListStacks",
+                "cloudformation:DescribeStackEvents",
+                "cloudformation:GetTemplateSummary",
+                "cloudformation:ValidateTemplate"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "cloudformation:CreateStack",
+                "cloudformation:UpdateStack",
+                "cloudformation:DeleteStack"
+              ],
+              "Effect": "Allow",
+              "Resource": "arn:aws:cloudformation:us-east-1:207567801782:stack/Apadana*/*"
+            },
+            {
+              "Action": "s3:*",
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:s3:::cdk-*-assets-207567801782-us-east-1",
+                "arn:aws:s3:::cdk-*-assets-207567801782-us-east-1/*"
+              ]
+            },
+            {
+              "Action": [
+                "memorydb:CreateCluster",
+                "memorydb:DeleteCluster",
+                "memorydb:DescribeClusters",
+                "memorydb:ModifyCluster",
+                "memorydb:CreateSubnetGroup",
+                "memorydb:DeleteSubnetGroup",
+                "memorydb:DescribeSubnetGroups",
+                "memorydb:CreateUser",
+                "memorydb:DeleteUser",
+                "memorydb:DescribeUsers",
+                "memorydb:CreateACL",
+                "memorydb:DeleteACL",
+                "memorydb:DescribeACLs"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:memorydb:us-east-1:207567801782:cluster/apadana*",
+                "arn:aws:memorydb:us-east-1:207567801782:subnetgroup/apadana*",
+                "arn:aws:memorydb:us-east-1:207567801782:user/apadana*",
+                "arn:aws:memorydb:us-east-1:207567801782:acl/apadana*"
+              ]
+            },
+            {
+              "Action": [
+                "ec2:DescribeVpcs",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeNatGateways",
+                "ec2:DescribeInternetGateways",
+                "ec2:DescribeRouteTables",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DescribeVpcAttribute",
+                "ec2:CreateVpc",
+                "ec2:DeleteVpc",
+                "ec2:ModifyVpcAttribute",
+                "ec2:CreateSubnet",
+                "ec2:DeleteSubnet",
+                "ec2:ModifySubnetAttribute",
+                "ec2:CreateSecurityGroup",
+                "ec2:DeleteSecurityGroup",
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:RevokeSecurityGroupIngress",
+                "ec2:CreateNatGateway",
+                "ec2:DeleteNatGateway",
+                "ec2:CreateInternetGateway",
+                "ec2:DeleteInternetGateway",
+                "ec2:AttachInternetGateway",
+                "ec2:DetachInternetGateway",
+                "ec2:AllocateAddress",
+                "ec2:ReleaseAddress",
+                "ec2:AssociateAddress",
+                "ec2:DisassociateAddress",
+                "ec2:CreateRouteTable",
+                "ec2:DeleteRouteTable",
+                "ec2:CreateRoute",
+                "ec2:DeleteRoute",
+                "ec2:AssociateRouteTable",
+                "ec2:DisassociateRouteTable"
+              ],
+              "Condition": {
+                "StringLike": {
+                  "aws:ResourceTag/Project": "Apadana"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ec2:DescribeVpcs",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeNatGateways",
+                "ec2:DescribeInternetGateways",
+                "ec2:DescribeRouteTables",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DescribeVpcAttribute"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": ["ec2:CreateTags", "ec2:DeleteTags"],
+              "Condition": {
+                "StringEquals": {
+                  "aws:RequestTag/Project": "Apadana"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "secretsmanager:CreateSecret",
+                "secretsmanager:DeleteSecret",
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:UpdateSecret",
+                "secretsmanager:TagResource"
+              ],
+              "Effect": "Allow",
+              "Resource": "arn:aws:secretsmanager:us-east-1:207567801782:secret:Apadana*"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "ApadanaIAMStack/CDKDeploymentPolicy/Resource"
+      }
+    },
+    "CDKAdminGroup9632AD4A": {
+      "Type": "AWS::IAM::Group",
+      "Properties": {
+        "GroupName": "ApadanaCDKAdmins",
+        "ManagedPolicyArns": [
+          {
+            "Ref": "CDKDeploymentPolicyD9528D8D"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "ApadanaIAMStack/CDKAdminGroup/Resource"
+      }
+    },
+    "CDKAdminGroupDefaultPolicy5B7B1A6C": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "Groups": [
+          {
+            "Ref": "CDKAdminGroup9632AD4A"
+          }
+        ],
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": ["CDKDeploymentRoleA08765EE", "Arn"]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "CDKAdminGroupDefaultPolicy5B7B1A6C"
+      },
+      "Metadata": {
+        "aws:cdk:path": "ApadanaIAMStack/CDKAdminGroup/DefaultPolicy/Resource"
+      }
+    },
+    "CDKDeploymentRoleA08765EE": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudformation.amazonaws.com"
+              }
+            },
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            },
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "arn:aws:iam::207567801782:root"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Ref": "CDKDeploymentPolicyD9528D8D"
+          }
+        ],
+        "RoleName": "ApadanaCDKDeploymentRole",
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "development"
+          },
+          {
+            "Key": "Project",
+            "Value": "Apadana"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "ApadanaIAMStack/CDKDeploymentRole/Resource"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WKywrCMBREv6X75GqqoHsXrqQSP0CuSZTbR1LysEjpv0vagriaM2emBHHYwb7AIXClG97SA8ZbRNUwHMKdsIPxghZfRl9dS+rDTk/7L87epT7rBX63laRrTa45JyZNcMmr2VQp9inO22onZp02UIfNu9yCOIIo6kDEfbKROgNyyS/zlgNbtgAAAA=="
+      },
+      "Metadata": {
+        "aws:cdk:path": "ApadanaIAMStack/CDKMetadata/Default"
+      }
+    }
+  },
+  "Outputs": {
+    "CDKGroupName": {
+      "Description": "Add developers to this group for CDK deployment permissions",
+      "Value": {
+        "Ref": "CDKAdminGroup9632AD4A"
+      },
+      "Export": {
+        "Name": "ApadanaCDKGroupName"
+      }
+    },
+    "DeploymentRoleArn": {
+      "Description": "ARN of the CDK deployment role",
+      "Value": {
+        "Fn::GetAtt": ["CDKDeploymentRoleA08765EE", "Arn"]
+      },
+      "Export": {
+        "Name": "ApadanaCDKDeploymentRoleArn"
+      }
+    }
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  ["1", "2", "3", "4", "5"],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

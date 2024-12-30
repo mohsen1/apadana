@@ -1,0 +1,811 @@
+{
+  "Resources": {
+    "ApadanaMemoryDBVPC519311F8": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "EnableDnsHostnames": true,
+        "EnableDnsSupport": true,
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/Resource"
+      }
+    },
+    "ApadanaMemoryDBVPCPrivateSubnet1Subnet3B457FC9": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": "10.0.0.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Private"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private"
+          },
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet1"
+          }
+        ],
+        "VpcId": {
+          "Ref": "ApadanaMemoryDBVPC519311F8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet1/Subnet"
+      }
+    },
+    "ApadanaMemoryDBVPCPrivateSubnet1RouteTable889DA4A0": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet1"
+          }
+        ],
+        "VpcId": {
+          "Ref": "ApadanaMemoryDBVPC519311F8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet1/RouteTable"
+      }
+    },
+    "ApadanaMemoryDBVPCPrivateSubnet1RouteTableAssociationAEC5D725": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "ApadanaMemoryDBVPCPrivateSubnet1RouteTable889DA4A0"
+        },
+        "SubnetId": {
+          "Ref": "ApadanaMemoryDBVPCPrivateSubnet1Subnet3B457FC9"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet1/RouteTableAssociation"
+      }
+    },
+    "ApadanaMemoryDBVPCPrivateSubnet1DefaultRoute87DE4207": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "ApadanaMemoryDBVPCPublicSubnet1NATGatewayBDAE3F6D"
+        },
+        "RouteTableId": {
+          "Ref": "ApadanaMemoryDBVPCPrivateSubnet1RouteTable889DA4A0"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet1/DefaultRoute"
+      }
+    },
+    "ApadanaMemoryDBVPCPrivateSubnet2Subnet8CE13BC9": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": "10.0.1.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Private"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private"
+          },
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet2"
+          }
+        ],
+        "VpcId": {
+          "Ref": "ApadanaMemoryDBVPC519311F8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet2/Subnet"
+      }
+    },
+    "ApadanaMemoryDBVPCPrivateSubnet2RouteTable1EDF7990": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet2"
+          }
+        ],
+        "VpcId": {
+          "Ref": "ApadanaMemoryDBVPC519311F8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet2/RouteTable"
+      }
+    },
+    "ApadanaMemoryDBVPCPrivateSubnet2RouteTableAssociationCAD3D2B2": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "ApadanaMemoryDBVPCPrivateSubnet2RouteTable1EDF7990"
+        },
+        "SubnetId": {
+          "Ref": "ApadanaMemoryDBVPCPrivateSubnet2Subnet8CE13BC9"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet2/RouteTableAssociation"
+      }
+    },
+    "ApadanaMemoryDBVPCPrivateSubnet2DefaultRoute4CA8DEF5": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "ApadanaMemoryDBVPCPublicSubnet1NATGatewayBDAE3F6D"
+        },
+        "RouteTableId": {
+          "Ref": "ApadanaMemoryDBVPCPrivateSubnet2RouteTable1EDF7990"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PrivateSubnet2/DefaultRoute"
+      }
+    },
+    "ApadanaMemoryDBVPCPublicSubnet1Subnet0FB78FA8": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": "10.0.2.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public"
+          },
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet1"
+          }
+        ],
+        "VpcId": {
+          "Ref": "ApadanaMemoryDBVPC519311F8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet1/Subnet"
+      }
+    },
+    "ApadanaMemoryDBVPCPublicSubnet1RouteTable985F8DFD": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet1"
+          }
+        ],
+        "VpcId": {
+          "Ref": "ApadanaMemoryDBVPC519311F8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet1/RouteTable"
+      }
+    },
+    "ApadanaMemoryDBVPCPublicSubnet1RouteTableAssociationF4D37D7D": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "ApadanaMemoryDBVPCPublicSubnet1RouteTable985F8DFD"
+        },
+        "SubnetId": {
+          "Ref": "ApadanaMemoryDBVPCPublicSubnet1Subnet0FB78FA8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet1/RouteTableAssociation"
+      }
+    },
+    "ApadanaMemoryDBVPCPublicSubnet1DefaultRoute910B55B3": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "ApadanaMemoryDBVPCIGW9C6DE99D"
+        },
+        "RouteTableId": {
+          "Ref": "ApadanaMemoryDBVPCPublicSubnet1RouteTable985F8DFD"
+        }
+      },
+      "DependsOn": ["ApadanaMemoryDBVPCVPCGW7431DDED"],
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet1/DefaultRoute"
+      }
+    },
+    "ApadanaMemoryDBVPCPublicSubnet1EIP2C18B4E6": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet1"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet1/EIP"
+      }
+    },
+    "ApadanaMemoryDBVPCPublicSubnet1NATGatewayBDAE3F6D": {
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": ["ApadanaMemoryDBVPCPublicSubnet1EIP2C18B4E6", "AllocationId"]
+        },
+        "SubnetId": {
+          "Ref": "ApadanaMemoryDBVPCPublicSubnet1Subnet0FB78FA8"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet1"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ApadanaMemoryDBVPCPublicSubnet1DefaultRoute910B55B3",
+        "ApadanaMemoryDBVPCPublicSubnet1RouteTableAssociationF4D37D7D"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet1/NATGateway"
+      }
+    },
+    "ApadanaMemoryDBVPCPublicSubnet2SubnetF1FE81C7": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": "10.0.3.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public"
+          },
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet2"
+          }
+        ],
+        "VpcId": {
+          "Ref": "ApadanaMemoryDBVPC519311F8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet2/Subnet"
+      }
+    },
+    "ApadanaMemoryDBVPCPublicSubnet2RouteTableCDCA71E3": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet2"
+          }
+        ],
+        "VpcId": {
+          "Ref": "ApadanaMemoryDBVPC519311F8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet2/RouteTable"
+      }
+    },
+    "ApadanaMemoryDBVPCPublicSubnet2RouteTableAssociation98769E7C": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "ApadanaMemoryDBVPCPublicSubnet2RouteTableCDCA71E3"
+        },
+        "SubnetId": {
+          "Ref": "ApadanaMemoryDBVPCPublicSubnet2SubnetF1FE81C7"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet2/RouteTableAssociation"
+      }
+    },
+    "ApadanaMemoryDBVPCPublicSubnet2DefaultRoute2FBE5874": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "ApadanaMemoryDBVPCIGW9C6DE99D"
+        },
+        "RouteTableId": {
+          "Ref": "ApadanaMemoryDBVPCPublicSubnet2RouteTableCDCA71E3"
+        }
+      },
+      "DependsOn": ["ApadanaMemoryDBVPCVPCGW7431DDED"],
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/PublicSubnet2/DefaultRoute"
+      }
+    },
+    "ApadanaMemoryDBVPCIGW9C6DE99D": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MemoryDBStack/ApadanaMemoryDBVPC"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/IGW"
+      }
+    },
+    "ApadanaMemoryDBVPCVPCGW7431DDED": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "ApadanaMemoryDBVPCIGW9C6DE99D"
+        },
+        "VpcId": {
+          "Ref": "ApadanaMemoryDBVPC519311F8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDBVPC/VPCGW"
+      }
+    },
+    "MemoryDBSecurityGroup1731B106": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Security group for Apadana MemoryDB cluster",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Fn::GetAtt": ["ApadanaMemoryDBVPC519311F8", "CidrBlock"]
+            },
+            "Description": "Allow Redis access from within VPC",
+            "FromPort": 6379,
+            "IpProtocol": "tcp",
+            "ToPort": 6379
+          }
+        ],
+        "VpcId": {
+          "Ref": "ApadanaMemoryDBVPC519311F8"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/MemoryDBSecurityGroup/Resource"
+      }
+    },
+    "MemoryDBSubnetGroup": {
+      "Type": "AWS::MemoryDB::SubnetGroup",
+      "Properties": {
+        "SubnetGroupName": "apadana-memorydb-subnet-group",
+        "SubnetIds": [
+          {
+            "Ref": "ApadanaMemoryDBVPCPrivateSubnet1Subnet3B457FC9"
+          },
+          {
+            "Ref": "ApadanaMemoryDBVPCPrivateSubnet2Subnet8CE13BC9"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/MemoryDBSubnetGroup"
+      }
+    },
+    "MemoryDBACL": {
+      "Type": "AWS::MemoryDB::ACL",
+      "Properties": {
+        "ACLName": "apadana-memorydb-acl",
+        "UserNames": ["default"]
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/MemoryDBACL"
+      }
+    },
+    "ApadanaMemoryDB": {
+      "Type": "AWS::MemoryDB::Cluster",
+      "Properties": {
+        "ACLName": "apadana-memorydb-acl",
+        "ClusterName": "apadana-memorydb",
+        "EngineVersion": "7.0",
+        "NodeType": "db.t4g.small",
+        "NumReplicasPerShard": 1,
+        "NumShards": 1,
+        "Port": 6379,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": ["MemoryDBSecurityGroup1731B106", "GroupId"]
+          }
+        ],
+        "SubnetGroupName": "apadana-memorydb-subnet-group",
+        "TLSEnabled": true
+      },
+      "DependsOn": ["MemoryDBACL", "MemoryDBSubnetGroup"],
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/ApadanaMemoryDB"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/02PUWuEMBCEf8u9x7TaQvsqoRwHpQ1afC1J3NK900SSzYmI/73krqhPs/MxLDMFz1+e+PNBjSEz7SXrUPO5JmUuTI3hewZT8LkZDBM/tpGCSY9XRVBHbYES3K7KRYIvpTvY+MbKEJxBRejsGmYy6g7N9uLtJJN8KDoqglFNyZ0sgbewR40U/64kUua3B0usBhM90nT0Lg63CnuwsB5656dW83mtt0ZL8Z5EdDEQ+GVhFQQXvblN+Yw0xPvEHRXOtpjmLMy6Fvg5PFyLR56/8vxwDoiZj5awB17d9Q8ineh2agEAAA=="
+      },
+      "Metadata": {
+        "aws:cdk:path": "MemoryDBStack/CDKMetadata/Default"
+      },
+      "Condition": "CDKMetadataAvailable"
+    }
+  },
+  "Outputs": {
+    "ClusterEndpoint": {
+      "Description": "MemoryDB Cluster Endpoint",
+      "Value": {
+        "Fn::GetAtt": ["ApadanaMemoryDB", "ClusterEndpoint.Address"]
+      }
+    },
+    "ClusterPort": {
+      "Description": "MemoryDB Cluster Port",
+      "Value": "6379"
+    }
+  },
+  "Conditions": {
+    "CDKMetadataAvailable": {
+      "Fn::Or": [
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "af-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-northeast-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-northeast-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-northeast-3"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-south-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-southeast-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-southeast-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-southeast-3"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-southeast-4"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ca-central-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ca-west-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "cn-north-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "cn-northwest-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-central-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-central-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-north-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-south-2"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-3"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "il-central-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "me-central-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "me-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "sa-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-east-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-west-1"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "AWS::Region"
+            },
+            "us-west-2"
+          ]
+        }
+      ]
+    }
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  ["1", "2", "3", "4", "5"],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

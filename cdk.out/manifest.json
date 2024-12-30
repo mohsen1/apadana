@@ -1,0 +1,357 @@
+{
+  "version": "38.0.1",
+  "artifacts": {
+    "ApadanaNetworkStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "ApadanaNetworkStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "ApadanaNetworkStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/us-east-1",
+      "properties": {
+        "templateFile": "ApadanaNetworkStack.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1/9b4919163291c3992e583ff175c33d73e3e8a69a2ac555bfb9ca36b44ab9f803.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": ["ApadanaNetworkStack.assets"],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": ["ApadanaNetworkStack.assets"],
+      "metadata": {
+        "/ApadanaNetworkStack/ApadanaVPC/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPC012ED713"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PrivateSubnet1/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPrivateSubnet1SubnetE490B7CE"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PrivateSubnet1/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPrivateSubnet1RouteTable572970B6"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PrivateSubnet1/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPrivateSubnet1RouteTableAssociationDAF35D37"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PrivateSubnet1/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPrivateSubnet1DefaultRoute6065FFBE"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PrivateSubnet2/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPrivateSubnet2SubnetBB9252B1"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PrivateSubnet2/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPrivateSubnet2RouteTable158EFCCF"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PrivateSubnet2/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPrivateSubnet2RouteTableAssociation146A31E2"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PrivateSubnet2/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPrivateSubnet2DefaultRouteA07FFFA1"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PublicSubnet1/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPublicSubnet1Subnet75839C54"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PublicSubnet1/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPublicSubnet1RouteTableAB00603C"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PublicSubnet1/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPublicSubnet1RouteTableAssociation00F5A69C"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PublicSubnet1/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPublicSubnet1DefaultRouteE1B58E63"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PublicSubnet1/EIP": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPublicSubnet1EIP16A129A5"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PublicSubnet1/NATGateway": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPublicSubnet1NATGateway4F6D7896"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PublicSubnet2/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPublicSubnet2SubnetC31555A0"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PublicSubnet2/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPublicSubnet2RouteTableC7D5A068"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PublicSubnet2/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPublicSubnet2RouteTableAssociation104FAE29"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/PublicSubnet2/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCPublicSubnet2DefaultRoute8E37EECF"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/IGW": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCIGW72113AA1"
+          }
+        ],
+        "/ApadanaNetworkStack/ApadanaVPC/VPCGW": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaVPCVPCGWED248202"
+          }
+        ],
+        "/ApadanaNetworkStack/MemoryDBSecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryDBSecurityGroup1731B106"
+          }
+        ],
+        "/ApadanaNetworkStack/RDSSecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RDSSecurityGroup6BF2CF10"
+          }
+        ],
+        "/ApadanaNetworkStack/VpcId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcId"
+          }
+        ],
+        "/ApadanaNetworkStack/MemoryDBSecurityGroupId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryDBSecurityGroupId"
+          }
+        ],
+        "/ApadanaNetworkStack/RDSSecurityGroupId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RDSSecurityGroupId"
+          }
+        ],
+        "/ApadanaNetworkStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/ApadanaNetworkStack/Exports/Output{\"Ref\":\"ApadanaVPCPrivateSubnet1SubnetE490B7CE\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefApadanaVPCPrivateSubnet1SubnetE490B7CE17239615"
+          }
+        ],
+        "/ApadanaNetworkStack/Exports/Output{\"Ref\":\"ApadanaVPCPrivateSubnet2SubnetBB9252B1\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefApadanaVPCPrivateSubnet2SubnetBB9252B15E0A334B"
+          }
+        ],
+        "/ApadanaNetworkStack/Exports/Output{\"Fn::GetAtt\":[\"MemoryDBSecurityGroup1731B106\",\"GroupId\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttMemoryDBSecurityGroup1731B106GroupIdF77124E4"
+          }
+        ],
+        "/ApadanaNetworkStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/ApadanaNetworkStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "ApadanaNetworkStack"
+    },
+    "ApadanaMemoryDBStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "ApadanaMemoryDBStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "ApadanaMemoryDBStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/us-east-1",
+      "properties": {
+        "templateFile": "ApadanaMemoryDBStack.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1/adeb360824e0e194d12be76ea664ff837d454ad772e635500abaaf89f4b461dd.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": ["ApadanaMemoryDBStack.assets"],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": ["ApadanaNetworkStack", "ApadanaMemoryDBStack.assets"],
+      "metadata": {
+        "/ApadanaMemoryDBStack/MemoryDBKey/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryDBKeyEF4D873D"
+          }
+        ],
+        "/ApadanaMemoryDBStack/MemoryDBLogs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryDBLogsE630A542"
+          }
+        ],
+        "/ApadanaMemoryDBStack/MemoryDBSubnetGroup": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryDBSubnetGroup"
+          }
+        ],
+        "/ApadanaMemoryDBStack/MemoryDBSecret/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryDBSecret679375BB"
+          }
+        ],
+        "/ApadanaMemoryDBStack/MemoryDBUser": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryDBUser"
+          }
+        ],
+        "/ApadanaMemoryDBStack/MemoryDBACL": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryDBACL"
+          }
+        ],
+        "/ApadanaMemoryDBStack/ApadanaMemoryDB": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApadanaMemoryDB"
+          }
+        ],
+        "/ApadanaMemoryDBStack/ClusterEndpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ClusterEndpoint"
+          }
+        ],
+        "/ApadanaMemoryDBStack/ClusterPort": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ClusterPort"
+          }
+        ],
+        "/ApadanaMemoryDBStack/MemoryDBUserName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryDBUserName"
+          }
+        ],
+        "/ApadanaMemoryDBStack/MemoryDBSecretArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryDBSecretArn"
+          }
+        ],
+        "/ApadanaMemoryDBStack/LogGroupName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogGroupName"
+          }
+        ],
+        "/ApadanaMemoryDBStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/ApadanaMemoryDBStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/ApadanaMemoryDBStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "ApadanaMemoryDBStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}

@@ -59,6 +59,9 @@ public/images/e2e/uploads/
 # Unit test
 !.env.test
 
+# AWS
+.cdk.out/
+
 # Do not allow new files in root
 package-updates-summary.md
 

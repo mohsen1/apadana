@@ -184,4 +184,72 @@ describe('Rate Limiters', () => {
       expect(signupResult.remainingAttempts).toBe(3);
     });
   });
+
+  describe('Rate Limiter Bypass', () => {
+    it('should bypass rate limits when E2E testing secret is provided', async () => {
+      process.env.E2E_TESTING_SECRET = 'test-secret';
+
+      vi.mocked(headers).mockResolvedValue(
+        new Headers({
+          'x-forwarded-for': '1.2.3.4',
+          'x-real-ip': '5.6.7.8',
+          'x-e2e-testing-secret': 'test-secret',
+        }),
+      );
+
+      // Should allow more than max attempts when secret is provided
+      for (let i = 0; i < 10; i++) {
+        const loginResult = await loginRateLimiter.check(testEmail);
+        expect(loginResult.blocked).toBe(false);
+        expect(loginResult.remainingAttempts).toBe(5);
+        await loginRateLimiter.increment(testEmail);
+
+        const signupResult = await signupRateLimiter.check(testEmail);
+        expect(signupResult.blocked).toBe(false);
+        expect(signupResult.remainingAttempts).toBe(3);
+        await signupRateLimiter.increment(testEmail);
+      }
+    });
+
+    it('should enforce rate limits when E2E testing secret is incorrect', async () => {
+      process.env.E2E_TESTING_SECRET = 'test-secret';
+
+      vi.mocked(headers).mockResolvedValue(
+        new Headers({
+          'x-forwarded-for': '1.2.3.4',
+          'x-real-ip': '5.6.7.8',
+          'x-e2e-testing-secret': 'wrong-secret',
+        }),
+      );
+
+      // Should block after max attempts with wrong secret
+      for (let i = 0; i < 5; i++) {
+        await loginRateLimiter.increment(testEmail);
+      }
+
+      const result = await loginRateLimiter.check(testEmail);
+      expect(result.blocked).toBe(true);
+      expect(result.remainingAttempts).toBe(0);
+    });
+
+    it('should enforce rate limits when E2E testing secret is not provided', async () => {
+      process.env.E2E_TESTING_SECRET = 'test-secret';
+
+      vi.mocked(headers).mockResolvedValue(
+        new Headers({
+          'x-forwarded-for': '1.2.3.4',
+          'x-real-ip': '5.6.7.8',
+        }),
+      );
+
+      // Should block after max attempts with no secret
+      for (let i = 0; i < 3; i++) {
+        await signupRateLimiter.increment(testEmail);
+      }
+
+      const result = await signupRateLimiter.check(testEmail);
+      expect(result.blocked).toBe(true);
+      expect(result.remainingAttempts).toBe(0);
+    });
+  });
 });

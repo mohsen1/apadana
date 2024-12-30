@@ -1,5 +1,3 @@
-import { seedUser } from '@/e2e/fixtures/data';
-
 import { expect, test } from '../base';
 
 test.describe('Login Page', () => {
@@ -23,10 +21,13 @@ test.describe('Login Page', () => {
     await expect(page.getByText(/invalid email or password/i)).toBeVisible();
   });
 
-  test('successfully logs in with valid credentials', async ({ page }) => {
+  test('successfully logs in with valid credentials', async ({ page, data }) => {
+    const email = `e2e_testing_${crypto.randomUUID().slice(0, 8)}@example.com`;
+    const password = 'password';
+    await data.createUser(email, password);
     await page.goto('/signin');
-    await page.getByLabel(/email/i).fill(seedUser.email);
-    await page.getByPlaceholder('Enter your password').fill(seedUser.password);
+    await page.getByLabel(/email/i).fill(email);
+    await page.getByPlaceholder('Enter your password').fill(password);
     await page.getByRole('button', { name: 'Log in', exact: true }).click();
 
     // Verify successful login

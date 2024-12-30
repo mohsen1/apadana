@@ -1,0 +1,398 @@
+{
+  "Resources": {
+    "MemoryDBKeyEF4D873D": {
+      "Type": "AWS::KMS::Key",
+      "Properties": {
+        "Description": "KMS key for MemoryDB encryption - development",
+        "EnableKeyRotation": true,
+        "KeyPolicy": {
+          "Statement": [
+            {
+              "Action": "kms:*",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":iam::",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":root"
+                    ]
+                  ]
+                }
+              },
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "ApadanaMemoryDBStack/MemoryDBKey/Resource"
+      }
+    },
+    "MemoryDBLogsE630A542": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "KmsKeyId": {
+          "Fn::GetAtt": ["MemoryDBKeyEF4D873D", "Arn"]
+        },
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-logs-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        },
+        "RetentionInDays": 30
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "ApadanaMemoryDBStack/MemoryDBLogs/Resource"
+      }
+    },
+    "MemoryDBSubnetGroup": {
+      "Type": "AWS::MemoryDB::SubnetGroup",
+      "Properties": {
+        "SubnetGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-subnet-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        },
+        "SubnetIds": [
+          {
+            "Fn::ImportValue": "ApadanaNetworkStack:ExportsOutputRefApadanaVPCPrivateSubnet1SubnetE490B7CE17239615"
+          },
+          {
+            "Fn::ImportValue": "ApadanaNetworkStack:ExportsOutputRefApadanaVPCPrivateSubnet2SubnetBB9252B15E0A334B"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "ApadanaMemoryDBStack/MemoryDBSubnetGroup"
+      }
+    },
+    "MemoryDBSecret679375BB": {
+      "Type": "AWS::SecretsManager::Secret",
+      "Properties": {
+        "Description": "MemoryDB user password for development",
+        "GenerateSecretString": {
+          "ExcludeCharacters": " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
+          "ExcludePunctuation": true,
+          "IncludeSpace": false,
+          "PasswordLength": 32
+        },
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-secret-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "ApadanaMemoryDBStack/MemoryDBSecret/Resource"
+      }
+    },
+    "MemoryDBUser": {
+      "Type": "AWS::MemoryDB::User",
+      "Properties": {
+        "AccessString": "on ~* -@all +@read +@write +@connection +@transaction",
+        "AuthenticationMode": {
+          "Type": "password",
+          "Passwords": [
+            {
+              "Fn::Join": [
+                "",
+                [
+                  "{{resolve:secretsmanager:",
+                  {
+                    "Ref": "MemoryDBSecret679375BB"
+                  },
+                  ":SecretString:::}}"
+                ]
+              ]
+            }
+          ]
+        },
+        "UserName": "ap-mdb-user-development"
+      },
+      "Metadata": {
+        "aws:cdk:path": "ApadanaMemoryDBStack/MemoryDBUser"
+      }
+    },
+    "MemoryDBACL": {
+      "Type": "AWS::MemoryDB::ACL",
+      "Properties": {
+        "ACLName": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-acl-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        },
+        "UserNames": ["ap-mdb-user-development"]
+      },
+      "DependsOn": ["MemoryDBUser"],
+      "Metadata": {
+        "aws:cdk:path": "ApadanaMemoryDBStack/MemoryDBACL"
+      }
+    },
+    "ApadanaMemoryDB": {
+      "Type": "AWS::MemoryDB::Cluster",
+      "Properties": {
+        "ACLName": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-acl-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        },
+        "ClusterName": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        },
+        "EngineVersion": "7.0",
+        "KmsKeyId": {
+          "Fn::GetAtt": ["MemoryDBKeyEF4D873D", "Arn"]
+        },
+        "MaintenanceWindow": "sun:03:00-sun:04:00",
+        "NodeType": "db.t4g.small",
+        "NumReplicasPerShard": 1,
+        "NumShards": 1,
+        "Port": 6379,
+        "SecurityGroupIds": [
+          {
+            "Fn::ImportValue": "ApadanaNetworkStack:ExportsOutputFnGetAttMemoryDBSecurityGroup1731B106GroupIdF77124E4"
+          }
+        ],
+        "SnapshotRetentionLimit": 7,
+        "SnapshotWindow": "02:00-03:00",
+        "SubnetGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-subnet-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        },
+        "TLSEnabled": true,
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "development"
+          },
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "apadana-memorydb-",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  "-us-east-1-development"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Project",
+            "Value": "Apadana"
+          }
+        ]
+      },
+      "DependsOn": ["MemoryDBACL", "MemoryDBSubnetGroup"],
+      "Metadata": {
+        "aws:cdk:path": "ApadanaMemoryDBStack/ApadanaMemoryDB"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/z2KwQqDMBAFv8V73FZbaK/FQw8KBaXnEnUVq0kkm1Qk5N9LlPY084aXQnI5wTniC8VNO8bTUIOrDG9Gxhd6uVEQuBxXlnUyx9WzSfUErlD9XSs7h/xzzwQKpde2Bpd1srK1RPN/PQl14C0rArLJkkHtGWGj0ZDgkveowVXbDpfdvA/+sGa2Wy2RlNUNeiZVi/Cmwyc9QnKFJHrTMMTaSjMIhHLnF0gMivLgAAAA"
+      },
+      "Metadata": {
+        "aws:cdk:path": "ApadanaMemoryDBStack/CDKMetadata/Default"
+      }
+    }
+  },
+  "Outputs": {
+    "ClusterEndpoint": {
+      "Description": "MemoryDB Cluster Endpoint",
+      "Value": {
+        "Fn::GetAtt": ["ApadanaMemoryDB", "ClusterEndpoint.Address"]
+      },
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-endpoint-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        }
+      }
+    },
+    "ClusterPort": {
+      "Description": "MemoryDB Cluster Port",
+      "Value": "6379",
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-port-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        }
+      }
+    },
+    "MemoryDBUserName": {
+      "Description": "MemoryDB User Name",
+      "Value": "ap-mdb-user-development",
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-username-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        }
+      }
+    },
+    "MemoryDBSecretArn": {
+      "Description": "MemoryDB Secret ARN",
+      "Value": {
+        "Ref": "MemoryDBSecret679375BB"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-secret-arn-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        }
+      }
+    },
+    "LogGroupName": {
+      "Description": "CloudWatch Log Group for MemoryDB",
+      "Value": {
+        "Ref": "MemoryDBLogsE630A542"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              "apadana-memorydb-log-group-",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              "-us-east-1-development"
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  ["1", "2", "3", "4", "5"],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

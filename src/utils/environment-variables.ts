@@ -6,11 +6,15 @@ const schema = z.object({
   // Node Environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
+  // AWS
+  AWS_REGION: z.string().default('us-east-1'),
+
   // Google Maps
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string(),
 
   // Database
   DATABASE_URL: z.string().url(),
+  REDIS_URL: z.string(),
 
   // Next
   VERCEL_URL: z.string(),

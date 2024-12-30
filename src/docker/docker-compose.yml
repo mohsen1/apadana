@@ -68,8 +68,11 @@ services:
       - HOST=dev.apadana.local
       - NEXT_PUBLIC_TEST_ENV=e2e
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_dev}
+      - REDIS_URL=redis://redis:6379
     depends_on:
       db_dev:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     command: >
       sh -c "
@@ -117,8 +120,11 @@ services:
       - HOST=prod.apadana.local
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
       - NEXT_PUBLIC_TEST_ENV=e2e
+      - REDIS_URL=redis://redis:6379
     depends_on:
       db_prod:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - apadana_network
@@ -196,6 +202,22 @@ services:
     stop_signal: SIGINT
     stop_grace_period: 1m
 
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    expose:
+      - '6379'
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    networks:
+      - apadana_network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 networks:
   apadana_network:
     driver: bridge
@@ -207,3 +229,4 @@ volumes:
   postgres_data_dev:
   postgres_data_prod:
   buildx_cache:
+  redis_data:
