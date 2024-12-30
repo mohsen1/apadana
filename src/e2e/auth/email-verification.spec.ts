@@ -32,11 +32,12 @@ test.describe('Email Verification Process', () => {
 
     // 3. Check local inbox for new verification email
     await page.goto('/local-inbox');
+
     // expect Verify your email address to be visible
     const firstEmailRow = page.getByTestId('email-list-item').first();
-    await page.pause();
     await expect(firstEmailRow).toBeVisible();
     await expect(firstEmailRow.getByText('Verify your email address')).toBeVisible();
+
     // ensure it is for this user
     await expect(firstEmailRow.getByText(testUser.email)).toBeVisible();
   });
