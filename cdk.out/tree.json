@@ -997,18 +997,7 @@
             "attributes": {
               "aws:cdk:cloudformation:type": "AWS::MemoryDB::ACL",
               "aws:cdk:cloudformation:props": {
-                "aclName": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "apadana-memorydb-acl-",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      "-us-east-1-development"
-                    ]
-                  ]
-                },
+                "aclName": "ap-mdb-acl-development",
                 "userNames": ["ap-mdb-user-development"]
               }
             },
@@ -1023,18 +1012,7 @@
             "attributes": {
               "aws:cdk:cloudformation:type": "AWS::MemoryDB::Cluster",
               "aws:cdk:cloudformation:props": {
-                "aclName": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "apadana-memorydb-acl-",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      "-us-east-1-development"
-                    ]
-                  ]
-                },
+                "aclName": "ap-mdb-acl-development",
                 "clusterName": {
                   "Fn::Join": [
                     "",

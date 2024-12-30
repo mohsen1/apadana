@@ -153,18 +153,7 @@
     "MemoryDBACL": {
       "Type": "AWS::MemoryDB::ACL",
       "Properties": {
-        "ACLName": {
-          "Fn::Join": [
-            "",
-            [
-              "apadana-memorydb-acl-",
-              {
-                "Ref": "AWS::AccountId"
-              },
-              "-us-east-1-development"
-            ]
-          ]
-        },
+        "ACLName": "ap-mdb-acl-development",
         "UserNames": ["ap-mdb-user-development"]
       },
       "DependsOn": ["MemoryDBUser"],
@@ -175,18 +164,7 @@
     "ApadanaMemoryDB": {
       "Type": "AWS::MemoryDB::Cluster",
       "Properties": {
-        "ACLName": {
-          "Fn::Join": [
-            "",
-            [
-              "apadana-memorydb-acl-",
-              {
-                "Ref": "AWS::AccountId"
-              },
-              "-us-east-1-development"
-            ]
-          ]
-        },
+        "ACLName": "ap-mdb-acl-development",
         "ClusterName": {
           "Fn::Join": [
             "",

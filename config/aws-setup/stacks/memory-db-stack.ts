@@ -82,7 +82,7 @@ export class MemoryDBStack extends cdk.Stack {
 
     // Create ACL for MemoryDB
     const acl = new memorydb.CfnACL(this, 'MemoryDBACL', {
-      aclName: this.resourceName('memorydb-acl'),
+      aclName: this.shortResourceName('mdb-acl'),
       userNames: [user.userName],
     });
 
