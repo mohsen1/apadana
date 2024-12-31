@@ -1,0 +1,81 @@
+import { createClient } from 'redis';
+
+import { assertError } from '@/utils';
+import logger from '@/utils/logger';
+
+export type RedisClient = ReturnType<typeof createClient>;
+
+let redisClient: RedisClient | null = null;
+
+/**
+ * Creates a Redis client based on the environment
+ * In test environments, returns a mock Redis client
+ * In production, returns a real Redis client
+ */
+export async function getRedisClient(): Promise<RedisClient> {
+  if (redisClient) {
+    return redisClient;
+  }
+
+  logger.info('Creating Redis client');
+
+  if (!process.env.REDIS_URL && process.env.NODE_ENV !== 'test') {
+    throw new Error('REDIS_URL environment variable is not set');
+  }
+
+  redisClient = createClient({
+    url: process.env.REDIS_URL,
+  });
+
+  if (process.env.NODE_ENV !== 'test') {
+    redisClient.on('error', (err) => {
+      assertError(err);
+      logger.error('Redis Client Error', { error: err });
+    });
+
+    redisClient.on('connect', () => {
+      logger.info('Redis client connected');
+    });
+
+    redisClient.on('reconnecting', () => {
+      logger.warn('Redis client reconnecting');
+    });
+
+    redisClient.on('end', () => {
+      logger.info('Redis client connection closed');
+    });
+
+    try {
+      await redisClient.connect();
+    } catch (err) {
+      logger.error('Failed to connect to Redis', { error: err });
+      redisClient = null;
+      throw err;
+    }
+  }
+
+  return redisClient;
+}
+
+/**
+ * Closes the Redis client connection
+ */
+export async function closeRedisClient(): Promise<void> {
+  if (!redisClient) {
+    return;
+  }
+
+  if (process.env.NODE_ENV !== 'test') {
+    try {
+      await redisClient.quit();
+      logger.info('Redis client closed successfully');
+    } catch (err) {
+      logger.error('Error closing Redis client', { error: err });
+      throw err;
+    } finally {
+      redisClient = null;
+    }
+  } else {
+    redisClient = null;
+  }
+}

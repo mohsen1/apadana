@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { NextConfig } from 'next';
+import path from 'path';
 import type webpack from 'webpack';
 
 const nextConfig: NextConfig = {
@@ -8,9 +9,11 @@ const nextConfig: NextConfig = {
   logging: false,
   typescript: {
     ignoreBuildErrors: true,
+    tsconfigPath: path.resolve(process.cwd(), '.tsconfig.json'),
   },
   eslint: {
     ignoreDuringBuilds: true,
+    dirs: [],
   },
   publicRuntimeConfig: {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,

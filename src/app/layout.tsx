@@ -21,6 +21,10 @@ import { AuthProvider } from '@/contexts/auth-context';
 import { validateEnvironmentVariables } from '@/utils/environment-variables';
 
 import { fontHeading, fontSans, fontSubheading } from './fonts';
+
+// this is added intentionally to make the build fail
+// let unused = 1;
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {

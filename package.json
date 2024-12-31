@@ -23,7 +23,7 @@
     "prisma:generate": "prisma generate --schema=src/prisma/schema.prisma --no-hints",
     "prisma:watch": "pnpm prisma generate --schema=src/prisma/schema.prisma --watch",
     "prisma:migrate": "prisma migrate deploy --schema=src/prisma/schema.prisma",
-    "build": "prisma generate --schema=src/prisma/schema.prisma --no-hints && next build",
+    "build": "prisma generate --schema=src/prisma/schema.prisma --no-hints && NEXT_CONFIG_FILE=config/next.config.ts next build",
     "fix": "concurrently --color --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold\" 'pnpm lint --fix' 'pnpm format'",
     "lint": "eslint --config=config/eslint.config.mjs",
     "lint:strict": "eslint --max-warnings=0 --config=config/eslint.config.mjs",

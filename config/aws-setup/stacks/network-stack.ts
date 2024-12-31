@@ -23,7 +23,7 @@ export class NetworkStack extends cdk.Stack {
     super(scope, id, props);
 
     // Create VPC
-    this.vpc = new ec2.Vpc(this, 'ApadanaVPC', {
+    this.vpc = new ec2.Vpc(this, this.resourceName('vpc'), {
       maxAzs: 2,
       natGateways: 1,
       subnetConfiguration: [
@@ -41,7 +41,7 @@ export class NetworkStack extends cdk.Stack {
     });
 
     // Create security group for MemoryDB
-    this.memoryDbSG = new ec2.SecurityGroup(this, 'MemoryDBSecurityGroup', {
+    this.memoryDbSG = new ec2.SecurityGroup(this, this.resourceName('memorydb-sg'), {
       vpc: this.vpc,
       description: 'Security group for Apadana MemoryDB cluster',
       allowAllOutbound: true,
@@ -54,7 +54,7 @@ export class NetworkStack extends cdk.Stack {
     );
 
     // Create security group for RDS
-    this.rdsSG = new ec2.SecurityGroup(this, 'RDSSecurityGroup', {
+    this.rdsSG = new ec2.SecurityGroup(this, this.resourceName('rds-sg'), {
       vpc: this.vpc,
       description: 'Security group for Apadana RDS instance',
       allowAllOutbound: true,

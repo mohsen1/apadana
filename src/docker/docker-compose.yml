@@ -53,7 +53,7 @@ services:
       - ../../config:/app/config
       - ../../package.json:/app/package.json
       - ../../pnpm-lock.yaml:/app/pnpm-lock.yaml
-      - app_node_modules:/app/node_modules
+      - dev_node_modules:/app/node_modules
       - pnpm_store:/root/.pnpm-store
       - next_cache:/app/.next
     env_file:
@@ -126,6 +126,16 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    volumes:
+      - ../../src:/app/src
+      - ../../public:/app/public
+      - ../../prisma:/app/prisma
+      - ../../config:/app/config
+      - ../../package.json:/app/package.json
+      - ../../pnpm-lock.yaml:/app/pnpm-lock.yaml
+      - prod_node_modules:/app/node_modules
+      - prod_pnpm_store:/root/.pnpm-store
+      - prod_next_cache:/app/.next
     networks:
       - apadana_network
 
@@ -136,10 +146,6 @@ services:
       retries: 100
       start_period: 180s
       start_interval: 1s
-    command: >
-      sh -c "
-        pnpm next:start
-      "
 
   db_dev:
     container_name: db_dev
@@ -184,7 +190,7 @@ services:
 
   db_test:
     container_name: db_test
-    image: postgres:16
+    image: postgres:16.6
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -223,10 +229,13 @@ networks:
     driver: bridge
 
 volumes:
-  app_node_modules:
+  dev_node_modules:
   pnpm_store:
   next_cache:
   postgres_data_dev:
   postgres_data_prod:
   buildx_cache:
   redis_data:
+  prod_node_modules:
+  prod_pnpm_store:
+  prod_next_cache:
