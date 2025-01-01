@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
-import { createClient } from 'redis';
 
 import { E2E_TESTING_SECRET_HEADER } from '@/lib/auth/constants';
+import { getRedisClient } from '@/lib/redis/client';
 
 import { createLogger } from '@/utils/logger';
 
@@ -88,6 +88,7 @@ export class RateLimiter {
       return { remainingAttempts: this.#maxAttempts, msBeforeNextAttempt: 0, blocked: false };
     }
 
+    const redis = await getRedisClient();
     const key = await this.#createKey(identifier);
     const entryStr = await redis.get(key);
     const entry = entryStr ? (JSON.parse(entryStr) as RateLimitEntry) : null;
@@ -138,6 +139,7 @@ export class RateLimiter {
    * @param identifier - The rate limit identifier to increment
    */
   async increment(identifier: string): Promise<void> {
+    const redis = await getRedisClient();
     const key = await this.#createKey(identifier);
     const now = Date.now();
     const entryStr = await redis.get(key);
@@ -204,6 +206,7 @@ export class RateLimiter {
    * @param identifier - The rate limit identifier to reset
    */
   async reset(identifier: string): Promise<void> {
+    const redis = await getRedisClient();
     const key = await this.#createKey(identifier);
     logger.debug('Resetting rate limit', { identifier, key });
     await redis.del(key);
@@ -229,14 +232,4 @@ export const uploadRateLimiter = new RateLimiter({
   maxAttempts: 50,
   windowMs: 60 * 1000,
   blockDurationMs: 60 * 60 * 1000, // 1 hour block duration
-});
-
-// Create Redis client
-const redis = createClient({
-  url: process.env.REDIS_URL,
-});
-
-// Connect to Redis
-redis.connect().catch((err) => {
-  logger.error('Redis connection error:', err);
 });

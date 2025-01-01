@@ -3,6 +3,40 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { loginRateLimiter, signupRateLimiter } from '../rate-limiter';
 
+// Mock storage for Redis data
+const mockStorage = new Map<string, string>();
+
+// Mock Redis client
+vi.mock('@/lib/redis/client', () => ({
+  getRedisClient: vi.fn().mockResolvedValue({
+    get: vi.fn((key: string) => Promise.resolve(mockStorage.get(key))),
+    set: vi.fn((key: string, value: string) => {
+      mockStorage.set(key, value);
+      return Promise.resolve('OK');
+    }),
+    del: vi.fn((key: string) => {
+      mockStorage.delete(key);
+      return Promise.resolve(1);
+    }),
+    multi: vi.fn(() => ({
+      set: vi.fn(function (this: any, key: string, value: string) {
+        this.operations = this.operations || [];
+        this.operations.push(() => mockStorage.set(key, value));
+        return this;
+      }),
+      expire: vi.fn(function (this: any) {
+        return this;
+      }),
+      exec: vi.fn(function (this: any) {
+        if (this.operations) {
+          this.operations.forEach((op: () => void) => op());
+        }
+        return Promise.resolve(['OK', 'OK']);
+      }),
+    })),
+  }),
+}));
+
 vi.mock('next/headers', () => ({
   headers: vi.fn(() => Promise.resolve(new Headers({}))),
 }));
@@ -12,6 +46,7 @@ describe('Rate Limiters', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+    mockStorage.clear();
 
     vi.mocked(headers).mockResolvedValue(
       new Headers({
@@ -24,6 +59,7 @@ describe('Rate Limiters', () => {
   afterEach(() => {
     vi.clearAllMocks();
     vi.useRealTimers();
+    mockStorage.clear();
   });
 
   describe('Login Rate Limiter', () => {

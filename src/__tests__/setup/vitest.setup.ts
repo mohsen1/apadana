@@ -34,6 +34,27 @@ vi.mock('next/headers', () => ({
   }),
 }));
 
+// mock redis
+vi.mock('redis');
+
+// mock stderr
+vi.mock('@/utils/logger', () => ({
+  default: {
+    error: vi.fn(),
+    log: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+  },
+  createLogger: vi.fn().mockReturnValue({
+    error: vi.fn(),
+    log: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+  }),
+}));
+
 afterEach(() => {
   vi.clearAllMocks();
 });
