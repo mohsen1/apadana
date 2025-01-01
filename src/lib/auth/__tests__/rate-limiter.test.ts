@@ -222,6 +222,46 @@ describe('Rate Limiters', () => {
   });
 
   describe('Rate Limiter Bypass', () => {
+    it('should bypass rate limits with headers and env vars', async () => {
+      // Set up environment variable
+      process.env.E2E_TESTING_SECRET = 'my-test-secret';
+
+      // Set up headers with the secret
+      vi.mocked(headers).mockResolvedValue(
+        new Headers({
+          'x-forwarded-for': '1.2.3.4',
+          'x-real-ip': '5.6.7.8',
+          'x-e2e-testing-secret': 'my-test-secret',
+        }),
+      );
+
+      // Try many more attempts than normally allowed
+      for (let i = 0; i < 20; i++) {
+        // Test login limiter
+        const loginResult = await loginRateLimiter.check(testEmail);
+        expect(loginResult.blocked).toBe(false);
+        expect(loginResult.remainingAttempts).toBe(5); // Should always be max attempts
+        await loginRateLimiter.increment(testEmail);
+
+        // Test signup limiter
+        const signupResult = await signupRateLimiter.check(testEmail);
+        expect(signupResult.blocked).toBe(false);
+        expect(signupResult.remainingAttempts).toBe(3); // Should always be max attempts
+        await signupRateLimiter.increment(testEmail);
+      }
+
+      // Verify bypass still works after many attempts
+      const finalLoginResult = await loginRateLimiter.check(testEmail);
+      expect(finalLoginResult.blocked).toBe(false);
+      expect(finalLoginResult.remainingAttempts).toBe(5);
+      expect(finalLoginResult.msBeforeNextAttempt).toBe(0);
+
+      const finalSignupResult = await signupRateLimiter.check(testEmail);
+      expect(finalSignupResult.blocked).toBe(false);
+      expect(finalSignupResult.remainingAttempts).toBe(3);
+      expect(finalSignupResult.msBeforeNextAttempt).toBe(0);
+    });
+
     it('should bypass rate limits when E2E testing secret is provided', async () => {
       process.env.E2E_TESTING_SECRET = 'test-secret';
 

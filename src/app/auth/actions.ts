@@ -12,7 +12,14 @@ import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError, RateLimitedError } from '@/lib/safe-action';
-import { ClientUserSchema, LoginSchema, SignUpSchema, SuccessfulLoginSchema } from '@/lib/schema';
+import {
+  ClientUserSchema,
+  LoginSchema,
+  RequestPasswordResetSchema,
+  ResetPasswordSchema,
+  SignUpSchema,
+  SuccessfulLoginSchema,
+} from '@/lib/schema';
 
 import logger from '@/utils/logger';
 import { createPasswordResetUrl, createVerificationUrl } from '@/utils/url';
@@ -233,20 +240,8 @@ export const logOut = actionClient
     return { user: null };
   });
 
-const requestPasswordResetSchema = z.object({
-  email: z.string().email('Invalid email address'),
-});
-
-const resetPasswordSchema = z.object({
-  token: z.string().min(1, 'Reset token is required'),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .max(100, 'Password must be less than 100 characters'),
-});
-
 export const requestPasswordReset = actionClient
-  .schema(requestPasswordResetSchema)
+  .schema(RequestPasswordResetSchema)
   .action(async ({ parsedInput }) => {
     try {
       // Find user by email
@@ -304,7 +299,7 @@ export const requestPasswordReset = actionClient
   });
 
 export const resetPassword = actionClient
-  .schema(resetPasswordSchema)
+  .schema(ResetPasswordSchema)
   .action(async ({ parsedInput }) => {
     try {
       // Find valid reset token

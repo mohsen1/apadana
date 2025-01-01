@@ -103,31 +103,7 @@ export const SuccessfulLoginSchema = z.object({
   user: ClientUserSchema,
 });
 
-export const resetPasswordSchema = z
-  .object({
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
-
-export const ResetPasswordFormSchema = z
-  .object({
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
-
-export const UpdateUserSchema = UserSchema.partial().extend({
-  id: z.string(),
-});
-
-const DevPasswordSchema = z.string().min(1, 'Password is required');
+const DevPasswordSchema = z.string().min(1, 'Password must be at least 1 character');
 const ProdPasswordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters')
@@ -135,6 +111,29 @@ const ProdPasswordSchema = z
 
 export const PasswordSchema =
   process.env.NODE_ENV === 'development' ? DevPasswordSchema : ProdPasswordSchema;
+
+export const ResetPasswordFormSchema = z
+  .object({
+    password: PasswordSchema,
+    confirmPassword: PasswordSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
+export const RequestPasswordResetSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
+export const UpdateUserSchema = UserSchema.partial().extend({
+  id: z.string(),
+});
+
+export const ResetPasswordSchema = z.object({
+  token: z.string().min(1, 'Reset token is required'),
+  password: PasswordSchema,
+});
 //#endregion
 
 //#region Upload Schemas

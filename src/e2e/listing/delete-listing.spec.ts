@@ -4,7 +4,7 @@ import { expect, test } from '../base';
 
 test.describe.serial('Delete the listing', async () => {
   let currentListingId: string;
-  test.beforeAll(async ({ data, page }) => {
+  test('Create a listing', async ({ data, page }) => {
     const user = await data.login(prodE2eTestHostUser.email, page);
     const listing = await data.createListing({
       ...prodE2eTestListing_usa_1,
