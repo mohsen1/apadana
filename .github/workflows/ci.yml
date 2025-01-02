@@ -99,8 +99,6 @@ jobs:
     needs: [test]
     timeout-minutes: 20
     steps:
-      - name: Install gh
-        run: brew install gh
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
