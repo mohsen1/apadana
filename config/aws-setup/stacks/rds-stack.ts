@@ -15,11 +15,11 @@ export class RDSStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: RDSStackProps) {
     super(scope, id, props);
 
-    // Create RDS instance
     this.instance = new rds.DatabaseInstance(this, 'PostgresInstance', {
       engine: rds.DatabaseInstanceEngine.postgres({
         version: rds.PostgresEngineVersion.VER_15,
       }),
+      instanceIdentifier: `apadana-${props.environment}`,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
       vpc: props.vpc,
       vpcSubnets: {
@@ -37,14 +37,12 @@ export class RDSStack extends cdk.Stack {
       deletionProtection: props.environment === 'production',
     });
 
-    // Output database endpoint
     new cdk.CfnOutput(this, 'DatabaseEndpoint', {
       value: this.instance.instanceEndpoint.hostname,
       description: 'Database endpoint',
       exportName: `ApadanaDatabaseEndpoint-${props.environment}`,
     });
 
-    // Output secret ARN
     new cdk.CfnOutput(this, 'DatabaseSecretArn', {
       value: this.instance.secret?.secretArn || '',
       description: 'Database credentials secret ARN',

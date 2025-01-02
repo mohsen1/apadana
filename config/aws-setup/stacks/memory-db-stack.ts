@@ -1,10 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as kms from 'aws-cdk-lib/aws-kms';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as memorydb from 'aws-cdk-lib/aws-memorydb';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 import { SecurityConfig } from '../security-config';
@@ -21,15 +21,6 @@ interface MemoryDBStackProps extends cdk.StackProps {
 }
 
 export class MemoryDBStack extends cdk.Stack {
-  private resourceName(name: string): string {
-    return `apadana-${name}-${this.account}-${this.region}-${this.props.environment}`;
-  }
-
-  private shortResourceName(name: string): string {
-    // Create a shorter name format for resources with length limits
-    return `ap-${name}-${this.props.environment}`;
-  }
-
   constructor(
     scope: Construct,
     id: string,
@@ -66,14 +57,24 @@ export class MemoryDBStack extends cdk.Stack {
       }),
     );
 
-    // Import existing log group if it exists, otherwise create a new one
-    const logGroupName = this.resourceName('memorydb-logs');
-    const logGroup = logs.LogGroup.fromLogGroupName(this, 'MemoryDBLogs', logGroupName);
+    // Create log group (or import if it exists)
+    const logGroupName = `apadana-memorydb-logs-${props.environment}-${this.account}-${this.region}`;
+    let logGroup: logs.ILogGroup;
+    try {
+      logGroup = logs.LogGroup.fromLogGroupName(this, 'MemoryDBLogs', logGroupName);
+    } catch {
+      logGroup = new logs.LogGroup(this, 'MemoryDBLogsGroup', {
+        logGroupName,
+        retention: logs.RetentionDays.ONE_MONTH,
+        removalPolicy:
+          props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+      });
+    }
 
     // Create subnet group for MemoryDB
     const subnetGroup = new memorydb.CfnSubnetGroup(this, 'MemoryDBSubnetGroup', {
       subnetIds: props.vpc.privateSubnets.map((subnet) => subnet.subnetId),
-      subnetGroupName: this.resourceName('memorydb-subnet'),
+      subnetGroupName: `apadana-memorydb-subnet-${props.environment}`,
     });
     subnetGroup.cfnOptions.deletionPolicy =
       props.environment === 'production'
@@ -83,7 +84,7 @@ export class MemoryDBStack extends cdk.Stack {
     // Create secret for MemoryDB user password
     const secret = new secretsmanager.Secret(this, 'MemoryDBSecret', {
       description: `MemoryDB user password for ${props.environment}`,
-      secretName: this.resourceName('memorydb-secret'),
+      secretName: `apadana-memorydb-secret-${props.environment}`,
       generateSecretString: {
         excludePunctuation: true,
         includeSpace: false,
@@ -96,7 +97,7 @@ export class MemoryDBStack extends cdk.Stack {
 
     // Create user for MemoryDB with restricted permissions
     const user = new memorydb.CfnUser(this, 'MemoryDBUser', {
-      userName: this.shortResourceName('mdb-user'),
+      userName: `apadana-mdb-user-${props.environment}`,
       accessString: SecurityConfig.memoryDb.accessString,
       authenticationMode: {
         Type: 'password',
@@ -110,7 +111,7 @@ export class MemoryDBStack extends cdk.Stack {
 
     // Create ACL for MemoryDB
     const acl = new memorydb.CfnACL(this, 'MemoryDBACL', {
-      aclName: this.shortResourceName('mdb-acl'),
+      aclName: `apadana-mdb-acl-${props.environment}`,
       userNames: [user.userName],
     });
     acl.cfnOptions.deletionPolicy =
@@ -122,7 +123,7 @@ export class MemoryDBStack extends cdk.Stack {
 
     // Create MemoryDB cluster with security configurations
     const memoryDbCluster = new memorydb.CfnCluster(this, 'ApadanaMemoryDB', {
-      clusterName: this.shortResourceName('memorydb'),
+      clusterName: `apadana-${props.environment}`,
       nodeType: props.nodeType || 'db.t4g.small',
       numShards: props.numShards || 1,
       numReplicasPerShard: props.numReplicasPerShard || 1,
@@ -137,7 +138,7 @@ export class MemoryDBStack extends cdk.Stack {
       snapshotRetentionLimit: SecurityConfig.memoryDb.backup.retentionDays,
       maintenanceWindow: SecurityConfig.memoryDb.backup.preferredMaintenanceWindow,
       tags: [
-        { key: 'Name', value: this.resourceName('memorydb') },
+        { key: 'Name', value: `apadana-memorydb-${props.environment}` },
         { key: 'Project', value: 'Apadana' },
         { key: 'Environment', value: props.environment },
       ],
@@ -147,40 +148,38 @@ export class MemoryDBStack extends cdk.Stack {
         ? cdk.CfnDeletionPolicy.RETAIN
         : cdk.CfnDeletionPolicy.DELETE;
 
-    // Add dependencies
     memoryDbCluster.addDependency(subnetGroup);
     memoryDbCluster.addDependency(acl);
 
-    // Output the cluster endpoint
+    // Outputs
     new cdk.CfnOutput(this, 'ClusterEndpoint', {
       value: memoryDbCluster.attrClusterEndpointAddress,
       description: 'MemoryDB Cluster Endpoint',
-      exportName: this.resourceName('memorydb-endpoint'),
+      exportName: `apadana-memorydb-endpoint-${props.environment}`,
     });
 
     new cdk.CfnOutput(this, 'ClusterPort', {
       value: memoryDbCluster.port?.toString() || '6379',
       description: 'MemoryDB Cluster Port',
-      exportName: this.resourceName('memorydb-port'),
+      exportName: `apadana-memorydb-port-${props.environment}`,
     });
 
     new cdk.CfnOutput(this, 'MemoryDBUserName', {
       value: user.userName,
       description: 'MemoryDB User Name',
-      exportName: this.resourceName('memorydb-username'),
+      exportName: `apadana-memorydb-username-${props.environment}`,
     });
 
     new cdk.CfnOutput(this, 'MemoryDBSecretArn', {
       value: secret.secretArn,
       description: 'MemoryDB Secret ARN',
-      exportName: this.resourceName('memorydb-secret-arn'),
+      exportName: `apadana-memorydb-secret-arn-${props.environment}`,
     });
 
-    // Output log group name for manual configuration
     new cdk.CfnOutput(this, 'LogGroupName', {
       value: logGroup.logGroupName,
       description: 'CloudWatch Log Group for MemoryDB',
-      exportName: this.resourceName('memorydb-log-group'),
+      exportName: `apadana-memorydb-log-group-${props.environment}`,
     });
   }
 }

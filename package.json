@@ -60,7 +60,8 @@
     "cdk:diff": "cdk diff --app 'tsx config/aws-setup/cdk.ts'",
     "cdk:synth": "cdk synth --app 'tsx config/aws-setup/cdk.ts'",
     "aws:env": "tsx config/aws-setup/get-config.ts",
-    "aws:env:prod": "tsx config/aws-setup/get-config.ts"
+    "aws:env:prod": "tsx config/aws-setup/get-config.ts",
+    "aws:deployer:create": "tsx config/aws-setup/scripts/create-deployer.ts"
   },
   "dependencies": {
     "@adobe/react-spectrum": "^3.38.1",
@@ -198,7 +199,9 @@
     "tsx": "^4.19.2",
     "typescript": "~5.7.2",
     "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "@aws-sdk/client-iam": "^3.485.0",
+    "@aws-sdk/credential-provider-ini": "^3.485.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx},!src/prisma/zod/**": [

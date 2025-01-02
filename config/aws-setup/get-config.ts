@@ -1,27 +1,118 @@
 #!/usr/bin/env node
-import { RDSClient, DescribeDBInstancesCommand } from '@aws-sdk/client-rds';
-import { MemoryDBClient, DescribeClustersCommand } from '@aws-sdk/client-memorydb';
-import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3';
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+import { IAM } from '@aws-sdk/client-iam';
+import { DescribeClustersCommand, MemoryDBClient } from '@aws-sdk/client-memorydb';
+import { DescribeDBInstancesCommand, RDSClient } from '@aws-sdk/client-rds';
+import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import {
-  SecretsManagerClient,
-  GetSecretValueCommand,
   CreateSecretCommand,
+  GetSecretValueCommand,
   ResourceNotFoundException,
+  SecretsManagerClient,
 } from '@aws-sdk/client-secrets-manager';
 import { randomBytes } from 'crypto';
 import { config } from 'dotenv';
 
+import { assertError } from '@/utils';
+
 // Load environment variables
-config({ path: '.env.local' });
+config({ path: process.env.NODE_ENV === 'production' ? '.env' : '.env.local' });
 
 // Get environment from Vercel or fallback to development
 const environment = process.env.VERCEL_ENV || 'development';
 const region = process.env.AWS_REGION || 'us-east-1';
 
-const rdsClient = new RDSClient({ region });
-const memoryDbClient = new MemoryDBClient({ region });
-const s3Client = new S3Client({ region });
-const secretsClient = new SecretsManagerClient({ region });
+// AWS clients with explicit credentials
+const credentials = {
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+};
+
+if (!credentials.accessKeyId || !credentials.secretAccessKey) {
+  console.error('AWS credentials not found in environment variables.');
+  console.error('Run pnpm aws:deployer:create first and add the credentials to .env.local');
+  process.exit(1);
+}
+
+// Check required permissions before proceeding
+async function checkPermissions() {
+  const iam = new IAM({ region, credentials });
+  const requiredServices = [
+    'rds:*',
+    'ec2:*',
+    's3:*',
+    'elasticache:*',
+    'memorydb:*',
+    'secretsmanager:*',
+    'cloudformation:*',
+    'iam:PassRole',
+    'iam:GetRole',
+    'iam:ListRoles',
+    'logs:*',
+    'kms:*',
+    'route53:*',
+    'acm:*',
+    'ecs:*',
+    'ecr:*',
+    'ssm:*',
+    'vpc:*',
+    'elasticloadbalancing:*',
+  ];
+
+  try {
+    const { User } = await iam.getUser({});
+    if (!User?.Arn) throw new Error('Failed to get user info');
+
+    const { PolicyNames } = await iam.listUserPolicies({ UserName: User.UserName });
+    if (!PolicyNames?.includes('ApadanaDeployerInlinePolicy')) {
+      console.error('AWS credentials do not have the required inline policy.');
+      console.error('Run pnpm aws:deployer:create to create a user with correct permissions.');
+      process.exit(1);
+    }
+
+    await iam.listAttachedUserPolicies({ UserName: User.UserName });
+    const policy = await iam.getUserPolicy({
+      UserName: User.UserName,
+      PolicyName: 'ApadanaDeployerInlinePolicy',
+    });
+
+    if (!policy.PolicyDocument) {
+      console.error('Could not verify AWS permissions.');
+      console.error('Run pnpm aws:deployer:create to create a user with correct permissions.');
+      process.exit(1);
+    }
+
+    const policyDoc = JSON.parse(decodeURIComponent(policy.PolicyDocument));
+    const hasAllPermissions = requiredServices.every((permission) => {
+      return policyDoc.Statement.some(
+        (statement: any) => statement.Effect === 'Allow' && statement.Action.includes(permission),
+      );
+    });
+
+    if (!hasAllPermissions) {
+      console.error('AWS credentials do not have all required permissions.');
+      console.error('Required permissions:');
+      console.error(requiredServices.join('\n'));
+      console.error('\nRun pnpm aws:deployer:create to create a user with correct permissions.');
+      process.exit(1);
+    }
+  } catch (error) {
+    assertError(error);
+    console.error('Failed to verify AWS permissions:', error);
+    console.error('Run pnpm aws:deployer:create to create a user with correct permissions.');
+    process.exit(1);
+  }
+}
+
+const rdsClient = new RDSClient({ region, credentials });
+const memoryDbClient = new MemoryDBClient({ region, credentials });
+const s3Client = new S3Client({ region, credentials });
+const secretsClient = new SecretsManagerClient({ region, credentials });
 
 async function getOrCreateDBPassword(): Promise<string> {
   const secretName = `apadana-${environment}-db-password`;
@@ -31,6 +122,7 @@ async function getOrCreateDBPassword(): Promise<string> {
     const response = await secretsClient.send(new GetSecretValueCommand({ SecretId: secretName }));
     return response.SecretString || '';
   } catch (error) {
+    assertError(error);
     if (error instanceof ResourceNotFoundException) {
       // Generate a new password if secret doesn't exist
       const password = randomBytes(32)
@@ -55,15 +147,19 @@ async function getConfigurations() {
   let DATABASE_URL = '';
   let REDIS_URL = '';
   let S3_BUCKET = '';
-  let DB_PASSWORD = '';
   let warnings: string[] = [];
+  let databasePassword = '';
 
   try {
     // Get or create DB password
     try {
-      DB_PASSWORD = await getOrCreateDBPassword();
+      databasePassword = await getOrCreateDBPassword();
     } catch (error) {
-      warnings.push('⚠️ Failed to get/create DB password. Check AWS Secrets Manager access.');
+      assertError(error);
+      warnings.push(
+        '⚠️ Failed to get/create DB password. Check AWS Secrets Manager access.',
+        '⚠️ This is likely due to a permissions issue with the deployer user.',
+      );
     }
 
     // Get RDS endpoint
@@ -75,9 +171,10 @@ async function getConfigurations() {
       );
       const dbEndpoint = rdsResponse.DBInstances?.[0]?.Endpoint;
       DATABASE_URL = dbEndpoint
-        ? `postgresql://postgres:${DB_PASSWORD}@${dbEndpoint.Address}:${dbEndpoint.Port}/apadana`
+        ? `postgresql://postgres:${databasePassword}@${dbEndpoint.Address}:${dbEndpoint.Port}/apadana`
         : '';
     } catch (error) {
+      assertError(error);
       warnings.push(
         `⚠️ RDS instance 'apadana-${environment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
       );
@@ -93,8 +190,8 @@ async function getConfigurations() {
       const clusterEndpoint = memoryDbResponse.Clusters?.[0]?.ClusterEndpoint;
       REDIS_URL = clusterEndpoint
         ? `redis://${clusterEndpoint.Address}:${clusterEndpoint.Port}`
-        : '';
-    } catch (error) {
+        : 'redis://localhost:6379';
+    } catch {
       warnings.push(
         `⚠️ MemoryDB cluster 'apadana-${environment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
       );
@@ -110,8 +207,9 @@ async function getConfigurations() {
         warnings.push(
           `⚠️ S3 bucket 'apadana-uploads-${environment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
         );
+        S3_BUCKET = `apadana-uploads-${environment}`;
       }
-    } catch (error) {
+    } catch {
       warnings.push('⚠️ Error accessing S3. Check your AWS credentials.');
     }
 
@@ -123,14 +221,15 @@ async function getConfigurations() {
       ...warnings.map((w) => `# ${w}`),
       '',
       `AWS_REGION="${region}"`,
+      `AWS_ACCESS_KEY_ID="${credentials.accessKeyId}"`,
+      `AWS_SECRET_ACCESS_KEY="${credentials.secretAccessKey}"`,
       `DATABASE_URL="${DATABASE_URL}"`,
-      `DB_PASSWORD="${DB_PASSWORD}"`,
       `REDIS_URL="${REDIS_URL}"`,
       `S3_BUCKET="${S3_BUCKET}"`,
       `NEXT_PUBLIC_S3_UPLOAD_BUCKET="${S3_BUCKET}"`,
       `NEXT_PUBLIC_S3_UPLOAD_REGION="${region}"`,
-      `S3_UPLOAD_KEY="${process.env.AWS_ACCESS_KEY_ID || ''}"`,
-      `S3_UPLOAD_SECRET="${process.env.AWS_SECRET_ACCESS_KEY || ''}"`,
+      `S3_UPLOAD_KEY="${credentials.accessKeyId}"`,
+      `S3_UPLOAD_SECRET="${credentials.secretAccessKey}"`,
       '',
     ].join('\n');
 
@@ -142,4 +241,9 @@ async function getConfigurations() {
   }
 }
 
-getConfigurations();
+async function main() {
+  await checkPermissions();
+  await getConfigurations();
+}
+
+main().catch(console.error);
