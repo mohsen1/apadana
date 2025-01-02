@@ -1,25 +1,51 @@
-#! /bin/bash
+#!/bin/bash
+set -e
 
-# Build for production. This script assumes all of the environment variables are set.
-# for build process to work, the following commands must be run
+echo "🚀 Starting Vercel build process..."
 
-# if The following environment variable is not set, exit
-variables=(
-  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-  RESEND_API_KEY
-  NEXT_PUBLIC_S3_UPLOAD_BUCKET
-  NEXT_PUBLIC_S3_UPLOAD_REGION
-  S3_UPLOAD_KEY
-  S3_UPLOAD_SECRET
+# Check for required environment variables
+if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+  echo "❌ Error: Required AWS credentials not set"
+  exit 1
+fi
+
+# Deploy AWS resources
+echo "📦 Deploying AWS resources..."
+STACK_TYPE=resources pnpm cdk deploy --all --require-approval never --app 'tsx config/aws-setup/cdk.ts' || {
+  echo "❌ Failed to deploy AWS resources"
+  exit 1
+}
+
+echo "🔑 Fetching AWS configuration..."
+pnpm --silent aws:env >.env.production || {
+  echo "❌ Failed to fetch AWS configuration"
+  exit 1
+}
+
+# Verify that we got the required values
+required_vars=(
+  "DATABASE_URL"
+  "DB_PASSWORD"
+  "REDIS_URL"
+  "S3_BUCKET"
+  "NEXT_PUBLIC_S3_UPLOAD_BUCKET"
+  "NEXT_PUBLIC_S3_UPLOAD_REGION"
+  "S3_UPLOAD_KEY"
+  "S3_UPLOAD_SECRET"
 )
 
-for variable in "${variables[@]}"; do
-  if [ -z "${!variable}" ]; then
-    echo "$variable is not set"
+for var in "${required_vars[@]}"; do
+  if ! grep -q "^${var}=" $ENV_FILE; then
+    echo "❌ Error: Missing required configuration value: ${var}"
+    echo "content of $ENV_FILE:\n$(cat $ENV_FILE)"
     exit 1
   fi
 done
 
-pnpm prisma generate --no-hints --schema=src/prisma/schema.prisma
-pnpm prisma migrate deploy --schema=src/prisma/schema.prisma
-pnpm next build
+# Copy the environment file to .env.production for Next.js build
+cp $ENV_FILE .env.production
+
+echo "🏗️ Building Next.js application..."
+pnpm build
+
+echo "✅ Build process completed successfully"

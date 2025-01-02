@@ -4,6 +4,7 @@ import * as kms from 'aws-cdk-lib/aws-kms';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as memorydb from 'aws-cdk-lib/aws-memorydb';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 import { SecurityConfig } from '../security-config';
@@ -40,23 +41,44 @@ export class MemoryDBStack extends cdk.Stack {
     const key = new kms.Key(this, 'MemoryDBKey', {
       enableKeyRotation: SecurityConfig.memoryDb.encryption.kmsKeyRotation,
       description: `KMS key for MemoryDB encryption - ${props.environment}`,
+      removalPolicy:
+        props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
 
-    // Create CloudWatch log group for future use
-    // Note: Currently, CDK doesn't support direct log delivery configuration
-    // This log group is created for future manual configuration
-    const logGroup = new logs.LogGroup(this, 'MemoryDBLogs', {
-      logGroupName: this.resourceName('memorydb-logs'),
-      retention: 30, // 30 days
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      encryptionKey: key,
-    });
+    // Add CloudWatch Logs service principal to KMS key policy
+    key.addToResourcePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        principals: [new iam.ServicePrincipal('logs.amazonaws.com')],
+        actions: [
+          'kms:Encrypt*',
+          'kms:Decrypt*',
+          'kms:ReEncrypt*',
+          'kms:GenerateDataKey*',
+          'kms:Describe*',
+        ],
+        resources: ['*'],
+        conditions: {
+          ArnLike: {
+            'kms:EncryptionContext:aws:logs:arn': `arn:aws:logs:${this.region}:${this.account}:*`,
+          },
+        },
+      }),
+    );
+
+    // Import existing log group if it exists, otherwise create a new one
+    const logGroupName = this.resourceName('memorydb-logs');
+    const logGroup = logs.LogGroup.fromLogGroupName(this, 'MemoryDBLogs', logGroupName);
 
     // Create subnet group for MemoryDB
     const subnetGroup = new memorydb.CfnSubnetGroup(this, 'MemoryDBSubnetGroup', {
       subnetIds: props.vpc.privateSubnets.map((subnet) => subnet.subnetId),
       subnetGroupName: this.resourceName('memorydb-subnet'),
     });
+    subnetGroup.cfnOptions.deletionPolicy =
+      props.environment === 'production'
+        ? cdk.CfnDeletionPolicy.RETAIN
+        : cdk.CfnDeletionPolicy.DELETE;
 
     // Create secret for MemoryDB user password
     const secret = new secretsmanager.Secret(this, 'MemoryDBSecret', {
@@ -68,6 +90,8 @@ export class MemoryDBStack extends cdk.Stack {
         passwordLength: 32,
         excludeCharacters: ' %+~`#$&*()|[]{}:;<>?!\'/@"\\',
       },
+      removalPolicy:
+        props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
 
     // Create user for MemoryDB with restricted permissions
@@ -79,18 +103,26 @@ export class MemoryDBStack extends cdk.Stack {
         Passwords: [secret.secretValue.toString()],
       },
     });
+    user.cfnOptions.deletionPolicy =
+      props.environment === 'production'
+        ? cdk.CfnDeletionPolicy.RETAIN
+        : cdk.CfnDeletionPolicy.DELETE;
 
     // Create ACL for MemoryDB
     const acl = new memorydb.CfnACL(this, 'MemoryDBACL', {
       aclName: this.shortResourceName('mdb-acl'),
       userNames: [user.userName],
     });
+    acl.cfnOptions.deletionPolicy =
+      props.environment === 'production'
+        ? cdk.CfnDeletionPolicy.RETAIN
+        : cdk.CfnDeletionPolicy.DELETE;
 
     acl.addDependency(user);
 
     // Create MemoryDB cluster with security configurations
     const memoryDbCluster = new memorydb.CfnCluster(this, 'ApadanaMemoryDB', {
-      clusterName: this.resourceName('memorydb'),
+      clusterName: this.shortResourceName('memorydb'),
       nodeType: props.nodeType || 'db.t4g.small',
       numShards: props.numShards || 1,
       numReplicasPerShard: props.numReplicasPerShard || 1,
@@ -110,6 +142,10 @@ export class MemoryDBStack extends cdk.Stack {
         { key: 'Environment', value: props.environment },
       ],
     });
+    memoryDbCluster.cfnOptions.deletionPolicy =
+      props.environment === 'production'
+        ? cdk.CfnDeletionPolicy.RETAIN
+        : cdk.CfnDeletionPolicy.DELETE;
 
     // Add dependencies
     memoryDbCluster.addDependency(subnetGroup);

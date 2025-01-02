@@ -36,8 +36,8 @@ export const getUploadSignedUrl = actionClient
     const s3Client = new S3Client({
       region: process.env.NEXT_PUBLIC_S3_UPLOAD_REGION,
       credentials: {
-        accessKeyId: process.env.S3_UPLOAD_KEY,
-        secretAccessKey: process.env.S3_UPLOAD_SECRET,
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
       },
     });
     try {

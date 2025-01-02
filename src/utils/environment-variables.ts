@@ -22,8 +22,8 @@ const schema = z.object({
   // S3 Upload
   NEXT_PUBLIC_S3_UPLOAD_BUCKET: z.string(),
   NEXT_PUBLIC_S3_UPLOAD_REGION: z.string(),
-  S3_UPLOAD_KEY: z.string(),
-  S3_UPLOAD_SECRET: z.string(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
 
   // 3rd Party
   RESEND_API_KEY: z.string(),

@@ -13,30 +13,71 @@ export class S3Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: S3StackProps) {
     super(scope, id, props);
 
-    // Import the existing uploads bucket
-    this.uploadsBucket = s3.Bucket.fromBucketAttributes(this, 'UploadsBucket', {
-      bucketName: `apadana-uploads-${props.environment}`,
-      bucketArn: `arn:aws:s3:::apadana-uploads-${props.environment}`,
+    // Create the uploads bucket with environment-specific name
+    const bucketName =
+      props.environment === 'preview'
+        ? `apadana-uploads-preview-${process.env.VERCEL_GIT_COMMIT_SHA || 'default'}`
+        : `apadana-uploads-${props.environment}`;
+
+    this.uploadsBucket = new s3.Bucket(this, 'UploadsBucket', {
+      bucketName,
+      publicReadAccess: true,
+      blockPublicAccess: new s3.BlockPublicAccess({
+        blockPublicAcls: false,
+        blockPublicPolicy: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false,
+      }),
+      // Use DESTROY for preview environments, RETAIN for others
+      removalPolicy:
+        props.environment === 'preview' ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+      // Enable auto-delete for preview environments
+      autoDeleteObjects: props.environment === 'preview',
+      versioned: true,
+      cors: [
+        {
+          allowedHeaders: ['*'],
+          allowedMethods: [
+            s3.HttpMethods.GET,
+            s3.HttpMethods.PUT,
+            s3.HttpMethods.POST,
+            s3.HttpMethods.DELETE,
+            s3.HttpMethods.HEAD,
+          ],
+          allowedOrigins: ['*'],
+          exposedHeaders: ['ETag'],
+          maxAge: 3000,
+        },
+      ],
+      lifecycleRules:
+        props.environment === 'preview'
+          ? [
+              {
+                // Delete objects after 1 day in preview environments
+                expiration: cdk.Duration.days(1),
+              },
+            ]
+          : undefined,
     });
 
-    // Add bucket policy
+    // Add bucket policy for public access
     const bucketPolicy = new s3.BucketPolicy(this, 'UploadsBucketPolicy', {
       bucket: this.uploadsBucket,
     });
 
     bucketPolicy.document.addStatements(
       new iam.PolicyStatement({
-        sid: 'Statement1',
+        sid: 'PublicRead',
         effect: iam.Effect.ALLOW,
         principals: [new iam.AnyPrincipal()],
         actions: ['s3:GetObject'],
         resources: [this.uploadsBucket.arnForObjects('*')],
       }),
       new iam.PolicyStatement({
-        sid: 'Statement2',
+        sid: 'AllowUpload',
         effect: iam.Effect.ALLOW,
         principals: [new iam.AnyPrincipal()],
-        actions: ['s3:PutObject', 's3:GetObject'],
+        actions: ['s3:PutObject', 's3:DeleteObject'],
         resources: [this.uploadsBucket.arnForObjects('*')],
       }),
     );
