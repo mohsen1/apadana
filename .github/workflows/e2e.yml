@@ -79,6 +79,7 @@ jobs:
           test-name: 'E2E Tests'
           test-outcome: ${{ steps.test-run.outcome }}
           report-url: ${{ steps.process-url.outputs.report_url }}
+          private-key: ${{ secrets.APADANA_AUTOMATION_GITHUB_APP_PRIVATE_KEY }}
 
       - name: Update PR Comment for E2E
         if: always() && steps.find-pr.outputs.pr_number
