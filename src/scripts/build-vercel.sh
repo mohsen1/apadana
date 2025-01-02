@@ -18,6 +18,7 @@ if ! output=$(pnpm --silent aws:env 2>&1); then
   echo "Failed to fetch AWS configuration: $output"
   exit 1
 fi
+echo "output: $output" # TODO: remove this
 echo "$output" >.env.production
 
 echo "Building Next.js application..."
