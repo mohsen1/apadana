@@ -1,5 +1,6 @@
-import { expect, test } from '../base';
+import { assertURL } from '@/utils/url';
 
+import { expect, test } from '../base';
 test.describe('Email Verification Process', () => {
   const testUser = {
     firstName: 'Test',
@@ -14,11 +15,10 @@ test.describe('Email Verification Process', () => {
   });
 
   test('resend verification email appears in inbox', async ({ page, data, baseURL }) => {
+    assertURL(baseURL);
+    const url = new URL(baseURL);
     // Skip this test when testing against production since we do not have local inbox in prod
-    test.skip(
-      !!baseURL?.toLowerCase().includes('https://www.apadana.app'),
-      'Skipping test for production',
-    );
+    test.skip(url.hostname.toLowerCase().includes('apadana.app'), 'Skipping test for production');
 
     // 1. Create new account
     await data.createUser(testUser.email, testUser.password);
@@ -31,11 +31,12 @@ test.describe('Email Verification Process', () => {
 
     // 3. Check local inbox for new verification email
     await page.goto('/local-inbox');
+
     // expect Verify your email address to be visible
     const firstEmailRow = page.getByTestId('email-list-item').first();
-    await page.pause();
     await expect(firstEmailRow).toBeVisible();
     await expect(firstEmailRow.getByText('Verify your email address')).toBeVisible();
+
     // ensure it is for this user
     await expect(firstEmailRow.getByText(testUser.email)).toBeVisible();
   });

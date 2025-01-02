@@ -11,6 +11,9 @@ import { z } from 'zod';
 
 dotenv.config();
 
+// eslint-disable-next-line no-console
+console.log('BASE_URL', process.env.BASE_URL);
+
 // Validate environment variables. Run only once to avoid running the validation
 // on every test run.
 _.memoize(() => {
