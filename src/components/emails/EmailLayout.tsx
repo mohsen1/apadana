@@ -2,6 +2,7 @@ import {
   Body,
   Column,
   Container,
+  Font,
   Head,
   Html,
   Img,
@@ -32,22 +33,33 @@ interface EmailLayoutProps {
 
 export const EmailLayout: React.FC<EmailLayoutProps> = ({ preview, children }) => (
   <Html>
-    <Head />
+    <Head>
+      <Font
+        fontFamily='Helvetica'
+        fallbackFontFamily='sans-serif'
+        webFont={{
+          url: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2',
+          format: 'woff2',
+        }}
+      />
+    </Head>
     <Preview>{preview}</Preview>
     <Body className='bg-background font-sans'>
       <Container className='mx-auto mb-1 py-5'>
         {/* Header */}
-        <Section className='border-border border-b px-10 py-8'>
-          <ColorSchemeAwareImg
-            src={LOGO_WIDE_WHITE_BG}
-            src2x={LOGO_WIDE_WHITE_BG}
-            darkSrc={LOGO_WIDE_BLACK_BG}
-            darkSrc2x={LOGO_WIDE_BLACK_BG}
-            alt='Apadana'
-            width={400}
-            height={80}
-            className='mx-auto'
-          />
+        <Section className='px-10 py-8'>
+          <Container className='mx-auto mb-4 text-center'>
+            <ColorSchemeAwareImg
+              src={LOGO_WIDE_WHITE_BG}
+              src2x={LOGO_WIDE_WHITE_BG}
+              darkSrc={LOGO_WIDE_BLACK_BG}
+              darkSrc2x={LOGO_WIDE_BLACK_BG}
+              alt='Apadana'
+              width={400}
+              height={80}
+              className='mx-auto mb-4'
+            />
+          </Container>
         </Section>
 
         {/* Main Content */}
