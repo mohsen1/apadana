@@ -23,17 +23,16 @@ runs:
   steps:
     - name: Create or Update Check with Report URL
       uses: actions/github-script@v7
+      env:
+        PRIVATE_KEY: ${{ inputs.private-key }}
       with:
         script: |
           const { createAppAuth } = require('@octokit/auth-app');
           const { Octokit } = require('@octokit/rest');
 
-          // Process private key - replace literal '\n' with actual newlines
-          const privateKey = '${{ inputs.private-key }}'.replace(/\\n/g, '\n');
-
           const auth = createAppAuth({
             appId: '${{ inputs.app-id }}',
-            privateKey: privateKey,
+            privateKey: process.env.PRIVATE_KEY,
             installationId: context.payload.installation?.id
           });
 
