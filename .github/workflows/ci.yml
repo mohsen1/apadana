@@ -162,7 +162,8 @@ jobs:
           test-name: 'Storybook'
           test-outcome: ${{ steps.test-run.outcome }}
           report-url: ${{ steps.process-storybook-url.outputs.report_url }}
-          github-token: ${{ github.token }}
+          app-id: '1100607'
+          private-key: ${{ secrets.APADANA_AUTOMATION_GITHUB_APP_PRIVATE_KEY }}
 
       - name: Update PR Comment for Storybook
         if: always() && steps.find-pr.outputs.pr_number != ''
