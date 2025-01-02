@@ -3,6 +3,8 @@ import { Suspense } from 'react';
 
 import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
 
+import { createPasswordResetUrl } from '@/utils/url';
+
 import { PasswordResetEmail } from './PasswordResetEmail';
 
 const meta: Meta<typeof PasswordResetEmail> = {
@@ -24,14 +26,16 @@ type Story = StoryObj<typeof PasswordResetEmail>;
 export const Default: Story = {
   name: 'Default',
   args: {
-    resetLink: 'https://apadana.app/reset-password?token=example-token',
+    resetLink: createPasswordResetUrl('example-token', 'user@example.com'),
   },
 };
 
-export const LongLink: Story = {
-  name: 'Long Link',
+export const LongToken: Story = {
+  name: 'Long Token',
   args: {
-    resetLink:
-      'https://apadana.app/reset-password?token=very-long-token-string-for-testing-overflow-behavior-12345',
+    resetLink: createPasswordResetUrl(
+      'very-long-token-string-for-testing-overflow-behavior-12345',
+      'user@example.com',
+    ),
   },
 };

@@ -5,6 +5,8 @@ import { Suspense } from 'react';
 import { AVATAR1, LISTING_PHOTO1 } from '@/components/emails/constants';
 import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
 
+import { createUrl } from '@/utils/url';
+
 import { BookingRequestEmail } from './BookingRequestEmail';
 
 const meta: Meta<typeof BookingRequestEmail> = {
@@ -57,7 +59,7 @@ export const Default: Story = {
     message:
       "Hi, I'm looking forward to staying at your beautiful property. We're coming to celebrate our anniversary and would love to know if you offer any special arrangements for such occasions.",
     responseDeadline: addHours(baseDate, 24),
-    hostDashboardUrl: 'https://apadana.app/host/requests/123',
+    hostDashboardUrl: createUrl('host/requests/123'),
   },
 };
 
