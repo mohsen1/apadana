@@ -21,11 +21,7 @@ interface MemoryDBStackProps extends cdk.StackProps {
 }
 
 export class MemoryDBStack extends cdk.Stack {
-  constructor(
-    scope: Construct,
-    id: string,
-    private props: MemoryDBStackProps,
-  ) {
+  constructor(scope: Construct, id: string, props: MemoryDBStackProps) {
     super(scope, id, props);
 
     // Create KMS key for encryption
