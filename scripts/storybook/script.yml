@@ -1,0 +1,25 @@
+default:
+  command: storybook dev --quiet --no-open
+  help: Start Storybook development server
+  env:
+    PORT: '6006'
+  envFile:
+    - .env.local
+
+build:
+  command: storybook build
+  help: Build Storybook
+  envFile:
+    - .env.local
+
+test:
+  command: playwright test --config=config/playwright.storybook.config.ts
+  help: Run Storybook tests
+  envFile:
+    - .env.test
+
+update:
+  command: playwright test --config=config/playwright.storybook.config.ts --update-snapshots
+  help: Update Storybook test snapshots
+  envFile:
+    - .env.test

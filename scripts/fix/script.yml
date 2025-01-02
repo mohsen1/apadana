@@ -1,0 +1,9 @@
+default:
+  help: Fix linting and formatting issues
+  concurrently:
+    - script: lint fix
+      prefix: blue.bold
+      label: lint
+    - script: format
+      prefix: magenta.bold
+      label: format

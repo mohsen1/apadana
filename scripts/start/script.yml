@@ -1,0 +1,11 @@
+default:
+  steps:
+    - script: setup/local
+    - command: docker-compose -f src/docker/docker-compose.yml up --build
+  help: Start the application with Docker
+  env:
+    DOCKER_BUILDKIT: '1'
+    COMPOSE_DOCKER_CLI_BUILD: '1'
+next:
+  command: next start
+  help: Start Next.js production server

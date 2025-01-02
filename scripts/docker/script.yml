@@ -7,13 +7,13 @@ dev:
       prefix: 'magenta.bold'
       label: prisma
   help: Start development environment with Docker
+  env:
+    DOCKER_BUILDKIT: '1'
+    COMPOSE_DOCKER_CLI_BUILD: '1'
   subcommands:
-    help: Start Docker containers for development
     start:
       command: docker compose up --build --no-log-prefix --abort-on-container-exit
-    env:
-      DOCKER_BUILDKIT: '1'
-      COMPOSE_DOCKER_CLI_BUILD: '1'
+      help: Start Docker containers for development
 
 down:
   command: docker compose down

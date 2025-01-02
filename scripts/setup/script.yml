@@ -1,0 +1,14 @@
+default:
+  command: tsx src/scripts/setup-local-dev.ts
+  help: Setup local development environment
+  depends:
+    - prisma/generate
+    - migrate/dev
+
+update:
+  command: tsx src/scripts/update-packages.ts
+  help: Update project dependencies
+
+serialize:
+  command: tsx src/scripts/serialize-repo.ts
+  help: Serialize repository state

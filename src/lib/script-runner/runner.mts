@@ -26,28 +26,9 @@ import { sync as globSync } from 'glob';
 import { join, resolve } from 'path';
 import * as YAML from 'yaml';
 
-interface CommandStep {
-  command?: string;
-  script?: string; // references another command from same or other script
-  steps?: (CommandStep | string)[];
-  concurrently?: (CommandStep | string)[];
-  env?: Record<string, string>;
-  envFile?: string[];
-  help?: string;
-  depends?: string[];
-  watch?: string[];
-  subcommands?: Record<string, CommandStep>;
-  // Additional suggestions:
-  // pre?: (CommandStep | string)[];
-  // post?: (CommandStep | string)[];
-  // retry?: number;
-}
+import { CommandStep, ScriptConfig, validateScript } from './schema';
 
-interface ScriptConfig {
-  [subcommand: string]: CommandStep;
-}
-
-const SCRIPTS_DIR = resolve(process.cwd(), './scripts'); // Adjust if needed
+const SCRIPTS_DIR = resolve(process.cwd(), './scripts');
 
 // Parse CLI args
 const args = process.argv.slice(2);
@@ -70,11 +51,20 @@ function loadAllScripts(): Record<string, ScriptConfig> {
     const yamlContent = readFileSync(fullPath, 'utf8');
     try {
       const parsed = YAML.parse(yamlContent);
+      const validation = validateScript(file, parsed);
+      if (!validation.valid) {
+        console.error(chalk.red(`❌ Invalid script file: ${file}`));
+        console.error(chalk.yellow('Validation errors:'));
+        validation.errors?.errors.forEach((error) => {
+          console.error(chalk.yellow(`  - ${error.message} at ${error.path.join('.')}`));
+        });
+        continue;
+      }
       // The directory name before script.yml is the command name
       const commandName = file.split('/')[0];
       scripts[commandName] = parsed;
     } catch (err) {
-      console.error(`Failed to parse ${file}: ${(err as Error).message}`);
+      console.error(chalk.red(`Failed to parse ${file}: ${(err as Error).message}`));
     }
   }
   return scripts;
@@ -82,41 +72,18 @@ function loadAllScripts(): Record<string, ScriptConfig> {
 
 const allScripts = loadAllScripts();
 
-// Validation function
-function validateScripts(scripts: Record<string, ScriptConfig>): boolean {
-  let valid = true;
-  for (const [commandName, script] of Object.entries(scripts)) {
-    if (typeof script !== 'object') {
-      console.error(`Script ${commandName} is not an object`);
-      valid = false;
-      continue;
-    }
-    for (const [sub, subDef] of Object.entries(script)) {
-      if (typeof subDef !== 'object') {
-        console.error(`Subcommand ${commandName}/${sub} is not an object`);
-        valid = false;
-      }
-      // Add more validation if needed
-    }
-  }
-  return valid;
-}
-
 // If listing
 if (listMode) {
   for (const [commandName, script] of Object.entries(allScripts)) {
     const hasDefault = script.default !== undefined;
     const defaultHelp = hasDefault ? script.default.help : '';
     console.log(
-      hasDefault
-        ? chalk.bold.blue(`❯ ${commandName}`)
-        : chalk.bold.gray(commandName),
+      hasDefault ? chalk.bold.blue(`❯ ${commandName}`) : chalk.bold.gray(commandName),
       defaultHelp ? chalk.gray(`: ${defaultHelp}`) : '',
     );
     for (const [sub, subDef] of Object.entries(script)) {
       if (sub === 'default') continue;
-      const isLastSubcommand =
-        sub === Object.keys(script)[Object.keys(script).length - 1];
+      const isLastSubcommand = sub === Object.keys(script)[Object.keys(script).length - 1];
       console.log(
         `  ${chalk.green(isLastSubcommand ? '└─' : '├─')} ${chalk.blue(`${commandName} ${sub}`)}${
           subDef.help ? chalk.gray(`: ${subDef.help}`) : ''
@@ -130,7 +97,9 @@ if (listMode) {
             `  ${chalk.green('│ ')}${chalk.green(
               isLast ? '└─' : '├─',
             )} ${chalk.cyan(`${commandName} ${sub} ${nestedSub}`)}${
-              nestedDef.help ? chalk.gray(`: ${nestedDef.help}`) : ''
+              (nestedDef as CommandStep).help
+                ? chalk.gray(`: ${(nestedDef as CommandStep).help}`)
+                : ''
             }`,
           );
         });
@@ -143,11 +112,36 @@ if (listMode) {
 
 // If validating
 if (validateMode) {
-  const valid = validateScripts(allScripts);
-  if (!valid) {
+  let hasErrors = false;
+  const files = globSync('**/script.yml', { cwd: SCRIPTS_DIR });
+
+  for (const file of files) {
+    const fullPath = join(SCRIPTS_DIR, file);
+    const yamlContent = readFileSync(fullPath, 'utf8');
+    try {
+      const parsed = YAML.parse(yamlContent);
+      const validation = validateScript(file, parsed);
+
+      if (!validation.valid) {
+        hasErrors = true;
+        console.error(chalk.red(`❌ Invalid script file: ${file}`));
+        console.error(chalk.yellow('Validation errors:'));
+        validation.errors?.errors.forEach((error) => {
+          console.error(chalk.yellow(`  - ${error.message} at ${error.path.join('.')}`));
+        });
+      } else {
+        console.log(chalk.green(`✓ Valid script file: ${file}`));
+      }
+    } catch (err) {
+      hasErrors = true;
+      console.error(chalk.red(`Failed to parse ${file}: ${(err as Error).message}`));
+    }
+  }
+
+  if (hasErrors) {
     process.exit(1);
   }
-  console.log('All scripts appear to be valid.');
+  console.log(chalk.green('\n✓ All scripts are valid.'));
   process.exit(0);
 }
 
@@ -167,10 +161,7 @@ if (!allScripts[topCommand]) {
   process.exit(1);
 }
 
-function resolveCommand(
-  script: ScriptConfig,
-  subPath: string[],
-): CommandStep | null {
+function resolveCommand(script: ScriptConfig, subPath: string[]): CommandStep | null {
   let current: CommandStep | null = null;
   // Start with script as top-level
   // If no subPath given, return `default` if exists
@@ -214,9 +205,7 @@ const script = allScripts[topCommand];
 const cmdDef = resolveCommand(script, subCommands);
 
 if (!cmdDef) {
-  console.error(
-    `Subcommand not found for ${topCommand} ${subCommands.join(' ')}`,
-  );
+  console.error(`Subcommand not found for ${topCommand} ${subCommands.join(' ')}`);
   process.exit(1);
 }
 
@@ -264,10 +253,7 @@ function loadEnvFromFiles(files: string[] | undefined) {
   return result;
 }
 
-async function runSteps(
-  steps: (CommandStep | string)[],
-  baseEnv: Record<string, string>,
-) {
+async function runSteps(steps: (CommandStep | string)[], baseEnv: Record<string, string>) {
   for (const step of steps) {
     if (typeof step === 'string') {
       // If string, interpret as a "command"
@@ -349,11 +335,7 @@ async function runSingleCommand(cmd: string, env: Record<string, string>) {
 }
 
 // If watch is defined, we could run nodemon
-async function runWithWatch(
-  cmd: string,
-  files: string[],
-  env: Record<string, string>,
-) {
+async function runWithWatch(cmd: string, files: string[], env: Record<string, string>) {
   const binPath = resolve(process.cwd(), 'node_modules/.bin');
   const finalEnv = {
     ...process.env,
@@ -369,8 +351,7 @@ async function runWithWatch(
     });
     proc.on('exit', (code) => {
       if (code === 0) resolveP();
-      else
-        rejectP(new Error(`Watch command "${cmd}" failed with code ${code}`));
+      else rejectP(new Error(`Watch command "${cmd}" failed with code ${code}`));
     });
   });
 }
@@ -429,9 +410,7 @@ async function runCommand(
 
   // If we reached here, it might be just a group of subcommands with no direct command
   if (def.subcommands && Object.keys(def.subcommands).length === 0) {
-    console.error(
-      `No actual commands to run for ${[cmdName, ...subPath].join(' ')}`,
-    );
+    console.error(`No actual commands to run for ${[cmdName, ...subPath].join(' ')}`);
     process.exit(1);
   }
 }

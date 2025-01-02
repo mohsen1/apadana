@@ -1,0 +1,3 @@
+default:
+  command: husky install
+  help: Install Git hooks using Husky

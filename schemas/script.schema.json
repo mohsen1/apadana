@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Script Configuration",
+  "description": "Schema for script.yml files in the scripts directory",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/definitions/CommandStep"
+  },
+  "definitions": {
+    "CommandStep": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Shell command to execute"
+        },
+        "script": {
+          "type": "string",
+          "description": "Reference to another script to run",
+          "pattern": "^(?!.*&&).*$"
+        },
+        "steps": {
+          "type": "array",
+          "description": "List of commands to run in sequence",
+          "items": {
+            "oneOf": [{ "type": "string" }, { "$ref": "#/definitions/CommandStep" }]
+          }
+        },
+        "concurrently": {
+          "type": "array",
+          "description": "List of commands to run in parallel",
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "required": ["script"],
+            "properties": {
+              "script": {
+                "type": "string",
+                "description": "Script to run concurrently"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Color and style prefix for output",
+                "pattern": "^(black|red|green|yellow|blue|magenta|cyan|white|gray|grey|blackBright|redBright|greenBright|yellowBright|blueBright|magentaBright|cyanBright|whiteBright)(\\.(bold|dim|italic|underline|inverse))*$"
+              },
+              "label": {
+                "type": "string",
+                "description": "Label for the concurrent command"
+              }
+            }
+          }
+        },
+        "env": {
+          "type": "object",
+          "description": "Environment variables",
+          "additionalProperties": {
+            "oneOf": [{ "type": "string" }, { "type": "number" }]
+          }
+        },
+        "envFile": {
+          "type": "array",
+          "description": "List of environment files to load",
+          "items": {
+            "type": "string",
+            "pattern": "^\\.env"
+          }
+        },
+        "help": {
+          "type": "string",
+          "description": "Help text for the command",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "depends": {
+          "type": "array",
+          "description": "List of dependencies that must run before this command",
+          "items": {
+            "type": "string",
+            "pattern": "^[^/]+/[^/]+$"
+          }
+        },
+        "watch": {
+          "type": "array",
+          "description": "List of files to watch for changes",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subcommands": {
+          "type": "object",
+          "description": "Nested subcommands",
+          "additionalProperties": {
+            "$ref": "#/definitions/CommandStep"
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["command"]
+        },
+        {
+          "required": ["script"]
+        },
+        {
+          "required": ["steps"]
+        },
+        {
+          "required": ["concurrently"]
+        }
+      ],
+      "allOf": [
+        {
+          "not": {
+            "required": ["command", "script"]
+          }
+        },
+        {
+          "if": {
+            "required": ["watch"]
+          },
+          "then": {
+            "required": ["command"]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,7 @@
+default:
+  command: tsc --noEmit --incremental false
+  help: Run TypeScript type checking
+  depends:
+    - prisma/generate
+  envFile:
+    - .env.local

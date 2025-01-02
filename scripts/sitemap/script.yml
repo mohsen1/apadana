@@ -1,0 +1,5 @@
+default:
+  command: next-sitemap --config config/next-sitemap.config.js
+  help: Generate sitemap
+  depends:
+    - build/default
