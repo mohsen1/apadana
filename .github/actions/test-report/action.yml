@@ -29,6 +29,9 @@ inputs:
   destination_dir:
     description: 'Destination directory in S3 bucket'
     required: true
+  index_html_location_path:
+    description: 'Path to index.html in the list of uploaded files. This is used to find the report URL using location.endsWith()'
+    required: true
 
 runs:
   using: 'composite'
@@ -51,4 +54,5 @@ runs:
         INPUT_TEST_OUTCOME: ${{ inputs.test-outcome }}
         PRIVATE_KEY: ${{ inputs.private-key }}
         S3_UPLOAD_RESULT: ${{ steps.upload-results.outputs.object_locations }}
+        INPUT_INDEX_HTML_LOCATION_PATH: ${{ inputs.index_html_location_path }}
       run: node $GITHUB_ACTION_PATH/index.mjs

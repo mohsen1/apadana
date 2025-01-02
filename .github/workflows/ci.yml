@@ -120,3 +120,4 @@ jobs:
           aws_bucket: apadana-e2e
           source_dir: 'storybook-e2e-html-report'
           destination_dir: ${{ github.sha }}/storybook
+          index_html_location_path: 'storybook/index.html'

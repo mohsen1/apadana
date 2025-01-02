@@ -49,3 +49,4 @@ jobs:
           aws_bucket: apadana-e2e
           source_dir: '.next/playwright-report'
           destination_dir: ${{ github.sha }}/playwright
+          index_html_location_path: 'html/index.html'

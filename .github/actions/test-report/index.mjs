@@ -15,11 +15,17 @@ if (!s3UploadResult) {
   throw new Error('S3_UPLOAD_RESULT is not set');
 }
 
+const indexHtmlLocationPath = process.env.INPUT_INDEX_HTML_LOCATION_PATH;
+
+if (!indexHtmlLocationPath) {
+  throw new Error('INDEX_HTML_LOCATION_PATH is not set');
+}
+
 // Process S3 upload results to get report URL
 /** @type {string[]} */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const locations = JSON.parse(s3UploadResult);
-const reportUrl = locations.find((location) => location.endsWith('html/index.html'));
+const reportUrl = locations.find((location) => location.endsWith(indexHtmlLocationPath));
 
 if (!reportUrl) {
   throw new Error('No index.html found in upload results');
