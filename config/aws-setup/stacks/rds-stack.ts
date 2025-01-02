@@ -12,11 +12,7 @@ interface RDSStackProps extends cdk.StackProps {
 export class RDSStack extends cdk.Stack {
   public readonly instance: rds.DatabaseInstance;
 
-  constructor(
-    scope: Construct,
-    id: string,
-    private props: RDSStackProps,
-  ) {
+  constructor(scope: Construct, id: string, props: RDSStackProps) {
     super(scope, id, props);
 
     // Create RDS instance

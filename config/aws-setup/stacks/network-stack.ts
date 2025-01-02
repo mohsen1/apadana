@@ -11,11 +11,7 @@ export class NetworkStack extends cdk.Stack {
   public readonly memoryDbSG: ec2.SecurityGroup;
   public readonly rdsSG: ec2.SecurityGroup;
 
-  constructor(
-    scope: Construct,
-    id: string,
-    private props: NetworkStackProps,
-  ) {
+  constructor(scope: Construct, id: string, props: NetworkStackProps) {
     super(scope, id, props);
 
     // Create VPC

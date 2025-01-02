@@ -10,17 +10,13 @@ interface S3StackProps extends cdk.StackProps {
 export class S3Stack extends cdk.Stack {
   public readonly uploadsBucket: s3.IBucket;
 
-  constructor(
-    scope: Construct,
-    id: string,
-    private props: S3StackProps,
-  ) {
+  constructor(scope: Construct, id: string, props: S3StackProps) {
     super(scope, id, props);
 
     // Import the existing uploads bucket
     this.uploadsBucket = s3.Bucket.fromBucketAttributes(this, 'UploadsBucket', {
-      bucketName: 'apadana-uploads',
-      bucketArn: `arn:aws:s3:::apadana-uploads`,
+      bucketName: `apadana-uploads-${props.environment}`,
+      bucketArn: `arn:aws:s3:::apadana-uploads-${props.environment}`,
     });
 
     // Add bucket policy
