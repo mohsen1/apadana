@@ -25,25 +25,19 @@ export function ColorSchemeAwareImg({
   ...props
 }: ColorSchemeAwareImgProps) {
   return (
-    <>
+    <picture>
+      <source srcSet={`${src} 1x, ${src2x} 2x`} media='(prefers-color-scheme: light)' />
+      <source srcSet={`${darkSrc} 1x, ${darkSrc2x} 2x`} media='(prefers-color-scheme: dark)' />
+
       <Img
-        src={src}
+        src='https://apadana.app/images/logo/wide-bg.jpg'
+        alt={alt}
         width={width}
         height={height}
-        alt={alt}
         srcSet={`${src} 1x, ${src2x} 2x`}
-        className={cn('dark:hidden', className)}
+        className={cn('inline-block', className)}
         {...props}
       />
-      <Img
-        src={darkSrc}
-        width={width}
-        height={height}
-        alt={alt}
-        srcSet={`${darkSrc} 1x, ${darkSrc2x} 2x`}
-        className={cn('hidden dark:block', className)}
-        {...props}
-      />
-    </>
+    </picture>
   );
 }

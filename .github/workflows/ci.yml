@@ -93,31 +93,3 @@ jobs:
           git add -A
           git commit -m "style: automatically fix code style issues"
           git push
-  storybook:
-    name: Storybook
-    runs-on: macos-14
-    needs: [test]
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - uses: ./.github/actions/playwright
-
-      - name: Test Storybook
-        id: test-run
-        run: pnpm run test:storybook
-
-      - name: Report Storybook Results
-        if: always() && hashFiles('storybook-e2e-html-report/**') != ''
-        uses: ./.github/actions/test-report
-        with:
-          app-id: '1100607'
-          test-name: 'Storybook Results'
-          test-outcome: ${{ steps.test-run.outcome }}
-          private-key: ${{ secrets.APADANA_AUTOMATION_GITHUB_APP_PRIVATE_KEY }}
-          aws_key_id: ${{ secrets.AWS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_bucket: apadana-e2e
-          source_dir: 'storybook-e2e-html-report'
-          destination_dir: ${{ github.sha }}/storybook
-          index_html_location_path: 'storybook/index.html'

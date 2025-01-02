@@ -14,6 +14,9 @@ interface StoryModule {
 
 // Helper function to navigate to a story and take a screenshot
 async function captureStory(page: Page, storyId: string, variant: string, theme: 'light' | 'dark') {
+  // Set the color scheme to match the theme
+  await page.emulateMedia({ colorScheme: theme });
+
   const testId = `${storyId.replaceAll('/', '-')}--${variant.toLowerCase()}`;
   const searchParams = new URLSearchParams();
   searchParams.set('args', '');

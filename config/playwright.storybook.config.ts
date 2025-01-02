@@ -17,6 +17,16 @@ export default defineConfig({
     '{testDir}/__screenshots__/{projectName}/{testFilePath}/{platform}/{arg}{ext}',
   use: {
     baseURL: 'http://localhost:6006',
+    get extraHTTPHeaders(): Record<string, string> {
+      const headers: Record<string, string> = {};
+      // Learn more about this here:
+      // https://vercel.com/docs/security/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation
+      if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET) {
+        headers['x-vercel-protection-bypass'] = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+      }
+
+      return headers;
+    },
     trace: 'on-first-retry',
     screenshot: {
       mode: 'only-on-failure',

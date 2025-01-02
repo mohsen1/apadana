@@ -22,9 +22,10 @@ export const globalTypes = {
 };
 
 const withProviders: Decorator = (StoryFn, context) => {
-  const theme = context.globals.theme as 'light' | 'dark';
+  let theme = context.globals.theme as 'light' | 'dark';
+
   return (
-    <ThemeProvider attribute='class' defaultTheme={theme} enableSystem>
+    <ThemeProvider enableColorScheme defaultTheme={theme} enableSystem>
       <div
         data-storybook-wrapper
         className={cn(
