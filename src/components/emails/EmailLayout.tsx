@@ -13,7 +13,17 @@ import {
 } from '@react-email/components';
 import React from 'react';
 
-import { LOGO_WHITE_JPG } from '@/components/emails/constants';
+import { ColorSchemeAwareImg } from '@/components/emails/ColorSchemeAwareImg';
+
+import {
+  FACEBOOK_URL,
+  INSTAGRAM_URL,
+  LOGO_WIDE_BLACK_BG,
+  LOGO_WIDE_WHITE_BG,
+  PRIVACY_URL,
+  TERMS_URL,
+  TWITTER_URL,
+} from './constants';
 
 interface EmailLayoutProps {
   preview: string;
@@ -28,7 +38,16 @@ export const EmailLayout: React.FC<EmailLayoutProps> = ({ preview, children }) =
       <Container className='mx-auto mb-1 py-5'>
         {/* Header */}
         <Section className='border-border border-b px-10 py-8'>
-          <Img src={LOGO_WHITE_JPG} width='400' height='80' alt='Apadana' className='mx-auto' />
+          <ColorSchemeAwareImg
+            src={LOGO_WIDE_WHITE_BG}
+            src2x={LOGO_WIDE_WHITE_BG}
+            darkSrc={LOGO_WIDE_BLACK_BG}
+            darkSrc2x={LOGO_WIDE_BLACK_BG}
+            alt='Apadana'
+            width={400}
+            height={80}
+            className='mx-auto'
+          />
         </Section>
 
         {/* Main Content */}
@@ -42,17 +61,11 @@ export const EmailLayout: React.FC<EmailLayoutProps> = ({ preview, children }) =
                 © {new Date().getFullYear()} Apadana. All rights reserved.
               </Text>
               <Text className='text-muted-foreground text-center text-sm leading-4'>
-                <Link
-                  href='https://apadana.app/terms'
-                  className='text-muted-foreground hover:text-muted-hover underline'
-                >
-                  Terms of Service
+                <Link className='text-gray-400 hover:text-gray-500' href={TERMS_URL}>
+                  Terms
                 </Link>
                 {' • '}
-                <Link
-                  href='https://apadana.app/privacy'
-                  className='text-muted-foreground hover:text-muted-hover underline'
-                >
+                <Link className='text-gray-400 hover:text-gray-500' href={PRIVACY_URL}>
                   Privacy Policy
                 </Link>
               </Text>
@@ -60,23 +73,14 @@ export const EmailLayout: React.FC<EmailLayoutProps> = ({ preview, children }) =
           </Row>
           <Row>
             <Column align='center' className='mt-3'>
-              <Link
-                href='https://facebook.com/apadana_app'
-                className='text-muted-foreground hover:text-muted-hover mx-2 inline-block text-sm underline'
-              >
-                Facebook
+              <Link href={FACEBOOK_URL}>
+                <Img src={LOGO_WIDE_WHITE_BG} width={24} height={24} alt='Facebook' />
               </Link>
-              <Link
-                href='https://twitter.com/apadana_app'
-                className='text-muted-foreground hover:text-muted-hover mx-2 inline-block text-sm underline'
-              >
-                Twitter
+              <Link href={TWITTER_URL}>
+                <Img src={LOGO_WIDE_WHITE_BG} width={24} height={24} alt='Twitter' />
               </Link>
-              <Link
-                href='https://instagram.com/apadana_app'
-                className='text-muted-foreground hover:text-muted-hover mx-2 inline-block text-sm underline'
-              >
-                Instagram
+              <Link href={INSTAGRAM_URL}>
+                <Img src={LOGO_WIDE_WHITE_BG} width={24} height={24} alt='Instagram' />
               </Link>
             </Column>
           </Row>

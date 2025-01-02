@@ -3,6 +3,8 @@ import { Suspense } from 'react';
 
 import { ReactEmailStoryRenderer } from '@/components/emails/ReactEmailStoryRenderer';
 
+import { createVerificationUrl } from '@/utils/url';
+
 import { WelcomeEmail } from './WelcomeEmail';
 
 const meta = {
@@ -23,6 +25,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     firstName: 'John',
-    verificationUrl: 'https://apadana.app/verify?token=123',
+    verificationUrl: createVerificationUrl('123', 'john@example.com'),
   },
 };
