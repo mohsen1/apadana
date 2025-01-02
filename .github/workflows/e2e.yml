@@ -65,6 +65,7 @@ jobs:
         env:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           E2E_TESTING_SECRET: ${{ secrets.E2E_TESTING_SECRET }}
+          VERCEL_URL: ${{ github.event.deployment_status.target_url }}
 
       - name: Report Storybook Results
         if: always() && hashFiles('storybook-e2e-html-report/**') != ''
