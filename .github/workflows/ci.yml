@@ -125,8 +125,6 @@ jobs:
               console.log('No PR found for this commit');
             }
 
-      - run: pnpm dlx playwright install
-
       - name: Test Storybook
         id: test-run
         run: pnpm run test:storybook
