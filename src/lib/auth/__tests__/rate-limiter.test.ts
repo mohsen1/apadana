@@ -1,7 +1,14 @@
 import { headers } from 'next/headers';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
 
-import { loginRateLimiter, signupRateLimiter } from '../rate-limiter';
+import {
+  actionClient,
+  createRateLimiter,
+  RATE_LIMIT_BASED_ON_IP,
+  RATE_LIMIT_BASED_ON_USER_ID,
+  SafeActionContext,
+} from '@/lib/safe-action';
 
 // Mock storage for Redis data
 const mockStorage = new Map<string, string>();
@@ -41,7 +48,7 @@ vi.mock('next/headers', () => ({
   headers: vi.fn(() => Promise.resolve(new Headers({}))),
 }));
 
-describe('Rate Limiters', () => {
+describe('Rate Limiter', () => {
   const testEmail = 'test@example.com';
 
   beforeEach(() => {
@@ -62,270 +69,127 @@ describe('Rate Limiters', () => {
     mockStorage.clear();
   });
 
-  describe('Login Rate Limiter', () => {
-    it('should allow 5 login attempts within 15 minutes', async () => {
-      // Should allow 5 attempts
-      for (let i = 0; i < 5; i++) {
-        const result = await loginRateLimiter.check(testEmail);
-        expect(result.blocked).toBe(false);
-        expect(result.remainingAttempts).toBe(5 - i);
-        await loginRateLimiter.increment(testEmail);
-      }
-
-      // 6th attempt should be blocked
-      const result = await loginRateLimiter.check(testEmail);
-      expect(result.blocked).toBe(true);
-      expect(result.remainingAttempts).toBe(0);
-      expect(result.msBeforeNextAttempt).toBeGreaterThan(0);
+  describe('Safe Action Rate Limiting', () => {
+    const testSchema = z.object({
+      email: z.string().email(),
+      password: z.string(),
     });
 
-    it('should reset login attempts after 15 minutes', async () => {
-      // Use up all attempts
-      for (let i = 0; i < 5; i++) {
-        await loginRateLimiter.increment(testEmail);
-      }
-
-      // Move time forward 1 hour
-      vi.advanceTimersByTime(60 * 60 * 1000);
-
-      // Should be unblocked
-      const result = await loginRateLimiter.check(testEmail);
-      expect(result.blocked).toBe(false);
-      expect(result.remainingAttempts).toBe(5);
+    const outputSchema = z.object({
+      success: z.boolean(),
     });
 
-    it('should block login attempts for 1 hour after max attempts', async () => {
-      // Use up all attempts
-      for (let i = 0; i < 5; i++) {
-        await loginRateLimiter.increment(testEmail);
-      }
+    type TestInput = z.infer<typeof testSchema>;
+    type TestOutput = z.infer<typeof outputSchema>;
 
-      // Move time forward 30 minutes (still within block duration)
-      vi.advanceTimersByTime(30 * 60 * 1000);
+    const testAction = actionClient
+      .use(createRateLimiter({ maxAttempts: 3, basedOn: [RATE_LIMIT_BASED_ON_IP] }))
+      .schema(testSchema)
+      .outputSchema(outputSchema)
+      .action(async ({ parsedInput }) => {
+        return { success: true };
+      });
 
-      // Should still be blocked
-      const result = await loginRateLimiter.check(testEmail);
-      expect(result.blocked).toBe(true);
-      expect(result.remainingAttempts).toBe(0);
-    });
-  });
-
-  describe('Signup Rate Limiter', () => {
-    it('should allow 3 signup attempts within 30 minutes', async () => {
-      // Should allow 3 attempts
-      for (let i = 0; i < 3; i++) {
-        const result = await signupRateLimiter.check(testEmail);
-        expect(result.blocked).toBe(false);
-        expect(result.remainingAttempts).toBe(3 - i);
-        await signupRateLimiter.increment(testEmail);
-      }
-
-      // 4th attempt should be blocked
-      const result = await signupRateLimiter.check(testEmail);
-      expect(result.blocked).toBe(true);
-      expect(result.remainingAttempts).toBe(0);
-      expect(result.msBeforeNextAttempt).toBeGreaterThan(0);
-    });
-
-    it('should reset signup attempts after block duration (2 hours)', async () => {
-      // Use up all attempts
-      for (let i = 0; i < 3; i++) {
-        await signupRateLimiter.increment(testEmail);
-      }
-
-      // Move time forward 2 hours (full block duration)
-      vi.advanceTimersByTime(2 * 60 * 60 * 1000);
-
-      // Should be unblocked
-      const result = await signupRateLimiter.check(testEmail);
-      expect(result.blocked).toBe(false);
-      expect(result.remainingAttempts).toBe(3);
-    });
-
-    it('should block signup attempts for 2 hours after max attempts', async () => {
-      // Use up all attempts
-      for (let i = 0; i < 3; i++) {
-        await signupRateLimiter.increment(testEmail);
-      }
-
-      // Move time forward 1 hour (still within block duration)
-      vi.advanceTimersByTime(60 * 60 * 1000);
-
-      // Should still be blocked
-      const result = await signupRateLimiter.check(testEmail);
-      expect(result.blocked).toBe(true);
-      expect(result.remainingAttempts).toBe(0);
-    });
-  });
-
-  describe('Common Rate Limiter Features', () => {
-    it('should handle different IPs separately for both limiters', async () => {
-      vi.mocked(headers).mockResolvedValue(
-        new Headers({
-          'x-forwarded-for': '1.2.3.4',
-          'x-real-ip': '5.6.7.8',
-        }),
+    beforeEach(() => {
+      // Mock the auth middleware for all tests
+      vi.spyOn(actionClient, 'use').mockImplementation(
+        (middleware: any) =>
+          ({
+            use: (nextMiddleware: any) => actionClient.use(nextMiddleware),
+            schema: (schema: any) => ({
+              outputSchema: (outSchema: any) => ({
+                action: (handler: any) => async (input: TestInput) => {
+                  const ctx = { userId: 'test-user' };
+                  const result = await middleware({
+                    clientInput: input,
+                    bindArgsClientInputs: [],
+                    ctx,
+                    metadata: undefined,
+                    next: async () => ({
+                      success: true,
+                      parsedInput: input,
+                      ctx,
+                      data: await handler({ parsedInput: input, ctx }),
+                    }),
+                  });
+                  if ('error' in result) {
+                    return { serverError: result };
+                  }
+                  return { data: result.data, validationErrors: undefined, serverError: undefined };
+                },
+              }),
+            }),
+            metadata: undefined,
+            bindArgsSchemas: [],
+          }) as any,
       );
+    });
 
-      await loginRateLimiter.increment(testEmail);
-      await signupRateLimiter.increment(testEmail);
+    it('should rate limit after max attempts', async () => {
+      // First 3 attempts should succeed
+      for (let i = 0; i < 3; i++) {
+        const result = await testAction({ email: testEmail, password: 'test' });
+        expect(result?.data).toEqual({ success: true });
+      }
 
-      // Clear the mock and set new IP before checking
-      vi.clearAllMocks();
+      // 4th attempt should be rate limited
+      const result = await testAction({ email: testEmail, password: 'test' });
+      expect(result?.validationErrors).toBeUndefined();
+      expect(result?.serverError?.error).toContain('Too many attempts');
+    });
 
+    it('should reset rate limit after window expires', async () => {
+      // Use up all attempts
+      for (let i = 0; i < 3; i++) {
+        await testAction({ email: testEmail, password: 'test' });
+      }
+
+      // Move time forward past the window
+      vi.advanceTimersByTime(60 * 1000 + 1);
+
+      // Should work again
+      const result = await testAction({ email: testEmail, password: 'test' });
+      expect(result?.data).toEqual({ success: true });
+    });
+
+    it('should handle different IPs separately', async () => {
+      // Use up all attempts from first IP
+      for (let i = 0; i < 3; i++) {
+        await testAction({ email: testEmail, password: 'test' });
+      }
+
+      // Change IP
       vi.mocked(headers).mockResolvedValue(
         new Headers({
           'x-forwarded-for': '9.9.9.9',
         }),
       );
 
-      // Should start fresh for new IP
-      const loginResult = await loginRateLimiter.check(testEmail);
-      expect(loginResult.remainingAttempts).toBe(5);
-
-      const signupResult = await signupRateLimiter.check(testEmail);
-      expect(signupResult.remainingAttempts).toBe(3);
+      // Should work with new IP
+      const result = await testAction({ email: testEmail, password: 'test' });
+      expect(result?.data).toEqual({ success: true });
     });
 
-    it('should cleanup old entries for both limiters', async () => {
-      // Add entries to both limiters
-      await loginRateLimiter.increment(testEmail);
-      await signupRateLimiter.increment(testEmail);
+    it('should handle user-based rate limiting', async () => {
+      const userAction = actionClient
+        .use(createRateLimiter({ maxAttempts: 3, basedOn: [RATE_LIMIT_BASED_ON_USER_ID] }))
+        .schema(testSchema)
+        .outputSchema(outputSchema)
+        .action(async ({ parsedInput }) => {
+          return { success: true };
+        });
 
-      // Move time forward past the longest block duration (2 hours)
-      vi.advanceTimersByTime(2 * 60 * 60 * 1000 + 1);
-
-      // Both should be reset
-      const loginResult = await loginRateLimiter.check(testEmail);
-      expect(loginResult.remainingAttempts).toBe(5);
-
-      const signupResult = await signupRateLimiter.check(testEmail);
-      expect(signupResult.remainingAttempts).toBe(3);
-    });
-
-    it('should reset on successful attempt for both limiters', async () => {
-      // Use some attempts
-      await loginRateLimiter.increment(testEmail);
-      await signupRateLimiter.increment(testEmail);
-
-      // Reset both
-      await loginRateLimiter.reset(testEmail);
-      await signupRateLimiter.reset(testEmail);
-
-      // Both should be reset
-      const loginResult = await loginRateLimiter.check(testEmail);
-      expect(loginResult.remainingAttempts).toBe(5);
-
-      const signupResult = await signupRateLimiter.check(testEmail);
-      expect(signupResult.remainingAttempts).toBe(3);
-    });
-  });
-
-  describe('Rate Limiter Bypass', () => {
-    it('should bypass rate limits with headers and env vars', async () => {
-      // Set up environment variable
-      process.env.E2E_TESTING_SECRET = 'my-test-secret';
-
-      // Set up headers with the secret
-      vi.mocked(headers).mockResolvedValue(
-        new Headers({
-          'x-forwarded-for': '1.2.3.4',
-          'x-real-ip': '5.6.7.8',
-          'x-e2e-testing-secret': 'my-test-secret',
-        }),
-      );
-
-      // Try many more attempts than normally allowed
-      for (let i = 0; i < 20; i++) {
-        // Test login limiter
-        const loginResult = await loginRateLimiter.check(testEmail);
-        expect(loginResult.blocked).toBe(false);
-        expect(loginResult.remainingAttempts).toBe(5); // Should always be max attempts
-        await loginRateLimiter.increment(testEmail);
-
-        // Test signup limiter
-        const signupResult = await signupRateLimiter.check(testEmail);
-        expect(signupResult.blocked).toBe(false);
-        expect(signupResult.remainingAttempts).toBe(3); // Should always be max attempts
-        await signupRateLimiter.increment(testEmail);
-      }
-
-      // Verify bypass still works after many attempts
-      const finalLoginResult = await loginRateLimiter.check(testEmail);
-      expect(finalLoginResult.blocked).toBe(false);
-      expect(finalLoginResult.remainingAttempts).toBe(5);
-      expect(finalLoginResult.msBeforeNextAttempt).toBe(0);
-
-      const finalSignupResult = await signupRateLimiter.check(testEmail);
-      expect(finalSignupResult.blocked).toBe(false);
-      expect(finalSignupResult.remainingAttempts).toBe(3);
-      expect(finalSignupResult.msBeforeNextAttempt).toBe(0);
-    });
-
-    it('should bypass rate limits when E2E testing secret is provided', async () => {
-      process.env.E2E_TESTING_SECRET = 'test-secret';
-
-      vi.mocked(headers).mockResolvedValue(
-        new Headers({
-          'x-forwarded-for': '1.2.3.4',
-          'x-real-ip': '5.6.7.8',
-          'x-e2e-testing-secret': 'test-secret',
-        }),
-      );
-
-      // Should allow more than max attempts when secret is provided
-      for (let i = 0; i < 10; i++) {
-        const loginResult = await loginRateLimiter.check(testEmail);
-        expect(loginResult.blocked).toBe(false);
-        expect(loginResult.remainingAttempts).toBe(5);
-        await loginRateLimiter.increment(testEmail);
-
-        const signupResult = await signupRateLimiter.check(testEmail);
-        expect(signupResult.blocked).toBe(false);
-        expect(signupResult.remainingAttempts).toBe(3);
-        await signupRateLimiter.increment(testEmail);
-      }
-    });
-
-    it('should enforce rate limits when E2E testing secret is incorrect', async () => {
-      process.env.E2E_TESTING_SECRET = 'test-secret';
-
-      vi.mocked(headers).mockResolvedValue(
-        new Headers({
-          'x-forwarded-for': '1.2.3.4',
-          'x-real-ip': '5.6.7.8',
-          'x-e2e-testing-secret': 'wrong-secret',
-        }),
-      );
-
-      // Should block after max attempts with wrong secret
-      for (let i = 0; i < 5; i++) {
-        await loginRateLimiter.increment(testEmail);
-      }
-
-      const result = await loginRateLimiter.check(testEmail);
-      expect(result.blocked).toBe(true);
-      expect(result.remainingAttempts).toBe(0);
-    });
-
-    it('should enforce rate limits when E2E testing secret is not provided', async () => {
-      process.env.E2E_TESTING_SECRET = 'test-secret';
-
-      vi.mocked(headers).mockResolvedValue(
-        new Headers({
-          'x-forwarded-for': '1.2.3.4',
-          'x-real-ip': '5.6.7.8',
-        }),
-      );
-
-      // Should block after max attempts with no secret
+      // First 3 attempts should succeed
       for (let i = 0; i < 3; i++) {
-        await signupRateLimiter.increment(testEmail);
+        const result = await userAction({ email: testEmail, password: 'test' });
+        expect(result?.data).toEqual({ success: true });
       }
 
-      const result = await signupRateLimiter.check(testEmail);
-      expect(result.blocked).toBe(true);
-      expect(result.remainingAttempts).toBe(0);
+      // 4th attempt should be rate limited
+      const result = await userAction({ email: testEmail, password: 'test' });
+      expect(result?.serverError?.error).toBe(
+        'Too many attempts. Please try again in 3600 seconds',
+      );
     });
   });
 });

@@ -7,11 +7,16 @@ import { z } from 'zod';
 import { deleteServerSession, getUserInServer } from '@/lib/auth';
 import { argon } from '@/lib/auth/argon';
 import { RESET_TOKEN_DURATION, SESSION_COOKIE_NAME, SESSION_DURATION } from '@/lib/auth/constants';
-import { loginRateLimiter, signupRateLimiter } from '@/lib/auth/rate-limiter';
 import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
-import { actionClient, ClientVisibleError, RateLimitedError } from '@/lib/safe-action';
+import {
+  actionClient,
+  ClientVisibleError,
+  createRateLimiter,
+  RATE_LIMIT_BASED_ON_IP,
+  RATE_LIMIT_BASED_ON_USER_ID,
+} from '@/lib/safe-action';
 import {
   ClientUserSchema,
   LoginSchema,
@@ -25,21 +30,11 @@ import logger from '@/utils/logger';
 import { createPasswordResetUrl, createVerificationUrl } from '@/utils/url';
 
 export const login = actionClient
+  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_USER_ID, RATE_LIMIT_BASED_ON_IP] }))
   .schema(LoginSchema)
   .outputSchema(SuccessfulLoginSchema)
   .action(async ({ parsedInput }) => {
-    // Check rate limit
-    const { blocked, remainingAttempts, msBeforeNextAttempt } = await loginRateLimiter.check(
-      parsedInput.email,
-    );
-    if (blocked) {
-      const minutesLeft = Math.ceil(msBeforeNextAttempt / (60 * 1000));
-      throw new ClientVisibleError(
-        `Too many login attempts. Please try again in ${minutesLeft} minutes.`,
-      );
-    }
-
-    const user = await prisma.user.findFirst({
+    const user = await prisma.user.findFirstOrThrow({
       where: {
         emailAddresses: {
           some: {
@@ -54,38 +49,16 @@ export const login = actionClient
       },
     });
 
-    // Increment attempt counter before checking credentials
-    await loginRateLimiter.increment(parsedInput.email);
-
-    if (!user) {
-      throw new RateLimitedError(
-        remainingAttempts > 0
-          ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
-          : 'Invalid email or password.',
-      );
-    }
-
     // Check if user exists and has password
     if (!user.password) {
-      throw new RateLimitedError(
-        remainingAttempts > 0
-          ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
-          : 'Invalid email or password.',
-      );
+      throw new ClientVisibleError('User does not have a password');
     }
 
     // Verify password
     const validPassword = await argon.verify(user.password, parsedInput.password);
     if (!validPassword) {
-      throw new RateLimitedError(
-        remainingAttempts > 0
-          ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
-          : 'Invalid email or password.',
-      );
+      throw new ClientVisibleError('Invalid email or password');
     }
-
-    // Reset rate limiter on successful login
-    await loginRateLimiter.reset(parsedInput.email);
 
     // Create new session
     const session = await prisma.session.create({
@@ -115,6 +88,7 @@ export const login = actionClient
   });
 
 export const signUp = actionClient
+  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_IP] }))
   .schema(SignUpSchema)
   .outputSchema(
     z.object({
@@ -122,20 +96,6 @@ export const signUp = actionClient
     }),
   )
   .action(async ({ parsedInput }) => {
-    // Check rate limit
-    const { blocked, remainingAttempts, msBeforeNextAttempt } = await signupRateLimiter.check(
-      parsedInput.email,
-    );
-    if (blocked) {
-      const minutesLeft = Math.ceil(msBeforeNextAttempt / (60 * 1000));
-      throw new RateLimitedError(
-        `Too many signup attempts. Please try again in ${minutesLeft} minutes.`,
-      );
-    }
-
-    // Increment attempt counter before checking
-    await signupRateLimiter.increment(parsedInput.email);
-
     // ensure email is not already in use
     const existingUser = await prisma.user.findFirst({
       where: {
@@ -143,10 +103,8 @@ export const signUp = actionClient
       },
     });
     if (existingUser) {
-      throw new RateLimitedError(
-        remainingAttempts > 0
-          ? `There is already an account with this email. Please login with that email. ${remainingAttempts} attempts remaining.`
-          : 'There is already an account with this email. Please login with that email.',
+      throw new ClientVisibleError(
+        'There is already an account with this email. Please login with that email.',
       );
     }
 
@@ -185,9 +143,6 @@ export const signUp = actionClient
         },
       },
     });
-
-    // Reset rate limiter on successful signup
-    await signupRateLimiter.reset(parsedInput.email);
 
     const session = user.sessions[0];
 
@@ -241,6 +196,7 @@ export const logOut = actionClient
   });
 
 export const requestPasswordReset = actionClient
+  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_USER_ID] }))
   .schema(RequestPasswordResetSchema)
   .action(async ({ parsedInput }) => {
     try {
@@ -299,6 +255,7 @@ export const requestPasswordReset = actionClient
   });
 
 export const resetPassword = actionClient
+  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_USER_ID], maxAttempts: 5 }))
   .schema(ResetPasswordSchema)
   .action(async ({ parsedInput }) => {
     try {

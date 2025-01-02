@@ -15,19 +15,12 @@ interface RateLimitEntry {
   blockedUntil?: number;
 }
 
-/** Gets the client IP address from request headers */
-async function getClientIp(): Promise<string> {
-  const headersList = await headers();
-  return (
-    headersList.get('x-forwarded-for')?.split(',')[0] || headersList.get('x-real-ip') || '127.0.0.1'
-  );
-}
-
 /** Configuration options for the rate limiter */
 interface RateLimiterOptions {
   maxAttempts?: number;
   windowMs?: number;
   blockDurationMs?: number;
+  ip: string;
 }
 
 /**
@@ -43,7 +36,7 @@ export class RateLimiter {
   #maxAttempts: number;
   #windowMs: number;
   #blockDurationMs: number;
-
+  #ip: string;
   /**
    * Creates a new rate limiter instance
    * @param options - Configuration options for the rate limiter
@@ -52,10 +45,12 @@ export class RateLimiter {
     maxAttempts = 5,
     windowMs = 15 * 60 * 1000,
     blockDurationMs = 60 * 60 * 1000,
-  }: RateLimiterOptions = {}) {
+    ip,
+  }: RateLimiterOptions) {
     this.#maxAttempts = maxAttempts;
     this.#windowMs = windowMs;
     this.#blockDurationMs = blockDurationMs;
+    this.#ip = ip;
   }
 
   /**
@@ -72,8 +67,7 @@ export class RateLimiter {
    * @param identifier - The rate limit identifier (e.g., 'login', 'signup')
    */
   async #createKey(identifier: string): Promise<string> {
-    const ip = await getClientIp();
-    return `ratelimit:${identifier}:${ip}`;
+    return `ratelimit:${identifier}:${this.#ip}`;
   }
 
   /**
@@ -163,9 +157,8 @@ export class RateLimiter {
     const newAttempts = entry.attempts + 1;
 
     if (newAttempts >= this.#maxAttempts) {
-      const ip = await getClientIp();
       logger.warn('Rate limit exceeded', {
-        ip,
+        ip: this.#ip,
         identifier,
         attempts: newAttempts,
         windowStart: new Date(entry.firstAttempt).toISOString(),
@@ -212,24 +205,3 @@ export class RateLimiter {
     await redis.del(key);
   }
 }
-
-/** Rate limiter instance for login attempts */
-export const loginRateLimiter = new RateLimiter({
-  maxAttempts: 5,
-  windowMs: 15 * 60 * 1000,
-  blockDurationMs: 60 * 60 * 1000, // 1 hour block duration
-});
-
-/** Rate limiter instance for signup attempts */
-export const signupRateLimiter = new RateLimiter({
-  maxAttempts: 3,
-  windowMs: 30 * 60 * 1000,
-  blockDurationMs: 2 * 60 * 60 * 1000, // 2 hour block duration
-});
-
-/** Rate limiter instance for upload attempts */
-export const uploadRateLimiter = new RateLimiter({
-  maxAttempts: 50,
-  windowMs: 60 * 1000,
-  blockDurationMs: 60 * 60 * 1000, // 1 hour block duration
-});
