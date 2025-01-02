@@ -11,10 +11,6 @@ export class NetworkStack extends cdk.Stack {
   public readonly memoryDbSG: ec2.SecurityGroup;
   public readonly rdsSG: ec2.SecurityGroup;
 
-  private resourceName(name: string): string {
-    return `apadana-${name}-${this.account}-${this.region}-${this.props.environment}`;
-  }
-
   constructor(
     scope: Construct,
     id: string,
@@ -23,28 +19,30 @@ export class NetworkStack extends cdk.Stack {
     super(scope, id, props);
 
     // Create VPC
-    this.vpc = new ec2.Vpc(this, this.resourceName('vpc'), {
+    this.vpc = new ec2.Vpc(this, 'VPC', {
       maxAzs: 2,
       natGateways: 1,
+      vpcName: `apadana-vpc-${props.environment}`,
       subnetConfiguration: [
         {
           cidrMask: 24,
-          name: 'Private',
+          name: `private-${props.environment}`,
           subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
         },
         {
           cidrMask: 24,
-          name: 'Public',
+          name: `public-${props.environment}`,
           subnetType: ec2.SubnetType.PUBLIC,
         },
       ],
     });
 
     // Create security group for MemoryDB
-    this.memoryDbSG = new ec2.SecurityGroup(this, this.resourceName('memorydb-sg'), {
+    this.memoryDbSG = new ec2.SecurityGroup(this, 'MemoryDBSecurityGroup', {
       vpc: this.vpc,
-      description: 'Security group for Apadana MemoryDB cluster',
+      description: `Security group for Apadana MemoryDB cluster - ${props.environment}`,
       allowAllOutbound: true,
+      securityGroupName: `apadana-memorydb-sg-${props.environment}`,
     });
 
     this.memoryDbSG.addIngressRule(
@@ -54,10 +52,11 @@ export class NetworkStack extends cdk.Stack {
     );
 
     // Create security group for RDS
-    this.rdsSG = new ec2.SecurityGroup(this, this.resourceName('rds-sg'), {
+    this.rdsSG = new ec2.SecurityGroup(this, 'RDSSecurityGroup', {
       vpc: this.vpc,
-      description: 'Security group for Apadana RDS instance',
+      description: `Security group for Apadana RDS instance - ${props.environment}`,
       allowAllOutbound: true,
+      securityGroupName: `apadana-rds-sg-${props.environment}`,
     });
 
     this.rdsSG.addIngressRule(
@@ -66,24 +65,28 @@ export class NetworkStack extends cdk.Stack {
       'Allow PostgreSQL access from within VPC',
     );
 
+    // Tag all resources
+    cdk.Tags.of(this).add('Environment', props.environment);
+    cdk.Tags.of(this).add('Project', 'Apadana');
+
     // Output VPC ID
     new cdk.CfnOutput(this, 'VpcId', {
       value: this.vpc.vpcId,
       description: 'VPC ID',
-      exportName: 'ApadanaVpcId',
+      exportName: `ApadanaVpcId-${props.environment}`,
     });
 
     // Output Security Group IDs
     new cdk.CfnOutput(this, 'MemoryDBSecurityGroupId', {
       value: this.memoryDbSG.securityGroupId,
       description: 'MemoryDB Security Group ID',
-      exportName: 'ApadanaMemoryDBSecurityGroupId',
+      exportName: `ApadanaMemoryDBSecurityGroupId-${props.environment}`,
     });
 
     new cdk.CfnOutput(this, 'RDSSecurityGroupId', {
       value: this.rdsSG.securityGroupId,
       description: 'RDS Security Group ID',
-      exportName: 'ApadanaRDSSecurityGroupId',
+      exportName: `ApadanaRDSSecurityGroupId-${props.environment}`,
     });
   }
 }

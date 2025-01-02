@@ -37,6 +37,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# AWS
+cdk.out/
+
 # next-sitemap
 robots.txt
 sitemap.xml
