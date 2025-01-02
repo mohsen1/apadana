@@ -46,7 +46,9 @@ runs:
       id: cache
       uses: actions/cache@v4
       with:
-        path: ~/.cache/ms-playwright
+        path: |
+          ~/.cache/ms-playwright
+          ~/Library/Caches/ms-playwright
         key: playwright-${{ env.PLAYWRIGHT_VERSION }}
 
     - name: Install Playwright and its dependencies

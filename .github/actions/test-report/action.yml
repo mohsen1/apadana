@@ -11,44 +11,22 @@ inputs:
   report-url:
     description: 'URL to the test report'
     required: true
-  github-token:
-    description: 'GitHub token'
+  app-id:
+    description: 'GitHub App ID'
+    required: true
+  private-key:
+    description: 'GitHub App private key'
     required: true
 
 runs:
   using: 'composite'
   steps:
     - name: Create or Update Check with Report URL
-      uses: actions/github-script@v7
-      with:
-        github-token: ${{ inputs.github-token }}
-        script: |
-          const checkName = '${{ inputs.test-name }}';
-          // Try to find existing check
-          const { data: checks } = await github.rest.checks.listForRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: context.sha,
-            check_name: checkName
-          });
-
-          const params = {
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            name: checkName,
-            head_sha: context.sha,
-            status: 'completed',
-            conclusion: '${{ inputs.test-outcome }}',
-            details_url: '${{ inputs.report-url }}'
-          };
-
-          if (checks.check_runs.length > 0) {
-            // Update existing check
-            await github.rest.checks.update({
-              check_run_id: checks.check_runs[0].id,
-              ...params
-            });
-          } else {
-            // Create new check
-            await github.rest.checks.create(params);
-          }
+      shell: bash
+      env:
+        INPUT_APP_ID: ${{ inputs.app-id }}
+        INPUT_TEST_NAME: ${{ inputs.test-name }}
+        INPUT_TEST_OUTCOME: ${{ inputs.test-outcome }}
+        INPUT_REPORT_URL: ${{ inputs.report-url }}
+        PRIVATE_KEY: ${{ inputs.private-key }}
+      run: node $GITHUB_ACTION_PATH/index.mjs

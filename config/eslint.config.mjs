@@ -23,7 +23,7 @@ export default [
     ],
   },
   {
-    files: ['{src,config,__mocks__,.storybook}/**/*.{js,jsx,ts,tsx,mjs}'],
+    files: ['{src,config,__mocks__,.storybook,.github}/**/*.{js,jsx,ts,tsx,mjs}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
