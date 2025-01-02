@@ -61,6 +61,14 @@ public/images/e2e/uploads/
 
 # Do not allow new files in root
 package-updates-summary.md
+*.json
+*.md
+*.fish
+*.sh
+*.log
+*.txt
+*.yaml
+*.yml
 
 # Files that *are* allowed in root
 !README.md

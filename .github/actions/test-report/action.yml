@@ -22,53 +22,15 @@ runs:
   using: 'composite'
   steps:
     - name: Create or Update Check with Report URL
-      uses: actions/github-script@v7
+      shell: bash
       env:
+        INPUT_APP_ID: ${{ inputs.app-id }}
+        INPUT_TEST_NAME: ${{ inputs.test-name }}
+        INPUT_TEST_OUTCOME: ${{ inputs.test-outcome }}
+        INPUT_REPORT_URL: ${{ inputs.report-url }}
         PRIVATE_KEY: ${{ inputs.private-key }}
-      with:
-        script: |
-          const { createAppAuth } = await import('@octokit/auth-app');
-          const { Octokit } = require('@octokit/rest');
-
-          const auth = createAppAuth({
-            appId: '${{ inputs.app-id }}',
-            privateKey: process.env.PRIVATE_KEY,
-            installationId: context.payload.installation?.id
-          });
-
-          try {
-            const installationToken = await auth({ type: 'installation' });
-            const octokit = new Octokit({ auth: installationToken.token });
-
-            const checkName = '${{ inputs.test-name }}';
-
-            // Try to find existing check
-            const { data: checks } = await octokit.checks.listForRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: context.sha,
-              check_name: checkName
-            });
-
-            const params = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: checkName,
-              head_sha: context.sha,
-              status: 'completed',
-              conclusion: '${{ inputs.test-outcome }}',
-              details_url: '${{ inputs.report-url }}'
-            };
-
-            if (checks.check_runs.length > 0) {
-              await octokit.checks.update({
-                check_run_id: checks.check_runs[0].id,
-                ...params
-              });
-            } else {
-              await octokit.checks.create(params);
-            }
-          } catch (error) {
-            console.error('Error:', error);
-            throw error;
-          }
+        GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_SHA: ${{ github.sha }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+      run: node $GITHUB_ACTION_PATH/index.mjs
