@@ -1,4 +1,9 @@
+import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
+
+import { isUsingLocalResend } from '@/lib/email/resend';
+
+import Loading from '@/components/ui/loading';
 
 import { getEmails } from '@/app/local-inbox/action';
 
@@ -9,6 +14,10 @@ export const metadata = {
 };
 
 export default async function EmailsPage() {
+  if (!isUsingLocalResend) {
+    redirect('/');
+  }
+
   const result = await getEmails();
 
   if (result?.serverError) {
@@ -18,7 +27,7 @@ export default async function EmailsPage() {
   const emails = result?.data ?? [];
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loading />}>
       <EmailsList emails={emails} />
     </Suspense>
   );

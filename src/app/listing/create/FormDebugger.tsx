@@ -1,9 +1,10 @@
 'use client';
 
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { CreateListing } from '@/lib/prisma/schema';
+import { CreateListing } from '@/lib/schema';
 
 function FormDebugger() {
   const methods = useFormContext<CreateListing>();
@@ -15,7 +16,7 @@ function FormDebugger() {
 
   if (
     (typeof window !== 'undefined' &&
-      !window.location.hostname.toLowerCase().includes('localhost')) ||
+      window.location.hostname.toLowerCase().endsWith('apadana.local')) ||
     !isVisible
   ) {
     return null;
@@ -23,67 +24,46 @@ function FormDebugger() {
 
   return (
     <div
-      className={`fixed bottom-4 right-4 max-w-lg w-full bg-gray-100 dark:bg-gray-800 border
-         border-gray-300 dark:border-gray-700 rounded-lg shadow-lg p-1 transition-all 
-         text-gray-900 dark:text-gray-100
-         duration-200 ${
-           isMinimized
-             ? 'h-[40px] overflow-hidden'
-             : 'max-h-[50vh] overflow-auto'
-         } opacity-80 hover:opacity-100`}
+      className={`bg-background border-border text-foreground fixed bottom-4 right-4 w-full max-w-lg rounded-lg border p-1 shadow-lg transition-all duration-200 ${isMinimized ? 'h-12' : 'h-96'}`}
     >
-      <div className='flex justify-between items-center'>
-        <h3 className='font-semibold text-gray-900 dark:text-gray-100'>
-          Debug Information
-        </h3>
-        <div className='flex items-center space-x-2'>
-          {!isMinimized && (
-            <>
-              <span className='text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-700'>
-                Valid: {formState.isValid ? '✅' : '❌'}
-              </span>
-              <span className='text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-700'>
-                Dirty: {formState.isDirty ? '✅' : '❌'}
-              </span>
-            </>
-          )}
-          <button
-            onClick={() => setIsMinimized(!isMinimized)}
-            className='p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors'
-            aria-label={
-              isMinimized ? 'Maximize debug panel' : 'Minimize debug panel'
-            }
-          >
-            {isMinimized ? '□' : '−'}
-          </button>
-          <button
-            onClick={() => setIsVisible(false)}
-            className='p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors'
-            aria-label='Close debug panel'
-          >
-            ✕
-          </button>
+      <div className='flex items-center justify-between'>
+        <h3 className='text-foreground font-semibold'>Debug Information</h3>
+        <div className='flex gap-2'>
+          <span className='bg-muted rounded px-2 py-1 text-xs'>
+            Valid: {formState.isValid ? '✅' : '❌'}
+          </span>
+          <span className='bg-muted rounded px-2 py-1 text-xs'>
+            Dirty: {formState.isDirty ? '✅' : '❌'}
+          </span>
         </div>
+        <button
+          onClick={() => setIsMinimized(!isMinimized)}
+          className='hover:bg-accent rounded-full p-1 transition-colors'
+        >
+          {isMinimized ? <ChevronUp /> : <ChevronDown />}
+        </button>
+        <button
+          onClick={() => setIsVisible(false)}
+          className='hover:bg-accent rounded-full p-1 transition-colors'
+        >
+          <X />
+        </button>
       </div>
 
       {!isMinimized && (
-        <div className='mt-4'>
+        <div className='h-[calc(100%-2rem)] overflow-auto p-2'>
           {Object.keys(errors).length > 0 && (
             <div className='mb-4'>
-              <h4 className='text-sm font-medium text-red-600 dark:text-red-400 mb-2'>
-                Validation Errors:
-              </h4>
-              <pre className='text-xs text-gray-900 dark:text-gray-100 bg-gray-200 dark:bg-gray-700 p-2 rounded overflow-auto'>
+              <h4 className='text-destructive mb-2 text-sm font-medium'>Validation Errors:</h4>
+              <pre className='text-foreground bg-muted overflow-auto rounded p-2 text-xs'>
                 {JSON.stringify(errors, null, 2)}
               </pre>
             </div>
           )}
 
           <div>
-            <h4 className='text-sm font-medium text-gray-900 dark:text-gray-100 mb-2'>
-              Form Values:
-            </h4>
-            <pre className='text-xs bg-gray-200 dark:bg-gray-700 p-2 rounded overflow-auto'>
+            <h4 className='text-foreground mb-2 text-sm font-medium'>Form Values:</h4>
+            <pre className='bg-muted overflow-auto rounded p-2 text-xs'>
               {JSON.stringify(values, null, 2)}
             </pre>
           </div>

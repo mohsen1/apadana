@@ -10,13 +10,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -48,35 +42,29 @@ function ForgotPasswordForm() {
     },
   });
 
-  const { execute: requestPasswordResetAction } = useAction(
-    requestPasswordReset,
-    {
-      onSuccess() {
-        setSubmittedEmail(getValues('email'));
-        setIsSubmitted(true);
-      },
+  const { execute: requestPasswordResetAction } = useAction(requestPasswordReset, {
+    onSuccess() {
+      setSubmittedEmail(getValues('email'));
+      setIsSubmitted(true);
     },
-  );
+  });
 
   if (isSubmitted) {
     return (
       <Card className='w-full max-w-md shadow-lg'>
         <CardHeader>
-          <div className='flex justify-center mb-4'>
+          <div className='mb-4 flex justify-center'>
             <CheckCircle2 className='h-12 w-12 text-green-500' />
           </div>
-          <CardTitle className='text-2xl font-bold text-center'>
-            Check your email
-          </CardTitle>
+          <CardTitle className='text-center text-2xl font-bold'>Check your email</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className='text-center text-muted-foreground'>
-            If an account exists for {submittedEmail}, you will receive a
-            password reset link.
+          <p className='text-muted-foreground text-center'>
+            If an account exists for {submittedEmail}, you will receive a password reset link.
           </p>
         </CardContent>
         <CardFooter className='justify-center'>
-          <Link href='/sign-in' className='text-primary hover:underline'>
+          <Link href='/signin' className='text-primary hover:underline'>
             Return to sign in
           </Link>
         </CardFooter>
@@ -87,28 +75,20 @@ function ForgotPasswordForm() {
   return (
     <Card className='w-full max-w-md shadow-lg'>
       <CardHeader>
-        <CardTitle className='text-2xl font-bold text-center'>
-          Reset Password
-        </CardTitle>
+        <CardTitle className='text-center text-2xl font-bold'>Reset Password</CardTitle>
       </CardHeader>
       <CardContent>
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleSubmit(requestPasswordResetAction)(e);
+            return handleSubmit(requestPasswordResetAction)(e);
           }}
           className='space-y-4'
         >
           <div className='space-y-2'>
             <Label htmlFor='email'>Email</Label>
-            <Input
-              {...register('email')}
-              type='email'
-              placeholder='Enter your email'
-            />
-            {errors.email && (
-              <p className='text-sm text-destructive'>{errors.email.message}</p>
-            )}
+            <Input {...register('email')} type='email' placeholder='Enter your email' />
+            {errors.email && <p className='text-destructive text-sm'>{errors.email.message}</p>}
           </div>
           <Button className='w-full' type='submit' disabled={isSubmitting}>
             {isSubmitting ? (
@@ -123,9 +103,9 @@ function ForgotPasswordForm() {
         </form>
       </CardContent>
       <CardFooter className='justify-center'>
-        <p className='text-sm text-muted-foreground'>
+        <p className='text-muted-foreground text-sm'>
           Remember your password?{' '}
-          <Link href='/sign-in' className='text-primary hover:underline'>
+          <Link href='/signin' className='text-primary hover:underline'>
             Sign in
           </Link>
         </p>
@@ -138,7 +118,7 @@ function LoadingFallback() {
   return (
     <Card className='w-full max-w-md shadow-lg'>
       <CardHeader>
-        <Skeleton className='h-8 w-3/4 mx-auto' />
+        <Skeleton className='mx-auto h-8 w-3/4' />
       </CardHeader>
       <CardContent className='space-y-4'>
         <div className='space-y-2'>
@@ -156,7 +136,7 @@ function LoadingFallback() {
 
 export default function ForgotPasswordPage() {
   return (
-    <div className='min-h-screen flex items-center justify-center bg-background p-4'>
+    <div className='bg-background flex min-h-screen items-center justify-center p-4'>
       <Suspense fallback={<LoadingFallback />}>
         <ForgotPasswordForm />
       </Suspense>

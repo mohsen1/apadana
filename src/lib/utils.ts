@@ -137,7 +137,7 @@ export function formatTimezone(timeZone: string) {
       return timeZone;
     }
     return formatter.value;
-  } catch (error) {
+  } catch {
     return timeZone;
   }
 }

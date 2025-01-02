@@ -1,20 +1,16 @@
 'use server';
 
 import slugify from 'slugify';
-import { z } from 'zod';
 
 import { getTimeZone } from '@/lib/google-maps-api';
 import prisma from '@/lib/prisma/client';
-import { CreateListingSchema, GetListingSchema } from '@/lib/prisma/schema';
 import { actionClient, UnauthorizedError } from '@/lib/safe-action';
-
-import logger from '@/utils/logger';
+import { CreateListingSchema, GetListingSchema } from '@/lib/schema';
 
 export const createListing = actionClient
   .schema(CreateListingSchema)
-  .outputSchema(z.object({ listing: GetListingSchema }))
+  .outputSchema(GetListingSchema)
   .action(async ({ parsedInput, ctx: { userId } }) => {
-    logger.info('createListing', { parsedInput, userId });
     if (!userId) {
       throw new UnauthorizedError();
     }
@@ -26,10 +22,15 @@ export const createListing = actionClient
     if (!owner) {
       throw new Error('Owner not found');
     }
-    const timeZone = await getTimeZone(
-      parsedInput.latitude,
-      parsedInput.longitude,
-    );
+    if (
+      parsedInput.latitude === undefined ||
+      parsedInput.latitude === null ||
+      parsedInput.longitude === undefined ||
+      parsedInput.longitude === null
+    ) {
+      throw new Error('Latitude and longitude are required');
+    }
+    const timeZone = await getTimeZone(parsedInput.latitude, parsedInput.longitude);
     const listing = await prisma.listing.create({
       data: {
         ...parsedInput,
@@ -51,7 +52,5 @@ export const createListing = actionClient
       },
     });
 
-    logger.info('created listing', { listing });
-
-    return { listing };
+    return listing;
   });

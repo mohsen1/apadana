@@ -1,6 +1,5 @@
+import { EmailAddress, Permission, Role, User, UserRole } from '@prisma/client';
 import _ from 'lodash';
-
-import { getUserInServer } from '@/lib/auth';
 
 import { ClientUser } from '@/contexts/auth-context';
 
@@ -9,15 +8,27 @@ import { ClientUser } from '@/contexts/auth-context';
  * code, but we need to sanitize the user for client side code.
  */
 export function sanitizeUserForClient(
-  user: Awaited<ReturnType<typeof getUserInServer>>,
+  user: User & {
+    emailAddresses: EmailAddress[];
+    roles: UserRole[];
+    permissions: { permission: Permission }[];
+  },
 ): ClientUser | null {
-  if (!user) {
+  if (!user) return null;
+
+  const primaryEmail = user.emailAddresses.find((e) => e.isPrimary)?.emailAddress;
+  if (!primaryEmail) {
     return null;
   }
-  const email = user.emailAddresses[0].emailAddress;
+  const isAdmin = user.roles.some((role) => role.role === Role.ADMIN);
 
   return {
-    ..._.pick(user, ['id', 'firstName', 'lastName', 'imageUrl']),
-    email,
+    id: user.id,
+    firstName: user.firstName ?? '',
+    lastName: user.lastName ?? '',
+    imageUrl: user.imageUrl,
+    email: primaryEmail,
+    emailAddresses: user.emailAddresses,
+    isAdmin,
   };
 }

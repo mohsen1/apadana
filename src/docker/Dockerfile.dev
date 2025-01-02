@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1.4
+FROM node:20.18.0-slim
+
+WORKDIR /app
+
+# Install development dependencies
+RUN apt-get update && \
+  apt-get install -y python3 make g++ inotify-tools wget grep && \
+  rm -rf /var/lib/apt/lists/*
+
+# Setup pnpm
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
+RUN pnpm config set store-dir /home/node/.pnpm-store \
+  && pnpm config set update-notifier false \
+  && pnpm config set node-deprecation-warnings false
+
+# Fetch dependencies first
+COPY pnpm-lock.yaml ./
+RUN --mount=type=cache,target=/home/node/.pnpm-store,id=pnpm-store \
+  pnpm fetch
+
+# Install dependencies from store
+COPY package.json ./
+RUN --mount=type=cache,target=/home/node/.pnpm-store,id=pnpm-store \
+  pnpm install --offline --frozen-lockfile
+
+ENV NODE_ENV=development \
+  NODE_OPTIONS='--max-old-space-size=4096 --no-warnings'
+
+EXPOSE 3000 6006 5555
+
+# Copy source code
+COPY . .
+
+# Setup entrypoint
+COPY src/docker/docker-entrypoint.dev.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.dev.sh
+
+ENTRYPOINT ["docker-entrypoint.dev.sh"]
+

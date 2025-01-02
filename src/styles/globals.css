@@ -3,20 +3,434 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-white text-black;
+  :root {
+    /* UI Colors */
+    --primary: 34 29 145; /* #221d91 */
+    --primary-foreground: 255 255 255; /* #ffffff */
 
-    font-family:
-      system-ui,
-      -apple-system,
-      BlinkMacSystemFont,
-      'Segoe UI',
-      Roboto,
-      Oxygen,
-      Ubuntu,
-      Cantarell,
-      'Open Sans',
-      'Helvetica Neue',
-      sans-serif;
+    --secondary: 241 245 249; /* #f1f5f9 */
+    --secondary-foreground: 15 23 42; /* #0f172a */
+
+    --muted: 241 245 249; /* #f1f5f9 */
+    --muted-foreground: 100 116 139; /* #64748b */
+
+    --accent: 224 242 254; /* #e0f2fe */
+    --accent-foreground: 12 74 110; /* #0c4a6e */
+
+    --destructive: 239 68 68; /* #ef4444 */
+    --destructive-foreground: 255 255 255; /* #ffffff */
+
+    /* System Colors */
+    --background: 255 255 255; /* #ffffff */
+    --foreground: 2 8 23; /* #020817 */
+
+    --card: 248 250 252; /* #f8fafc */
+    --card-foreground: 2 8 23; /* #020817 */
+
+    --popover: 255 255 255; /* #ffffff */
+    --popover-foreground: 2 8 23; /* #020817 */
+
+    /* Border Colors */
+    --border: 226 232 240; /* #e2e8f0 */
+    --input: 226 232 240; /* #e2e8f0 */
+    --ring: 22 62 83; /* #163e53 */
+
+    /* Additional Status Colors */
+    --success: 22 163 74; /* #16a34a */
+    --success-foreground: 255 255 255; /* #ffffff */
+
+    --warning: 245 158 11; /* #f59e0b */
+    --warning-foreground: 255 255 255; /* #ffffff */
+
+    --zinc: 249 250 251; /* #f9fafb */
+    --zinc-foreground: 2 8 23; /* #020817 */
+
+    /* Generated zinc scale */
+    --zinc-50: 249 250 251; /* 100% base */
+    --zinc-100: 244 244 245; /* 95% base + 5% darker */
+    --zinc-200: 228 228 231; /* 90% base + 10% darker */
+    --zinc-300: 212 212 216; /* 80% base + 20% darker */
+    --zinc-400: 161 161 170; /* 70% base + 30% darker */
+    --zinc-500: 113 113 122; /* 60% base + 40% darker */
+    --zinc-600: 82 82 91; /* 45% base + 55% darker */
+    --zinc-700: 63 63 70; /* 30% base + 70% darker */
+    --zinc-800: 39 39 42; /* 20% base + 80% darker */
+    --zinc-900: 24 24 27; /* 10% base + 90% darker */
+    --zinc-950: 2 8 23; /* matches foreground */
+
+    /* Generated destructive scale */
+    --destructive-100: 254 226 226;
+    --destructive-200: 254 202 202;
+    --destructive-300: 252 165 165;
+    --destructive-400: 248 113 113;
+    --destructive-500: 239 68 68;
+    --destructive-600: 220 38 38;
+    --destructive-700: 185 28 28;
+    --destructive-800: 153 27 27;
+    --destructive-900: 127 29 29;
+    --destructive-950: 69 10 10;
+
+    /* Success scale - light mode */
+    --success-100: 220 252 231;
+    --success-200: 187 247 208;
+    --success-300: 134 239 172;
+    --success-400: 74 222 128;
+    --success-500: 34 197 94;
+    --success-600: 22 163 74;
+    --success-700: 21 128 61;
+    --success-800: 22 101 52;
+    --success-900: 20 83 45;
+    --success-950: 5 46 22;
+
+    /* Warning scale - light mode */
+    --warning-100: 254 243 199;
+    --warning-200: 253 230 138;
+    --warning-300: 252 211 77;
+    --warning-400: 251 191 36;
+    --warning-500: 245 158 11;
+    --warning-600: 217 119 6;
+    --warning-700: 180 83 9;
+    --warning-800: 146 64 14;
+    --warning-900: 120 53 15;
+    --warning-950: 69 26 3;
+
+    /* Primary scale - light mode */
+    --primary-100: 224 231 255; /* Lightest */
+    --primary-200: 199 210 254;
+    --primary-300: 165 180 252;
+    --primary-400: 129 140 248;
+    --primary-500: 99 102 241;
+    --primary-600: 79 70 229;
+    --primary-700: 67 56 202;
+    --primary-800: 55 48 163;
+    --primary-900: 49 46 129;
+    --primary-950: 34 29 145; /* Matches primary */
+
+    /* Accent scale - light mode */
+    --accent-100: 236 252 255; /* Lightest sky blue */
+    --accent-200: 224 242 254;
+    --accent-300: 186 230 253;
+    --accent-400: 125 211 252;
+    --accent-500: 56 189 248;
+    --accent-600: 14 165 233;
+    --accent-700: 2 132 199;
+    --accent-800: 3 105 161;
+    --accent-900: 7 89 133;
+    --accent-950: 12 74 110;
+
+    /* Ring scale - light mode */
+    --ring-100: 186 230 253; /* Lightest blue */
+    --ring-200: 125 211 252;
+    --ring-300: 56 189 248;
+    --ring-400: 14 165 233;
+    --ring-500: 2 132 199;
+    --ring-600: 3 105 161;
+    --ring-700: 7 89 133;
+    --ring-800: 12 74 110;
+    --ring-900: 8 47 73;
+    --ring-950: 22 62 83; /* Matches ring */
+  }
+
+  .dark {
+    &,
+    * {
+      border-color: rgb(var(--border));
+
+      /* UI Colors */
+      --primary: 34 51 206; /* #2233ce */
+      --primary-foreground: 255 255 255; /* #ffffff */
+
+      --secondary: 30 41 59; /* #1e293b */
+      --secondary-foreground: 248 250 252; /* #f8fafc */
+
+      --muted: 26 32 42; /* #1e293b */
+      --muted-foreground: 148 163 184; /* #94a3b8 */
+
+      --accent: 35 44 124; /* #232c7c */
+      --accent-foreground: 224 242 254; /* #e0f2fe */
+
+      --destructive: 239 68 68; /* #ef4444 */
+      --destructive-foreground: 255 255 255; /* #ffffff */
+
+      /* System Colors */
+      --background: 2 8 23; /* #020817 */
+      --foreground: 255 255 255; /* #ffffff */
+
+      --card: 15 23 42; /* #0f172a */
+      --card-foreground: 255 255 255; /* #ffffff */
+
+      --popover: 15 23 42; /* #0f172a */
+      --popover-foreground: 255 255 255; /* #ffffff */
+
+      /* Border Colors */
+      --border: 51 65 85; /* #334155 */
+      --input: 51 65 85; /* #334155 */
+      --ring: 14 165 233; /* #0ea5e9 */
+
+      /* Additional Status Colors */
+      --success: 22 163 74; /* #16a34a */
+      --success-foreground: 255 255 255; /* #ffffff */
+
+      --warning: 245 158 11; /* #f59e0b */
+      --warning-foreground: 255 255 255; /* #ffffff */
+
+      --zinc: 15 23 42; /* #0f172a */
+      --zinc-foreground: 255 255 255; /* #ffffff */
+
+      /* Dark mode zinc scale */
+      --zinc-50: 24 24 27; /* darkest */
+      --zinc-100: 39 39 42; /* 90% dark + 10% light */
+      --zinc-200: 63 63 70; /* 80% dark + 20% light */
+      --zinc-300: 82 82 91; /* 70% dark + 30% light */
+      --zinc-400: 113 113 122; /* 60% dark + 40% light */
+      --zinc-500: 161 161 170; /* 50% dark + 50% light */
+      --zinc-600: 212 212 216; /* 40% dark + 60% light */
+      --zinc-700: 228 228 231; /* 30% dark + 70% light */
+      --zinc-800: 244 244 245; /* 20% dark + 80% light */
+      --zinc-900: 249 250 251; /* 10% dark + 90% light */
+      --zinc-950: 250 250 250; /* lightest */
+
+      /* Reversed destructive scale for dark mode */
+      --destructive-50: 69 10 10;
+      --destructive-100: 127 29 29;
+      --destructive-200: 153 27 27;
+      --destructive-300: 185 28 28;
+      --destructive-400: 220 38 38;
+      --destructive-500: 239 68 68;
+      --destructive-600: 248 113 113;
+      --destructive-700: 252 165 165;
+      --destructive-800: 254 202 202;
+      --destructive-900: 254 226 226;
+      --destructive-950: 254 242 242;
+
+      /* Reversed success scale for dark mode */
+      --success-50: 5 46 22;
+      --success-100: 20 83 45;
+      --success-200: 22 101 52;
+      --success-300: 21 128 61;
+      --success-400: 22 163 74;
+      --success-500: 34 197 94;
+      --success-600: 74 222 128;
+      --success-700: 134 239 172;
+      --success-800: 187 247 208;
+      --success-900: 220 252 231;
+      --success-950: 240 253 244;
+
+      /* Reversed warning scale for dark mode */
+      --warning-50: 69 26 3;
+      --warning-100: 120 53 15;
+      --warning-200: 146 64 14;
+      --warning-300: 180 83 9;
+      --warning-400: 217 119 6;
+      --warning-500: 245 158 11;
+      --warning-600: 251 191 36;
+      --warning-700: 252 211 77;
+      --warning-800: 253 230 138;
+      --warning-900: 254 243 199;
+      --warning-950: 255 251 235;
+
+      /* Reversed primary scale for dark mode */
+      --primary-50: 34 29 145;
+      --primary-100: 49 46 129;
+      --primary-200: 55 48 163;
+      --primary-300: 67 56 202;
+      --primary-400: 79 70 229;
+      --primary-500: 99 102 241;
+      --primary-600: 129 140 248;
+      --primary-700: 165 180 252;
+      --primary-800: 199 210 254;
+      --primary-900: 224 231 255;
+      --primary-950: 238 242 255;
+
+      /* Reversed accent scale for dark mode */
+      --accent-50: 8 47 73;
+      --accent-100: 12 74 110;
+      --accent-200: 7 89 133;
+      --accent-300: 3 105 161;
+      --accent-400: 2 132 199;
+      --accent-500: 14 165 233;
+      --accent-600: 56 189 248;
+      --accent-700: 125 211 252;
+      --accent-800: 186 230 253;
+      --accent-900: 224 242 254;
+      --accent-950: 236 254 255;
+
+      /* Reversed ring scale for dark mode */
+      --ring-50: 22 62 83;
+      --ring-100: 8 47 73;
+      --ring-200: 12 74 110;
+      --ring-300: 7 89 133;
+      --ring-400: 3 105 161;
+      --ring-500: 2 132 199;
+      --ring-600: 14 165 233;
+      --ring-700: 56 189 248;
+      --ring-800: 125 211 252;
+      --ring-900: 186 230 253;
+      --ring-950: 224 242 254;
+    }
+  }
+
+  /* This class name is used by the SpectrumProvider component */
+  /* div. specifity is here to override the default theme */
+  div.spectrum-global--apanda {
+    /* Spectrum Alias Variables - mapped to our existing colors */
+    --spectrum-alias-background-color-default: rgb(var(--background));
+    --spectrum-alias-background-color-disabled: rgb(var(--muted));
+    --spectrum-alias-text-color: rgb(var(--foreground));
+    --spectrum-alias-text-color-disabled: rgb(var(--muted-foreground));
+    --spectrum-alias-border-color: rgb(var(--border));
+    --spectrum-alias-border-color-disabled: rgb(var(--muted));
+    --spectrum-alias-focus-color: rgb(var(--ring));
+    --spectrum-alias-input-border-color-key-focus: rgb(var(--ring));
+    --spectrum-alias-background-color-hover: rgb(var(--accent));
+    --spectrum-alias-background-color-down: rgb(var(--accent));
+    --spectrum-alias-background-color-key-focus: rgb(var(--accent));
+    --spectrum-accent-background-color-default: rgb(var(--primary));
+
+    /* Spectrum Status Colors */
+    --spectrum-semantic-negative-color-default: rgb(var(--destructive));
+    --spectrum-semantic-negative-color-background: rgb(var(--destructive));
+    --spectrum-semantic-positive-color-default: rgb(var(--success));
+    --spectrum-semantic-notice-color-default: rgb(var(--warning));
+
+    /* Base units for calculations */
+    --apadana-spectrum-base-unit: 3.5px;
+    --apadana-spectrum-base-font: 14px;
+
+    /* Size variables using calc() */
+    --spectrum-global-dimension-size-0: 0px;
+    --spectrum-global-dimension-size-10: calc(var(--apadana-spectrum-base-unit) * 0.5); /* 2px */
+    --spectrum-global-dimension-size-25: calc(var(--apadana-spectrum-base-unit) * 1); /* 4px */
+    --spectrum-global-dimension-size-40: calc(var(--apadana-spectrum-base-unit) * 1.5); /* 6px */
+    --spectrum-global-dimension-size-50: calc(var(--apadana-spectrum-base-unit) * 2); /* 8px */
+    --spectrum-global-dimension-size-65: calc(var(--apadana-spectrum-base-unit) * 2.5); /* 10px */
+    --spectrum-global-dimension-size-75: calc(var(--apadana-spectrum-base-unit) * 3); /* 12px */
+    --spectrum-global-dimension-size-85: calc(var(--apadana-spectrum-base-unit) * 3.5); /* 14px */
+    --spectrum-global-dimension-size-100: calc(var(--apadana-spectrum-base-unit) * 4); /* 16px */
+    --spectrum-global-dimension-size-115: calc(var(--apadana-spectrum-base-unit) * 4.5); /* 18px */
+    --spectrum-global-dimension-size-125: calc(var(--apadana-spectrum-base-unit) * 5); /* 20px */
+    --spectrum-global-dimension-size-130: calc(var(--apadana-spectrum-base-unit) * 5.5); /* 22px */
+    --spectrum-global-dimension-size-150: calc(var(--apadana-spectrum-base-unit) * 6); /* 24px */
+    --spectrum-global-dimension-size-160: calc(var(--apadana-spectrum-base-unit) * 6.5); /* 26px */
+    --spectrum-global-dimension-size-175: calc(var(--apadana-spectrum-base-unit) * 7); /* 28px */
+    --spectrum-global-dimension-size-200: calc(var(--apadana-spectrum-base-unit) * 8); /* 32px */
+    --spectrum-global-dimension-size-225: calc(var(--apadana-spectrum-base-unit) * 9); /* 36px */
+    --spectrum-global-dimension-size-250: calc(var(--apadana-spectrum-base-unit) * 10); /* 40px */
+    --spectrum-global-dimension-size-275: calc(var(--apadana-spectrum-base-unit) * 11); /* 44px */
+    --spectrum-global-dimension-size-300: calc(
+      var(--apadana-spectrum-base-unit) * 11.25
+    ); /* 45px */
+    --spectrum-global-dimension-size-325: calc(var(--apadana-spectrum-base-unit) * 11.5); /* 46px */
+    --spectrum-global-dimension-size-350: calc(
+      var(--apadana-spectrum-base-unit) * 11.625
+    ); /* 46.5px */
+    --spectrum-global-dimension-size-400: calc(
+      var(--apadana-spectrum-base-unit) * 11.75
+    ); /* 47px */
+    --spectrum-global-dimension-size-450: calc(var(--apadana-spectrum-base-unit) * 12); /* 48px */
+    --spectrum-global-dimension-size-500: calc(var(--apadana-spectrum-base-unit) * 13); /* 52px */
+    --spectrum-global-dimension-size-550: calc(var(--apadana-spectrum-base-unit) * 14); /* 56px */
+    --spectrum-global-dimension-size-600: calc(var(--apadana-spectrum-base-unit) * 15); /* 60px */
+    --spectrum-global-dimension-size-675: calc(var(--apadana-spectrum-base-unit) * 16); /* 64px */
+    --spectrum-global-dimension-size-700: calc(var(--apadana-spectrum-base-unit) * 17); /* 68px */
+    --spectrum-global-dimension-size-800: calc(var(--apadana-spectrum-base-unit) * 18); /* 72px */
+    --spectrum-global-dimension-size-900: calc(var(--apadana-spectrum-base-unit) * 20); /* 80px */
+    --spectrum-global-dimension-size-1000: calc(var(--apadana-spectrum-base-unit) * 22); /* 88px */
+    --spectrum-global-dimension-size-1200: calc(var(--apadana-spectrum-base-unit) * 24); /* 96px */
+    --spectrum-global-dimension-size-1250: calc(var(--apadana-spectrum-base-unit) * 25); /* 100px */
+    --spectrum-global-dimension-size-1600: calc(var(--apadana-spectrum-base-unit) * 32); /* 128px */
+    --spectrum-global-dimension-size-1700: calc(var(--apadana-spectrum-base-unit) * 34); /* 136px */
+    --spectrum-global-dimension-size-2000: calc(var(--apadana-spectrum-base-unit) * 40); /* 160px */
+    --spectrum-global-dimension-size-2400: calc(var(--apadana-spectrum-base-unit) * 48); /* 192px */
+    --spectrum-global-dimension-size-3000: calc(var(--apadana-spectrum-base-unit) * 60); /* 240px */
+    --spectrum-global-dimension-size-3400: calc(var(--apadana-spectrum-base-unit) * 68); /* 272px */
+    --spectrum-global-dimension-size-3600: calc(var(--apadana-spectrum-base-unit) * 72); /* 288px */
+    --spectrum-global-dimension-size-4600: calc(var(--apadana-spectrum-base-unit) * 92); /* 368px */
+    --spectrum-global-dimension-size-5000: calc(
+      var(--apadana-spectrum-base-unit) * 100
+    ); /* 400px */
+    --spectrum-global-dimension-size-6000: calc(
+      var(--apadana-spectrum-base-unit) * 120
+    ); /* 480px */
+
+    /* Font sizes using calc() */
+    --spectrum-global-dimension-font-size-25: calc(
+      var(--apadana-spectrum-base-font) * 0.5
+    ); /* 8px */
+    --spectrum-global-dimension-font-size-50: calc(
+      var(--apadana-spectrum-base-font) * 0.75
+    ); /* 12px */
+    --spectrum-global-dimension-font-size-75: calc(
+      var(--apadana-spectrum-base-font) * 0.875
+    ); /* 14px */
+    --spectrum-global-dimension-font-size-100: var(--apadana-spectrum-base-font); /* 16px */
+    --spectrum-global-dimension-font-size-150: calc(
+      var(--apadana-spectrum-base-font) * 1.125
+    ); /* 18px */
+    --spectrum-global-dimension-font-size-200: calc(
+      var(--apadana-spectrum-base-font) * 1.25
+    ); /* 20px */
+    --spectrum-global-dimension-font-size-300: calc(
+      var(--apadana-spectrum-base-font) * 1.5
+    ); /* 24px */
+    --spectrum-global-dimension-font-size-400: calc(
+      var(--apadana-spectrum-base-font) * 1.75
+    ); /* 28px */
+    --spectrum-global-dimension-font-size-500: calc(
+      var(--apadana-spectrum-base-font) * 2
+    ); /* 32px */
+    --spectrum-global-dimension-font-size-600: calc(
+      var(--apadana-spectrum-base-font) * 2.25
+    ); /* 36px */
+    --spectrum-global-dimension-font-size-700: calc(
+      var(--apadana-spectrum-base-font) * 2.5
+    ); /* 40px */
+    --spectrum-global-dimension-font-size-800: calc(
+      var(--apadana-spectrum-base-font) * 2.75
+    ); /* 44px */
+    --spectrum-global-dimension-font-size-900: calc(
+      var(--apadana-spectrum-base-font) * 3
+    ); /* 48px */
+    --spectrum-global-dimension-font-size-1000: calc(
+      var(--apadana-spectrum-base-font) * 3.25
+    ); /* 52px */
+    --spectrum-global-dimension-font-size-1100: calc(
+      var(--apadana-spectrum-base-font) * 3.5
+    ); /* 56px */
+    --spectrum-global-dimension-font-size-1200: calc(
+      var(--apadana-spectrum-base-font) * 3.75
+    ); /* 60px */
+    --spectrum-global-dimension-font-size-1300: calc(
+      var(--apadana-spectrum-base-font) * 4
+    ); /* 64px */
+
+    /* Spectrum Border Radius */
+    --spectrum-alias-border-radius-xsmall: 2px; /* sm: 2px */
+    --spectrum-alias-border-radius-small: 4px; /* DEFAULT: 4px */
+    --spectrum-alias-border-radius-regular: 6px; /* md: 6px */
+    --spectrum-alias-border-radius-medium: 8px; /* lg: 8px */
+    --spectrum-alias-border-radius-large: 12px; /* xl: 12px */
+
+    /* Spectrum Border Width */
+    --spectrum-alias-input-border-size: 1px;
+    --spectrum-alias-focus-ring-size: 2px; /* sm: 2px */
+    --spectrum-alias-focus-color: rgb(var(--ring)); /* Controls focus outline color */
+    --spectrum-alias-focus-color-disabled: rgb(var(--muted));
+    --spectrum-textfield-border-color-key-focus: rgb(var(--ring));
+    --spectrum-alias-input-border-size: 1px;
+
+    /* focus ring */
+    --spectrum-focus-ring-border-radius: 4px;
+    --spectrum-focus-ring-gap: 2px;
+    --spectrum-focus-ring-size: 4px;
+    --spectrum-focus-ring-border-size: 3px;
+    --spectrum-focus-ring-color: rgb(255 157 31);
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
 }

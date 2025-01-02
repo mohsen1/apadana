@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { BookingRequest } from '@prisma/client';
 import { differenceInDays, format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import Image from 'next/image';
@@ -8,10 +9,8 @@ import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { useForm } from 'react-hook-form';
 
-import {
-  CreateBookingRequest,
-  CreateBookingRequestSchema,
-} from '@/lib/prisma/schema';
+import { CreateBookingRequestSchema } from '@/lib/schema';
+import { CreateBookingRequest } from '@/lib/schema';
 import { PublicListing } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 
@@ -33,31 +32,34 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
-import { createBookingRequest } from '@/app/listing/[id]/booking/action';
+import { alterBookingRequest, createBookingRequest } from '@/app/listing/[id]/booking/action';
 import { ImageGallery } from '@/app/listing/[id]/booking/create/ImageGallery';
+
+interface CreateBookingFormProps {
+  listing: PublicListing;
+  checkIn: Date;
+  checkOut: Date;
+  originalBookingRequest?: BookingRequest | null;
+}
 
 export default function BookingPage({
   listing,
   checkIn: initialCheckIn,
   checkOut: initialCheckOut,
-}: {
-  listing: PublicListing;
-  checkIn: Date;
-  checkOut: Date;
-}) {
+  originalBookingRequest,
+}: CreateBookingFormProps) {
   const router = useRouter();
-  const { register, handleSubmit, getValues, formState } =
-    useForm<CreateBookingRequest>({
-      defaultValues: {
-        listingId: listing.id,
-        checkIn: initialCheckIn,
-        checkOut: initialCheckOut,
-        guests: 1,
-        message: '',
-        pets: false,
-      },
-      resolver: zodResolver(CreateBookingRequestSchema),
-    });
+  const { register, handleSubmit, getValues, formState } = useForm<CreateBookingRequest>({
+    defaultValues: {
+      listingId: listing.id,
+      checkIn: initialCheckIn,
+      checkOut: initialCheckOut,
+      guests: 1,
+      message: '',
+      pets: false,
+    },
+    resolver: zodResolver(CreateBookingRequestSchema),
+  });
 
   const { execute, status, result } = useAction(createBookingRequest, {
     onSuccess: (res) => {
@@ -68,14 +70,29 @@ export default function BookingPage({
   });
 
   const onSubmit = async (data: CreateBookingRequest) => {
-    execute({
-      listingId: listing.id,
-      checkIn: data.checkIn,
-      checkOut: data.checkOut,
-      guests: data.guests,
-      message: data.message,
-      pets: false,
-    });
+    if (originalBookingRequest) {
+      const result = await alterBookingRequest({
+        bookingRequestId: originalBookingRequest.id,
+        checkIn: data.checkIn,
+        checkOut: data.checkOut,
+        guestCount: data.guests,
+        message: data.message,
+      });
+      const alteredRequest = result?.data;
+
+      if (alteredRequest?.id) {
+        router.push(`/listing/${listing.id}/booking/request/${alteredRequest.id}`);
+      }
+    } else {
+      execute({
+        listingId: listing.id,
+        checkIn: data.checkIn,
+        checkOut: data.checkOut,
+        guests: data.guests,
+        message: data.message,
+        pets: false,
+      });
+    }
   };
 
   const checkin = getValues('checkIn');
@@ -90,8 +107,8 @@ export default function BookingPage({
   const total = subtotal + serviceFee;
 
   return (
-    <div className='container mx-auto p-4 flex-grow max-w-6xl grid grid-cols-[1fr_auto]'>
-      <div className='flex flex-col lg:flex-row gap-8'>
+    <div className='container mx-auto grid max-w-6xl flex-grow grid-cols-[1fr_auto] p-4'>
+      <div className='flex flex-col gap-8 lg:flex-row'>
         {/* Image Gallery Column */}
         <ImageGallery listing={listing} />
         {/* Booking Form Column */}
@@ -107,18 +124,12 @@ export default function BookingPage({
               <div className='space-y-2'>
                 <label className='text-sm font-medium'>Selected dates</label>
                 <div>
-                  From{' '}
-                  <span className='font-semibold'>
-                    {format(checkin, 'MMM d, yyyy')}
-                  </span>{' '}
-                  to{' '}
-                  <span className='font-semibold'>
-                    {format(checkout, 'MMM d, yyyy')}
-                  </span>
+                  From <span className='font-semibold'>{format(checkin, 'MMM d, yyyy')}</span> to{' '}
+                  <span className='font-semibold'>{format(checkout, 'MMM d, yyyy')}</span>
                 </div>
               </div>
 
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                 <div className='space-y-2 pt-4'>
                   <label htmlFor='guests' className='text-sm font-medium'>
                     Number of guests
@@ -148,7 +159,7 @@ export default function BookingPage({
                     alt={listing.owner.firstName ?? ''}
                     width={32}
                     height={32}
-                    className='rounded-full mr-4'
+                    className='mr-4 rounded-full'
                   />
                   <div>Hosted by {listing.owner.firstName}</div>
                 </div>
@@ -167,8 +178,7 @@ export default function BookingPage({
                 <div className='space-y-1'>
                   <div className='flex justify-between'>
                     <span>
-                      {formatCurrency(basePrice, listing.currency)} x {nights}{' '}
-                      nights
+                      {formatCurrency(basePrice, listing.currency)} x {nights} nights
                     </span>
                     <span>${subtotal}</span>
                   </div>
@@ -185,14 +195,10 @@ export default function BookingPage({
             </CardContent>
             <CardFooter className='flex flex-col gap-2'>
               <Button type='submit' className='w-full'>
-                {status === 'executing'
-                  ? 'Sending...'
-                  : 'Send your booking request'}
+                {status === 'executing' ? 'Sending...' : 'Send your booking request'}
               </Button>
               {result.serverError ? (
-                <div className='text-red-500 w-full'>
-                  {result.serverError.error}
-                </div>
+                <div className='w-full text-red-500'>{result.serverError.error}</div>
               ) : null}
             </CardFooter>
           </Card>

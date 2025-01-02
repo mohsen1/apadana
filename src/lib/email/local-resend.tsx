@@ -1,8 +1,4 @@
-import {
-  CreateEmailOptions,
-  CreateEmailRequestOptions,
-  CreateEmailResponse,
-} from 'resend';
+import { CreateEmailOptions, CreateEmailRequestOptions, CreateEmailResponse } from 'resend';
 
 import prisma from '@/lib/prisma/client';
 
@@ -22,7 +18,9 @@ export class LocalResend {
       // Render React
       if (payload.react) {
         // @ts-expect-error hack for local development
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { renderToString } = await import('react-dom/server');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
         html = renderToString(payload.react);
       }
 

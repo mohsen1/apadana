@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import { actionClient } from '@/lib/safe-action';
 
-import { isDevOrTestEnv } from '@/utils/environment';
+import { shouldUseFakeUploads } from '@/app/upload/constants';
 import logger from '@/utils/logger';
 
 const inputSchema = z.object({
@@ -32,19 +32,12 @@ const getUploadSignedUrl = actionClient
   .schema(inputSchema)
   .outputSchema(outputSchema)
   .action(async ({ parsedInput }) => {
-    const {
-      NEXT_PUBLIC_S3_UPLOAD_REGION,
-      S3_UPLOAD_KEY,
-      NEXT_PUBLIC_DOMAIN,
-      S3_UPLOAD_SECRET,
-    } = process.env;
-
-    if (isDevOrTestEnv) {
+    if (shouldUseFakeUploads) {
       // Return fake signed URLs for e2e testing
       const urls = parsedInput.files.map((file) => {
         const fileExtension = file.filename.split('.').pop() ?? '';
         const key = `fake_upload_${crypto.randomUUID()}.${fileExtension}`;
-        const url = `http://${NEXT_PUBLIC_DOMAIN}/api/fake-upload/${key}`;
+        const url = `/api/e2e/upload/${key}`;
 
         return { url, key };
       });
@@ -54,10 +47,10 @@ const getUploadSignedUrl = actionClient
 
     // Initialize S3 client
     const s3Client = new S3Client({
-      region: NEXT_PUBLIC_S3_UPLOAD_REGION,
+      region: process.env.NEXT_PUBLIC_S3_UPLOAD_REGION,
       credentials: {
-        accessKeyId: S3_UPLOAD_KEY,
-        secretAccessKey: S3_UPLOAD_SECRET,
+        accessKeyId: process.env.S3_UPLOAD_KEY,
+        secretAccessKey: process.env.S3_UPLOAD_SECRET,
       },
     });
     try {

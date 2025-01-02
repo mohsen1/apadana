@@ -1,36 +1,22 @@
 // LocationPicker.tsx
 
-import {
-  Circle,
-  GoogleMap,
-  Libraries,
-  Marker,
-  useLoadScript,
-} from '@react-google-maps/api';
-import { Loader2, LocateFixed } from 'lucide-react'; // Import the LocateFixed icon
+import { Circle, GoogleMap, Libraries, Marker, useLoadScript } from '@react-google-maps/api';
+import { Loader2, LocateFixed } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-import {
-  googleMapsDarkStyles,
-  googleMapsLightStyles,
-} from '@/shared/google-maps-styles';
-import { GOOGLE_MAPS_API_KEY } from '@/shared/public-api-keys';
+import { googleMapsDarkStyles, googleMapsLightStyles } from '@/shared/google-maps-styles';
 
 interface LocationPickerProps {
   initialAddress?: string;
-  initialLatitude?: number;
-  initialLongitude?: number;
+  initialLatitude?: number | null;
+  initialLongitude?: number | null;
+  showExactLocationSwitch?: boolean;
   initialShowExactLocation?: boolean;
   onAddressChange?: (address: string) => void;
   onLocationChange?: (lat: number, lng: number) => void;
@@ -44,6 +30,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   initialAddress = '',
   initialLatitude,
   initialLongitude,
+  showExactLocationSwitch = true,
   initialShowExactLocation = true,
   onAddressChange,
   onLocationChange,
@@ -51,32 +38,22 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   errors = { address: undefined },
 }) => {
   const [addressInput, setAddressInput] = useState(initialAddress);
-  const [predictions, setPredictions] = useState<
-    google.maps.places.AutocompletePrediction[]
-  >([]);
-  const [selectedLocation, setSelectedLocation] =
-    useState<google.maps.LatLngLiteral | null>(
-      initialLatitude && initialLongitude
-        ? { lat: initialLatitude, lng: initialLongitude }
-        : null,
-    );
-  const [showExactLocation, setShowExactLocation] = useState(
-    initialShowExactLocation,
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLngLiteral | null>(
+    initialLatitude && initialLongitude ? { lat: initialLatitude, lng: initialLongitude } : null,
   );
-  const [isFetchingCurrentLocation, setIsFetchingCurrentLocation] =
-    useState(false);
+  const [showExactLocation, setShowExactLocation] = useState(initialShowExactLocation);
+  const [isFetchingCurrentLocation, setIsFetchingCurrentLocation] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral | null>(
-    selectedLocation,
-  );
+  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral | null>(selectedLocation);
   const [mapZoom, setMapZoom] = useState<number>(14);
   const [customPin, setCustomPin] = useState<google.maps.Icon | null>(null);
-  const [activePredictionIndex, setActivePredictionIndex] =
-    useState<number>(-1);
+  const [activePredictionIndex, setActivePredictionIndex] = useState<number>(-1);
   const libraries: Libraries = ['places', 'geometry'];
+
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     libraries,
   });
   const { theme } = useTheme();
@@ -93,21 +70,17 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     }
 
     const service = new google.maps.places.AutocompleteService();
-    service.getPlacePredictions(
+    return service.getPlacePredictions(
       {
         input: value,
         types: ['address'],
       },
       (predictions, status) => {
-        if (
-          status === google.maps.places.PlacesServiceStatus.OK &&
-          predictions
-        ) {
+        if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
           // Filter predictions to only include residential addresses
           const residentialPredictions = predictions.filter(
             (prediction) =>
-              prediction.types.includes('street_address') ||
-              prediction.types.includes('premise'),
+              prediction.types.includes('street_address') || prediction.types.includes('premise'),
           );
           setPredictions(residentialPredictions);
           setActivePredictionIndex(-1);
@@ -119,16 +92,14 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     );
   };
 
-  const handleSelectPrediction = (
-    prediction: google.maps.places.AutocompletePrediction,
-  ) => {
+  const handleSelectPrediction = (prediction: google.maps.places.AutocompletePrediction) => {
     setAddressInput(prediction.description);
     onAddressChange?.(prediction.description);
     setPredictions([]);
     setActivePredictionIndex(-1);
 
     const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ placeId: prediction.place_id }, (results, status) => {
+    return geocoder.geocode({ placeId: prediction.place_id }, (results, status) => {
       if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
         const location = results[0].geometry?.location;
         if (location) {
@@ -159,11 +130,8 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         );
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        if (
-          activePredictionIndex >= 0 &&
-          activePredictionIndex < predictions.length
-        ) {
-          handleSelectPrediction(predictions[activePredictionIndex]);
+        if (activePredictionIndex >= 0 && activePredictionIndex < predictions.length) {
+          return handleSelectPrediction(predictions[activePredictionIndex]);
         }
       } else if (e.key === 'Escape') {
         setPredictions([]);
@@ -187,15 +155,11 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
           // Reverse geocode to get address
           const geocoder = new google.maps.Geocoder();
-          geocoder.geocode(
+          return geocoder.geocode(
             { location: { lat: latitude, lng: longitude } },
             (results, status) => {
               setIsFetchingCurrentLocation(false);
-              if (
-                status === google.maps.GeocoderStatus.OK &&
-                results &&
-                results[0]
-              ) {
+              if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
                 const address = results[0].formatted_address;
                 setAddressInput(address);
                 onAddressChange?.(address);
@@ -226,26 +190,10 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
         const center = new google.maps.LatLng(lat, lng);
 
-        const north = google.maps.geometry.spherical.computeOffset(
-          center,
-          radiusInMeters,
-          0,
-        );
-        const east = google.maps.geometry.spherical.computeOffset(
-          center,
-          radiusInMeters,
-          90,
-        );
-        const south = google.maps.geometry.spherical.computeOffset(
-          center,
-          radiusInMeters,
-          180,
-        );
-        const west = google.maps.geometry.spherical.computeOffset(
-          center,
-          radiusInMeters,
-          270,
-        );
+        const north = google.maps.geometry.spherical.computeOffset(center, radiusInMeters, 0);
+        const east = google.maps.geometry.spherical.computeOffset(center, radiusInMeters, 90);
+        const south = google.maps.geometry.spherical.computeOffset(center, radiusInMeters, 180);
+        const west = google.maps.geometry.spherical.computeOffset(center, radiusInMeters, 270);
 
         bounds.extend(north);
         bounds.extend(east);
@@ -314,9 +262,9 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   }
 
   return (
-    <div className='space-y-4 min-h-64'>
+    <div className='min-h-64 space-y-4'>
       {!isLoaded ? (
-        <div className='flex justify-center items-center h-64'>
+        <div className='flex h-64 items-center justify-center'>
           <Loader2 className='animate-spin motion-reduce:animate-none' />
         </div>
       ) : (
@@ -335,9 +283,9 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
               />
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
-                  <TooltipTrigger className='absolute right-2 top-1/2 transform -translate-y-1/2'>
+                  <TooltipTrigger className='absolute right-2 top-1/2 -translate-y-1/2 transform'>
                     <LocateFixed
-                      className='cursor-pointer text-muted-foreground hover:text-foreground'
+                      className='text-muted-foreground hover: cursor-pointer'
                       onClick={handleFetchCurrentLocation}
                     />
                   </TooltipTrigger>
@@ -355,15 +303,13 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                 </div>
               </span>
             )}
-            {errors.address && (
-              <span className='text-red-500'>{errors.address}</span>
-            )}
+            {errors.address && <span className='text-red-500'>{errors.address}</span>}
             {predictions.length > 0 && (
-              <ul className='absolute z-10 w-full bg-background border rounded-md mt-1 shadow-lg'>
+              <ul className='border-border/15 bg-background absolute z-10 mt-1 w-full rounded-md border shadow-lg'>
                 {predictions.map((prediction, index) => (
                   <li
                     key={prediction.place_id}
-                    className={`px-4 py-2 hover:bg-muted-foreground/50 cursor-pointer ${
+                    className={`hover:bg-muted-foreground/50 cursor-pointer px-4 py-2 ${
                       index === activePredictionIndex ? 'bg-muted' : ''
                     }`}
                     onClick={() => handleSelectPrediction(prediction)}
@@ -377,20 +323,22 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
           {mapCenter && (
             <>
-              <div className='flex items-center mt-4'>
-                <Switch
-                  id='showExactLocation'
-                  checked={showExactLocation}
-                  onCheckedChange={(checked) => {
-                    setShowExactLocation(checked);
-                    onShowExactLocationChange?.(checked);
-                  }}
-                />
-                <Label htmlFor='showExactLocation' className='ml-2'>
-                  Show exact location
-                </Label>
-              </div>
-              <div className='h-64 w-full mt-4'>
+              {showExactLocationSwitch && (
+                <div className='mt-4 flex items-center'>
+                  <Switch
+                    id='showExactLocation'
+                    checked={showExactLocation}
+                    onCheckedChange={(checked) => {
+                      setShowExactLocation(checked);
+                      onShowExactLocationChange?.(checked);
+                    }}
+                  />
+                  <Label htmlFor='showExactLocation' className='ml-2'>
+                    Show exact location
+                  </Label>
+                </div>
+              )}
+              <div className='mt-4 h-64 w-full'>
                 <GoogleMap
                   onLoad={(map) => {
                     mapRef.current = map;
@@ -399,10 +347,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                   zoom={mapZoom}
                   mapContainerStyle={{ height: '100%', width: '100%' }}
                   options={{
-                    styles:
-                      theme === 'dark'
-                        ? googleMapsDarkStyles
-                        : googleMapsLightStyles,
+                    styles: theme === 'dark' ? googleMapsDarkStyles : googleMapsLightStyles,
                     streetViewControl: false,
                     mapTypeControl: false,
                     fullscreenControl: false,

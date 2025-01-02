@@ -10,6 +10,7 @@
 
 # next.js
 /.next/
+.cache
 /out/
 
 # production
@@ -43,6 +44,8 @@ sitemap-*.xml
 *storybook.log
 storybook-static/
 /test-results/
+**-test-results/
+**-html-report/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
@@ -51,32 +54,38 @@ storybook-static/
 playwright/.auth
 
 # Test uploads
-e2e/uploads/
+public/images/e2e/uploads/
 
 # Unit test
 !.env.test
 
 # Do not allow new files in root
-.*
-total 1568
-!Dockerfile.dev
-!Dockerfile.prod
+package-updates-summary.md
+*.json
+*.md
+*.fish
+*.sh
+*.log
+*.txt
+*.yaml
+*.yml
+
+# Files that *are* allowed in root
 !README.md
+!.gitignore
 !components.json
-!docker-compose.prod.yml
-!docker-compose.yml
-!docker-entrypoint.dev.sh
-!environment-variables.ts
-!jest.config.ts
-!jest.setup.ts
-!next-env.d.ts
-!next-sitemap.config.js
-!next.config.ts
 !package.json
-!playwright.config.ts
 !pnpm-lock.yaml
-!postcss.config.js
-!renovate.json
-!tailwind.config.ts
 !tsconfig.json
-!vercel.json
+!.storybook/
+!.vscode/
+!.husky/
+!.github
+
+# Serialized repo
+repo-serialized/
+
+# Temporary scripts
+*.fish
+*.sh
+*.bash

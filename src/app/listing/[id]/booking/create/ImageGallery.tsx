@@ -8,12 +8,12 @@ export function ImageGallery({ listing }: { listing: PublicListing }) {
   const [mainImage, setMainImage] = useState(0);
   return (
     <div className='lg:w-3/4'>
-      <div className='relative aspect-video mb-4'>
+      <div className='relative mb-4 aspect-video'>
         <Image
           src={listing.images[mainImage].url}
           alt={`Listing image ${listing.images[mainImage].name}`}
           fill
-          className='object-cover rounded-lg'
+          className='rounded-lg object-cover'
         />
       </div>
       <div className='grid grid-cols-4 gap-2'>
@@ -21,20 +21,13 @@ export function ImageGallery({ listing }: { listing: PublicListing }) {
           <button
             key={index}
             onClick={() => setMainImage(index)}
-            className={`relative aspect-video ${index === mainImage ? 'ring-2 ring-primary' : ''}`}
+            className={`relative aspect-video ${index === mainImage ? 'ring-primary ring-2' : ''}`}
           >
-            <Image
-              src={img.url}
-              alt={img.name ?? ''}
-              fill
-              className='object-cover rounded-md'
-            />
+            <Image src={img.url} alt={img.name ?? ''} fill className='rounded-md object-cover' />
           </button>
         ))}
       </div>
-      <h2 className='text-2xl pt-6 pb-2  mb-2 font-bold font-heading'>
-        {listing.title}
-      </h2>
+      <h2 className='font-heading mb-2 pb-2 pt-6 text-2xl font-bold'>{listing.title}</h2>
       <div className='mt-4'>{listing.description}</div>
     </div>
   );

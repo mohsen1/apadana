@@ -30,13 +30,14 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.js",
+    "**/*.mjs",
+    ".storybook/preview.tsx",
     ".next/types/**/*.ts",
     "prisma/**/*.ts",
-    "src/lib/script-runner/cli.mts",
-    "src/lib/script-runner/runner.mts",
-    "src/lib/script-runner/types.mts",
-    "src/bin/script.mts"
+    "src/prisma/**/*.ts",
+    ".storybook/**/*",
+    ".github/**/*"
   ],
-  "exclude": ["node_modules", ".next"],
-  "moduleResolution": ["node_modules", ".next", "node"]
+  "exclude": ["node_modules", ".next"]
 }

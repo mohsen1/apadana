@@ -1,5 +1,14 @@
+'use server';
+
 import { Session } from '@prisma/client';
-import { cookies } from 'next/headers';
+
+async function cookies() {
+  if (typeof window !== 'undefined') {
+    throw new Error('Auth is not available in the browser');
+  }
+  const { cookies } = await import('next/headers');
+  return cookies();
+}
 
 import prisma from '@/lib/prisma/client';
 
@@ -13,28 +22,11 @@ export async function deleteServerSession() {
 export async function setServerSession(session: Session) {
   const { set: setCookie } = await cookies();
 
-  let vercelUrl = process.env.VERCEL_URL;
-
-  // eslint-disable-next-line no-console
-  console.log('process.env.VERCEL_URL', process.env.VERCEL_URL);
-
-  if (!vercelUrl.startsWith('http://') && !vercelUrl.startsWith('https://')) {
-    vercelUrl = `https://${vercelUrl}`;
-  }
-
-  const publicUrl = new URL(vercelUrl);
-  const secure = publicUrl.protocol === 'https:';
-  const domain =
-    publicUrl.hostname === 'localhost' || publicUrl.hostname === '127.0.0.1'
-      ? undefined
-      : `.${publicUrl.hostname}`;
-
   return setCookie(SESSION_COOKIE_NAME, session.id, {
     path: '/',
     expires: session.expiresAt,
     httpOnly: true,
-    domain,
-    secure,
+    secure: true,
   });
 }
 

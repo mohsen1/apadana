@@ -14,5 +14,5 @@ export async function uploadFiles(file: File): Promise<{ key: string }> {
     },
   });
 
-  return response.data;
+  return response.data as { key: string };
 }

@@ -9,9 +9,23 @@ import { fontHeading, fontSans, fontSubheading } from '../src/app/fonts';
 import { ThemeProvider } from '../src/components/theme-provider';
 import { cn } from '../src/lib/utils';
 
-const withProviders: Decorator = (StoryFn) => {
+export const globalTypes = {
+  theme: {
+    name: 'Theme',
+    description: 'Global theme switcher',
+    defaultValue: 'light',
+    toolbar: {
+      icon: 'circlehollow',
+      items: ['light', 'dark'],
+    },
+  },
+};
+
+const withProviders: Decorator = (StoryFn, context) => {
+  let theme = context.globals.theme as 'light' | 'dark';
+
   return (
-    <ThemeProvider attribute='class' defaultTheme='light' enableSystem>
+    <ThemeProvider enableColorScheme defaultTheme={theme} enableSystem>
       <div
         data-storybook-wrapper
         className={cn(

@@ -22,5 +22,5 @@ runs:
       shell: bash
 
     - name: Generate Prisma client
-      run: pnpm prisma generate
+      run: pnpm prisma generate --schema=src/prisma/schema.prisma
       shell: bash

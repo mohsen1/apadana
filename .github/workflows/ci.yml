@@ -3,79 +3,44 @@ on:
   push:
     branches:
       - main
-  pull_request: {}
+  pull_request:
+    branches: ['main']
 
-concurrency:
-  group: ${{ github.job }}-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  checks: write
+  deployments: read
+  statuses: read
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
+  validate:
+    if: github.event_name != 'deployment_status'
+    name: ${{ matrix.task.name }}
+    runs-on: macos-14
     timeout-minutes: 10
+    strategy:
+      fail-fast: true
+      matrix:
+        task:
+          - name: Lint
+            run: pnpm run lint:strict
+          - name: Type check
+            run: pnpm run typecheck
+          - name: Format check
+            run: pnpm run format:check
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup
-        uses: ./.github/actions/setup
-
-      - name: Cache Next.js build output
-        uses: actions/cache@v3
-        with:
-          path: .next/cache
-          key: ${{ runner.os }}-next-${{ hashFiles('next.config.js', 'package.json', 'pnpm-lock.yaml') }}
-
-      - name: Build
-        run: pnpm run build
-        env:
-          DATABASE_URL: 'postgresql://fake:fake@fake:5432/fake'
-          RESEND_API_KEY: fake_RESEND_API_KEY
-          GOOGLE_MAPS_API_KEY: fake_GOOGLE_MAPS_API_KEY
-          NEXT_PUBLIC_DOMAIN: 'https://apadana.app'
-          VERCEL_URL: 'apadana.app'
-          NEXT_PUBLIC_S3_UPLOAD_BUCKET: fake_NEXT_PUBLIC_S3_UPLOAD_BUCKET
-          NEXT_PUBLIC_S3_UPLOAD_REGION: fake_NEXT_PUBLIC_S3_UPLOAD_REGION
-          S3_UPLOAD_KEY: fake_S3_UPLOAD_KEY
-          S3_UPLOAD_SECRET: fake_S3_UPLOAD_SECRET
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup
-        uses: ./.github/actions/setup
-      - run: pnpm run lint:strict
-
-  typecheck:
-    name: Type check
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup
-        uses: ./.github/actions/setup
-      - run: pnpm run typecheck
-
-  prettier:
-    name: Prettier check
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup
-        uses: ./.github/actions/setup
-      - run: pnpm run format:check
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: ${{ matrix.task.name }}
+        run: ${{ matrix.task.run }}
 
   test:
-    name: Run jest
-    runs-on: ubuntu-latest
+    if: github.event_name != 'deployment_status'
+    name: Run Vitest
+    runs-on: ubuntu-24.04
+    needs: [validate]
     timeout-minutes: 10
     services:
       postgres:
@@ -91,16 +56,40 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup
-        uses: ./.github/actions/setup
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: touch .env.local
+      - uses: docker/setup-buildx-action@v3
       - run: pnpm run test
         env:
           DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/apadana_test_ci'
           TEST_ENV: 'unit'
-          VERCEL_URL: fake-vercel.com
+
+  fix-and-commit:
+    name: Fix and commit code style
+    needs: [validate]
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'pull_request' && needs.validate.result == 'failure'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git checkout ${{ github.head_ref }}
+      - run: pnpm run fix
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+      - if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git add -A
+          git commit -m "style: automatically fix code style issues"
+          git push

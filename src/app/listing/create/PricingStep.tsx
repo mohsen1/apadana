@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { CreateListing } from '@/lib/prisma/schema';
+import { CreateListing } from '@/lib/schema';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,12 +22,10 @@ export function PricingStep() {
           {...register('pricePerNight', {
             required: true,
             min: 0,
-            setValueAs: (value) => Number.parseInt(value, 10),
+            setValueAs: (value: string) => Number.parseInt(value, 10),
           })}
         />
-        {errors.pricePerNight && (
-          <span className='text-red-500'>Please enter a valid price</span>
-        )}
+        {errors.pricePerNight && <span className='text-red-500'>Please enter a valid price</span>}
       </div>
       <div>
         <Label htmlFor='minimumStay'>Minimum Stay (nights)</Label>
@@ -37,13 +35,11 @@ export function PricingStep() {
           {...register('minimumStay', {
             required: true,
             min: 1,
-            setValueAs: (value) => Number.parseInt(value, 10),
+            setValueAs: (value: string) => Number.parseInt(value, 10),
           })}
         />
         {errors.minimumStay && (
-          <span className='text-red-500'>
-            Please enter a valid number of nights
-          </span>
+          <span className='text-red-500'>Please enter a valid number of nights</span>
         )}
       </div>
       <div>
@@ -54,13 +50,11 @@ export function PricingStep() {
           {...register('maximumGuests', {
             required: true,
             min: 1,
-            setValueAs: (value) => Number.parseInt(value, 10),
+            setValueAs: (value: string) => Number.parseInt(value, 10),
           })}
         />
         {errors.maximumGuests && (
-          <span className='text-red-500'>
-            Please enter a valid number of guests
-          </span>
+          <span className='text-red-500'>Please enter a valid number of guests</span>
         )}
       </div>
     </div>

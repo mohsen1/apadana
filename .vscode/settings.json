@@ -3,18 +3,28 @@
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "debug.javascript.autoAttachFilter": "onlyWithFlag",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
   "debug.javascript.terminalOptions": {
     "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
   },
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit"
+    "source.fixAll": "always",
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "never"
   },
   "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   // Tailwind CSS Autocomplete, add more if used in projects
   "tailwindCSS.classAttributes": ["class", "className", "classNames", "containerClassName"],
+  "tailwindCSS.experimental.configFile": "config/tailwind.config.ts",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "files.exclude": {
     "build": true,
+    "node_modules": true,
+    ".pnpm-store": true,
     "out": true,
     ".next": true,
     ".swc": true,
@@ -22,6 +32,8 @@
   },
   "search.exclude": {
     "build": true,
+    "node_modules": true,
+    ".pnpm-store": true,
     "out": true,
     ".next": true,
     ".swc": true,
@@ -30,5 +42,22 @@
   },
   "yaml.schemas": {
     "./schemas/script.schema.json": ["scripts/*/script.yml"]
-  }
+  },
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "eslint.options": {
+    "overrideConfigFile": "config/eslint.config.mjs"
+  },
+  "eslint.format.enable": true
 }

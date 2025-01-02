@@ -3,11 +3,7 @@
 import { z } from 'zod';
 
 import prisma from '@/lib/prisma/client';
-import {
-  actionClient,
-  ClientVisibleError,
-  UnauthorizedError,
-} from '@/lib/safe-action';
+import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
 
 import { getListing } from '@/app/listing/action';
 
@@ -15,14 +11,12 @@ export const deleteListing = actionClient
   .schema(z.object({ id: z.string() }))
   .outputSchema(z.object({ listing: z.literal(null) }))
   .action(async ({ parsedInput, ctx }) => {
-    const { id } = parsedInput;
+    const { id: listingId } = parsedInput;
     const { userId } = ctx;
 
     if (!userId) {
       throw new UnauthorizedError();
     }
-
-    const listingId = parseInt(id, 10);
     const res = await getListing({ id: listingId });
 
     if (!res?.data?.listing) {

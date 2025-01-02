@@ -1,8 +1,12 @@
 'use client';
 
-import { Trash2 } from 'lucide-react';
+import { KeyRound, Loader2, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
+
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 
 import {
   AlertDialog,
@@ -16,20 +20,41 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 import logger from '@/utils/logger';
 
 import { deleteAccount } from './actions';
+import { requestPasswordReset } from '../auth/actions';
 
 export function AccountSecurity() {
   const router = useRouter();
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const { execute: requestReset, status: resetStatus } = useAction(requestPasswordReset, {
+    onSuccess: () => {
+      toast({
+        title: 'Password Reset Email Sent',
+        description: 'Check your email for instructions to reset your password.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.error.serverError?.error || 'Failed to send reset email',
+        variant: 'destructive',
+      });
+    },
+  });
 
   const handleDeleteAccount = async () => {
     try {
       setIsDeleting(true);
       await deleteAccount();
-      router.push('/sign-in');
+      router.push('/signin');
     } catch (error) {
       logger.error('Error deleting account:', error);
     } finally {
@@ -40,12 +65,56 @@ export function AccountSecurity() {
   return (
     <div className='flex-1 p-6'>
       <div className='max-w-3xl space-y-6'>
-        <h2 className='text-2xl font-semibold'>Security Settings</h2>
+        <div>
+          <h3 className='text-lg font-medium'>Security Settings</h3>
+          <p className='text-muted-foreground text-sm'>Manage your account security and data.</p>
+        </div>
 
-        <div className='border-t pt-6'>
-          <h3 className='text-lg font-medium text-destructive mb-2'>
-            Danger Zone
-          </h3>
+        <Card>
+          <CardHeader>
+            <CardTitle>Password Reset</CardTitle>
+            <CardDescription>
+              Reset your password by receiving an email at {user?.email}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => user?.email && requestReset({ email: user.email })}
+              disabled={resetStatus === 'executing'}
+            >
+              {resetStatus === 'executing' ? (
+                <>
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  Sending Reset Link...
+                </>
+              ) : (
+                <>
+                  <KeyRound className='mr-2 h-4 w-4' />
+                  Send Password Reset Link
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Separator />
+
+        <div className='space-y-4'>
+          <div>
+            <h3 className='text-destructive text-lg font-medium'>Danger Zone</h3>
+            <p className='my-2 text-sm'>
+              Once you delete your account, there is no going back. Please be certain.
+            </p>
+            <p className='my-2 text-sm'>
+              This action cannot be undone. This will permanently delete your account and remove all
+              of your data from our servers.
+            </p>
+            <p className='my-2 text-sm'>
+              If you have current bookings or booking requests, you can not delete your account.
+            </p>
+            <p className='my-2 text-sm'>If you have any questions, please contact support.</p>
+          </div>
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant='destructive' disabled={isDeleting}>
@@ -57,8 +126,8 @@ export function AccountSecurity() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove all of your data from our servers.
+                  This action cannot be undone. This will permanently delete your account and remove
+                  all of your data from our servers.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

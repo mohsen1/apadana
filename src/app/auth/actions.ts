@@ -1,29 +1,25 @@
 'use server';
 
+import { Role } from '@prisma/client';
+import { cookies } from 'next/headers';
 import { z } from 'zod';
 
 import { deleteServerSession, getUserInServer } from '@/lib/auth';
 import { argon } from '@/lib/auth/argon';
-import { RESET_TOKEN_DURATION, SESSION_DURATION } from '@/lib/auth/constants';
+import { RESET_TOKEN_DURATION, SESSION_COOKIE_NAME, SESSION_DURATION } from '@/lib/auth/constants';
 import { sanitizeUserForClient } from '@/lib/auth/utils';
-import {
-  sendPasswordResetEmail,
-  sendWelcomeEmail,
-} from '@/lib/email/send-email';
+import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
+import { ClientUserSchema, LoginSchema, SignUpSchema, SuccessfulLoginSchema } from '@/lib/schema';
 
-import {
-  clientUserSchema,
-  loginSchema,
-  successfulLogin,
-} from '@/app/auth/schema';
 import logger from '@/utils/logger';
+import { createPasswordResetUrl, createVerificationUrl } from '@/utils/url';
 
 export const login = actionClient
-  .schema(loginSchema)
-  .outputSchema(successfulLogin)
-  .action(async ({ parsedInput, ctx }) => {
+  .schema(LoginSchema)
+  .outputSchema(SuccessfulLoginSchema)
+  .action(async ({ parsedInput }) => {
     const user = await prisma.user.findFirst({
       where: {
         emailAddresses: {
@@ -40,7 +36,6 @@ export const login = actionClient
     });
 
     if (!user) {
-      // This should never happen, but if it does, we don't want to leak information
       throw new ClientVisibleError('Invalid email or password');
     }
 
@@ -50,10 +45,7 @@ export const login = actionClient
     }
 
     // Verify password
-    const validPassword = await argon.verify(
-      user.password,
-      parsedInput.password,
-    );
+    const validPassword = await argon.verify(user.password, parsedInput.password);
     if (!validPassword) {
       throw new ClientVisibleError('Invalid email or password');
     }
@@ -66,21 +58,18 @@ export const login = actionClient
       },
     });
 
-    // Get primary email
-    const primaryEmail = user.emailAddresses.find(
-      (e) => e.isPrimary,
-    )?.emailAddress;
+    const { set: setCookie } = await cookies();
 
-    if (!primaryEmail) {
-      throw new Error('Primary email not found');
-    }
-
-    await ctx.setSession(session);
+    setCookie(SESSION_COOKIE_NAME, session.id, {
+      path: '/',
+      expires: session.expiresAt,
+      httpOnly: true,
+      secure: true,
+    });
 
     const clientUser = sanitizeUserForClient(user);
-
     if (!clientUser) {
-      throw new Error('User not found');
+      throw new Error('Failed to create user');
     }
 
     return {
@@ -88,27 +77,14 @@ export const login = actionClient
     };
   });
 
-const signUpSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email(),
-  password:
-    process.env.NODE_ENV === 'development'
-      ? z.string().min(1, 'Password is required')
-      : z
-          .string()
-          .min(8, 'Password must be at least 8 characters')
-          .max(100, 'Password must be less than 100 characters'),
-});
-
-const successfulSignUp = z.object({
-  user: clientUserSchema,
-});
-
 export const signUp = actionClient
-  .schema(signUpSchema)
-  .outputSchema(successfulSignUp)
-  .action(async ({ parsedInput, ctx }) => {
+  .schema(SignUpSchema)
+  .outputSchema(
+    z.object({
+      user: ClientUserSchema,
+    }),
+  )
+  .action(async ({ parsedInput }) => {
     // ensure email is not already in use
     const existingUser = await prisma.user.findFirst({
       where: {
@@ -116,12 +92,11 @@ export const signUp = actionClient
       },
     });
     if (existingUser) {
-      throw new Error(
-        'There is already an account with this email. Please login with that email.',
-      );
+      throw new Error('There is already an account with this email. Please login with that email.');
     }
 
     const hashedPassword = await argon.hash(parsedInput.password);
+    const verificationCode = crypto.randomUUID();
     const user = await prisma.user.create({
       include: {
         emailAddresses: true,
@@ -138,7 +113,14 @@ export const signUp = actionClient
             {
               emailAddress: parsedInput.email,
               isPrimary: true,
+              verified: parsedInput.email === process.env.ADMIN_EMAIL,
+              verification: verificationCode,
             },
+          ],
+        },
+        roles: {
+          create: [
+            { role: parsedInput.email === process.env.ADMIN_EMAIL ? Role.ADMIN : Role.HOST },
           ],
         },
         sessions: {
@@ -149,10 +131,21 @@ export const signUp = actionClient
       },
     });
 
-    await ctx.setSession(user.sessions[0]);
+    const session = user.sessions[0];
+
+    const { set: setCookie } = await cookies();
+
+    setCookie(SESSION_COOKIE_NAME, session.id, {
+      path: '/',
+      expires: session.expiresAt,
+      httpOnly: true,
+      secure: true,
+    });
+
+    const verificationUrl = createVerificationUrl(verificationCode, parsedInput.email);
 
     // Send welcome email
-    await sendWelcomeEmail(parsedInput.email);
+    await sendWelcomeEmail(parsedInput.email, parsedInput.firstName, verificationUrl);
 
     const clientUser = sanitizeUserForClient(user);
     if (!clientUser) {
@@ -164,21 +157,23 @@ export const signUp = actionClient
     };
   });
 
-export type ClientUser = z.infer<typeof clientUserSchema>;
+export type ClientUser = z.infer<typeof ClientUserSchema>;
 
 const getCurrentUserOutput = z
   .object({
-    user: clientUserSchema.nullable(),
+    user: ClientUserSchema.nullable(),
   })
   .nullable();
 
-export const getCurrentUser = actionClient
-  .outputSchema(getCurrentUserOutput)
-  .action(async () => {
-    const user = await getUserInServer();
-    const clientUser = sanitizeUserForClient(user);
-    return { user: clientUser };
-  });
+export const getCurrentUser = actionClient.outputSchema(getCurrentUserOutput).action(async () => {
+  const user = await getUserInServer();
+  if (!user) return { user: null };
+
+  const clientUser = sanitizeUserForClient(user);
+  if (!clientUser) return { user: null };
+
+  return { user: clientUser };
+});
 
 export const logOut = actionClient
   .outputSchema(z.object({ user: z.literal(null) }))
@@ -240,7 +235,7 @@ export const requestPasswordReset = actionClient
       });
 
       // Generate reset link
-      const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken.token}`;
+      const resetLink = createPasswordResetUrl(resetToken.token, parsedInput.email);
 
       // Send reset email
       await sendPasswordResetEmail(parsedInput.email, resetLink);
@@ -306,8 +301,6 @@ export const resetPassword = actionClient
       if (error instanceof ClientVisibleError) {
         throw error;
       }
-      throw new ClientVisibleError(
-        'Unable to reset password. Please try again later.',
-      );
+      throw new ClientVisibleError('Unable to reset password. Please try again later.');
     }
   });

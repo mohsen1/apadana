@@ -1,8 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 
 import { getUploadSignedUrl } from '@/app/upload/action';
+import { shouldUseFakeUploads } from '@/app/upload/constants';
 import { assertError } from '@/utils';
-import { isDevOrTestEnv } from '@/utils/environment';
 
 export interface FileUploadState {
   /**
@@ -39,12 +39,31 @@ export interface FileUploadState {
   localUrl?: string;
 }
 
-export const useFileUploader = (
-  onUploadSuccess?: (uploadedFiles: FileUploadState[]) => void,
-  onUploadError?: (error: Error, failedFiles: FileUploadState[]) => void,
-) => {
+export interface UseFileUploaderOptions {
+  /**
+   * Initial list of files to populate the uploader with
+   */
+  initialFiles?: FileUploadState[];
+  /**
+   * Callback fired when files are successfully uploaded
+   * @param uploadedFiles Array of successfully uploaded files
+   */
+  onUploadSuccess?: (uploadedFiles: FileUploadState[]) => void;
+  /**
+   * Callback fired when file upload fails
+   * @param error The error that occurred
+   * @param failedFiles Array of files that failed to upload
+   */
+  onUploadError?: (error: Error, failedFiles: FileUploadState[]) => void;
+}
+
+export function useFileUploader({
+  initialFiles = [],
+  onUploadSuccess,
+  onUploadError,
+}: UseFileUploaderOptions = {}) {
   const [totalProgress, setTotalProgress] = useState(0);
-  const [fileStates, setFileStates] = useState<FileUploadState[]>([]);
+  const [fileStates, setFileStates] = useState<FileUploadState[]>(initialFiles);
 
   const computeTotalProgress = useCallback(() => {
     const totalProgress = fileStates.reduce((acc, fileState) => {
@@ -58,23 +77,18 @@ export const useFileUploader = (
   const getUploadedUrl = (key?: string) => {
     if (!key) return undefined;
 
-    const NEXT_PUBLIC_S3_UPLOAD_BUCKET =
-      process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET;
-    const NEXT_PUBLIC_S3_UPLOAD_REGION =
-      process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
-    const NEXT_PUBLIC_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
+    const UPLOAD_BUCKET = process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET;
+    const UPLOAD_REGION = process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
 
-    if (isDevOrTestEnv) {
-      return `http://${NEXT_PUBLIC_DOMAIN}/api/fake-upload/${key}`;
+    if (shouldUseFakeUploads) {
+      return `/images/e2e/uploads/${key}`;
     }
 
-    return `https://${NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.${NEXT_PUBLIC_S3_UPLOAD_REGION}.amazonaws.com/${key}`;
+    return `https://${UPLOAD_BUCKET}.s3.${UPLOAD_REGION}.amazonaws.com/${key}`;
   };
 
   const uploadSingleFile = useCallback(
-    async (
-      fileState: FileUploadState,
-    ): Promise<FileUploadState | undefined> => {
+    async (fileState: FileUploadState): Promise<FileUploadState | undefined> => {
       try {
         if (!fileState.signedUrl) throw new Error('No signed URL available');
 
@@ -114,9 +128,7 @@ export const useFileUploader = (
           });
 
           if (!fileState.signedUrl)
-            throw new Error(
-              `No signed URL available for file ${fileState.file.name}`,
-            );
+            throw new Error(`No signed URL available for file ${fileState.file.name}`);
 
           xhr.open('PUT', fileState.signedUrl);
           xhr.setRequestHeader('Content-Type', fileState.file.type);
@@ -139,14 +151,12 @@ export const useFileUploader = (
       const selectedFiles = event.target.files;
       if (!selectedFiles) return;
 
-      const newFiles: FileUploadState[] = Array.from(selectedFiles).map(
-        (file) => ({
-          file,
-          progress: 0,
-          status: 'pending',
-          localUrl: URL.createObjectURL(file),
-        }),
-      );
+      const newFiles: FileUploadState[] = Array.from(selectedFiles).map((file) => ({
+        file,
+        progress: 0,
+        status: 'pending',
+        localUrl: URL.createObjectURL(file),
+      }));
 
       setFileStates((prevFiles) => [...prevFiles, ...newFiles]);
 
@@ -168,15 +178,11 @@ export const useFileUploader = (
         }));
 
         setFileStates((prevFiles) => {
-          const existingFiles = prevFiles.filter(
-            (f) => !newFiles.find((nf) => nf.file === f.file),
-          );
+          const existingFiles = prevFiles.filter((f) => !newFiles.find((nf) => nf.file === f.file));
           return [...existingFiles, ...filesToUpload];
         });
 
-        const uploadedFiles = await Promise.all(
-          filesToUpload.map(uploadSingleFile),
-        );
+        const uploadedFiles = await Promise.all(filesToUpload.map(uploadSingleFile));
         onUploadSuccess?.(uploadedFiles.filter((fs) => fs !== undefined));
       } catch (error) {
         assertError(error);
@@ -205,10 +211,7 @@ export const useFileUploader = (
     );
   };
 
-  const updateFile = (
-    file: FileUploadState,
-    updates: Partial<FileUploadState>,
-  ) => {
+  const updateFile = (file: FileUploadState, updates: Partial<FileUploadState>) => {
     setFileStates((prev) =>
       prev.map((fileState) =>
         fileState.key === file.key ? { ...fileState, ...updates } : fileState,
@@ -223,4 +226,4 @@ export const useFileUploader = (
     removeFile,
     totalProgress,
   };
-};
+}

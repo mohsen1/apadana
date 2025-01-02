@@ -14,8 +14,7 @@ You will need access to the following services to run the development environmen
 
 - [Github](https://github.com/mohsen1/apadana) **required** to push code
 - [Vercel](https://vercel.com/) **required** to deploy
-- [UploadThing](https://uploadthing.com/) optional for media uploads
-- [Neon](https://neon.tech/) optional for PostgreSQL database management
+- [Amazon AWS](https://aws.amazon.com/) Not required but recommended
 
 ### 2. Prepare your machine
 
@@ -71,15 +70,11 @@ You will need access to the following services to run the development environmen
    ```bash
    curl -fsSL https://get.pnpm.io/install.sh | bash
    ```
-3. Install [Vercel CLI](https://vercel.com/docs/cli) (v3.1.0 or higher)
-   ```bash
-   pnpm install -g vercel
-   ```
-4. Install [Docker](https://www.docker.com/get-started)
+3. Install [Docker](https://www.docker.com/get-started)
    ```bash
    sudo apt-get install -y docker
    ```
-5. Install [Git](https://git-scm.com/downloads)
+4. Install [Git](https://git-scm.com/downloads)
    ```bash
    sudo apt-get install -y git
    ```
@@ -109,9 +104,9 @@ Use **pnpm** to install the dependencies.
 pnpm install
 ```
 
-### 5. Create a `.env.local` file
+### 5. Pull development environment variables
 
-Running this command will create a `.env.local` file with the environment variables for the development environment.
+> **Note**: You must be a member of the `apadana` team to pull the environment variables. If this is your first time, you will need `vercel login` and `vercel team add` to be able to pull the environment variables.
 
 ```bash
 vercel env pull
@@ -121,11 +116,17 @@ vercel env pull
 
 This will start all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in Docker containers:
 
+> **Note**: The first time you run this command, it will ask for sudo permission to modify your `/etc/hosts` file to add local domain entries.
+
 ```bash
-pnpm docker:dev
+pnpm start
 ```
 
-Navigate to [localhost:3000](http://localhost:3000) to see the development website.
+The development environment includes default values for all required environment variables, so you can start developing right away.
+
+Production environment variables are stored in Vercel dashboard.
+
+Navigate to [http://dev.apadana.local](http://dev.apadana.local) to see the development website.
 
 To stop the services:
 
@@ -143,77 +144,33 @@ pnpm docker:clean
 
 All commands can be run using `pnpm run <command>` or just `pnpm <command>` for most commands.
 
-### Docker Commands (Preferred)
+Here are a few important commands:
 
-- `docker:dev` - Starts all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in Docker containers
-- `docker:down` - Stops all Docker containers
-- `docker:clean` - Stops containers and removes all volumes. Deletes the database.
-- `docker:rebuild` - Rebuilds the app container without cache and starts services
-- `docker:prune` - Removes all unused Docker resources (containers, networks, volumes). Useful for a fresh start.
-- `docker:prod` - Starts production Docker environment locally for testing
-- `docker:prod:down` - Stops production Docker environment
-- `docker:prod:logs` - Shows logs from production Docker environment
-- `docker:prod:clean` - Stops production environment and removes volumes
-- `docker:prod:rebuild` - Rebuilds and restarts the production app container. This can be run while `docker:prod` script is running. It will save you time vs. building from scratch. Useful for e2e testing.
+### Main Commands
 
-### Development Commands
-
-Most of these commands are used by the `docker:dev` command. You should prefer using the `docker:dev` command instead.
-
-- `dev` - Starts all development services concurrently
-- `dev:next` - Starts Next.js development server with Turbo
-- `dev:prisma` - Watches Prisma schema for changes
-- `dev:prisma:seed` - Seeds the database
-- `dev:storybook` - Starts Storybook development server
-- `dev:studio` - Starts Prisma Studio
-
-### Database Commands
-
-Beside `migrate:dev`, you should use the `docker:*` commands to manage the database.
-
-- `migrate:dev` - Runs database migrations in development
-- `migrate:prod` - Deploys database migrations in production (CI/CD only)
-- `prisma:generate` - Generates Prisma client
-- `prisma:watch` - Watches for Prisma schema changes
-
-### Testing Commands
-
-- `test` - Runs Vitest unit tests
-- `test:watch` - Runs Vitest tests in watch mode
-- `e2e` - Runs Playwright E2E tests in Chromium against production environment started with `docker:prod` command
-- `e2e:dev` - Runs E2E tests against development environment
-- `e2e:ci` - Runs Playwright tests in CI environment
-- `e2e:prod` - Runs E2E tests against production environment live on [https://apadana.app](https://apadana.app)
-
-### Code Quality Command
-
-- `fix` - Runs ESLint with auto-fix and formats code
-- `lint` - Runs ESLint
-- `lint:strict` - Runs ESLint with zero warnings allowed. Used in CI/CD pipeline.
-- `typecheck` - Runs TypeScript type checking
-- `format` - Formats code using Prettier
-- `format:check` - Checks code formatting. Used in CI/CD pipeline.
-
-### Build & Deploy Commands
-
+- `start` - Sets up local environment and starts all services using Docker Compose
 - `build` - Generates Prisma client and builds Next.js application
-- `start` - Starts the production Next.js server
-- `postbuild` - Generates sitemap after build
+- `fix` - Runs ESLint with auto-fix and formats code using Prettier
 
-### Other Commands
+### Docker Commands
 
-- `prepare` - Installs Husky git hooks
-- `storybook` - Starts Storybook development server
-- `build-storybook` - Builds Storybook for production
+- `docker:prune` - Removes all unused Docker resources (containers, networks, volumes)
+- `docker:clean` - Stops containers and removes all volumes
+- `docker:down` - Stops all Docker containers
 
 ## Technology Stack Overview
 
-This project is built on top of [Next.js](https://nextjs.org/) and is using [Next.js App Router](https://nextjs.org/docs/app).
-The backend is using [PostgreSQL](https://www.postgresql.org/) and [Prisma](https://www.prisma.io/). To perform database operations, Prisma Client is used inside of [Next.js App Router Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations). Locally we use Docker to run the database and Prisma Studio to view the database. Authentication is implemented using using [Oslo](https://oslo.js.org). We use AWS S3 for media storage.
+This project is built on top of
 
-### Important Files and Folders
-
-- `prisma/schema.prisma`: This file contains the schema for the database.
-- `src/app/layout.tsx`: This file contains the main layout for the app.
-- `src/lib/prisma/client.ts`: This file contains the Prisma Client instance.
-- `src/middleware.ts`: This file contains the main [Next.js middleware](https://nextjs.org/docs/app/building-your-application/routing/middleware) for the app.
+- [Next.js](https://nextjs.org/) and is using [App Router](https://nextjs.org/docs/app)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Shadcn UI](https://ui.shadcn.com/)
+- [Zod](https://zod.dev/)
+- [Next Safe Action](https://next-safe-action.dev)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Prisma](https://www.prisma.io/)
+- [Oslo](https://oslo.js.org)
+- [AWS S3](https://aws.amazon.com/s3/)
+- [AWS RDS](https://aws.amazon.com/rds/)
+- [Resend](https://resend.com/)
+- [Vercel](https://vercel.com/)

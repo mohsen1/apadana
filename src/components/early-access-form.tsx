@@ -5,7 +5,7 @@ import { Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/useToast';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,10 +42,7 @@ export function EarlyAccessForm() {
     } else {
       toast({
         title: 'Error',
-        description:
-          // @ts-expect-error - weird type error
-          result?.error?._errors?.[0] ||
-          'Something went wrong. Please try again.',
+        description: 'Something went wrong. Please try again.',
         variant: 'destructive',
       });
     }
@@ -55,7 +52,7 @@ export function EarlyAccessForm() {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        handleSubmit(onSubmit)(e);
+        return handleSubmit(onSubmit)(e);
       }}
       className='flex w-full max-w-sm items-center space-x-2'
     >

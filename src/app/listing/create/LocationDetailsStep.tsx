@@ -1,31 +1,33 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { CreateListing } from '@/lib/prisma/schema';
+import { CreateListing } from '@/lib/schema';
 
 import { LocationPicker } from '@/components/LocationPicker';
 
 export function LocationDetailsStep() {
-  const { formState, setValue, watch, trigger } =
-    useFormContext<CreateListing>();
+  const { formState, setValue, watch, trigger } = useFormContext<CreateListing>();
 
   const address = watch('address');
   const latitude = watch('latitude');
   const longitude = watch('longitude');
   const showExactLocation = watch('showExactLocation');
 
-  const handleAddressChange = (newAddress: string) => {
+  const handleAddressChange = async (newAddress: string) => {
     setValue('address', newAddress, { shouldValidate: true });
-    trigger('address');
+    return trigger('address');
   };
 
-  const handleLocationChange = (lat: number, lng: number) => {
+  const handleLocationChange = async (lat: number, lng: number) => {
     setValue('latitude', lat, { shouldValidate: true });
     setValue('longitude', lng, { shouldValidate: true });
+    return trigger(['latitude', 'longitude']);
   };
 
-  const handleShowExactLocationChange = (show: boolean) => {
+  const handleShowExactLocationChange = async (show: boolean) => {
     setValue('showExactLocation', show, { shouldValidate: true });
+    setValue('locationRadius', show ? 10 : 0, { shouldValidate: true });
+    return trigger(['showExactLocation', 'locationRadius']);
   };
 
   return (
@@ -38,9 +40,7 @@ export function LocationDetailsStep() {
       onLocationChange={handleLocationChange}
       onShowExactLocationChange={handleShowExactLocationChange}
       errors={{
-        address: formState.errors.address
-          ? 'You must enter an address'
-          : undefined,
+        address: formState.errors.address ? 'You must enter a valid address' : undefined,
       }}
     />
   );

@@ -5,13 +5,11 @@ import { AuthBoundary } from '@/components/auth/AuthBoundary';
 import { DeleteListing } from '@/app/listing/[id]/delete/DeleteListing';
 import NotFound from '@/app/not-found';
 
-export default async function DeleteListingPage(props: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function DeleteListingPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const listing = await prisma.listing.findUnique({
     where: {
-      id: parseInt(params.id),
+      id: params.id,
     },
   });
 

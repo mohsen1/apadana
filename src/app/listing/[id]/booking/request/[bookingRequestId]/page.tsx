@@ -2,7 +2,7 @@ import { CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { PublicBookingRequest } from '@/lib/types';
+import { FullBookingRequest } from '@/lib/types';
 import { formatCurrency, formatHHMMDate, getLocale } from '@/lib/utils';
 
 import { getBookingRequest } from '@/app/listing/[id]/booking/action';
@@ -13,7 +13,7 @@ export default async function BookingRequestPage(props: {
 }) {
   const params = await props.params;
   const res = await getBookingRequest({
-    id: Number(params.bookingRequestId),
+    id: params.bookingRequestId,
   });
 
   if (!res?.data?.updatedAt) {
@@ -27,27 +27,19 @@ export default async function BookingRequestPage(props: {
   return <BookingRequestSent bookingRequest={res.data} />;
 }
 
-function BookingRequestSent({
-  bookingRequest,
-}: {
-  bookingRequest: PublicBookingRequest;
-}) {
+function BookingRequestSent({ bookingRequest }: { bookingRequest: FullBookingRequest }) {
   return (
-    <main className='flex-grow container mx-auto p-4 max-w-6xl grid grid-cols-1  lg:grid-cols-2 gap-8'>
+    <main className='container mx-auto grid max-w-6xl flex-grow grid-cols-1 place-content-center gap-8 p-4 lg:grid-cols-2'>
       <div>
-        <div className='flex items-center mt-8'>
-          <CheckCircle2
-            className='w-20 h-20 text-green-500'
-            strokeWidth={1.5}
-          />
+        <div className='mt-8 flex items-center'>
+          <CheckCircle2 className='h-20 w-20 text-green-500' strokeWidth={1.5} />
         </div>
-        <h1 className='text-2xl mt-8 font-bold mb-4 flex items-center'>
+        <h1 className='mb-4 mt-8 flex items-center text-2xl font-bold'>
           Your booking request has been sent
         </h1>
         <p className='mb-4'>
-          Your booking request has been sent to{' '}
-          {bookingRequest.listing.owner.firstName}. Your host will review your
-          request and get back to you soon.
+          Your booking request has been sent to {bookingRequest.listing.owner.firstName}. Your host
+          will review your request and get back to you soon.
         </p>
         <p>
           Check-in date:{' '}
@@ -74,19 +66,14 @@ function BookingRequestSent({
         <p>
           Total price:{' '}
           <span className='font-bold'>
-            {formatCurrency(
-              bookingRequest.totalPrice,
-              bookingRequest.listing.currency,
-            )}
+            {formatCurrency(bookingRequest.totalPrice, bookingRequest.listing.currency)}
           </span>
         </p>
-        <p className='my-4'>
-          A confirmation email will be sent to you and your host.
-        </p>
-        <h2 className='text-lg font-bold my-2'>What happens next?</h2>
+        <p className='my-4'>A confirmation email will be sent to you and your host.</p>
+        <h2 className='my-2 text-lg font-bold'>What happens next?</h2>
         <p>
-          You will be notified when the host has accepted or rejected your
-          request. We will send you an email to{' '}
+          You will be notified when the host has accepted or rejected your request. We will send you
+          an email to{' '}
           <span className='font-bold'>
             {bookingRequest.user?.emailAddresses?.[0]?.emailAddress}
           </span>{' '}
@@ -97,7 +84,7 @@ function BookingRequestSent({
         <div>
           <div>
             <Link href={`/listing/${bookingRequest.listing.id}`}>
-              <h3 className='text-md font-bold font-heading mb-2'>
+              <h3 className='text-md font-heading mb-2 font-bold'>
                 {bookingRequest.listing.title}
               </h3>
             </Link>
@@ -105,9 +92,9 @@ function BookingRequestSent({
           <div>
             <Link href={`/listing/${bookingRequest.listing.id}`}>
               <Image
-                src={bookingRequest.listing.images[0].url}
+                src={bookingRequest.listing.images?.[0]?.url ?? ''}
                 alt={bookingRequest.listing.title}
-                className='w-full h-auto rounded-md'
+                className='h-auto w-full rounded-md'
                 width={400}
                 height={300}
               />

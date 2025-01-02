@@ -1,7 +1,7 @@
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { CreateListing } from '@/lib/prisma/schema';
+import { CreateListingWithCoercion } from '@/lib/schema';
 
 import { ImageUploader } from '@/components/image-uploader';
 
@@ -11,19 +11,24 @@ export function PhotosStep() {
     formState: { errors },
     setError,
     clearErrors,
-  } = useFormContext<CreateListing>();
+    watch,
+    trigger,
+  } = useFormContext<CreateListingWithCoercion>();
+
+  const currentImages = watch('images') || [];
 
   return (
     <div className='space-y-4'>
-      <Controller<CreateListing, 'images'>
+      <Controller<CreateListingWithCoercion, 'images'>
         name='images'
         control={control}
         render={({ field }) => (
           <ImageUploader
-            initialImages={[]}
+            initialImages={currentImages}
             onChange={(images) => {
               clearErrors('images');
               field.onChange(images);
+              void trigger('images');
             }}
             onError={(error) => {
               if (!error) {
@@ -32,17 +37,13 @@ export function PhotosStep() {
               }
               setError('images', {
                 type: 'uploadError',
-                message:
-                  error?.message ||
-                  'Something went wrong while uploading the images',
+                message: error?.message || 'Something went wrong while uploading the images',
               });
             }}
           />
         )}
       />
-      {errors.images && (
-        <span className='text-red-500'>{errors.images.message}</span>
-      )}
+      {errors.images && <span className='text-destructive'>{errors.images.message}</span>}
     </div>
   );
 }

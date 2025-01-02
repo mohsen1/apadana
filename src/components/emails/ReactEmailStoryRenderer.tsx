@@ -1,34 +1,37 @@
 import { render } from '@react-email/components';
-import { useState } from 'react';
+import * as cheerio from 'cheerio';
 
 /**
  * Renders a React Email component in a storybook story.
- * Since React Email uses a Promise to render the email, we need to use a
- * state to render the email after it's rendered.
- * React Emails also might have elements such as <body> or <html> which
- * will cause warnings in the console.
- * This component mitigates those issues.
- * @param Component - The React Email component to render.
- * @param props - The props to pass to the component.
- * @returns A React component that renders the email.
+ * Since React Email uses a Promise to render the email, we handle
+ * the async rendering directly.
  */
-export function ReactEmailStoryRenderer<C extends React.ElementType>({
+export async function ReactEmailStoryRenderer<C extends React.ElementType>({
   Component,
   props,
 }: {
   Component: C;
   props: React.ComponentProps<C>;
 }) {
-  const [html, setHtml] = useState('');
-  render(<Component {...props} />).then((html) => {
-    setHtml(html);
-  });
+  const bodyContent = await renderEmail(Component, props);
+
   return (
     <div
       data-testid='react-email-story-renderer'
+      className='email-preview'
       dangerouslySetInnerHTML={{
-        __html: html,
+        __html: bodyContent,
       }}
     />
   );
+}
+
+async function renderEmail(
+  Component: React.ElementType,
+  props: React.ComponentProps<typeof Component>,
+) {
+  const renderedHtml = await render(<Component {...props} />);
+  const $ = cheerio.load(renderedHtml);
+  const bodyContent = $('body').html() || renderedHtml;
+  return bodyContent;
 }

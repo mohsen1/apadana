@@ -3,11 +3,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAction } from 'next-safe-action/hooks';
 import { Suspense } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import type { z } from 'zod';
 
-import { useToast } from '@/hooks/use-toast';
+import { ResetPasswordFormSchema } from '@/lib/schema';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,137 +17,109 @@ import { Label } from '@/components/ui/label';
 
 import { resetPassword } from '@/app/auth/actions';
 
-const formSchema = z
-  .object({
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
-
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof ResetPasswordFormSchema>;
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const { toast } = useToast();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
+  const email = searchParams.get('email');
+
+  const { execute, status, hasErrored, result } = useAction(resetPassword, {
+    onSuccess: () => {
+      router.push('/signin');
+    },
+  });
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(ResetPasswordFormSchema),
   });
 
   if (!token) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-destructive'>
-              Invalid Reset Link
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>This password reset link is invalid or has expired.</p>
-            <Button
-              className='mt-4'
-              onClick={() => router.push('/forgot-password')}
-            >
-              Request New Reset Link
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <Card className='w-full max-w-md shadow-lg'>
+        <CardHeader>
+          <CardTitle className='text-destructive text-center'>Invalid Reset Link</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className='text-muted-foreground mb-4 text-center'>
+            This password reset link is invalid or has expired.
+          </p>
+          <Button className='w-full' onClick={() => router.push('/forgot-password')}>
+            Request New Reset Link
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      await resetPassword({ ...data, token });
-      toast({
-        title: 'Password Reset Successful',
-        description: 'You can now sign in with your new password.',
-      });
-      router.push('/sign-in');
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description:
-          error instanceof Error ? error.message : 'Something went wrong',
-        variant: 'destructive',
-      });
-    }
-  };
-
   return (
-    <div className='min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4'>
-      <Card className='w-full max-w-md shadow-lg'>
-        <CardHeader>
-          <CardTitle className='text-2xl font-bold text-center text-black dark:text-white'>
-            Reset Your Password
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='password'>New Password</Label>
-              <Input {...register('password')} type='password' id='password' />
-              {errors.password && (
-                <p className='text-sm text-red-500'>
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-            <div className='space-y-2'>
-              <Label htmlFor='confirmPassword'>Confirm Password</Label>
-              <Input
-                {...register('confirmPassword')}
-                type='password'
-                id='confirmPassword'
-              />
-              {errors.confirmPassword && (
-                <p className='text-sm text-red-500'>
-                  {errors.confirmPassword.message}
-                </p>
-              )}
-            </div>
-            <Button className='w-full' type='submit' disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  Resetting Password...
-                </>
-              ) : (
-                'Reset Password'
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <Card className='w-full max-w-md shadow-lg'>
+      <CardHeader>
+        <CardTitle className='text-center text-2xl font-bold'>Reset Your Password</CardTitle>
+        {email && (
+          <div className='text-muted-foreground mt-2 space-y-2 text-center'>
+            <p>
+              Enter a new password for <span className='font-medium'>{email}</span>
+            </p>
+            <p className='text-sm'>
+              This password can be used to login with any email addresses associated with your
+              account.
+            </p>
+          </div>
+        )}
+      </CardHeader>
+      <CardContent>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            return handleSubmit((data) => execute({ ...data, token }))(e);
+          }}
+          className='space-y-4'
+        >
+          <div className='space-y-2'>
+            <Label htmlFor='password'>New Password</Label>
+            <Input {...register('password')} type='password' id='password' />
+            {errors.password && (
+              <p className='text-destructive text-sm'>{errors.password.message}</p>
+            )}
+          </div>
+          <div className='space-y-2'>
+            <Label htmlFor='confirmPassword'>Confirm Password</Label>
+            <Input {...register('confirmPassword')} type='password' id='confirmPassword' />
+            {errors.confirmPassword && (
+              <p className='text-destructive text-sm'>{errors.confirmPassword.message}</p>
+            )}
+          </div>
+          {hasErrored && <p className='text-destructive text-sm'>{result?.serverError?.error}</p>}
+          <Button className='w-full' type='submit' disabled={status === 'executing'}>
+            {status === 'executing' ? (
+              <>
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                Resetting Password...
+              </>
+            ) : (
+              'Reset Password'
+            )}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <div className='min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4'>
+    <div className='flex min-h-screen items-center justify-center bg-zinc-900 p-4 dark:bg-zinc-50'>
       <Suspense
         fallback={
           <Card className='w-full max-w-md shadow-lg'>
-            <CardHeader>
-              <CardTitle className='text-2xl font-bold text-center text-black dark:text-white'>
-                Loading...
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className='flex justify-center'>
-                <Loader2 className='h-6 w-6 animate-spin' />
-              </div>
+            <CardContent className='flex justify-center p-8'>
+              <Loader2 className='h-8 w-8 animate-spin' />
             </CardContent>
           </Card>
         }

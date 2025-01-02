@@ -1,11 +1,12 @@
-import { Session, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { createSafeActionClient } from 'next-safe-action';
+import stripAnsi from 'strip-ansi';
 
-import { getUserInServer, setServerSession } from '@/lib/auth';
+import { getUserInServer } from '@/lib/auth';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger('safe-action');
 
 /**
  * An error that is visible to the client. Throw this error to return an error message to the client.
@@ -23,8 +24,11 @@ export class UnauthorizedError extends Error {
 
 export const baseClient = createSafeActionClient({
   handleServerError: (error) => {
-    if (process.env.NODE_ENV === 'development') {
-      logger.error('Safe action error', { error });
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+      if (process.env.NODE_ENV === 'development') {
+        logger.error('Safe action error', error.stack);
+      }
+      return { error: stripAnsi(error.stack ?? '') };
     }
 
     if (error instanceof ClientVisibleError) {
@@ -47,19 +51,15 @@ export const baseClient = createSafeActionClient({
 export type SafeActionContext = {
   user?: User | null;
   userId?: string | null;
-  setSession: (session: Session) => void;
 };
 
-export const actionClient = baseClient.use<SafeActionContext>(
-  async ({ next }) => {
-    const user = await getUserInServer();
+export const actionClient = baseClient.use<SafeActionContext>(async ({ next }) => {
+  const user = await getUserInServer();
 
-    return next({
-      ctx: {
-        user,
-        userId: user?.id ?? null,
-        setSession: setServerSession,
-      },
-    });
-  },
-);
+  return next({
+    ctx: {
+      user,
+      userId: user?.id ?? null,
+    },
+  });
+});

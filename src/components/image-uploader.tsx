@@ -22,7 +22,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { FileUploadState, useFileUploader } from '@/hooks/useFileUploader';
 
-import ImageLoader from '@/components/ImageLoader';
+import ImageLoader from '@/components/common/ImageLoader';
 import { Progress } from '@/components/ui/progress';
 
 export interface ImageUploaderImage {
@@ -46,8 +46,9 @@ const SortableImage = ({
   onDelete: (key: string) => void;
   isCover: boolean;
 }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: fileState.key ?? '' });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: fileState.key ?? '',
+  });
 
   const onDeleteCb = useCallback(() => {
     if (!fileState.key) {
@@ -67,11 +68,11 @@ const SortableImage = ({
       style={style}
       {...attributes}
       {...listeners}
-      className='aspect-square relative m-2'
+      className='relative aspect-square'
     >
-      <div className='border border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden w-full h-full'>
+      <div className='border-border h-full w-full overflow-hidden rounded-lg border shadow-md'>
         <div
-          className={cn(' w-full h-full bg-gray-100 dark:bg-gray-800', {
+          className={cn('bg-muted h-full w-full', {
             'opacity-75': fileState.status === 'uploading',
           })}
         >
@@ -82,13 +83,13 @@ const SortableImage = ({
             className='object-contain'
           />
           {isCover && (
-            <div className='absolute bottom-0 left-0 right-0 bg-black/50 dark:bg-black/70 text-white text-center py-1 rounded-b-lg'>
+            <div className='bg-foreground/50 text-background absolute bottom-0 left-0 right-0 rounded-b-lg py-1 text-center'>
               Cover Photo
             </div>
           )}
           {fileState.status === 'uploading' && (
             <Progress
-              className='absolute top-0 left-0 right-0 rounded-t-lg'
+              className='absolute left-0 right-0 top-0 rounded-t-lg'
               value={fileState.progress}
               max={100}
             />
@@ -105,21 +106,26 @@ const SortableImage = ({
           e.stopPropagation();
         }}
         type='button'
-        className='absolute -top-3 -right-3 bg-gray-500 dark:bg-gray-400 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 dark:hover:bg-red-500 focus:bg-red-600 dark:focus:bg-red-500 focus:outline-none'
+        className='bg-destructive hover:bg-destructive focus:bg-destructive absolute -right-3 -top-3 flex h-6 w-6 items-center justify-center rounded-full text-white opacity-50 focus:outline-none'
       >
-        <XIcon className='w-4 h-4' />
+        <XIcon className='h-4 w-4' />
       </button>
     </div>
   );
 };
 
-export const ImageUploader = ({
-  initialImages,
-  onChange,
-  onError,
-}: ImageUploaderProps) => {
-  const { fileStates, removeFile, handleFileSelect } = useFileUploader(
-    (files) => {
+export const ImageUploader = ({ initialImages, onChange, onError }: ImageUploaderProps) => {
+  const { fileStates, removeFile, handleFileSelect } = useFileUploader({
+    initialFiles:
+      initialImages?.map((image) => ({
+        key: image.key,
+        file: new File([], image.name),
+        status: 'success' as const,
+        localUrl: image.url,
+        uploadedUrl: image.url,
+        progress: 100,
+      })) ?? [],
+    onUploadSuccess: (files) => {
       const images = files
         .filter(
           (file): file is Required<FileUploadState> =>
@@ -132,19 +138,12 @@ export const ImageUploader = ({
         }));
       onChange(images);
     },
-    onError,
-  );
-  const [orderedImages, setOrderedImages] = useState<FileUploadState[]>([
-    ...fileStates,
-    ...(initialImages ?? []).map((image) => ({
-      key: image.key,
-      file: new File([], image.name),
-      status: 'success' as const,
-      localUrl: image.url,
-      uploadedUrl: image.url,
-      progress: 100,
-    })),
-  ]);
+    onUploadError: (error) => {
+      onError?.(error);
+    },
+  });
+  const [orderedImages, setOrderedImages] = useState<FileUploadState[]>(fileStates);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -196,13 +195,11 @@ export const ImageUploader = ({
       >
         <SortableContext
           items={orderedImages
-            .filter(
-              (img): img is Required<FileUploadState> => img.key !== undefined,
-            )
+            .filter((img): img is Required<FileUploadState> => img.key !== undefined)
             .map((img) => img.key)}
           strategy={rectSwappingStrategy}
         >
-          <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
+          <div className='grid grid-cols-2 gap-4 md:grid-cols-3'>
             {orderedImages.map((fileState, index) => (
               <SortableImage
                 key={fileState.key || index}
@@ -211,17 +208,12 @@ export const ImageUploader = ({
                 isCover={index === 0}
               />
             ))}
-            <label
-              htmlFor='image-uploader-input'
-              className='aspect-square relative m-2 cursor-pointer'
-            >
-              <div className=' border border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden w-full h-full'>
-                <div className='flex place-content-center relative w-full h-full bg-gray-100 dark:bg-gray-800'>
+            <label htmlFor='image-uploader-input' className='relative aspect-square cursor-pointer'>
+              <div className='border-border h-full w-full overflow-hidden rounded-lg border shadow-md'>
+                <div className='bg-muted relative flex h-full w-full place-content-center'>
                   <div className='flex flex-col items-center justify-center'>
-                    <PlusIcon className='w-10 h-10 text-gray-500 dark:text-gray-400' />
-                    <p className='text-gray-500 dark:text-gray-400'>
-                      Add Photos
-                    </p>
+                    <PlusIcon className='text-muted-foreground h-10 w-10' />
+                    <p className='text-muted-foreground'>Add Photos</p>
                   </div>
                 </div>
               </div>

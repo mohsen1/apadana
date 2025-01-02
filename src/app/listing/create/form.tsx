@@ -2,13 +2,17 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
-import qs from 'qs';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { CreateListing, CreateListingSchema } from '@/lib/prisma/schema';
+import {
+  CreateListingSchema,
+  CreateListingSchemaWithCoercion,
+  CreateListingWithCoercion,
+} from '@/lib/schema';
+import { StepConfig, useFormStepper } from '@/hooks/useFormStepper';
 
 import { ResultMessage } from '@/components/form/ResultMessage';
 import { Button } from '@/components/ui/button';
@@ -31,75 +35,94 @@ import { HouseRulesStep } from './HouseRulesStep';
 import { LocationDetailsStep } from './LocationDetailsStep';
 import { PhotosStep } from './PhotosStep';
 import { PricingStep } from './PricingStep';
-enum FormStep {
-  LocationDetails = 0,
-  BasicInfo = 1,
-  Amenities = 2,
-  Photos = 3,
-  Pricing = 4,
-  HouseRules = 5,
-}
-const defaultValues: Omit<CreateListing, 'latitude' | 'longitude' | 'address'> =
-  {
-    amenities: ['Wi-Fi'],
-    title: 'My listing',
-    description: 'This is a test listing',
-    propertyType: 'house',
-    houseRules: 'No smoking allowed',
-    pricePerNight: 100,
-    minimumStay: 1,
-    maximumGuests: 5,
-  };
 
-const stepRequiredFields = {
-  [FormStep.LocationDetails]: ['address'],
-  [FormStep.BasicInfo]: ['title', 'description', 'propertyType'],
-  [FormStep.Amenities]: ['amenities'],
-  [FormStep.Photos]: ['images'],
-  [FormStep.Pricing]: ['pricePerNight', 'minimumStay', 'maximumGuests'],
-  [FormStep.HouseRules]: ['houseRules'],
+const defaultValues: Omit<CreateListingWithCoercion, 'latitude' | 'longitude' | 'address'> = {
+  amenities: ['Wi-Fi'],
+  title: 'My listing',
+  description: 'This is a test listing',
+  propertyType: 'house',
+  houseRules: 'No smoking allowed',
+  pricePerNight: 100,
+  minimumStay: 1,
+  maximumGuests: 5,
+  slug: '',
+  timeZone: 'UTC',
+  checkInTime: '15:00',
+  checkOutTime: '11:00',
+  currency: 'USD',
+  allowPets: false,
+  petPolicy: '',
+  published: false,
+  showExactLocation: true,
+  locationRadius: 0,
+  images: [],
 };
 
-const steps = [
+const steps: StepConfig<CreateListingWithCoercion>[] = [
   {
-    title: 'Location Details',
-    description: 'Enter the address and location information',
+    title: 'Where is your property?',
+    description:
+      'Enter the address and location information. ' +
+      'You can choose to hide the exact location of your property on your website and show an estimate location',
+    validation: CreateListingSchemaWithCoercion.pick({
+      address: true,
+      latitude: true,
+      longitude: true,
+      locationRadius: true,
+    }),
   },
   {
-    title: 'Basic Information',
+    title: 'What kind of property is it?',
     description: 'Provide general details about your listing',
+    validation: CreateListingSchemaWithCoercion.pick({
+      title: true,
+      description: true,
+      propertyType: true,
+    }),
   },
   {
-    title: 'Amenities',
+    title: 'What amenities are available?',
     description: 'Select the amenities available at your property',
+    validation: CreateListingSchemaWithCoercion.pick({
+      amenities: true,
+    }),
   },
-  { title: 'Photos', description: 'Upload photos of your property' },
   {
-    title: 'Pricing and Availability',
+    title: 'Photos',
+    description: 'Upload photos of your property',
+    validation: CreateListingSchemaWithCoercion.pick({
+      images: true,
+    }),
+  },
+  {
+    title: 'Set your pricing',
     description: 'Set your pricing and availability rules',
+    validation: CreateListingSchemaWithCoercion.pick({
+      pricePerNight: true,
+      minimumStay: true,
+      maximumGuests: true,
+    }),
   },
   {
-    title: 'House Rules',
+    title: 'Set your rules',
     description: 'Establish house rules for your guests',
+    validation: CreateListingSchemaWithCoercion.pick({
+      houseRules: true,
+    }),
   },
 ];
 
 export default function CreateListingForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [currentStep, setCurrentStep] = useState<FormStep>(
-    FormStep.LocationDetails,
-  );
-  const [showLoading, setShowLoading] = useState(false);
 
-  const { execute, result } = useAction(createListing, {
+  const { execute, result, isPending } = useAction(createListing, {
     onError: (error) => {
       logger.error('create listing error', error);
     },
     onSuccess: (result) => {
       logger.info('create listing success', result);
-      if (result?.data?.listing) {
-        window.location.href = `/listing/${result.data.listing.id}/manage/calendar?newListing=true`;
+      if (result.data) {
+        window.location.href = `/listing/${result.data.id}/manage/calendar?newListing=true`;
       } else {
         logger.error('no listing returned from create listing', result);
         router.replace(`/listings`);
@@ -107,195 +130,87 @@ export default function CreateListingForm() {
     },
   });
 
-  const methods = useForm<CreateListing>({
-    resolver: zodResolver(CreateListingSchema, {
-      errorMap: (error, ctx) => {
-        logger.error(error, ctx);
-        return { message: ctx.defaultError ?? 'Unknown error' };
-      },
-    }),
+  const form = useForm<CreateListingWithCoercion>({
+    resolver: zodResolver(CreateListingSchemaWithCoercion),
     defaultValues,
   });
 
-  const { handleSubmit, formState, getValues, reset } = methods;
-  const { isSubmitting } = formState;
-
-  const updateUrlParams = useCallback(
-    ({
-      formData,
-      step,
-    }: {
-      formData: Partial<CreateListing>;
-      step: number;
-    }) => {
-      const params = new URLSearchParams(searchParams);
-      const serialized = qs.stringify(formData);
-      params.set('form-data', serialized);
-      params.set('step', step.toString());
-      router.push(`?${params.toString()}`);
-    },
-    [searchParams, router],
-  );
-
-  useEffect(() => {
-    const step = searchParams.get('step') || '0';
-    if (step && Object.keys(FormStep).includes(step)) {
-      setCurrentStep(parseInt(step, 10) as FormStep);
-    } else {
-      updateUrlParams({
-        formData: defaultValues,
-        step: FormStep.LocationDetails,
-      });
-    }
-
-    const formData = qs.parse(
-      searchParams.get('form-data') || '{}',
-    ) as Partial<CreateListing>;
-
-    // Convert string values to numbers
-    const numericFields = [
-      'pricePerNight',
-      'minimumStay',
-      'maximumGuests',
-      'latitude',
-      'longitude',
-    ] as const;
-    const booleanFields = ['showExactLocation'] as const;
-    numericFields.forEach((field) => {
-      if (field in formData && typeof formData[field] === 'string') {
-        formData[field] = Number(formData[field]);
-      }
-    });
-    booleanFields.forEach((field) => {
-      if (field in formData && typeof formData[field] === 'string') {
-        formData[field] = formData[field] === 'true';
-      }
-    });
-    if (Object.keys(formData).length > 1) {
-      try {
-        const parsedData = CreateListingSchema.partial().parse(formData);
-        reset(parsedData);
-      } catch (error) {
-        router.replace(`?step=${FormStep.LocationDetails}`);
-        reset(defaultValues);
-      }
-    }
-  }, [searchParams, router, reset, updateUrlParams]);
-
-  const nextStep = (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    const currentValues = getValues();
-    const nextStepValue = Math.min(
-      currentStep + 1,
-      Object.keys(FormStep).length,
-    );
-    updateUrlParams({
-      formData: currentValues,
-      step: nextStepValue,
-    });
-  };
-
-  const prevStep = () => {
-    const prevStepValue = Math.max(currentStep - 1, 0);
-    updateUrlParams({
-      formData: getValues(),
-      step: prevStepValue,
-    });
-  };
-
-  const canGoToNextStep = () => {
-    const requiredFields = stepRequiredFields[currentStep];
-    const values = getValues();
-    return requiredFields.every((field) => field in values);
-  };
+  const {
+    currentStep,
+    currentStepConfig,
+    isFirstStep,
+    isLastStep,
+    canGoNext,
+    nextStep,
+    previousStep,
+  } = useFormStepper({
+    steps,
+    form,
+    defaultValues,
+    paramPrefix: 'listing-create',
+  });
 
   const handleFormSubmit = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (currentStep < steps.length - 1) {
-        return;
-      }
-
-      // Set up loading state with throttle
-      const loadingTimeout = setTimeout(() => {
-        setShowLoading(true);
-      }, 500);
-
-      handleSubmit(
-        async (data) => {
-          updateUrlParams({
-            formData: data,
-            step: currentStep,
-          });
-          await execute(data);
-          clearTimeout(loadingTimeout);
-          setShowLoading(false);
-        },
-        (errors) => {
-          logger.error('submit errors', errors);
-          clearTimeout(loadingTimeout);
-          setShowLoading(false);
-        },
-      )(e);
+    async (data: CreateListingWithCoercion) => {
+      const coerced = CreateListingSchemaWithCoercion.parse(data);
+      const parsed = CreateListingSchema.parse(coerced);
+      execute(parsed);
     },
-    [currentStep, execute, handleSubmit, updateUrlParams],
+    [isLastStep, nextStep, execute],
   );
 
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...form}>
       <form
-        onSubmit={handleFormSubmit}
-        className='max-w-4xl mx-auto p-6 space-y-8 flex-grow w-full'
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className='mx-auto w-full max-w-4xl flex-grow space-y-8'
       >
-        <ResultMessage result={result} />
+        {process.env.NODE_ENV === 'development' && <ResultMessage result={result} />}
 
-        <Card className='border-none shadow-none w-full'>
+        <Card className='w-full border-none bg-transparent shadow-none'>
           <CardHeader>
-            <CardTitle>{steps[currentStep].title}</CardTitle>
-            <CardDescription>{steps[currentStep].description}</CardDescription>
+            <CardTitle>{currentStepConfig.title}</CardTitle>
+            <CardDescription>{currentStepConfig.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            {currentStep === FormStep.LocationDetails && (
-              <LocationDetailsStep />
-            )}
-            {currentStep === FormStep.BasicInfo && <BasicInfoStep />}
-            {currentStep === FormStep.Amenities && <AmenitiesStep />}
-            {currentStep === FormStep.Photos && <PhotosStep />}
-            {currentStep === FormStep.Pricing && <PricingStep />}
-            {currentStep === FormStep.HouseRules && <HouseRulesStep />}
+            {currentStep === 0 && <LocationDetailsStep />}
+            {currentStep === 1 && <BasicInfoStep />}
+            {currentStep === 2 && <AmenitiesStep />}
+            {currentStep === 3 && <PhotosStep />}
+            {currentStep === 4 && <PricingStep />}
+            {currentStep === 5 && <HouseRulesStep disabled={isPending} />}
           </CardContent>
           <CardFooter className='flex justify-between'>
-            {currentStep !== FormStep.LocationDetails ? (
-              <Button type='button' variant='outline' onClick={prevStep}>
+            {!isFirstStep ? (
+              <Button type='button' variant='outline' onClick={previousStep}>
                 Previous
               </Button>
             ) : (
               <div className='w-4 opacity-0' />
             )}
-            {currentStep < steps.length - 1 ? (
-              <Button
-                type='button'
-                onClick={nextStep}
-                disabled={!canGoToNextStep()}
-              >
-                Next
-              </Button>
-            ) : (
-              <Button
-                type='submit'
-                disabled={isSubmitting || showLoading}
-                className='min-w-[100px]'
-              >
-                {isSubmitting || showLoading ? (
-                  <>
-                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                    Submitting...
-                  </>
-                ) : (
-                  'Submit Listing'
-                )}
-              </Button>
-            )}
+            <Button
+              type='submit'
+              disabled={(!isLastStep && !canGoNext()) || isPending}
+              className='min-w-[100px]'
+              onClick={(event) => {
+                if (!isLastStep) {
+                  event.preventDefault();
+                  nextStep();
+                  return;
+                }
+              }}
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  Submitting...
+                </>
+              ) : isLastStep ? (
+                'Submit Listing'
+              ) : (
+                'Next'
+              )}
+            </Button>
           </CardFooter>
         </Card>
       </form>

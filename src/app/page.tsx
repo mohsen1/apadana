@@ -1,304 +1,216 @@
-import {
-  Calendar,
-  CheckCircle,
-  Globe,
-  MessageCircle,
-  RefreshCw,
-  ShieldCheck,
-} from 'lucide-react';
+'use client';
+
+import { motion } from 'framer-motion';
+import { Calendar, CheckCircle, Globe, MessageCircle, RefreshCw, ShieldCheck } from 'lucide-react';
 import * as React from 'react';
 import { Novatrix } from 'uvcanvas';
 
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+
 import { EarlyAccessForm } from '@/components/early-access-form';
-import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/Logo';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+const MotionCard = motion(Card);
+
 export default function HomePage() {
+  const { ref: featuresRef, isInView: featuresInView } = useScrollAnimation();
+
   return (
     <div className='flex flex-col'>
-      <main className='flex-1'>
-        <section className='w-full py-8 md:py-18 lg:py-24 xl:py-32 relative'>
-          <div className='absolute inset-0 z-0 opacity-10 overflow-hidden min-h-screen'>
+      <div className='grid flex-1 grid-cols-[1fr] place-content-center'>
+        <section className='md:py-18 relative w-full py-8 lg:py-24 xl:py-32'>
+          <div
+            className='absolute inset-0 z-0 min-h-screen w-full overflow-hidden opacity-10'
+            id='bg-canvas'
+          >
             <Novatrix />
           </div>
-          <div className='relative z-10  top-0'>
-            <div className='container px-4 md:px-6 mx-auto max-w-6xl'>
+          <div className='relative top-0 z-10'>
+            <motion.div
+              className='mx-auto w-full max-w-6xl px-4 md:px-6'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
               <div className='flex flex-col items-center space-y-4 text-center'>
-                <div className='space-y-2'>
-                  <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl'>
-                    Your Rental, Your Website, Your Way
+                <motion.div
+                  className='space-y-2'
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                >
+                  <h1 className='text-4xl font-bold'>
+                    Manage Your Short-Term Rentals Without Extra Fees with Apadana
                   </h1>
-                  <p className='mx-auto max-w-[700px] text-gray-600 md:text-xl dark:text-gray-300'>
-                    Create your own website for your short-term rental in
-                    minutes. Get direct bookings, manage your calendar, and
-                    communicate with guests - all without extra fees.
+                  <p className='text-muted-foreground mx-auto max-w-[700px] md:text-xl'>
+                    Create your own website for your short-term rental in minutes. Get direct
+                    bookings, manage your calendar, and communicate with guests - all without extra
+                    fees.
                   </p>
-                </div>
-                <div className='space-x-4'>
+                </motion.div>
+
+                <motion.div
+                  className='space-x-4'
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                >
                   <EarlyAccessForm />
-                </div>
+                </motion.div>
               </div>
-            </div>
-            <div className='container px-4 md:px-6 mx-auto max-w-6xl mt-24'>
-              <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl text-center mb-12'>
+            </motion.div>
+            <motion.div
+              className='container mx-auto mt-24 max-w-6xl px-4 md:px-6'
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+            >
+              <div className='flex items-center justify-center pt-12'>
+                <Logo className='text-shadow-sm' size={200} />
+              </div>
+            </motion.div>
+            <div className='container mx-auto mt-24 max-w-6xl px-4 md:px-6'>
+              <motion.h2
+                className='font-subheading mb-12 text-center text-3xl font-bold tracking-tighter sm:text-5xl'
+                ref={featuresRef}
+                initial={{ opacity: 0, y: 20 }}
+                animate={featuresInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8 }}
+              >
                 Key Features
-              </h2>
+              </motion.h2>
               <div className='grid gap-6 lg:grid-cols-3'>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className='flex items-center'>
-                      <Calendar className='w-6 h-6 mr-2' />
-                      Calendar Management
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    Easily manage your listing's availability and sync with
-                    other platforms like Airbnb and VRBO.
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className='flex items-center'>
-                      <Globe className='w-6 h-6 mr-2' />
-                      Custom Domain
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    Get your own domain (e.g., 123mainst.com) for a professional
-                    and memorable online presence.
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className='flex items-center'>
-                      <MessageCircle className='w-6 h-6 mr-2' />
-                      Secure Communication
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    Communicate securely with potential guests directly through
-                    your website.
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className='flex items-center'>
-                      <ShieldCheck className='w-6 h-6 mr-2' />
-                      Identity Verification
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    Ensure guest trustworthiness with our built-in identity
-                    verification system.
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className='flex items-center'>
-                      <RefreshCw className='w-6 h-6 mr-2' />
-                      Calendar Sync
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    Keep your availability up-to-date across all platforms with
-                    automatic calendar syncing.
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className='flex items-center'>
-                      <CheckCircle className='w-6 h-6 mr-2' />
-                      Direct Payments
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    Receive payments directly from guests without any additional
-                    fees cutting into your profits.
-                  </CardContent>
-                </Card>
+                {[
+                  {
+                    icon: Calendar,
+                    title: 'Calendar Management',
+                    content:
+                      "Easily manage your listing's availability and sync with other platforms like Airbnb and VRBO.",
+                  },
+                  {
+                    icon: Globe,
+                    title: 'Custom Domain',
+                    content:
+                      'Get your own domain (e.g., 123mainst.com) for a professional and memorable online presence.',
+                  },
+                  {
+                    icon: MessageCircle,
+                    title: 'Secure Communication',
+                    content:
+                      'Communicate securely with potential guests directly through your website.',
+                  },
+                  {
+                    icon: ShieldCheck,
+                    title: 'Identity Verification',
+                    content:
+                      'Ensure guest trustworthiness with our built-in identity verification system.',
+                  },
+                  {
+                    icon: RefreshCw,
+                    title: 'Calendar Sync',
+                    content:
+                      'Keep your availability up-to-date across all platforms with automatic calendar syncing.',
+                  },
+                  {
+                    icon: CheckCircle,
+                    title: 'Direct Payments',
+                    content:
+                      'Receive payments directly from guests without any additional fees cutting into your profits.',
+                  },
+                ].map((feature, index) => (
+                  <MotionCard
+                    key={feature.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={featuresInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.8, delay: index * 0.1 }}
+                  >
+                    <CardHeader>
+                      <CardTitle className='flex items-center'>
+                        <feature.icon className='mr-2 h-6 w-6' />
+                        {feature.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>{feature.content}</CardContent>
+                  </MotionCard>
+                ))}
               </div>
             </div>
-            <div className='container px-4 md:px-6 mt-24  mx-auto max-w-6xl  '>
-              <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl text-center mb-12'>
+            <div className='container mx-auto mt-24 max-w-6xl px-4 md:px-6'>
+              <motion.h2
+                className='font-subheading mb-12 text-center text-3xl font-bold tracking-tighter sm:text-5xl'
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true, amount: 0.2 }}
+              >
                 How It Works
-              </h2>
+              </motion.h2>
               <div className='grid gap-6 lg:grid-cols-3'>
-                <div className='flex flex-col items-center text-center'>
-                  <div className='flex h-12 w-12 items-center justify-center rounded-full bg-primary text-background font-bold text-2xl'>
-                    1
-                  </div>
-                  <h3 className='mt-4 text-xl font-bold'>Sign Up</h3>
-                  <p className='mt-2 text-foreground-muted'>
-                    Create your account and provide details about your rental
-                    property.
-                  </p>
-                </div>
-                <div className='flex flex-col items-center text-center'>
-                  <div className='flex h-12 w-12 items-center justify-center rounded-full bg-primary text-background font-bold text-2xl'>
-                    2
-                  </div>
-                  <h3 className='mt-4 text-xl font-bold'>Customize</h3>
-                  <p className='mt-2 text-foreground-muted'>
-                    Choose your domain and customize your website with our
-                    easy-to-use tools.
-                  </p>
-                </div>
-                <div className='flex flex-col items-center text-center'>
-                  <div className='flex h-12 w-12 items-center justify-center rounded-full bg-primary text-background font-bold text-2xl'>
-                    3
-                  </div>
-                  <h3 className='mt-4 text-xl font-bold'>Go Live</h3>
-                  <p className='mt-2 text-foreground-muted'>
-                    Publish your site and start accepting direct bookings from
-                    guests.
-                  </p>
-                </div>
+                {[
+                  {
+                    step: 1,
+                    title: 'Sign Up',
+                    content: 'Create your account and provide details about your rental property.',
+                  },
+                  {
+                    step: 2,
+                    title: 'Customize',
+                    content:
+                      'Choose your domain and customize your website with our easy-to-use tools.',
+                  },
+                  {
+                    step: 3,
+                    title: 'Go Live',
+                    content: 'Publish your site and start accepting direct bookings from guests.',
+                  },
+                ].map((item, index) => (
+                  <motion.div
+                    key={item.step}
+                    className='flex flex-col items-center text-center'
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: index * 0.2 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                  >
+                    <div className='bg-primary text-background flex h-12 w-12 items-center justify-center rounded-full text-2xl font-bold'>
+                      {item.step}
+                    </div>
+                    <h3 className='mt-4 text-xl font-bold'>{item.title}</h3>
+                    <p className='-muted mt-2'>{item.content}</p>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </div>
         </section>
-        <div className=' md:px-6 mx-auto max-w-6xl'>
-          <section className='w-full'>
-            <div className='container px-4 md:px-6'>
-              <h2 className='text-3xl mt-8 font-bold font-subheading tracking-tighter sm:text-5xl text-center mb-12'>
-                What Our Hosts Say
-              </h2>
-              <div className='grid gap-6 lg:grid-cols-3'>
-                <Card>
-                  <CardContent className='mt-4'>
-                    <p className='text-foreground-muted'>
-                      "This platform has revolutionized how I manage my vacation
-                      rental. The direct bookings and lack of fees have
-                      significantly increased my profits."
-                    </p>
-                    <p className='mt-4 font-bold'>
-                      - Sarah T., Beach House Owner
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className='mt-4'>
-                    <p className='text-foreground-muted'>
-                      "The calendar sync feature is a game-changer. I no longer
-                      worry about double bookings across different platforms."
-                    </p>
-                    <p className='mt-4 font-bold'>
-                      - Michael R., City Apartment Host
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className='mt-4'>
-                    <p className='text-foreground-muted'>
-                      "Having my own website has given my rental a professional
-                      edge. Guests love booking directly through our site."
-                    </p>
-                    <p className='mt-4 font-bold'>
-                      - Emma L., Mountain Cabin Owner
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </section>
-          <section className='w-full py-12 md:py-24 lg:py-48'>
-            <div className='container px-4 md:px-6'>
-              <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl text-center mb-12'>
-                Simple Pricing
-              </h2>
-              <div className='grid gap-6 lg:grid-cols-3'>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Basic</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className='text-4xl font-bold'>$9.99/mo</p>
-                    <ul className='mt-4 space-y-2'>
-                      <li className='flex items-center'>
-                        <CheckCircle className='text-green-500 mr-2' />
-                        Custom domain
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='text-green-500 mr-2' />
-                        Calendar management
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='text-green-500 mr-2' />
-                        Direct payments
-                      </li>
-                    </ul>
-                    <Button className='mt-6 w-full'>Choose Plan</Button>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Pro</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className='text-4xl font-bold'>$19.99/mo</p>
-                    <ul className='mt-4 space-y-2'>
-                      <li className='flex items-center'>
-                        <CheckCircle className='text-green-500 mr-2' />
-                        All Basic features
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='text-green-500 mr-2' />
-                        Calendar sync
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='text-green-500 mr-2' />
-                        Identity verification
-                      </li>
-                    </ul>
-                    <Button className='mt-6 w-full'>Choose Plan</Button>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Enterprise</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className='text-4xl font-bold'>Custom</p>
-                    <ul className='mt-4 space-y-2'>
-                      <li className='flex items-center'>
-                        <CheckCircle className='text-green-500 mr-2' />
-                        All Pro features
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='text-green-500 mr-2' />
-                        Multiple properties
-                      </li>
-                      <li className='flex items-center'>
-                        <CheckCircle className='text-green-500 mr-2' />
-                        Priority support
-                      </li>
-                    </ul>
-                    <Button className='mt-6 w-full'>Contact Sales</Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </section>
+        <div className='mx-auto max-w-6xl md:px-6'>
           <section className='w-full py-12 md:py-24 lg:py-32'>
             <div className='container px-4 md:px-6'>
-              <div className='flex flex-col items-center space-y-4 text-center'>
+              <motion.div
+                className='flex flex-col items-center space-y-4 text-center'
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true, amount: 0.2 }}
+              >
                 <div className='space-y-2'>
-                  <h2 className='text-3xl font-bold font-subheading tracking-tighter sm:text-5xl'>
+                  <h2 className='font-subheading text-3xl font-bold tracking-tighter sm:text-5xl'>
                     Ready to Take Control of Your Rental?
                   </h2>
-                  <p className='mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400'>
-                    Start managing your short-term rental your way. Create your
-                    website, get direct bookings, and maximize your profits.
+                  <p className='text-muted-foreground mx-auto max-w-[700px] md:text-xl'>
+                    Start managing your short-term rental your way. Create your website, get direct
+                    bookings, and maximize your profits.
                   </p>
                 </div>
                 <div className='space-x-4'>
                   <EarlyAccessForm />
                 </div>
-              </div>
+              </motion.div>
             </div>
           </section>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

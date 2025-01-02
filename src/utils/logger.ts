@@ -1,9 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-console */
+/* eslint-disable 
+  no-console,
+  @typescript-eslint/no-explicit-any, 
+  @typescript-eslint/no-unsafe-return, 
+  @typescript-eslint/no-unsafe-argument
+*/
 
+import chalk from 'chalk';
 import path from 'path';
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export class Logger {
   #levelsMap: Record<LogLevel, LogLevel[]> = {
@@ -16,10 +21,7 @@ export class Logger {
   #level: LogLevel = 'debug';
   #prefix: string | undefined;
 
-  constructor(
-    prefix: string | undefined = undefined,
-    level: LogLevel = 'debug',
-  ) {
+  constructor(prefix: string | undefined = undefined, level: LogLevel = 'debug') {
     this.#prefix = prefix;
     this.#level = level;
   }
@@ -50,7 +52,7 @@ export class Logger {
 
   #applyPrefix(messages: any[]) {
     if (this.#prefix) {
-      messages.unshift(`[${this.#prefix}]`);
+      messages.unshift(chalk.gray(`[${this.#prefix}]`));
     }
     return messages;
   }
@@ -86,13 +88,7 @@ export class Logger {
 export function createLogger(filePath: string, level: LogLevel = 'debug') {
   const fileName = path.basename(filePath);
 
-  const commonFileNames = [
-    'index.ts',
-    'index.tsx',
-    'index.js',
-    'index.jsx',
-    'action.ts',
-  ];
+  const commonFileNames = ['index.ts', 'index.tsx', 'index.js', 'index.jsx', 'action.ts'];
 
   if (commonFileNames.includes(fileName)) {
     return new Logger(`${path.dirname(filePath)}/${fileName}`);

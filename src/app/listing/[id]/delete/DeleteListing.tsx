@@ -37,26 +37,23 @@ export function DeleteListing({ listing }: { listing: Listing }) {
 
   return (
     <form
-      className='max-w-4xl mx-auto pt-12 p-6 space-y-8 flex-grow'
+      className='mx-auto max-w-4xl flex-grow space-y-8 p-6 pt-12'
       onSubmit={(e) => {
         e.preventDefault();
-        handleSubmit((data) => {
+        return handleSubmit((data) => {
           execute({
             id: String(data.id),
           });
         })(e);
       }}
     >
-      <h1 className='text-2xl font-bold flex items-center gap-2'>
+      <h1 className='flex items-center gap-2 text-2xl font-bold'>
         <TrashIcon className='text-destructive' size={48} />
         Delete "{listing.title}"
       </h1>
 
       <div className='flex items-center gap-2'>
-        <p>
-          Are you sure you want to delete this listing? This action cannot be
-          undone.
-        </p>
+        <p>Are you sure you want to delete this listing? This action cannot be undone.</p>
       </div>
       <input type='hidden' name='id' value={listing.id.toString()} />
       <div className='flex justify-end gap-4'>

@@ -1,82 +1,120 @@
 'use client';
+
 import { LocalEmail } from '@prisma/client';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
+
+import { useToast } from '@/hooks/useToast';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+import { deleteAllEmails } from './action';
+import { EmailContent } from './EmailContent';
+import { EmailListItem } from './EmailListItem';
 
 interface EmailsListProps {
   emails: LocalEmail[];
 }
 
 export default function EmailsList({ emails }: EmailsListProps) {
-  const [selectedEmail, setSelectedEmail] = useState<LocalEmail | null>(
-    emails[0] ?? null,
-  );
+  const [selectedEmail, setSelectedEmail] = useState<LocalEmail | null>(emails[0] ?? null);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const { execute: executeDelete, status } = useAction(deleteAllEmails, {
+    onSuccess: () => {
+      toast({
+        title: 'All emails deleted successfully',
+        variant: 'default',
+        duration: 500,
+      });
+      router.refresh();
+    },
+    onError: (result) => {
+      toast({
+        title: 'Failed to delete emails',
+        description: result?.error.serverError?.error ?? 'An unknown error occurred',
+        variant: 'destructive',
+      });
+    },
+  });
 
   return (
-    <div className='flex flex-col '>
-      <header className='border-b border-gray-200 dark:border-gray-800'>
-        <h1 className='text-2xl font-semibold p-4'>Local Email Inbox</h1>
+    <div className='flex h-full min-h-screen flex-1 flex-col'>
+      <header className='border-border flex items-center justify-between border-b p-4'>
+        <h1 className='text-2xl font-semibold'>Local Email Inbox</h1>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant='destructive' size='sm' disabled={status === 'executing'}>
+              <Trash2 className='mr-2 h-4 w-4' />
+              {status === 'executing' ? 'Deleting...' : 'Delete All'}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete all emails?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete all emails from the local
+                inbox.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => executeDelete()}>Delete All</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </header>
 
-      <div className='flex-1 grid grid-cols-3 min-h-0'>
-        {/* Email List */}
-        <div className='col-span-1 border-r border-gray-200 dark:border-gray-800 overflow-auto'>
+      <div className='grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-3'>
+        <ScrollArea className='border-border md:col-span-1 md:border-r'>
           <ul>
             {emails.map((email) => (
-              <li
+              <EmailListItem
+                data-testid='email-list-item'
                 key={email.id}
-                className={`p-4 cursor-pointer border-b border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 ${
-                  selectedEmail?.id === email.id
-                    ? 'bg-blue-50 border-l-4 border-l-blue-500 dark:bg-blue-950'
-                    : ''
-                }`}
+                email={email}
+                isSelected={selectedEmail?.id === email.id}
                 onClick={() => setSelectedEmail(email)}
-              >
-                <h2 className='font-medium'>{email.subject}</h2>
-                <p className='text-sm text-gray-600'>{email.to}</p>
-                <p className='text-xs text-gray-500' suppressHydrationWarning>
-                  {new Date(email.createdAt).toLocaleString()}
-                </p>
-              </li>
+              />
             ))}
           </ul>
-        </div>
+        </ScrollArea>
 
-        {/* Email Content */}
-        <div className='col-span-2 overflow-auto flex flex-col'>
-          {selectedEmail ? (
-            <div className='flex-1 flex flex-col'>
-              <div className='border-b border-gray-200 dark:border-gray-800 p-8'>
-                <h2 className='font-bold text-2xl mb-4'>
-                  {selectedEmail.subject}
-                </h2>
-                <p className='mb-2'>
-                  <strong>From:</strong> {selectedEmail.from}
-                </p>
-                <p className='mb-2'>
-                  <strong>To:</strong> {selectedEmail.to}
-                </p>
-              </div>
-
-              <div className='flex-1 p-8 overflow-auto'>
-                <div
-                  className='prose max-w-none'
-                  dangerouslySetInnerHTML={{ __html: selectedEmail.html }}
-                />
-              </div>
-
-              <footer className='border-t border-gray-200 dark:border-gray-800 p-4 mt-auto'>
-                <p className='text-sm text-gray-600'>
-                  Sent at: {new Date(selectedEmail.createdAt).toLocaleString()}
-                </p>
-              </footer>
-            </div>
-          ) : (
-            <div className='flex items-center justify-center h-full'>
-              <p className='text-gray-600'>
-                Select an email to view its content
-              </p>
-            </div>
-          )}
+        <div className='flex flex-col overflow-hidden md:col-span-2'>
+          <AnimatePresence mode='wait'>
+            <motion.div
+              key={selectedEmail?.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className='flex-1 overflow-hidden overflow-y-auto'
+            >
+              {selectedEmail ? (
+                <EmailContent email={selectedEmail} />
+              ) : (
+                <div className='flex h-full items-center justify-center'>
+                  <p className='text-muted-foreground'>Select an email to view its content</p>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>
