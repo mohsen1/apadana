@@ -158,16 +158,7 @@ jobs:
         uses: ./.github/actions/test-report
         with:
           app-id: '1100607'
-          test-name: 'Storybook'
+          test-name: 'Storybook Results'
           test-outcome: ${{ steps.test-run.outcome }}
           report-url: ${{ steps.process-storybook-url.outputs.report_url }}
           private-key: ${{ secrets.APADANA_AUTOMATION_GITHUB_APP_PRIVATE_KEY }}
-
-      - name: Update PR Comment for Storybook
-        if: always() && steps.find-pr.outputs.pr_number != ''
-        uses: ./.github/actions/update-pr-comment
-        with:
-          pr_number: ${{ steps.find-pr.outputs.pr_number }}
-          test_status: ${{ steps.test-run.outcome }}
-          report_url: ${{ steps.process-storybook-url.outputs.report_url }}
-          test_type: 'Storybook'

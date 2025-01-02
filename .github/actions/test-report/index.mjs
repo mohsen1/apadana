@@ -45,6 +45,6 @@ await octokit.rest.repos.createCommitStatus({
   sha: process.env.GITHUB_SHA,
   state: process.env.INPUT_TEST_OUTCOME === 'success' ? 'success' : 'failure',
   target_url: process.env.INPUT_REPORT_URL,
-  description: 'Results',
+  description: `${process.env.INPUT_TEST_NAME} Results`,
   context: process.env.INPUT_TEST_NAME,
 });
