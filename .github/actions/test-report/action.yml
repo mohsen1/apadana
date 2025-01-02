@@ -32,8 +32,8 @@ runs:
         PRIVATE_KEY: ${{ inputs.private-key }}
       with:
         script: |
-          const { createAppAuth } = require('@octokit/auth-app');
-          const { Octokit } = require('@octokit/rest');
+          const { Octokit } = await import('@octokit/rest');
+          const { createAppAuth } = await import('@octokit/auth-app');
 
           const auth = createAppAuth({
             appId: '${{ inputs.app-id }}',
