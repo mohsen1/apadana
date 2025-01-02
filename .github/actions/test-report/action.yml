@@ -14,9 +14,6 @@ inputs:
   app-id:
     description: 'GitHub App ID'
     required: true
-  private-key:
-    description: 'GitHub App private key'
-    required: true
 
 runs:
   using: 'composite'
@@ -28,9 +25,5 @@ runs:
         INPUT_TEST_NAME: ${{ inputs.test-name }}
         INPUT_TEST_OUTCOME: ${{ inputs.test-outcome }}
         INPUT_REPORT_URL: ${{ inputs.report-url }}
-        PRIVATE_KEY: ${{ inputs.private-key }}
-        GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-        GITHUB_SHA: ${{ github.sha }}
-        GITHUB_RUN_ID: ${{ github.run_id }}
+        PRIVATE_KEY: ${{ secrets.APADANA_AUTOMATION_GITHUB_APP_PRIVATE_KEY }}
       run: node $GITHUB_ACTION_PATH/index.mjs

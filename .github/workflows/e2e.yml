@@ -75,11 +75,10 @@ jobs:
         if: always() && steps.process-url.outputs.report_url
         uses: ./.github/actions/test-report
         with:
+          app-id: '1100607'
           test-name: 'E2E Tests'
           test-outcome: ${{ steps.test-run.outcome }}
           report-url: ${{ steps.process-url.outputs.report_url }}
-          app-id: '1100607'
-          private-key: ${{ secrets.APADANA_AUTOMATION_GITHUB_APP_PRIVATE_KEY }}
 
       - name: Update PR Comment for E2E
         if: always() && steps.find-pr.outputs.pr_number
