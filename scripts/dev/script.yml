@@ -1,17 +1,17 @@
 default:
   help: Start development server
   concurrently:
-    - script: 'dev next'
-      prefix: 'blue.bold'
+    - script: dev next
+      prefix: blue.bold
       label: next
-    - script: 'dev prisma'
-      prefix: 'magenta.bold'
+    - script: dev prisma
+      prefix: magenta.bold
       label: prisma
-    - script: 'dev storybook'
-      prefix: 'green.bold'
+    - script: dev storybook
+      prefix: green.bold
       label: storybook
-    - script: 'dev studio'
-      prefix: 'yellow.bold'
+    - script: dev studio
+      prefix: yellow.bold
       label: studio
   depends:
     - prisma/generate
@@ -24,7 +24,7 @@ next:
   help: Start Next.js development server
 
 prisma:
-  command: prisma generate --no-hints --watch
+  command: prisma generate --schema=src/prisma/schema.prisma --no-hints --watch
   help: Watch and generate Prisma client
   envFile:
     - .env.local
@@ -32,6 +32,18 @@ prisma:
     seed:
       command: prisma db seed
       help: Seed the database
+      envFile:
+        - .env.local
+    studio:
+      command: nodemon --watch prisma/schema.prisma --exec 'prisma studio --schema=src/prisma/schema.prisma --browser none'
+      help: Start Prisma Studio with auto-reload
+      envFile:
+        - .env.local
+    migrate:
+      command: prisma migrate dev --schema=src/prisma/schema.prisma --name $(date +%Y%m%d%H%M%S)
+      help: Create and apply development migrations
+      envFile:
+        - .env.local
 
 storybook:
   command: storybook dev --quiet --port=6006 --no-open | grep -v -iE '^(info|warn)'

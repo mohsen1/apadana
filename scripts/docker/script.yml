@@ -1,38 +1,32 @@
 dev:
-  concurrently:
-    - script: docker dev start
-      prefix: 'blue.bold'
-      label: docker
-    - script: prisma watch
-      prefix: 'magenta.bold'
-      label: prisma
+  command: docker compose -f src/docker/docker-compose.yml up app_dev
   help: Start development environment with Docker
   env:
     DOCKER_BUILDKIT: '1'
     COMPOSE_DOCKER_CLI_BUILD: '1'
   subcommands:
     start:
-      command: docker compose up --build --no-log-prefix --abort-on-container-exit
+      command: docker compose -f src/docker/docker-compose.yml up --build --no-log-prefix --abort-on-container-exit
       help: Start Docker containers for development
 
 down:
-  command: docker compose down
+  command: docker compose -f src/docker/docker-compose.yml down
   help: Stop and remove Docker containers
 
 clean:
   steps:
-    - command: docker compose down -v
+    - command: docker compose -f src/docker/docker-compose.yml down -v
     - command: docker volume prune -f
   help: Clean up Docker containers and volumes
 
 db:
-  command: docker compose exec db psql -U admin -d apadana
+  command: docker compose -f src/docker/docker-compose.yml exec db psql -U admin -d apadana
   help: Connect to PostgreSQL database
 
 rebuild:
   steps:
-    - command: docker compose build --no-cache app
-    - command: docker compose up --no-log-prefix
+    - command: docker compose -f src/docker/docker-compose.yml build --no-cache app
+    - command: docker compose -f src/docker/docker-compose.yml up --no-log-prefix
   help: Rebuild and start Docker containers
   env:
     DOCKER_BUILDKIT: '1'
@@ -43,26 +37,29 @@ prune:
   help: Remove all unused Docker data
 
 prod:
-  command: docker compose -f docker-compose.prod.yml up --build --no-log-prefix
+  command: docker compose -f src/docker/docker-compose.yml up app_prod
   help: Start production environment
   env:
     DOCKER_BUILDKIT: '1'
     COMPOSE_DOCKER_CLI_BUILD: '1'
   subcommands:
-    down:
-      command: docker compose -f docker-compose.prod.yml down
-      help: Stop production containers
-    logs:
-      command: docker compose -f docker-compose.prod.yml logs -f
-      help: View production container logs
-    clean:
-      command: docker compose -f docker-compose.prod.yml down -v
-      help: Clean up production containers and volumes
-    rebuild:
-      steps:
-        - command: docker compose -f docker-compose.prod.yml build app_prod
-        - command: docker compose -f docker-compose.prod.yml up -d app_prod
-      help: Rebuild and start production containers
+    build:
+      command: docker compose -f src/docker/docker-compose.yml build --parallel
+      help: Build all Docker containers
       env:
         DOCKER_BUILDKIT: '1'
         COMPOSE_DOCKER_CLI_BUILD: '1'
+    rebuild:
+      command: docker compose -f src/docker/docker-compose.yml build app_prod --parallel
+      help: Rebuild production container
+      env:
+        DOCKER_BUILDKIT: '1'
+        COMPOSE_DOCKER_CLI_BUILD: '1'
+    restart:
+      command: docker compose -f src/docker/docker-compose.yml up -d --no-deps app_prod
+      help: Restart production container
+    redeploy:
+      steps:
+        - script: docker prod rebuild
+        - script: docker prod restart
+      help: Rebuild and restart production container

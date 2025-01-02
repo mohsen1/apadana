@@ -1,11 +1,20 @@
 default:
-  command: next build
-  help: Build the application
-  depends:
-    - prisma/generate
+  steps:
+    - script: prisma/generate
+    - command: next build
+  help: Build for production
   envFile:
     - .env.local
 
 storybook:
   command: storybook build
   help: Build Storybook
+  envFile:
+    - .env.local
+
+vercel:
+  command: bash src/scripts/build-vercel.sh
+  help: Build for Vercel deployment
+  env:
+    DOCKER_BUILDKIT: '1'
+    COMPOSE_DOCKER_CLI_BUILD: '1'

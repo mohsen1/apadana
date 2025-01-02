@@ -1,24 +1,26 @@
 default:
-  command: vitest run
+  command: vitest run --config=config/vitest.config.ts
   help: Run tests
   envFile:
     - .env.test
 
 watch:
-  command: vitest
+  command: vitest --config=config/vitest.config.ts
   help: Run tests in watch mode
   envFile:
     - .env.test
 
 coverage:
-  command: vitest run --coverage
+  command: vitest run --coverage --config=config/vitest.config.ts
   help: Run tests with coverage
   envFile:
     - .env.test
 
 ui:
-  command: vitest --ui
+  command: vitest --ui --config=config/vitest.config.ts
   help: Run tests with UI
+  envFile:
+    - .env.test
 
 cleanup:
   command: docker compose -f docker-compose.test.yml down
