@@ -17,7 +17,7 @@ test.describe('Email Verification Process', () => {
     expect(baseURL).toBeDefined();
     // Skip this test when testing against production since we do not have local inbox in prod
     test.skip(
-      !!baseURL?.toLowerCase().includes('https://apadana.app'),
+      !!baseURL?.toLowerCase().includes('apadana.app'),
       'Skipping test for production',
     );
 
