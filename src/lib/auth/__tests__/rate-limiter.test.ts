@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { E2E_TESTING_SECRET_HEADER } from '@/lib/auth/constants';
-import { getRedisClient } from '@/lib/redis/client';
+import { getRedisClient, RedisClient } from '@/lib/redis/client';
 
 import { RateLimiter } from '../rate-limiter';
 
@@ -18,8 +18,18 @@ vi.mock('@/lib/redis/client', () => ({
   getRedisClient: vi.fn(),
 }));
 
+// Add type for mock Redis client
+type MockRedisClient = {
+  get: Mock;
+  set: Mock;
+  del: Mock;
+  expire: Mock;
+  multi: Mock;
+  exec: Mock;
+};
+
 describe('RateLimiter', () => {
-  const mockRedis = {
+  const mockRedis: MockRedisClient = {
     get: vi.fn(),
     set: vi.fn().mockReturnThis(),
     del: vi.fn(),
@@ -29,7 +39,7 @@ describe('RateLimiter', () => {
   };
 
   beforeEach(() => {
-    vi.mocked(getRedisClient).mockResolvedValue(mockRedis as any);
+    vi.mocked(getRedisClient).mockResolvedValue(mockRedis as unknown as RedisClient);
     mockRedis.multi.mockReturnValue(mockRedis);
     mockRedis.exec.mockResolvedValue([]);
     vi.useFakeTimers();
