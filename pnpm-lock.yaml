@@ -238,10 +238,10 @@ importers:
         version: 3.2.1(@prisma/client@6.1.0(prisma@6.1.0))(prisma@6.1.0)
     devDependencies:
       '@aws-sdk/client-iam':
-        specifier: ^3.485.0
+        specifier: ^3.716.0
         version: 3.716.0
       '@aws-sdk/credential-provider-ini':
-        specifier: ^3.485.0
+        specifier: ^3.716.0
         version: 3.716.0(@aws-sdk/client-sso-oidc@3.716.0(@aws-sdk/client-sts@3.716.0))(@aws-sdk/client-sts@3.716.0)
       '@octokit/auth-app':
         specifier: ^7.1.3
