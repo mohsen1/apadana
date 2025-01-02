@@ -37,3 +37,15 @@ export function createLoginUrl(): string {
 export function createSignupUrl(): string {
   return createUrl('signup');
 }
+
+/**
+ * Asserts that the given value is a valid URL string
+ * @param url - The value to assert
+ * @throws {Error} If the value is not a valid URL string
+ */
+export function assertURL(url: unknown): asserts url is InstanceType<typeof URL> {
+  if (typeof url !== 'string') {
+    throw new Error('URL is not a string');
+  }
+  new URL(url);
+}
