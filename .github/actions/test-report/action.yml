@@ -1,5 +1,5 @@
 name: 'Test Report Action'
-description: 'Creates or updates a check run with test report URL'
+description: 'Uploads test reports to S3 and creates or updates a check run'
 
 inputs:
   test-name:
@@ -8,25 +8,47 @@ inputs:
   test-outcome:
     description: 'Outcome of the test run'
     required: true
-  report-url:
-    description: 'URL to the test report'
-    required: true
   app-id:
     description: 'GitHub App ID'
     required: true
   private-key:
     description: 'GitHub App private key'
     required: true
+  aws_key_id:
+    description: 'AWS Key ID for S3 upload'
+    required: true
+  aws_secret_access_key:
+    description: 'AWS Secret Access Key for S3 upload'
+    required: true
+  aws_bucket:
+    description: 'AWS S3 bucket name'
+    required: true
+  source_dir:
+    description: 'Source directory containing test reports'
+    required: true
+  destination_dir:
+    description: 'Destination directory in S3 bucket'
+    required: true
 
 runs:
   using: 'composite'
   steps:
-    - name: Create or Update Check with Report URL
+    - name: Upload Test Report
+      uses: shallwefootball/s3-upload-action@master
+      id: upload-results
+      with:
+        aws_key_id: ${{ inputs.aws_key_id }}
+        aws_secret_access_key: ${{ inputs.aws_secret_access_key }}
+        aws_bucket: ${{ inputs.aws_bucket }}
+        source_dir: ${{ inputs.source_dir }}
+        destination_dir: ${{ inputs.destination_dir }}
+
+    - name: Process Report URL and Create Check
       shell: bash
       env:
         INPUT_APP_ID: ${{ inputs.app-id }}
         INPUT_TEST_NAME: ${{ inputs.test-name }}
         INPUT_TEST_OUTCOME: ${{ inputs.test-outcome }}
-        INPUT_REPORT_URL: ${{ inputs.report-url }}
         PRIVATE_KEY: ${{ inputs.private-key }}
+        S3_UPLOAD_RESULT: ${{ steps.upload-results.outputs.object_locations }}
       run: node $GITHUB_ACTION_PATH/index.mjs

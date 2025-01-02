@@ -36,47 +36,16 @@ jobs:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           E2E_TESTING_SECRET: ${{ secrets.E2E_TESTING_SECRET }}
 
-      - name: Find PR number
-        id: find-pr
-        if: always()
-        run: |
-          PR_NUMBER=$(gh pr list --search "${{ github.sha }}" --json number -q '.[0].number')
-          if [ ! -z "$PR_NUMBER" ]; then
-            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Upload Test Report
+      - name: Report E2E Results
         if: always() && hashFiles('.next/playwright-report/**') != ''
-        id: upload-results
-        uses: shallwefootball/s3-upload-action@master
-        with:
-          aws_key_id: ${{ secrets.AWS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_bucket: apadana-e2e
-          source_dir: '.next/playwright-report'
-          destination_dir: ${{ github.sha }}/playwright
-
-      - name: Process Report URL
-        id: process-url
-        if: always() && steps.upload-results.outputs.object_locations
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const locations = JSON.parse(process.env.LOCATIONS);
-            const htmlUrl = locations.find(location => location.endsWith('playwright/html/index.html'));
-            if (!htmlUrl) { console.log("No index.html found"); }
-            core.setOutput('report_url', htmlUrl);
-        env:
-          LOCATIONS: ${{ steps.upload-results.outputs.object_locations }}
-
-      - name: Create or Update Check with Report URL
-        if: always() && steps.process-url.outputs.report_url
         uses: ./.github/actions/test-report
         with:
           app-id: '1100607'
           test-name: 'E2E Tests Results'
           test-outcome: ${{ steps.test-run.outcome }}
-          report-url: ${{ steps.process-url.outputs.report_url }}
           private-key: ${{ secrets.APADANA_AUTOMATION_GITHUB_APP_PRIVATE_KEY }}
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: apadana-e2e
+          source_dir: '.next/playwright-report'
+          destination_dir: ${{ github.sha }}/playwright

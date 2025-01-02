@@ -8,6 +8,23 @@ if (!owner || !repo) {
   throw new Error(`Invalid GITHUB_REPOSITORY: ${process.env.GITHUB_REPOSITORY}`);
 }
 
+/** @type {string | undefined} */
+const s3UploadResult = process.env.S3_UPLOAD_RESULT;
+
+if (!s3UploadResult) {
+  throw new Error('S3_UPLOAD_RESULT is not set');
+}
+
+// Process S3 upload results to get report URL
+/** @type {string[]} */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const locations = JSON.parse(s3UploadResult);
+const reportUrl = locations.find((location) => location.endsWith('html/index.html'));
+
+if (!reportUrl) {
+  throw new Error('No index.html found in upload results');
+}
+
 // Create app authentication first
 const appAuth = createAppAuth({
   appId: process.env.INPUT_APP_ID,
@@ -44,7 +61,7 @@ await octokit.rest.repos.createCommitStatus({
   repo,
   sha: process.env.GITHUB_SHA,
   state: process.env.INPUT_TEST_OUTCOME === 'success' ? 'success' : 'failure',
-  target_url: process.env.INPUT_REPORT_URL,
-  description: `${process.env.INPUT_TEST_NAME} Results`,
+  target_url: reportUrl,
+  description: `Click to view ${process.env.INPUT_TEST_NAME}`,
   context: process.env.INPUT_TEST_NAME,
 });
