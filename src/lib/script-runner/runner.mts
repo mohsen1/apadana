@@ -1,32 +1,76 @@
-/* eslint-disable no-console */
-
-// NOTE: This is a single-file example implementation. You may want to split it into multiple files.
-// This code attempts to:
-// - Parse YAML files from `scripts/<command>/script.yml`
-// - Provide a CLI interface that supports:
-//   * `./command-runner <command>`: runs the default subcommand in that script
-//   * `./command-runner <command> <subcommand>`: runs a specific subcommand
-//   * `./command-runner --list`: lists all commands and their subcommands
-//   * `./command-runner --validate`: validates script structure
-//   * `./command-runner docker dev`: example for nested command
-// - Supports env variables, envFiles, steps, concurrency, and loading from node_modules/.bin
-// - Suggests some extra config keys in the YAML files if needed.
-
-// EXTRA SUGGESTIONS FOR CONFIG FILES:
-// You might consider adding a `pre` and `post` step for each command, as well as `retry` counts.
-// Also consider a `description` field for top-level scripts.
-
-// This code is just a reference implementation and might need refinement to handle all edge cases properly.
-
+#!/usr/bin/env node
+import Ajv from 'ajv';
 import chalk from 'chalk';
 import { spawn } from 'child_process';
 import { execa } from 'execa';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { sync as globSync } from 'glob';
 import { join, resolve } from 'path';
 import * as YAML from 'yaml';
 
-import { CommandStep, ScriptConfig, validateScript } from './schema';
+import { createLogger } from '@/utils/logger';
+
+import jsonSchema from './script.schema.json' assert { type: 'json' };
+
+const logger = createLogger('script-runner', 'debug');
+
+logger.debug('Script runner initialized');
+
+// Initialize Ajv
+const ajv = new Ajv();
+const validate = ajv.compile(jsonSchema);
+logger.debug('JSON schema validator compiled');
+
+// Types based on the JSON schema
+interface CommandStep {
+  command?: string;
+  script?: string;
+  steps?: (CommandStep | string)[];
+  concurrently?: CommandStep[];
+  env?: Record<string, string | number>;
+  envFile?: string[];
+  help?: string;
+  depends?: string[];
+  watch?: string[];
+  subcommands?: Record<string, CommandStep>;
+  prefix?: string;
+  label?: string;
+}
+
+type ScriptConfig = Record<string, CommandStep>;
+
+// Types based on the JSON schema
+interface ValidationError {
+  message: string;
+  path: string[];
+}
+
+function mapAjvErrors(errors: unknown): ValidationError[] {
+  if (!Array.isArray(errors)) return [];
+  return errors.map((error) => ({
+    message: String(error.message ?? 'Unknown error'),
+    path: Array.isArray(error.instancePath?.split('/'))
+      ? error.instancePath.split('/').filter(Boolean)
+      : [],
+  }));
+}
+
+function validateScript(
+  file: string,
+  data: unknown,
+): { valid: boolean; errors?: ValidationError[] } {
+  logger.debug(`Validating script file: ${file}`);
+  const isValid = validate(data);
+  if (!isValid) {
+    const mappedErrors = mapAjvErrors(validate.errors);
+    logger.debug(`Validation failed for ${file}`, { errors: mappedErrors });
+    return {
+      valid: false,
+      errors: mappedErrors,
+    };
+  }
+  return { valid: true };
+}
 
 const SCRIPTS_DIR = resolve(process.cwd(), './scripts');
 
@@ -35,36 +79,44 @@ const args = process.argv.slice(2);
 
 let listMode = false;
 let validateMode = false;
+let updatePackageJsonMode = false;
 const positionalArgs: string[] = [];
 for (const arg of args) {
   if (arg === '--list') listMode = true;
   else if (arg === '--validate') validateMode = true;
+  else if (arg === '--update-package-json') updatePackageJsonMode = true;
   else positionalArgs.push(arg);
 }
 
 // Load all scripts
 function loadAllScripts(): Record<string, ScriptConfig> {
+  logger.debug('Loading all scripts');
   const scripts: Record<string, ScriptConfig> = {};
   const files = globSync('**/script.yml', { cwd: SCRIPTS_DIR });
+  logger.debug(`Found ${files.length} script files`);
+
   for (const file of files) {
+    logger.debug(`Processing script file: ${file}`);
     const fullPath = join(SCRIPTS_DIR, file);
     const yamlContent = readFileSync(fullPath, 'utf8');
     try {
       const parsed = YAML.parse(yamlContent);
       const validation = validateScript(file, parsed);
       if (!validation.valid) {
-        console.error(chalk.red(`❌ Invalid script file: ${file}`));
-        console.error(chalk.yellow('Validation errors:'));
-        validation.errors?.errors.forEach((error) => {
-          console.error(chalk.yellow(`  - ${error.message} at ${error.path.join('.')}`));
+        logger.error(`Invalid script file: ${file}`, { errors: validation.errors });
+        logger.error(`❌ Invalid script file: ${file}`);
+        logger.error('Validation errors:');
+        validation.errors?.forEach((error: { message: string; path: string[] }) => {
+          logger.error(`  - ${error.message} at ${error.path.join('.')}`);
         });
         continue;
       }
-      // The directory name before script.yml is the command name
       const commandName = file.split('/')[0];
+      logger.debug(`Adding command: ${commandName}`);
       scripts[commandName] = parsed;
     } catch (err) {
-      console.error(chalk.red(`Failed to parse ${file}: ${(err as Error).message}`));
+      logger.error(`Failed to parse ${file}`, { error: err });
+      logger.error(`Failed to parse ${file}: ${(err as Error).message}`);
     }
   }
   return scripts;
@@ -72,8 +124,31 @@ function loadAllScripts(): Record<string, ScriptConfig> {
 
 const allScripts = loadAllScripts();
 
-// If listing
-if (listMode) {
+// If updating package.json
+if (updatePackageJsonMode) {
+  logger.debug('Updating package.json with script commands');
+  const packageJsonPath = resolve(process.cwd(), 'package.json');
+  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+  
+  // Reset scripts object
+  packageJson.scripts = {};
+  
+  // Add top-level commands in alphabetical order
+  const sortedCommands = Object.keys(allScripts).sort();
+  for (const commandName of sortedCommands) {
+    packageJson.scripts[commandName] = `script ${commandName}`;
+  }
+  
+  // Write back to package.json
+  logger.info('Writing updated package.json');
+  const formattedJson = JSON.stringify(packageJson, null, 2);
+  writeFileSync(packageJsonPath, formattedJson + '\n');
+  logger.info('✓ Successfully updated package.json with script commands');
+  process.exit(0);
+}
+
+// Extract list printing logic into a function
+function printCommandList() {
   for (const [commandName, script] of Object.entries(allScripts)) {
     const hasDefault = script.default !== undefined;
     const defaultHelp = hasDefault ? script.default.help : '';
@@ -97,9 +172,7 @@ if (listMode) {
             `  ${chalk.green('│ ')}${chalk.green(
               isLast ? '└─' : '├─',
             )} ${chalk.cyan(`${commandName} ${sub} ${nestedSub}`)}${
-              (nestedDef as CommandStep).help
-                ? chalk.gray(`: ${(nestedDef as CommandStep).help}`)
-                : ''
+              nestedDef.help ? chalk.gray(`: ${nestedDef.help}`) : ''
             }`,
           );
         });
@@ -107,6 +180,11 @@ if (listMode) {
     }
     console.log(); // Add empty line between command groups
   }
+}
+
+// If listing
+if (listMode) {
+  printCommandList();
   process.exit(0);
 }
 
@@ -124,24 +202,24 @@ if (validateMode) {
 
       if (!validation.valid) {
         hasErrors = true;
-        console.error(chalk.red(`❌ Invalid script file: ${file}`));
-        console.error(chalk.yellow('Validation errors:'));
-        validation.errors?.errors.forEach((error) => {
-          console.error(chalk.yellow(`  - ${error.message} at ${error.path.join('.')}`));
+        logger.error(`❌ Invalid script file: ${file}`);
+        logger.error('Validation errors:');
+        validation.errors?.forEach((error: ValidationError) => {
+          logger.error(`  - ${error.message} at ${error.path.join('.')}`);
         });
       } else {
-        console.log(chalk.green(`✓ Valid script file: ${file}`));
+        logger.info(`✓ Valid script file: ${file}`);
       }
     } catch (err) {
       hasErrors = true;
-      console.error(chalk.red(`Failed to parse ${file}: ${(err as Error).message}`));
+      logger.error(`Failed to parse ${file}: ${(err as Error).message}`);
     }
   }
 
   if (hasErrors) {
     process.exit(1);
   }
-  console.log(chalk.green('\n✓ All scripts are valid.'));
+  logger.info('\n✓ All scripts are valid.');
   process.exit(0);
 }
 
@@ -149,7 +227,7 @@ if (validateMode) {
 // positionalArgs might look like [ "dev" ] or [ "docker", "dev" ]
 // The first arg is the top-level command, subsequent is subcommands
 if (positionalArgs.length === 0) {
-  console.error('No command specified');
+  logger.error('No command specified');
   process.exit(1);
 }
 
@@ -157,43 +235,50 @@ const topCommand = positionalArgs[0];
 const subCommands = positionalArgs.slice(1);
 
 if (!allScripts[topCommand]) {
-  console.error(`Unknown command: ${topCommand}`);
+  logger.info('\nAvailable commands:');
+  printCommandList();
+  logger.error(chalk.redBright(`Unknown command: "${chalk.bold(topCommand)}"`));
   process.exit(1);
 }
 
 function resolveCommand(script: ScriptConfig, subPath: string[]): CommandStep | null {
+  logger.debug('Resolving command', { subPath });
   let current: CommandStep | null = null;
-  // Start with script as top-level
-  // If no subPath given, return `default` if exists
+
   if (subPath.length === 0) {
+    logger.debug('No subpath, returning default command');
     current = script['default'] || null;
     return current;
   }
-  // If subPath has one element, try that first-level subcommand
+
+  logger.debug(`Looking for subcommand: ${subPath[0]}`);
   current = script[subPath[0]] || null;
+
   if (!current) {
-    // Maybe the top-level step defines subcommands inside it?
-    // If top-level has `default` and it has `subcommands`, check inside subcommands
+    logger.debug('Direct subcommand not found, checking default subcommands');
     if (
       script['default'] &&
       script['default'].subcommands &&
-      script['default'].subcommands![subPath[0]]
+      script['default'].subcommands[subPath[0]]
     ) {
-      current = script['default'].subcommands![subPath[0]];
+      current = script['default'].subcommands[subPath[0]];
       subPath = subPath.slice(1);
+      logger.debug('Found command in default subcommands');
     } else {
+      logger.debug('Command not found in default subcommands');
       return null;
     }
   } else {
     subPath = subPath.slice(1);
   }
 
-  // Traverse deeper if needed
   while (subPath.length > 0 && current) {
+    logger.debug(`Traversing deeper: ${subPath[0]}`);
     if (current.subcommands && current.subcommands[subPath[0]]) {
       current = current.subcommands[subPath[0]];
       subPath = subPath.slice(1);
     } else {
+      logger.debug('Subcommand not found in deeper traversal');
       return null;
     }
   }
@@ -205,27 +290,31 @@ const script = allScripts[topCommand];
 const cmdDef = resolveCommand(script, subCommands);
 
 if (!cmdDef) {
-  console.error(`Subcommand not found for ${topCommand} ${subCommands.join(' ')}`);
+  logger.error(`Subcommand not found for ${topCommand} ${subCommands.join(' ')}`);
   process.exit(1);
 }
 
 // Handle `depends`
 async function runDepends(depends: string[]) {
+  logger.debug('Running dependencies', { depends });
   for (const dep of depends) {
-    // depends might look like "prisma/generate" -> run `./command-runner prisma generate`
+    logger.debug(`Processing dependency: ${dep}`);
     const parts = dep.split('/');
     const depCommand = parts[0];
     const depSubs = parts.slice(1);
     if (!allScripts[depCommand]) {
-      console.error(`Dependency command not found: ${depCommand}`);
+      logger.error(`Dependency command not found: ${depCommand}`);
+      logger.error(`Dependency command not found: ${depCommand}`);
       process.exit(1);
     }
     const depScript = allScripts[depCommand];
     const depCmdDef = resolveCommand(depScript, depSubs);
     if (!depCmdDef) {
-      console.error(`Dependency subcommand not found: ${dep}`);
+      logger.error(`Dependency subcommand not found: ${dep}`);
+      logger.error(`Dependency subcommand not found: ${dep}`);
       process.exit(1);
     }
+    logger.debug(`Running dependency: ${dep}`);
     await runCommand(depCmdDef, depCommand, depSubs);
   }
 }
@@ -233,10 +322,12 @@ async function runDepends(depends: string[]) {
 // Load env from files
 function loadEnvFromFiles(files: string[] | undefined) {
   if (!files) return {};
+  logger.debug('Loading environment from files', { files });
   const result: Record<string, string> = {};
   for (const file of files) {
     const path = resolve(process.cwd(), file);
     if (existsSync(path)) {
+      logger.debug(`Loading env from file: ${file}`);
       const content = readFileSync(path, 'utf-8');
       const lines = content.split('\n');
       for (const l of lines) {
@@ -245,21 +336,24 @@ function loadEnvFromFiles(files: string[] | undefined) {
         const eqIdx = line.indexOf('=');
         if (eqIdx === -1) continue;
         const key = line.slice(0, eqIdx).trim();
-        const val = line.slice(eqIdx + 1).trim();
-        result[key] = val;
+        result[key] = line.slice(eqIdx + 1).trim();
       }
+    } else {
+      logger.warn(`Env file not found: ${file}`);
     }
   }
+  logger.debug(`Loaded ${Object.keys(result).length} environment variables`);
   return result;
 }
 
 async function runSteps(steps: (CommandStep | string)[], baseEnv: Record<string, string>) {
+  logger.debug(`Running ${steps.length} steps`);
   for (const step of steps) {
     if (typeof step === 'string') {
-      // If string, interpret as a "command"
+      logger.debug(`Running string step: ${step}`);
       await runSingleCommand(step, baseEnv);
     } else {
-      // If object
+      logger.debug('Running object step', { step });
       await runCommand(step, '', [], baseEnv);
     }
   }
@@ -269,27 +363,34 @@ async function runConcurrently(
   concurrentSteps: (CommandStep | string)[],
   baseEnv: Record<string, string>,
 ) {
-  // We'll use `concurrently` package to run these commands in parallel
-  // Build args for concurrently
-  // Steps can have `command`, `script` etc.
+  logger.debug(`Running ${concurrentSteps.length} steps concurrently`);
   const mapped = await Promise.all(
     concurrentSteps.map(async (s) => {
       if (typeof s === 'string') {
+        logger.debug(`Mapping concurrent string command: ${s}`);
         return { command: s, env: baseEnv };
       } else {
-        // It's a sub-step
-        // If it has `command`, run directly
-        // If it has `script`, that means run `./command-runner script ...`? Let's interpret `script: "foo bar"` as `./command-runner foo bar`
-        // If it has steps or anything else, too complex for concurrent. We'll just run command.
+        logger.debug('Mapping concurrent object step', { step: s });
         if (s.command) {
-          return { command: s.command, env: { ...baseEnv, ...(s.env || {}) } };
+          return {
+            command: s.command,
+            env: { ...baseEnv, ...(s.env || {}) },
+            prefix: s.prefix,
+            label: s.label,
+          };
         } else if (s.script) {
-          // parse "foo bar" -> `command-runner foo bar`
           const parts = s.script.split(' ');
           const cmdToRun = [process.argv[1], ...parts].join(' ');
-          return { command: cmdToRun, env: { ...baseEnv, ...(s.env || {}) } };
+          logger.debug(`Mapped script to command: ${cmdToRun}`);
+          return {
+            command: cmdToRun,
+            env: { ...baseEnv, ...(s.env || {}) },
+            prefix: s.prefix,
+            label: s.label,
+          };
         } else {
-          console.error(`Unsupported concurrent step`);
+          logger.error('Unsupported concurrent step');
+          logger.error(`Unsupported concurrent step`);
           process.exit(1);
         }
       }
@@ -297,23 +398,32 @@ async function runConcurrently(
   );
 
   const binPath = resolve(process.cwd(), 'node_modules/.bin');
-  // Add bin path to PATH
+  logger.debug(`Using bin path: ${binPath}`);
   const finalEnv = {
     ...process.env,
     PATH: `${binPath}:${process.env.PATH || ''}`,
   };
 
-  // Construct args for concurrently
-  // If prefix and label are provided in YAML, that would require reading them from s.
-  // For simplicity, ignore styling here. If needed, add logic.
-  const commandsWithLabels = mapped.map((m) => m.command);
-  await execa('concurrently', commandsWithLabels, {
+  const baseArgs = [
+    '--color',
+    '--prefix-colors',
+    'blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold',
+    '--names',
+    mapped.map((m) => m.label || 'task').join(','),
+  ];
+
+  const commands = mapped.map((m) => m.command);
+  logger.debug('Running concurrent commands', { commands, args: baseArgs });
+
+  await execa('concurrently', [...baseArgs, ...commands], {
     stdio: 'inherit',
     env: finalEnv,
+    shell: true,
   });
 }
 
 async function runSingleCommand(cmd: string, env: Record<string, string>) {
+  logger.debug(`Running single command: ${cmd}`);
   const binPath = resolve(process.cwd(), 'node_modules/.bin');
   const finalEnv = {
     ...process.env,
@@ -322,20 +432,27 @@ async function runSingleCommand(cmd: string, env: Record<string, string>) {
   };
 
   await new Promise<void>((resolveP, rejectP) => {
+    logger.debug('Spawning command process');
     const proc = spawn(cmd, {
       shell: true,
       stdio: 'inherit',
       env: finalEnv,
     });
     proc.on('exit', (code) => {
-      if (code === 0) resolveP();
-      else rejectP(new Error(`Command "${cmd}" failed with code ${code}`));
+      if (code === 0) {
+        logger.debug(`Command completed successfully: ${cmd}`);
+        resolveP();
+      } else {
+        logger.error(`Command failed with code ${code}: ${cmd}`);
+        rejectP(new Error(`Command "${cmd}" failed with code ${code}`));
+      }
     });
   });
 }
 
 // If watch is defined, we could run nodemon
 async function runWithWatch(cmd: string, files: string[], env: Record<string, string>) {
+  logger.debug(`Running watch command: ${cmd}`, { watchFiles: files });
   const binPath = resolve(process.cwd(), 'node_modules/.bin');
   const finalEnv = {
     ...process.env,
@@ -343,6 +460,8 @@ async function runWithWatch(cmd: string, files: string[], env: Record<string, st
     PATH: `${binPath}:${process.env.PATH || ''}`,
   };
   const watchArgs = ['--watch', ...files, '--exec', cmd];
+  logger.debug('Starting nodemon', { args: watchArgs });
+
   await new Promise<void>((resolveP, rejectP) => {
     const proc = spawn('nodemon', watchArgs, {
       shell: true,
@@ -350,8 +469,13 @@ async function runWithWatch(cmd: string, files: string[], env: Record<string, st
       env: finalEnv,
     });
     proc.on('exit', (code) => {
-      if (code === 0) resolveP();
-      else rejectP(new Error(`Watch command "${cmd}" failed with code ${code}`));
+      if (code === 0) {
+        logger.debug('Watch command completed successfully');
+        resolveP();
+      } else {
+        logger.error(`Watch command failed with code ${code}`);
+        rejectP(new Error(`Watch command "${cmd}" failed with code ${code}`));
+      }
     });
   });
 }
@@ -362,36 +486,46 @@ async function runCommand(
   subPath: string[] = [],
   inheritedEnv: Record<string, string> = {},
 ) {
-  const stepEnvFiles = def.envFile ? loadEnvFromFiles(def.envFile) : {};
-  const combinedEnv = { ...inheritedEnv, ...(def.env || {}), ...stepEnvFiles };
+  logger.debug('Running command', { cmdName, subPath, def });
 
-  // Handle dependencies
+  const stepEnvFiles = def.envFile ? loadEnvFromFiles(def.envFile) : {};
+  const combinedEnv = {
+    ...inheritedEnv,
+    ...(def.env ? Object.fromEntries(Object.entries(def.env).map(([k, v]) => [k, String(v)])) : {}),
+    ...stepEnvFiles,
+  };
+  logger.debug('Combined environment variables', { envCount: Object.keys(combinedEnv).length });
+
   if (def.depends && Array.isArray(def.depends)) {
+    logger.debug('Processing dependencies');
     await runDepends(def.depends);
   }
 
   if (def.steps && Array.isArray(def.steps)) {
-    // Run each step in sequence
+    logger.debug(`Running ${def.steps.length} sequential steps`);
     await runSteps(def.steps, combinedEnv);
     return;
   }
 
   if (def.concurrently && Array.isArray(def.concurrently)) {
+    logger.debug(`Running ${def.concurrently.length} concurrent steps`);
     await runConcurrently(def.concurrently, combinedEnv);
     return;
   }
 
   if (def.command) {
     if (def.watch && Array.isArray(def.watch) && def.watch.length > 0) {
+      logger.debug('Running command with watch');
       await runWithWatch(def.command, def.watch, combinedEnv);
     } else {
+      logger.debug('Running single command');
       await runSingleCommand(def.command, combinedEnv);
     }
     return;
   }
 
   if (def.script) {
-    // script might mean calling another command-runner command
+    logger.debug(`Running script command: ${def.script}`);
     const parts = def.script.split(' ');
     const scriptCmd = [process.argv[1], ...parts];
     const binPath = resolve(process.cwd(), 'node_modules/.bin');
@@ -401,22 +535,21 @@ async function runCommand(
       PATH: `${binPath}:${process.env.PATH || ''}`,
     };
     await execa('node', scriptCmd.slice(1), {
-      // slice(1) to remove the ts-node runner itself
       stdio: 'inherit',
       env: finalEnv,
     });
     return;
   }
 
-  // If we reached here, it might be just a group of subcommands with no direct command
   if (def.subcommands && Object.keys(def.subcommands).length === 0) {
-    console.error(`No actual commands to run for ${[cmdName, ...subPath].join(' ')}`);
+    logger.error(`No actual commands to run for ${[cmdName, ...subPath].join(' ')}`);
+    logger.error(`No actual commands to run for ${[cmdName, ...subPath].join(' ')}`);
     process.exit(1);
   }
 }
 
 // Run the requested command
 runCommand(cmdDef, topCommand, subCommands).catch((err) => {
-  console.error(err);
+  logger.error('Command failed', { error: err });
   process.exit(1);
 });

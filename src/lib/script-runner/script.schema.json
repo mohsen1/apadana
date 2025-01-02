@@ -76,7 +76,7 @@
           "description": "List of dependencies that must run before this command",
           "items": {
             "type": "string",
-            "pattern": "^[^/]+/[^/]+$"
+            "pattern": "^[^/]+(/[^/]+)+$"
           }
         },
         "watch": {

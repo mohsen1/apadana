@@ -32,10 +32,9 @@
     "**/*.tsx",
     "**/*.js",
     "**/*.mjs",
+    "**/*.mts",
     ".storybook/preview.tsx",
     ".next/types/**/*.ts",
-    "prisma/**/*.ts",
-    "src/prisma/**/*.ts",
     ".storybook/**/*",
     ".github/**/*"
   ],

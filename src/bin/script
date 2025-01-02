@@ -1,0 +1,2 @@
+#!/bin/sh
+pnpm tsx src/lib/script-runner/runner.mts "$@"

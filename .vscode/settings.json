@@ -41,7 +41,7 @@
     "pnpm-lock.yaml": true
   },
   "yaml.schemas": {
-    "./schemas/script.schema.json": ["scripts/*/script.yml"]
+    "src/lib/script-runner/script.schema.json": ["scripts/*/script.yml"]
   },
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "[javascript]": {

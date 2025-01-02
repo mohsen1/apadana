@@ -15,7 +15,10 @@ import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+// to debug, use 'debug' level
+const logger = createLogger('serialize-repo', 'info');
 
 type ModelType =
   | 'chatgpt-4o-latest'
@@ -125,19 +128,28 @@ async function* walkDirectory(
   basePath?: string,
   base = '',
 ): AsyncGenerator<string> {
+  logger.debug(`Walking directory: ${dir}`);
   const entries = await fs.readdir(dir, { withFileTypes: true });
+  logger.debug(`Found ${entries.length} entries in ${dir}`);
 
   for (const entry of entries) {
     const relativePath = path.join(base, entry.name);
     const fullPath = path.join(dir, entry.name);
 
-    // Skip if path is outside basePath
-    if (basePath && !fullPath.startsWith(basePath)) continue;
-    if (ig.ignores(relativePath)) continue;
+    if (basePath && !fullPath.startsWith(basePath)) {
+      logger.debug(`Skipping ${fullPath} - outside basePath`);
+      continue;
+    }
+    if (ig.ignores(relativePath)) {
+      logger.debug(`Ignoring ${relativePath} - matched gitignore rules`);
+      continue;
+    }
 
     if (entry.isDirectory()) {
+      logger.debug(`Entering directory: ${fullPath}`);
       yield* walkDirectory(fullPath, ig, basePath, relativePath);
     } else if (entry.isFile() && (await isTextFile(fullPath))) {
+      logger.debug(`Found text file: ${fullPath}`);
       yield fullPath;
     }
   }
@@ -229,8 +241,10 @@ async function writeChunk(
   outputDir: string,
   options: { model: ModelType; stream: boolean; countTokens: boolean },
 ): Promise<number> {
+  logger.debug(`Writing chunk ${index} with ${files.length} files`);
   const chunk = files.map((file) => `>>>> ${file.path}\n${file.content}`).join('\n\n');
   const size = countSize(chunk, { countTokens: options.countTokens, model: options.model });
+  logger.debug(`Chunk ${index} size: ${formatSize(size, options.countTokens)}`);
 
   if (options.stream) {
     process.stdout.write(chunk);
@@ -428,6 +442,14 @@ async function serializeRepo(options: SerializeOptions): Promise<string | undefi
   } = options;
   let outputDir: string | undefined;
 
+  logger.debug('Starting repository serialization with options:', {
+    maxTokens,
+    basePath,
+    model,
+    stream,
+    shouldCountTokens,
+  });
+
   if (!stream) {
     const checksum = await getRepoChecksum(maxTokens);
     const pathSuffix = basePath ? `_${path.basename(basePath)}` : '';
@@ -453,24 +475,32 @@ async function serializeRepo(options: SerializeOptions): Promise<string | undefi
   for await (const filePath of walkDirectory(startPath, ig, startPath)) {
     const priority = getFilePriority(path.relative(process.cwd(), filePath));
     if (priority >= 0) {
+      logger.debug(`Found file: ${filePath} with priority ${priority}`);
       allFiles.push({ path: filePath, priority });
+    } else {
+      logger.debug(`Skipping file: ${filePath} (priority < 0)`);
     }
   }
 
-  // Sort files by priority (highest first)
+  logger.debug(`Total files to process: ${allFiles.length}`);
+
+  // Sort files by priority
   const sortedFiles = _.sortBy(allFiles, (file) => -file.priority);
+  logger.debug('Files sorted by priority');
 
   // Process files in priority order
-  for (const { path: filePath } of sortedFiles) {
+  for (const { path: filePath, priority } of sortedFiles) {
     try {
+      logger.debug(`Processing file: ${filePath} (priority: ${priority})`);
       const content = await fs.readFile(filePath, 'utf-8');
       const fileSize = countSize(`>>>> ${path.relative(process.cwd(), filePath)}\n${content}`, {
         countTokens: shouldCountTokens,
         model,
       });
+      logger.debug(`File size: ${formatSize(fileSize, shouldCountTokens)}`);
 
       if (currentSize + fileSize > maxTokens) {
-        // Write current chunk
+        logger.debug(`Chunk size limit reached. Writing chunk ${chunkIndex}`);
         const chunkSize = await writeChunk(files, chunkIndex++, outputDir || '', {
           model,
           stream,
@@ -488,7 +518,7 @@ async function serializeRepo(options: SerializeOptions): Promise<string | undefi
       currentSize += fileSize;
     } catch (error) {
       assertError(error);
-      logger.error(`Error processing file ${filePath}:`, error.message);
+      logger.error(`Error processing file ${filePath}:`, error.message, error.stack);
     }
   }
 
@@ -582,6 +612,12 @@ const argv = yargs(hideBin(process.argv))
 async function main() {
   try {
     const { tokens, path: basePath, model, stream, countTokens } = await argv;
+
+    // Turn off logger if streaming
+    if (stream) {
+      logger.disable();
+    }
+
     if (!stream) {
       const limit =
         tokens === Infinity ? '' : ` with max ${formatSize(tokens, countTokens)} per chunk`;

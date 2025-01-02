@@ -2,6 +2,7 @@ default:
   steps:
     - script: prisma/generate
     - command: next build
+    - command: next-sitemap --config config/next-sitemap.config.js
   help: Build for production
   envFile:
     - .env.local
