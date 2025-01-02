@@ -1,195 +1,260 @@
-import { headers } from 'next/headers';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { z } from 'zod';
 
-import {
-  actionClient,
-  createRateLimiter,
-  RATE_LIMIT_BASED_ON_IP,
-  RATE_LIMIT_BASED_ON_USER_ID,
-  SafeActionContext,
-} from '@/lib/safe-action';
+import { E2E_TESTING_SECRET_HEADER } from '@/lib/auth/constants';
+import { getRedisClient } from '@/lib/redis/client';
 
-// Mock storage for Redis data
-const mockStorage = new Map<string, string>();
+import { RateLimiter } from '../rate-limiter';
 
-// Mock Redis client
-vi.mock('@/lib/redis/client', () => ({
-  getRedisClient: vi.fn().mockResolvedValue({
-    get: vi.fn((key: string) => Promise.resolve(mockStorage.get(key))),
-    set: vi.fn((key: string, value: string) => {
-      mockStorage.set(key, value);
-      return Promise.resolve('OK');
-    }),
-    del: vi.fn((key: string) => {
-      mockStorage.delete(key);
-      return Promise.resolve(1);
-    }),
-    multi: vi.fn(() => ({
-      set: vi.fn(function (this: any, key: string, value: string) {
-        this.operations = this.operations || [];
-        this.operations.push(() => mockStorage.set(key, value));
-        return this;
-      }),
-      expire: vi.fn(function (this: any) {
-        return this;
-      }),
-      exec: vi.fn(function (this: any) {
-        if (this.operations) {
-          this.operations.forEach((op: () => void) => op());
-        }
-        return Promise.resolve(['OK', 'OK']);
-      }),
-    })),
-  }),
-}));
+// Mock the headers module
+const mockHeaders = {
+  get: vi.fn(),
+};
 
 vi.mock('next/headers', () => ({
-  headers: vi.fn(() => Promise.resolve(new Headers({}))),
+  headers: () => Promise.resolve(mockHeaders),
 }));
 
-describe('Rate Limiter', () => {
-  const testEmail = 'test@example.com';
+vi.mock('@/lib/redis/client', () => ({
+  getRedisClient: vi.fn(),
+}));
+
+describe('RateLimiter', () => {
+  const mockRedis = {
+    get: vi.fn(),
+    set: vi.fn().mockReturnThis(),
+    del: vi.fn(),
+    expire: vi.fn().mockReturnThis(),
+    multi: vi.fn(),
+    exec: vi.fn(),
+  };
 
   beforeEach(() => {
+    vi.mocked(getRedisClient).mockResolvedValue(mockRedis as any);
+    mockRedis.multi.mockReturnValue(mockRedis);
+    mockRedis.exec.mockResolvedValue([]);
     vi.useFakeTimers();
-    mockStorage.clear();
-
-    vi.mocked(headers).mockResolvedValue(
-      new Headers({
-        'x-forwarded-for': '1.2.3.4',
-        'x-real-ip': '5.6.7.8',
-      }),
-    );
+    mockHeaders.get.mockReset();
+    process.env.E2E_TESTING_SECRET = undefined;
   });
 
   afterEach(() => {
     vi.clearAllMocks();
     vi.useRealTimers();
-    mockStorage.clear();
   });
 
-  describe('Safe Action Rate Limiting', () => {
-    const testSchema = z.object({
-      email: z.string().email(),
-      password: z.string(),
-    });
-
-    const outputSchema = z.object({
-      success: z.boolean(),
-    });
-
-    type TestInput = z.infer<typeof testSchema>;
-    type TestOutput = z.infer<typeof outputSchema>;
-
-    const testAction = actionClient
-      .use(createRateLimiter({ maxAttempts: 3, basedOn: [RATE_LIMIT_BASED_ON_IP] }))
-      .schema(testSchema)
-      .outputSchema(outputSchema)
-      .action(async ({ parsedInput }) => {
-        return { success: true };
-      });
-
-    beforeEach(() => {
-      // Mock the auth middleware for all tests
-      vi.spyOn(actionClient, 'use').mockImplementation(
-        (middleware: any) =>
-          ({
-            use: (nextMiddleware: any) => actionClient.use(nextMiddleware),
-            schema: (schema: any) => ({
-              outputSchema: (outSchema: any) => ({
-                action: (handler: any) => async (input: TestInput) => {
-                  const ctx = { userId: 'test-user' };
-                  const result = await middleware({
-                    clientInput: input,
-                    bindArgsClientInputs: [],
-                    ctx,
-                    metadata: undefined,
-                    next: async () => ({
-                      success: true,
-                      parsedInput: input,
-                      ctx,
-                      data: await handler({ parsedInput: input, ctx }),
-                    }),
-                  });
-                  if ('error' in result) {
-                    return { serverError: result };
-                  }
-                  return { data: result.data, validationErrors: undefined, serverError: undefined };
-                },
-              }),
-            }),
-            metadata: undefined,
-            bindArgsSchemas: [],
-          }) as any,
-      );
-    });
-
-    it('should rate limit after max attempts', async () => {
-      // First 3 attempts should succeed
-      for (let i = 0; i < 3; i++) {
-        const result = await testAction({ email: testEmail, password: 'test' });
-        expect(result?.data).toEqual({ success: true });
-      }
-
-      // 4th attempt should be rate limited
-      const result = await testAction({ email: testEmail, password: 'test' });
-      expect(result?.validationErrors).toBeUndefined();
-      expect(result?.serverError?.error).toContain('Too many attempts');
-    });
-
-    it('should reset rate limit after window expires', async () => {
-      // Use up all attempts
-      for (let i = 0; i < 3; i++) {
-        await testAction({ email: testEmail, password: 'test' });
-      }
-
-      // Move time forward past the window
-      vi.advanceTimersByTime(60 * 1000 + 1);
-
-      // Should work again
-      const result = await testAction({ email: testEmail, password: 'test' });
-      expect(result?.data).toEqual({ success: true });
-    });
-
-    it('should handle different IPs separately', async () => {
-      // Use up all attempts from first IP
-      for (let i = 0; i < 3; i++) {
-        await testAction({ email: testEmail, password: 'test' });
-      }
-
-      // Change IP
-      vi.mocked(headers).mockResolvedValue(
-        new Headers({
-          'x-forwarded-for': '9.9.9.9',
+  describe('check', () => {
+    it('should allow requests within limits', async () => {
+      mockHeaders.get.mockReturnValue(null);
+      const now = Date.now();
+      const limiter = new RateLimiter({ ip: '127.0.0.1' });
+      mockRedis.get.mockResolvedValue(
+        JSON.stringify({
+          attempts: 3,
+          firstAttempt: now - 5000,
+          lastAttempt: now,
         }),
       );
 
-      // Should work with new IP
-      const result = await testAction({ email: testEmail, password: 'test' });
-      expect(result?.data).toEqual({ success: true });
+      const result = await limiter.check('login');
+
+      expect(mockRedis.get).toHaveBeenCalledWith('ratelimit:login:127.0.0.1');
+      expect(result).toEqual({
+        blocked: false,
+        remainingAttempts: 2,
+        msBeforeNextAttempt: 0,
+      });
     });
 
-    it('should handle user-based rate limiting', async () => {
-      const userAction = actionClient
-        .use(createRateLimiter({ maxAttempts: 3, basedOn: [RATE_LIMIT_BASED_ON_USER_ID] }))
-        .schema(testSchema)
-        .outputSchema(outputSchema)
-        .action(async ({ parsedInput }) => {
-          return { success: true };
-        });
+    it('should block requests when limit exceeded', async () => {
+      mockHeaders.get.mockReturnValue(null);
+      const now = Date.now();
+      const blockedUntil = now + 3600000; // 1 hour
+      const limiter = new RateLimiter({ ip: '127.0.0.1' });
 
-      // First 3 attempts should succeed
-      for (let i = 0; i < 3; i++) {
-        const result = await userAction({ email: testEmail, password: 'test' });
-        expect(result?.data).toEqual({ success: true });
-      }
-
-      // 4th attempt should be rate limited
-      const result = await userAction({ email: testEmail, password: 'test' });
-      expect(result?.serverError?.error).toBe(
-        'Too many attempts. Please try again in 3600 seconds',
+      mockRedis.get.mockResolvedValue(
+        JSON.stringify({
+          attempts: 5,
+          firstAttempt: now - 5000,
+          lastAttempt: now,
+          blockedUntil,
+        }),
       );
+
+      const result = await limiter.check('login');
+
+      expect(mockRedis.get).toHaveBeenCalledWith('ratelimit:login:127.0.0.1');
+      expect(result).toEqual({
+        blocked: true,
+        remainingAttempts: 0,
+        msBeforeNextAttempt: 3600000,
+      });
+    });
+
+    it('should reset after window expires', async () => {
+      mockHeaders.get.mockReturnValue(null);
+      const now = Date.now();
+      const limiter = new RateLimiter({ ip: '127.0.0.1', windowMs: 900000 }); // 15 minutes
+      mockRedis.get.mockResolvedValue(
+        JSON.stringify({
+          attempts: 3,
+          firstAttempt: now - 1000000, // > 15 minutes
+          lastAttempt: now - 1000000,
+        }),
+      );
+
+      const result = await limiter.check('login');
+
+      expect(mockRedis.get).toHaveBeenCalledWith('ratelimit:login:127.0.0.1');
+      expect(mockRedis.del).toHaveBeenCalledWith('ratelimit:login:127.0.0.1');
+      expect(result).toEqual({
+        blocked: false,
+        remainingAttempts: 5,
+        msBeforeNextAttempt: 0,
+      });
+    });
+
+    it('should remove block when block duration expires', async () => {
+      mockHeaders.get.mockReturnValue(null);
+      const now = Date.now();
+      const limiter = new RateLimiter({ ip: '127.0.0.1' });
+      mockRedis.get.mockResolvedValue(
+        JSON.stringify({
+          attempts: 5,
+          firstAttempt: now - 5000,
+          lastAttempt: now - 1000,
+          blockedUntil: now - 1, // Just expired
+        }),
+      );
+
+      const result = await limiter.check('login');
+
+      expect(mockRedis.del).toHaveBeenCalledWith('ratelimit:login:127.0.0.1');
+      expect(result).toEqual({
+        blocked: false,
+        remainingAttempts: 5,
+        msBeforeNextAttempt: 0,
+      });
+    });
+  });
+
+  describe('increment', () => {
+    it('should create new entry for first attempt', async () => {
+      mockHeaders.get.mockReturnValue(null);
+      const now = Date.now();
+      const limiter = new RateLimiter({ ip: '127.0.0.1' });
+      mockRedis.get.mockResolvedValue(null);
+
+      await limiter.increment('login');
+
+      const expectedEntry = {
+        attempts: 1,
+        firstAttempt: now,
+        lastAttempt: now,
+      };
+
+      expect(mockRedis.multi).toHaveBeenCalled();
+      expect(mockRedis.set).toHaveBeenCalledWith(
+        'ratelimit:login:127.0.0.1',
+        JSON.stringify(expectedEntry),
+      );
+      expect(mockRedis.expire).toHaveBeenCalledWith('ratelimit:login:127.0.0.1', 900);
+      expect(mockRedis.exec).toHaveBeenCalled();
+    });
+
+    it('should increment existing entry', async () => {
+      mockHeaders.get.mockReturnValue(null);
+      const now = Date.now();
+      const limiter = new RateLimiter({ ip: '127.0.0.1' });
+      mockRedis.get.mockResolvedValue(
+        JSON.stringify({
+          attempts: 2,
+          firstAttempt: now - 5000,
+          lastAttempt: now - 1000,
+        }),
+      );
+
+      await limiter.increment('login');
+
+      const expectedEntry = {
+        attempts: 3,
+        firstAttempt: now - 5000,
+        lastAttempt: now,
+      };
+
+      expect(mockRedis.multi).toHaveBeenCalled();
+      expect(mockRedis.set).toHaveBeenCalledWith(
+        'ratelimit:login:127.0.0.1',
+        JSON.stringify(expectedEntry),
+      );
+      expect(mockRedis.expire).toHaveBeenCalled();
+      expect(mockRedis.exec).toHaveBeenCalled();
+    });
+
+    it('should block when max attempts reached', async () => {
+      mockHeaders.get.mockReturnValue(null);
+      const now = Date.now();
+      const limiter = new RateLimiter({ ip: '127.0.0.1', maxAttempts: 5 });
+      mockRedis.get.mockResolvedValue(
+        JSON.stringify({
+          attempts: 4,
+          firstAttempt: now - 5000,
+          lastAttempt: now - 1000,
+        }),
+      );
+
+      await limiter.increment('login');
+
+      expect(mockRedis.multi).toHaveBeenCalled();
+      expect(mockRedis.set).toHaveBeenCalledWith(
+        'ratelimit:login:127.0.0.1',
+        expect.stringContaining('"blockedUntil"'),
+      );
+      expect(mockRedis.expire).toHaveBeenCalledWith('ratelimit:login:127.0.0.1', 3600);
+      expect(mockRedis.exec).toHaveBeenCalled();
+    });
+  });
+
+  describe('reset', () => {
+    it('should delete rate limit entry', async () => {
+      mockHeaders.get.mockReturnValue(null);
+      const limiter = new RateLimiter({ ip: '127.0.0.1' });
+
+      await limiter.reset('login');
+
+      expect(mockRedis.del).toHaveBeenCalledWith('ratelimit:login:127.0.0.1');
+    });
+  });
+
+  describe('E2E bypass', () => {
+    it('should bypass rate limiting with valid E2E testing header', async () => {
+      process.env.E2E_TESTING_SECRET = 'test-secret';
+      mockHeaders.get.mockImplementation((key) =>
+        key === E2E_TESTING_SECRET_HEADER ? 'test-secret' : null,
+      );
+
+      const limiter = new RateLimiter({ ip: '127.0.0.1' });
+      const result = await limiter.check('login');
+
+      expect(result).toEqual({
+        blocked: false,
+        remainingAttempts: 5,
+        msBeforeNextAttempt: 0,
+      });
+      expect(mockRedis.get).not.toHaveBeenCalled();
+    });
+
+    it('should not bypass rate limiting with invalid E2E testing header', async () => {
+      process.env.E2E_TESTING_SECRET = 'test-secret';
+      mockHeaders.get.mockImplementation((key) =>
+        key === E2E_TESTING_SECRET_HEADER ? 'wrong-secret' : null,
+      );
+
+      const limiter = new RateLimiter({ ip: '127.0.0.1' });
+      mockRedis.get.mockResolvedValue(null);
+
+      await limiter.check('login');
+
+      expect(mockRedis.get).toHaveBeenCalled();
     });
   });
 });

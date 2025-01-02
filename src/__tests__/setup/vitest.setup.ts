@@ -25,9 +25,10 @@ vi.mock('next-themes', () => ({
   }),
 }));
 
+process.env.E2E_TESTING_SECRET = 'e2e-testing-secret-during-unit-tesr';
 // Mock next/headers
 vi.mock('next/headers', () => ({
-  headers: () => new Headers(),
+  headers: () => new Headers([['E2E_TESTING_SECRET', process.env.E2E_TESTING_SECRET ?? '']]),
   cookies: () => ({
     get: vi.fn(),
     set: vi.fn(),

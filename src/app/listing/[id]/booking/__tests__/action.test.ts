@@ -1,5 +1,3 @@
-// tests/bookingRequestsActions.test.ts
-
 import { BookingRequestStatus } from '@prisma/client';
 import { eachDayOfInterval } from 'date-fns';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
