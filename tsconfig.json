@@ -36,7 +36,8 @@
     ".storybook/preview.tsx",
     ".next/types/**/*.ts",
     "src/prisma/**/*.ts",
-    ".storybook/**/*"
+    ".storybook/**/*",
+    ".github/**/*"
   ],
   "exclude": ["node_modules", ".next"]
 }
