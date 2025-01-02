@@ -129,9 +129,9 @@ async function main() {
   const region = process.env.AWS_REGION || 'us-east-1';
   const env = { region };
 
-  // Deploy stacks based on STACK_TYPE environment variable
-  const stackType = process.env.STACK_TYPE || 'all';
-  const environment = process.env.NODE_ENV || 'development';
+  // Deploy stacks based on AWS_DEPLOYMENT_STACK_TYLE environment variable
+  const stackType = process.env.AWS_DEPLOYMENT_STACK_TYLE || 'all';
+  const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
 
   if (stackType === 'bootstrap') {
     // Deploy bootstrap stack for initial setup

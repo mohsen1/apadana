@@ -11,6 +11,7 @@ fi
 
 # Deploy AWS resources
 echo "Deploying AWS resources..."
+export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
 pnpm run cdk:deploy:resources:ci
 
 echo "Fetching AWS configuration..."
