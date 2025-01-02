@@ -39,31 +39,12 @@ const octokit = new Octokit({
   auth: installationAuth.token,
 });
 
-const checkName = process.env.INPUT_TEST_NAME;
-
-// Try to find existing check
-const { data: checks } = await octokit.checks.listForRef({
+await octokit.rest.repos.createCommitStatus({
   owner,
   repo,
-  ref: process.env.GITHUB_SHA,
-  check_name: checkName,
+  sha: process.env.GITHUB_SHA,
+  state: process.env.INPUT_TEST_OUTCOME === 'success' ? 'success' : 'failure',
+  target_url: process.env.INPUT_REPORT_URL,
+  description: 'Results',
+  context: process.env.INPUT_TEST_NAME,
 });
-
-const params = {
-  owner,
-  repo,
-  name: checkName,
-  head_sha: process.env.GITHUB_SHA,
-  status: 'completed',
-  conclusion: process.env.INPUT_TEST_OUTCOME,
-  details_url: process.env.INPUT_REPORT_URL,
-};
-
-if (checks.check_runs.length > 0) {
-  await octokit.checks.update({
-    check_run_id: checks.check_runs[0].id,
-    ...params,
-  });
-} else {
-  await octokit.checks.create(params);
-}
