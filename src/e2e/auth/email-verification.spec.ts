@@ -1,3 +1,5 @@
+import { assertUrl } from '@/utils/url';
+
 import { expect, test } from '../base';
 
 test.describe('Email Verification Process', () => {
@@ -14,9 +16,14 @@ test.describe('Email Verification Process', () => {
   });
 
   test('resend verification email appears in inbox', async ({ page, data, baseURL }) => {
-    expect(baseURL).toBeDefined();
+    assertUrl(baseURL);
+    const url = new URL(baseURL);
+
     // Skip this test when testing against production since we do not have local inbox in prod
-    test.skip(!!baseURL?.toLowerCase().includes('apadana.app'), 'Skipping test for production');
+    test.skip(
+      !!url?.hostname.toLowerCase().includes('apadana.app'),
+      'Skipping test for production',
+    );
 
     // 1. Create new account
     await data.createUser(testUser.email, testUser.password);

@@ -37,3 +37,14 @@ export function createLoginUrl(): string {
 export function createSignupUrl(): string {
   return createUrl('signup');
 }
+
+/**
+ * Validates a URL string and throws an error if invalid
+ */
+export function assertUrl(urlString: unknown): asserts urlString is URL {
+  try {
+    new URL(urlString as string);
+  } catch {
+    throw new Error(`${String(urlString)} is not a valid URL`);
+  }
+}

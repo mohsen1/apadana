@@ -28,40 +28,48 @@ runs:
           const { createAppAuth } = require('@octokit/auth-app');
           const { Octokit } = require('@octokit/rest');
 
+          // Process private key - replace literal '\n' with actual newlines
+          const privateKey = '${{ inputs.private-key }}'.replace(/\\n/g, '\n');
+
           const auth = createAppAuth({
             appId: '${{ inputs.app-id }}',
-            privateKey: '${{ inputs.private-key }}',
-            installationId: context.payload.installation.id
+            privateKey: privateKey,
+            installationId: context.payload.installation?.id
           });
 
-          const installationToken = await auth({ type: 'installation' });
-          const octokit = new Octokit({ auth: installationToken.token });
+          try {
+            const installationToken = await auth({ type: 'installation' });
+            const octokit = new Octokit({ auth: installationToken.token });
 
-          const checkName = '${{ inputs.test-name }}';
+            const checkName = '${{ inputs.test-name }}';
 
-          // Try to find existing check
-          const { data: checks } = await octokit.checks.listForRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: context.sha,
-            check_name: checkName
-          });
-
-          const params = {
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            name: checkName,
-            head_sha: context.sha,
-            status: 'completed',
-            conclusion: '${{ inputs.test-outcome }}',
-            details_url: '${{ inputs.report-url }}'
-          };
-
-          if (checks.check_runs.length > 0) {
-            await octokit.checks.update({
-              check_run_id: checks.check_runs[0].id,
-              ...params
+            // Try to find existing check
+            const { data: checks } = await octokit.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              check_name: checkName
             });
-          } else {
-            await octokit.checks.create(params);
+
+            const params = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: checkName,
+              head_sha: context.sha,
+              status: 'completed',
+              conclusion: '${{ inputs.test-outcome }}',
+              details_url: '${{ inputs.report-url }}'
+            };
+
+            if (checks.check_runs.length > 0) {
+              await octokit.checks.update({
+                check_run_id: checks.check_runs[0].id,
+                ...params
+              });
+            } else {
+              await octokit.checks.create(params);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            throw error;
           }
