@@ -125,6 +125,7 @@
     "zod-prisma-types": "^3.2.1"
   },
   "devDependencies": {
+    "@octokit/auth-app": "^7.1.3",
     "@playwright/test": "^1.49.1",
     "@react-types/provider": "^3.8.5",
     "@storybook/addon-essentials": "^8.4.7",
