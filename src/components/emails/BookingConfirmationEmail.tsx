@@ -4,6 +4,8 @@ import { format } from 'date-fns';
 import { EmailCallToActionButton } from '@/components/emails/EmailCallToActionButton';
 import { EmailLayout } from '@/components/emails/EmailLayout';
 
+import { createUrl } from '@/utils/url';
+
 interface BookingConfirmationEmailProps {
   bookingId: string;
   listingTitle: string;
@@ -50,8 +52,8 @@ export function BookingConfirmationEmail({
         </Section>
 
         <Text className='text-muted-foreground mt-6'>Need to contact your host? Click below:</Text>
-        <EmailCallToActionButton href={`https://apadana.app/messages/${bookingId}`}>
-          Message Host
+        <EmailCallToActionButton href={createUrl(`messages/${bookingId}`)}>
+          View Messages
         </EmailCallToActionButton>
       </Container>
     </EmailLayout>
