@@ -9,22 +9,16 @@ if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
   exit 1
 fi
 
-# Set environment name to 'preview' if it starts with 'preview'
+echo "VERCEL_ENV: $VERCEL_ENV"
+
+# Set environment name to 'preview' if we are in a preview environment
 if [[ "$VERCEL_ENV" == preview* ]]; then
-  sanitized_env="preview"
+  AWS_DEPLOYMENT_STACK_ENV="preview"
 else
-  # Sanitize the environment name for other cases
-  sanitized_env=$(echo "$VERCEL_ENV" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+  AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
 fi
 
-if [ ${#sanitized_env} -lt 3 ]; then
-  echo "Error:AWS_DEPLOYMENT_STACK_ENV too short after sanitization"
-  exit 1
-fi
-
-# Truncate to 63 chars, ensuring we don't cut in the middle of a hyphen
-export AWS_DEPLOYMENT_STACK_ENV=$(echo "$sanitized_env" | cut -c 1-63 | sed 's/-$//g')
-echo "Using sanitized AWS_DEPLOYMENT_STACK_ENV: $AWS_DEPLOYMENT_STACK_ENV"
+echo "Using AWS_DEPLOYMENT_STACK_ENV: $AWS_DEPLOYMENT_STACK_ENV"
 
 # Deploy AWS resources
 echo "Deploying AWS resources..."
