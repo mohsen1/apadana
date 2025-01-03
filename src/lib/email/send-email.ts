@@ -10,7 +10,7 @@ import { WelcomeEmail } from '@/components/emails/WelcomeEmail';
 import { createLogger } from '@/utils/logger';
 import { createListingUrl, createVerificationUrl } from '@/utils/url';
 
-const logger = createLogger(__filename);
+const logger = createLogger('send-email');
 
 const BOOKING_EMAIL = 'Apadana <bookings@apadana.app>';
 const ONBOARDING_EMAIL = 'Apadana <onboarding@apadana.app>';

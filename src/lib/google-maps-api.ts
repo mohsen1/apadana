@@ -3,7 +3,7 @@ import { createLogger } from '@/utils/logger';
 const API_KEY = process.env.GOOGLE_MAPS_BACKEND_API_KEY;
 const API_BASE_URL = 'https://maps.googleapis.com/maps/api';
 
-const logger = createLogger(__filename);
+const logger = createLogger('google-maps-api');
 
 /**
  * Fetches the time zone for a given latitude and longitude using the Google Maps API.
