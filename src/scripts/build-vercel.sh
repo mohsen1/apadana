@@ -37,16 +37,22 @@ fi
 echo "Using AWS deployment stack environment: $AWS_DEPLOYMENT_STACK_ENV"
 echo "AWS Region: $AWS_REGION"
 
-# Run preflight checks
+# Run preflight checks to see if resources exist
 echo "Running AWS preflight checks..."
-pnpm run aws:preflight
+if ! pnpm run aws:preflight; then
+  echo "Resources not found, deploying AWS infrastructure..."
 
-# Deploy AWS resources and wait for completion
-echo "Deploying AWS resources..."
-pnpm run cdk:deploy:resources:ci
+  # Deploy AWS resources
+  echo "Deploying AWS resources..."
+  pnpm run cdk:deploy:resources:ci
 
-echo "Waiting for AWS resources to be ready..."
-pnpm run aws:wait-resources
+  echo "Waiting for AWS resources to be ready..."
+  pnpm run aws:wait-resources
+
+  # Run preflight again to verify resources
+  echo "Verifying resources..."
+  pnpm run aws:preflight
+fi
 
 echo "Fetching AWS configuration..."
 pnpm --silent aws:env >.env.production
