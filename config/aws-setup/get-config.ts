@@ -147,7 +147,7 @@ async function getConfigurations() {
   let DATABASE_URL = '';
   let REDIS_URL = '';
   let S3_BUCKET = '';
-  let warnings: string[] = [];
+  let errors: string[] = [];
   let databasePassword = '';
 
   try {
@@ -156,9 +156,9 @@ async function getConfigurations() {
       databasePassword = await getOrCreateDBPassword();
     } catch (error) {
       assertError(error);
-      warnings.push(
-        '⚠️ Failed to get/create DB password. Check AWS Secrets Manager access.',
-        '⚠️ This is likely due to a permissions issue with the deployer user.',
+      throw new Error(
+        'Failed to get/create DB password. Check AWS Secrets Manager access. ' +
+          'This is likely due to a permissions issue with the deployer user.',
       );
     }
 
@@ -170,13 +170,14 @@ async function getConfigurations() {
         }),
       );
       const dbEndpoint = rdsResponse.DBInstances?.[0]?.Endpoint;
-      DATABASE_URL = dbEndpoint
-        ? `postgresql://postgres:${databasePassword}@${dbEndpoint.Address}:${dbEndpoint.Port}/apadana`
-        : '';
+      if (!dbEndpoint?.Address || !dbEndpoint.Port) {
+        throw new Error('RDS endpoint information is incomplete');
+      }
+      DATABASE_URL = `postgresql://postgres:${databasePassword}@${dbEndpoint.Address}:${dbEndpoint.Port}/apadana`;
     } catch (error) {
       assertError(error);
-      warnings.push(
-        `⚠️ RDS instance 'apadana-${environment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
+      errors.push(
+        `RDS instance 'apadana-${environment}' not found or not ready. Run 'pnpm cdk:deploy:resources' to create it.`,
       );
     }
 
@@ -188,12 +189,14 @@ async function getConfigurations() {
         }),
       );
       const clusterEndpoint = memoryDbResponse.Clusters?.[0]?.ClusterEndpoint;
-      REDIS_URL = clusterEndpoint
-        ? `redis://${clusterEndpoint.Address}:${clusterEndpoint.Port}`
-        : 'redis://localhost:6379';
-    } catch {
-      warnings.push(
-        `⚠️ MemoryDB cluster 'apadana-${environment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
+      if (!clusterEndpoint?.Address || !clusterEndpoint.Port) {
+        throw new Error('MemoryDB endpoint information is incomplete');
+      }
+      REDIS_URL = `redis://${clusterEndpoint.Address}:${clusterEndpoint.Port}`;
+    } catch (error) {
+      assertError(error);
+      errors.push(
+        `MemoryDB cluster 'apadana-${environment}' not found or not ready. Run 'pnpm cdk:deploy:resources' to create it.`,
       );
     }
 
@@ -204,21 +207,23 @@ async function getConfigurations() {
         s3Response.Buckets?.find((bucket) => bucket.Name === `apadana-uploads-${environment}`)
           ?.Name || '';
       if (!S3_BUCKET) {
-        warnings.push(
-          `⚠️ S3 bucket 'apadana-uploads-${environment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
+        errors.push(
+          `S3 bucket 'apadana-uploads-${environment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
         );
-        S3_BUCKET = `apadana-uploads-${environment}`;
       }
-    } catch {
-      warnings.push('⚠️ Error accessing S3. Check your AWS credentials.');
+    } catch (error) {
+      assertError(error);
+      errors.push('Error accessing S3. Check your AWS credentials.');
     }
 
-    // Output in .env format with warnings
+    if (errors.length > 0) {
+      throw new Error('Required AWS resources are not available:\n' + errors.join('\n'));
+    }
+
+    // Output in .env format
     const envOutput = [
       `# AWS Configuration for ${environment} environment`,
       `# Generated on ${new Date().toISOString()}`,
-      '',
-      ...warnings.map((w) => `# ${w}`),
       '',
       `AWS_REGION="${region}"`,
       `AWS_ACCESS_KEY_ID="${credentials.accessKeyId}"`,
