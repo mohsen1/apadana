@@ -38,9 +38,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Fetching AWS configuration..."
-output=$(pnpm --silent aws:env)
-echo "output: $output" # TODO: remove this
-echo "$output" >.env.production
+pnpm --silent aws:env >.env.production
 
 echo "Building Next.js application..."
 pnpm build
