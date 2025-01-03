@@ -17,9 +17,9 @@ fi
 
 echo "VERCEL_ENV: $VERCEL_ENV"
 
-# Set environment name to 'preview' if we are in a preview environment
+# Set environment name to 'development' if we are in a preview environment
 if [[ "$VERCEL_ENV" == preview* ]]; then
-  AWS_DEPLOYMENT_STACK_ENV="preview"
+  AWS_DEPLOYMENT_STACK_ENV="development"
 else
   AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
 fi
