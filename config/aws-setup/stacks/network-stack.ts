@@ -18,16 +18,20 @@ export class NetworkStack extends cdk.Stack {
     this.vpc = new ec2.Vpc(this, 'VPC', {
       maxAzs: 2,
       natGateways: 1,
-      vpcName: `apadana-vpc-${props.environment}`,
+      vpcName:
+        props.environment === 'preview'
+          ? 'apadana-vpc-preview'
+          : `apadana-vpc-${props.environment}`,
       subnetConfiguration: [
         {
           cidrMask: 24,
-          name: `private-${props.environment}`,
+          name:
+            props.environment === 'preview' ? 'private-preview' : `private-${props.environment}`,
           subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
         },
         {
           cidrMask: 24,
-          name: `public-${props.environment}`,
+          name: props.environment === 'preview' ? 'public-preview' : `public-${props.environment}`,
           subnetType: ec2.SubnetType.PUBLIC,
         },
       ],
@@ -38,7 +42,10 @@ export class NetworkStack extends cdk.Stack {
       vpc: this.vpc,
       description: `Security group for Apadana MemoryDB cluster - ${props.environment}`,
       allowAllOutbound: true,
-      securityGroupName: `apadana-memorydb-sg-${props.environment}`,
+      securityGroupName:
+        props.environment === 'preview'
+          ? 'apadana-memorydb-sg-preview'
+          : `apadana-memorydb-sg-${props.environment}`,
     });
 
     this.memoryDbSG.addIngressRule(
@@ -52,7 +59,10 @@ export class NetworkStack extends cdk.Stack {
       vpc: this.vpc,
       description: `Security group for Apadana RDS instance - ${props.environment}`,
       allowAllOutbound: true,
-      securityGroupName: `apadana-rds-sg-${props.environment}`,
+      securityGroupName:
+        props.environment === 'preview'
+          ? 'apadana-rds-sg-preview'
+          : `apadana-rds-sg-${props.environment}`,
     });
 
     this.rdsSG.addIngressRule(
