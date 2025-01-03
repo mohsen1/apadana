@@ -85,7 +85,19 @@ export class Logger {
   }
 }
 
-export function createLogger(filePath: string, level: LogLevel = 'debug') {
+export function createLogger(filePath?: string, level: LogLevel = 'debug') {
+  if (!filePath) {
+    const error = new Error();
+    const stackLines = error.stack?.split('\n') || [];
+    const callerLine = stackLines[2]; // Skip Error and createLogger frames
+    const match = callerLine?.match(/\((.*):\d+:\d+\)/) || callerLine?.match(/at (.*):\d+:\d+/);
+    filePath = match?.[1] || 'unknown';
+  }
+
+  if (filePath.includes('/src/')) {
+    filePath = filePath.split('/src/')[1];
+  }
+
   const fileName = path.basename(filePath);
 
   const commonFileNames = ['index.ts', 'index.tsx', 'index.js', 'index.jsx', 'action.ts'];
@@ -96,7 +108,3 @@ export function createLogger(filePath: string, level: LogLevel = 'debug') {
 
   return new Logger(fileName, level);
 }
-
-const defaultLogger = new Logger('', 'info');
-
-export default defaultLogger;
