@@ -19,6 +19,10 @@ import { S3Stack } from './stacks/s3-stack';
 // Load environment variables from .env.local
 config({ path: process.env.NODE_ENV === 'production' ? '.env' : '.env.local' });
 
+// Get environment from AWS_DEPLOYMENT_STACK_ENV
+const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
+console.log(`Using AWS deployment stack environment: ${environment}`);
+
 // Define required permissions - must match create-deployer.ts
 const requiredPermissions = [
   // Self-inspection permissions
@@ -124,64 +128,53 @@ async function main() {
   await checkPermissions();
 
   const app = new cdk.App();
-
-  // Get AWS region from environment variable or use default
+  const stackType = process.env.STACK_TYPE || 'all';
   const region = process.env.AWS_REGION || 'us-east-1';
-  const env = { region };
 
-  // Deploy stacks based on AWS_DEPLOYMENT_STACK_TYPE environment variable
-  const stackType = process.env.AWS_DEPLOYMENT_STACK_TYPE || 'all';
-  const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
+  console.log(`Deploying ${stackType} stacks to ${region} for environment: ${environment}`);
 
-  // Map Vercel environment to AWS environment
-  const awsEnvironment = process.env.VERCEL_ENV === 'preview' ? 'development' : environment;
-
-  if (stackType === 'bootstrap') {
-    // Deploy bootstrap stack for initial setup
-    new BootstrapStack(app, 'ApadanaBootstrapStack', { env });
-  } else if (stackType === 'iam') {
-    // Deploy IAM stack for permissions
-    new IAMStack(app, 'ApadanaIAMStack', { env });
-  } else if (stackType === 'resources' || stackType === 'all') {
-    // Deploy network stack first
-    const networkStack = new NetworkStack(app, 'ApadanaNetworkStack', {
-      env,
-      environment: awsEnvironment,
-      stackName: `apadana-network-${awsEnvironment}`,
-    });
-
-    // Then deploy MemoryDB stack with explicit dependency
-    const memoryDbStack = new MemoryDBStack(app, 'ApadanaMemoryDBStack', {
-      env,
-      vpc: networkStack.vpc,
-      securityGroup: networkStack.memoryDbSG,
-      environment: awsEnvironment,
-      stackName: `apadana-memorydb-${awsEnvironment}`,
-    });
-    memoryDbStack.addDependency(networkStack);
-
-    // Deploy RDS stack with explicit dependency
-    const rdsStack = new RDSStack(app, 'ApadanaRDSStack', {
-      env,
-      vpc: networkStack.vpc,
-      securityGroup: networkStack.rdsSG,
-      environment: awsEnvironment,
-      stackName: `apadana-rds-${awsEnvironment}`,
-    });
-    rdsStack.addDependency(networkStack);
-
-    // Deploy S3 stack
-    new S3Stack(app, 'ApadanaS3Stack', {
-      env,
-      environment: awsEnvironment,
-      stackName: `apadana-s3-${awsEnvironment}`,
+  // Create stacks based on environment
+  if (stackType === 'bootstrap' || stackType === 'all') {
+    new BootstrapStack(app, `apadana-bootstrap-${environment}`, {
+      env: { region },
     });
   }
 
-  app.synth();
+  if (stackType === 'iam' || stackType === 'all') {
+    new IAMStack(app, `apadana-iam-${environment}`, {
+      env: { region },
+    });
+  }
+
+  if (stackType === 'resources' || stackType === 'all') {
+    // Network stack with environment prop
+    const networkStack = new NetworkStack(app, `apadana-network-${environment}`, {
+      env: { region },
+      environment,
+    });
+
+    // S3 stack with environment prop
+    new S3Stack(app, `apadana-s3-${environment}`, {
+      env: { region },
+      environment,
+    });
+
+    // MemoryDB stack with environment and network props
+    new MemoryDBStack(app, `apadana-memorydb-${environment}`, {
+      env: { region },
+      environment,
+      vpc: networkStack.vpc,
+      securityGroup: networkStack.memoryDbSG,
+    });
+
+    // RDS stack with environment and network props
+    new RDSStack(app, `apadana-rds-${environment}`, {
+      env: { region },
+      environment,
+      vpc: networkStack.vpc,
+      securityGroup: networkStack.rdsSG,
+    });
+  }
 }
 
-main().catch((error) => {
-  console.error('Failed to deploy:', error);
-  process.exit(1);
-});
+main().catch(console.error);
