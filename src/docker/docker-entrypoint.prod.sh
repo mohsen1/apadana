@@ -30,7 +30,7 @@ function watch_and_rebuild() {
     if build; then
       echo "[docker-entrypoint.prod.sh] Build successful, starting main application..."
       cleanup
-      return 1
+      return 0
     fi
   done
 }
@@ -70,6 +70,5 @@ else
 
   # Then watch and rebuild
   watch_and_rebuild
-  cleanup
   pnpm next:start
 fi
