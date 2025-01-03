@@ -129,9 +129,12 @@ async function main() {
   const region = process.env.AWS_REGION || 'us-east-1';
   const env = { region };
 
-  // Deploy stacks based on AWS_DEPLOYMENT_STACK_TYLE environment variable
-  const stackType = process.env.AWS_DEPLOYMENT_STACK_TYLE || 'all';
+  // Deploy stacks based on AWS_DEPLOYMENT_STACK_TYPE environment variable
+  const stackType = process.env.AWS_DEPLOYMENT_STACK_TYPE || 'all';
   const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
+
+  // Map Vercel environment to AWS environment
+  const awsEnvironment = process.env.VERCEL_ENV === 'preview' ? 'development' : environment;
 
   if (stackType === 'bootstrap') {
     // Deploy bootstrap stack for initial setup
@@ -143,8 +146,8 @@ async function main() {
     // Deploy network stack first
     const networkStack = new NetworkStack(app, 'ApadanaNetworkStack', {
       env,
-      environment,
-      stackName: `apadana-network-${environment}`,
+      environment: awsEnvironment,
+      stackName: `apadana-network-${awsEnvironment}`,
     });
 
     // Then deploy MemoryDB stack with explicit dependency
@@ -152,8 +155,8 @@ async function main() {
       env,
       vpc: networkStack.vpc,
       securityGroup: networkStack.memoryDbSG,
-      environment,
-      stackName: `apadana-memorydb-${environment}`,
+      environment: awsEnvironment,
+      stackName: `apadana-memorydb-${awsEnvironment}`,
     });
     memoryDbStack.addDependency(networkStack);
 
@@ -162,16 +165,16 @@ async function main() {
       env,
       vpc: networkStack.vpc,
       securityGroup: networkStack.rdsSG,
-      environment,
-      stackName: `apadana-rds-${environment}`,
+      environment: awsEnvironment,
+      stackName: `apadana-rds-${awsEnvironment}`,
     });
     rdsStack.addDependency(networkStack);
 
     // Deploy S3 stack
     new S3Stack(app, 'ApadanaS3Stack', {
       env,
-      environment,
-      stackName: `apadana-s3-${environment}`,
+      environment: awsEnvironment,
+      stackName: `apadana-s3-${awsEnvironment}`,
     });
   }
 
