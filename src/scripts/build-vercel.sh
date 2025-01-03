@@ -9,6 +9,15 @@ if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
   exit 1
 fi
 
+# Set AWS_DEPLOYMENT_STACK_ENV based on VERCEL_ENV
+if [ "$VERCEL_ENV" = "preview" ]; then
+  export AWS_DEPLOYMENT_STACK_ENV="preview"
+else
+  export AWS_DEPLOYMENT_STACK_ENV="production"
+fi
+
+echo "Using AWS deployment stack environment: $AWS_DEPLOYMENT_STACK_ENV"
+
 # Run preflight checks
 echo "Running AWS preflight checks..."
 pnpm run aws:preflight

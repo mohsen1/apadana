@@ -1,6 +1,10 @@
 import { DescribeClustersCommand, MemoryDBClient } from '@aws-sdk/client-memorydb';
-import { DescribeDBInstancesCommand, RDSClient } from '@aws-sdk/client-rds';
-import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DescribeDBInstancesCommand,
+  RDSClient,
+  waitUntilDBInstanceAvailable,
+} from '@aws-sdk/client-rds';
+import { HeadBucketCommand, ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
@@ -18,20 +22,44 @@ export interface ValidationResult {
   };
 }
 
-async function testPostgresConnection(connectionString: string): Promise<boolean> {
+async function waitForMemoryDbAvailable(
+  client: MemoryDBClient,
+  clusterName: string,
+  maxAttempts = 30,
+  delayMs = 10000,
+): Promise<void> {
+  for (let i = 0; i < maxAttempts; i++) {
+    const { Clusters } = await client.send(
+      new DescribeClustersCommand({ ClusterName: clusterName }),
+    );
+    const status = Clusters?.[0]?.Status;
+    if (status === 'available') return;
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+  throw new Error('Timed out waiting for MemoryDB to become available');
+}
+
+async function testPostgresConnection(
+  connectionString: string,
+): Promise<{ success: boolean; error?: string }> {
   const client = new PrismaClient({
     datasources: {
       db: {
         url: connectionString,
       },
     },
+    log: ['error'],
   });
+
   try {
     await client.$connect();
     const result = await client.$queryRaw`SELECT 1`;
-    return Array.isArray(result) && result.length > 0;
+    return { success: Array.isArray(result) && result.length > 0 };
   } catch (error) {
-    return false;
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown database connection error',
+    };
   } finally {
     await client.$disconnect();
   }
@@ -57,6 +85,15 @@ async function testRedisConnection(url: string): Promise<boolean> {
   }
 }
 
+async function testS3Access(client: S3Client, bucketName: string): Promise<boolean> {
+  try {
+    await client.send(new HeadBucketCommand({ Bucket: bucketName }));
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 export async function validateResources(
   config: AWSConfig,
   credentials: { accessKeyId: string; secretAccessKey: string },
@@ -73,6 +110,8 @@ export async function validateResources(
   // Check RDS
   try {
     const rdsClient = new RDSClient(clientConfig);
+
+    // Get RDS instance details first
     const rdsResponse = await rdsClient.send(
       new DescribeDBInstancesCommand({
         DBInstanceIdentifier: config.resources.rds.instanceIdentifier,
@@ -84,9 +123,15 @@ export async function validateResources(
       throw new Error('RDS instance not found');
     }
 
-    // Check instance status
+    // Log instance status for debugging
+    console.log(`RDS Status: ${instance.DBInstanceStatus}`);
+
     if (instance.DBInstanceStatus !== 'available') {
-      throw new Error(`RDS instance status is ${instance.DBInstanceStatus}`);
+      // Only wait if not already available
+      await waitUntilDBInstanceAvailable(
+        { client: rdsClient, maxWaitTime: 300 },
+        { DBInstanceIdentifier: config.resources.rds.instanceIdentifier },
+      );
     }
 
     const dbEndpoint = instance.Endpoint;
@@ -106,11 +151,13 @@ export async function validateResources(
       throw new Error('Failed to retrieve database password');
     }
 
-    // Test database connection
+    // Test database connection with detailed error
     const connectionString = `postgresql://${config.resources.rds.username}:${dbPassword}@${dbEndpoint.Address}:${dbEndpoint.Port}/${config.resources.rds.dbName}`;
-    const canConnect = await testPostgresConnection(connectionString);
-    if (!canConnect) {
-      throw new Error('Cannot establish connection to RDS instance');
+    console.log(`Testing connection to: ${dbEndpoint.Address}:${dbEndpoint.Port}`);
+
+    const connectionTest = await testPostgresConnection(connectionString);
+    if (!connectionTest.success) {
+      throw new Error(`Database connection failed: ${connectionTest.error}`);
     }
 
     result.resources.rds = true;
@@ -124,6 +171,10 @@ export async function validateResources(
   // Check MemoryDB
   try {
     const memoryDbClient = new MemoryDBClient(clientConfig);
+
+    // Wait for MemoryDB cluster to be available
+    await waitForMemoryDbAvailable(memoryDbClient, config.resources.memoryDb.clusterName);
+
     const memoryDbResponse = await memoryDbClient.send(
       new DescribeClustersCommand({
         ClusterName: config.resources.memoryDb.clusterName,
@@ -133,11 +184,6 @@ export async function validateResources(
     const cluster = memoryDbResponse.Clusters?.[0];
     if (!cluster) {
       throw new Error('MemoryDB cluster not found');
-    }
-
-    // Check cluster status
-    if (cluster.Status !== 'available') {
-      throw new Error(`MemoryDB cluster status is ${cluster.Status}`);
     }
 
     const clusterEndpoint = cluster.ClusterEndpoint;
@@ -163,15 +209,20 @@ export async function validateResources(
   // Check S3
   try {
     const s3Client = new S3Client(clientConfig);
-    const s3Response = await s3Client.send(new ListBucketsCommand({}));
     const bucketName = `${config.resources.s3.bucketPrefix}-${config.stack.environment}`;
-    result.resources.s3 = s3Response.Buckets?.some((bucket) => bucket.Name === bucketName) ?? false;
-    if (!result.resources.s3) {
-      result.errors.push(`S3 bucket '${bucketName}' not found`);
+
+    // Test S3 bucket access
+    const canAccess = await testS3Access(s3Client, bucketName);
+    if (!canAccess) {
+      throw new Error(`Cannot access S3 bucket '${bucketName}'`);
     }
+
+    result.resources.s3 = true;
   } catch (error) {
     result.resources.s3 = false;
-    result.errors.push('Error accessing S3');
+    result.errors.push(
+      `S3 bucket '${config.resources.s3.bucketPrefix}-${config.stack.environment}': ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
   }
 
   // Check Secrets
@@ -183,7 +234,7 @@ export async function validateResources(
   } catch (error) {
     result.resources.secrets = false;
     result.errors.push(
-      `Secret '${config.resources.secretsManager.dbSecretPrefix}-db-password' not found`,
+      `Secret '${config.resources.secretsManager.dbSecretPrefix}-db-password': ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
   }
 

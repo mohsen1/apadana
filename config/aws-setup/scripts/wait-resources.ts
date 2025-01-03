@@ -20,6 +20,15 @@ function getProgressSymbol(status: boolean | undefined): string {
   return status ? '✅' : '❌';
 }
 
+function formatError(error: string): string {
+  // Extract just the error message after the colon if it exists
+  const colonIndex = error.lastIndexOf(':');
+  if (colonIndex !== -1) {
+    return error.substring(colonIndex + 1).trim();
+  }
+  return error;
+}
+
 async function main() {
   const credentials = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
@@ -33,21 +42,23 @@ async function main() {
   const awsConfig = getConfig();
   console.log(`Waiting for resources in environment: ${awsConfig.stack.environment}`);
   console.log('Resources to check:');
-  console.log('  - RDS Database');
-  console.log('  - MemoryDB Cluster');
-  console.log('  - S3 Bucket');
-  console.log('  - Secrets Manager');
-  console.log('\nChecking resource status and connectivity...\n');
+  console.log('  - RDS Database (waiting for availability and connection test)');
+  console.log('  - MemoryDB Cluster (waiting for availability and connection test)');
+  console.log('  - S3 Bucket (checking access)');
+  console.log('  - Secrets Manager (verifying secrets)');
+  console.log('\nStarting resource validation...\n');
 
   let retries = 0;
   let lastResources = {};
+  let lastErrors = new Set<string>();
 
   while (retries < MAX_RETRIES) {
     const validation = await validateResources(awsConfig, credentials);
     const resources = validation.resources;
+    const currentErrors = new Set(validation.errors.map(formatError));
 
-    // Only show status if something changed
-    if (!_.isEqual(resources, lastResources)) {
+    // Show status if resources or errors changed
+    if (!_.isEqual(resources, lastResources) || !_.isEqual(currentErrors, lastErrors)) {
       console.log(`\nStatus update (attempt ${retries + 1}/${MAX_RETRIES}):`);
       console.log(`  RDS Database    ${getProgressSymbol(resources.rds)}`);
       console.log(`  MemoryDB        ${getProgressSymbol(resources.memoryDb)}`);
@@ -55,17 +66,22 @@ async function main() {
       console.log(`  Secrets Manager ${getProgressSymbol(resources.secrets)}`);
 
       if (validation.errors.length > 0) {
-        console.log('\nIssues:');
-        validation.errors.forEach((error) => console.log(`  - ${error}`));
+        console.log('\nCurrent issues:');
+        validation.errors.forEach((error) => console.log(`  - ${formatError(error)}`));
       }
 
       lastResources = { ...resources };
+      lastErrors = currentErrors;
     } else {
       process.stdout.write('.');
     }
 
     if (validation.isValid) {
       console.log('\n\n✅ All resources are ready and accepting connections!');
+      console.log('\nResource endpoints:');
+      console.log(`  RDS: ${awsConfig.resources.rds.instanceIdentifier}`);
+      console.log(`  MemoryDB: ${awsConfig.resources.memoryDb.clusterName}`);
+      console.log(`  S3: ${awsConfig.resources.s3.bucketPrefix}-${awsConfig.stack.environment}`);
       return;
     }
 
