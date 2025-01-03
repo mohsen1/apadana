@@ -2,6 +2,7 @@
   "name": "apadana",
   "version": "1.1.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "start": "pnpm run setup:local && DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f src/docker/docker-compose.yml up --build",
     "docker:prune": "docker system prune -af --volumes",
