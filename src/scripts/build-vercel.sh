@@ -44,7 +44,8 @@ if ! pnpm run aws:preflight; then
 
   # Deploy AWS resources
   echo "Deploying AWS resources..."
-  pnpm run cdk:deploy:resources:ci
+  # Pass AWS_DEPLOYMENT_STACK_ENV to CDK
+  STACK_TYPE=resources CDK_DEPLOY_ENVIRONMENT="$AWS_DEPLOYMENT_STACK_ENV" pnpm run cdk:deploy:resources:ci
 
   echo "Waiting for AWS resources to be ready..."
   pnpm run aws:wait-resources
