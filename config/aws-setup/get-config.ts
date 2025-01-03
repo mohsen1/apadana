@@ -27,6 +27,9 @@ config({ path: process.env.NODE_ENV === 'production' ? '.env' : '.env.local' });
 const environment = process.env.VERCEL_ENV || 'development';
 const region = process.env.AWS_REGION || 'us-east-1';
 
+// Map Vercel environment to AWS environment
+const awsEnvironment = process.env.VERCEL_ENV === 'preview' ? 'development' : environment;
+
 // AWS clients with explicit credentials
 const credentials = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
@@ -115,7 +118,7 @@ const s3Client = new S3Client({ region, credentials });
 const secretsClient = new SecretsManagerClient({ region, credentials });
 
 async function getOrCreateDBPassword(): Promise<string> {
-  const secretName = `apadana-${environment}-db-password`;
+  const secretName = `apadana-${awsEnvironment}-db-password`;
 
   try {
     // Try to get existing secret
@@ -133,7 +136,7 @@ async function getOrCreateDBPassword(): Promise<string> {
         new CreateSecretCommand({
           Name: secretName,
           SecretString: password,
-          Description: `Database password for Apadana ${environment} environment`,
+          Description: `Database password for Apadana ${awsEnvironment} environment`,
         }),
       );
 
@@ -154,8 +157,10 @@ async function getConfigurations() {
     // Get or create DB password
     try {
       databasePassword = await getOrCreateDBPassword();
+      console.log('Successfully retrieved database password');
     } catch (error) {
       assertError(error);
+      console.error('Failed to get/create DB password:', error);
       throw new Error(
         'Failed to get/create DB password. Check AWS Secrets Manager access. ' +
           'This is likely due to a permissions issue with the deployer user.',
@@ -166,7 +171,7 @@ async function getConfigurations() {
     try {
       const rdsResponse = await rdsClient.send(
         new DescribeDBInstancesCommand({
-          DBInstanceIdentifier: `apadana-${environment}`,
+          DBInstanceIdentifier: `apadana-${awsEnvironment}`,
         }),
       );
       const dbEndpoint = rdsResponse.DBInstances?.[0]?.Endpoint;
@@ -174,10 +179,12 @@ async function getConfigurations() {
         throw new Error('RDS endpoint information is incomplete');
       }
       DATABASE_URL = `postgresql://postgres:${databasePassword}@${dbEndpoint.Address}:${dbEndpoint.Port}/apadana`;
+      console.log('Successfully configured DATABASE_URL');
     } catch (error) {
       assertError(error);
+      console.error('Failed to get RDS endpoint:', error);
       errors.push(
-        `RDS instance 'apadana-${environment}' not found or not ready. Run 'pnpm cdk:deploy:resources' to create it.`,
+        `RDS instance 'apadana-${awsEnvironment}' not found or not ready. Run 'pnpm cdk:deploy:resources' to create it.`,
       );
     }
 
@@ -185,7 +192,7 @@ async function getConfigurations() {
     try {
       const memoryDbResponse = await memoryDbClient.send(
         new DescribeClustersCommand({
-          ClusterName: `apadana-${environment}`,
+          ClusterName: `apadana-${awsEnvironment}`,
         }),
       );
       const clusterEndpoint = memoryDbResponse.Clusters?.[0]?.ClusterEndpoint;
@@ -193,10 +200,12 @@ async function getConfigurations() {
         throw new Error('MemoryDB endpoint information is incomplete');
       }
       REDIS_URL = `redis://${clusterEndpoint.Address}:${clusterEndpoint.Port}`;
+      console.log('Successfully configured REDIS_URL');
     } catch (error) {
       assertError(error);
+      console.error('Failed to get MemoryDB endpoint:', error);
       errors.push(
-        `MemoryDB cluster 'apadana-${environment}' not found or not ready. Run 'pnpm cdk:deploy:resources' to create it.`,
+        `MemoryDB cluster 'apadana-${awsEnvironment}' not found or not ready. Run 'pnpm cdk:deploy:resources' to create it.`,
       );
     }
 
@@ -204,25 +213,32 @@ async function getConfigurations() {
     try {
       const s3Response = await s3Client.send(new ListBucketsCommand({}));
       S3_BUCKET =
-        s3Response.Buckets?.find((bucket) => bucket.Name === `apadana-uploads-${environment}`)
+        s3Response.Buckets?.find((bucket) => bucket.Name === `apadana-uploads-${awsEnvironment}`)
           ?.Name || '';
       if (!S3_BUCKET) {
         errors.push(
-          `S3 bucket 'apadana-uploads-${environment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
+          `S3 bucket 'apadana-uploads-${awsEnvironment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
         );
+      } else {
+        console.log('Successfully configured S3_BUCKET');
       }
     } catch (error) {
       assertError(error);
+      console.error('Failed to access S3:', error);
       errors.push('Error accessing S3. Check your AWS credentials.');
     }
 
     if (errors.length > 0) {
+      console.error('Configuration validation failed:');
+      console.error('DATABASE_URL:', DATABASE_URL || 'not set');
+      console.error('REDIS_URL:', REDIS_URL || 'not set');
+      console.error('S3_BUCKET:', S3_BUCKET || 'not set');
       throw new Error('Required AWS resources are not available:\n' + errors.join('\n'));
     }
 
     // Output in .env format
     const envOutput = [
-      `# AWS Configuration for ${environment} environment`,
+      `# AWS Configuration for ${awsEnvironment} environment`,
       `# Generated on ${new Date().toISOString()}`,
       '',
       `AWS_REGION="${region}"`,
