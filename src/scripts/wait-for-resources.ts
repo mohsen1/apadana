@@ -21,7 +21,7 @@ async function checkStackStatus(stackName: string): Promise<boolean> {
 }
 
 async function waitForResources(env: string, maxAttempts = 30): Promise<boolean> {
-  const stackNames = [`apadana-${env}-s3`, `apadana-${env}-rds`, `apadana-${env}-memory-db`];
+  const stackNames = [`apadana-s3-${env}`, `apadana-rds-${env}`, `apadana-memorydb-${env}`];
 
   let attempts = 0;
   while (attempts < maxAttempts) {
