@@ -16,7 +16,7 @@ export class S3Stack extends cdk.Stack {
     // Create the uploads bucket with environment-specific name
     const bucketName =
       props.environment === 'preview'
-        ? `apadana-uploads-preview-${process.env.VERCEL_GIT_COMMIT_SHA || 'default'}`
+        ? `apadana-uploads-preview`
         : `apadana-uploads-${props.environment}`;
 
     this.uploadsBucket = new s3.Bucket(this, 'UploadsBucket', {
