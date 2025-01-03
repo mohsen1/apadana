@@ -7,7 +7,7 @@ import { createLogger } from '@/utils/logger';
 
 const sudoExec = promisify<string, Parameters<typeof sudoPrompt.exec>[1]>(sudoPrompt.exec);
 
-const logger = createLogger(__filename);
+const logger = createLogger('setup-local-dev');
 const DOMAINS = [
   'dev.apadana.local',
   'prod.apadana.local',
