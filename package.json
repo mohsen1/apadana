@@ -61,10 +61,12 @@
     "cdk:synth": "cdk synth --app 'tsx config/aws-setup/cdk.ts'",
     "aws:env": "tsx config/aws-setup/get-config.ts",
     "aws:env:prod": "tsx config/aws-setup/get-config.ts",
-    "aws:deployer:create": "tsx config/aws-setup/scripts/create-deployer.ts"
+    "aws:deployer:create": "tsx config/aws-setup/scripts/create-deployer.ts",
+    "aws:wait-resources": "tsx src/scripts/wait-for-resources.ts"
   },
   "dependencies": {
     "@adobe/react-spectrum": "^3.38.1",
+    "@aws-sdk/client-cloudformation": "^3.721.0",
     "@aws-sdk/client-memorydb": "^3.716.0",
     "@aws-sdk/client-rds": "^3.719.1",
     "@aws-sdk/client-s3": "^3.717.0",
