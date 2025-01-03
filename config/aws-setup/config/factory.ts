@@ -38,11 +38,8 @@ export function createConfig(environment: Environment, region: string): AWSConfi
   };
 }
 
-export function getEnvironment(vercelEnv?: string): Environment {
-  if (!vercelEnv || vercelEnv === 'preview') {
-    return 'development';
-  }
-  return vercelEnv as Environment;
+export function getEnvironment(): Environment {
+  return (process.env.AWS_DEPLOYMENT_STACK_ENV || 'development') as Environment;
 }
 
 export function getRegion(): string {
@@ -50,7 +47,7 @@ export function getRegion(): string {
 }
 
 export function getConfig(): AWSConfig {
-  const environment = getEnvironment(process.env.VERCEL_ENV);
+  const environment = getEnvironment();
   const region = getRegion();
   return createConfig(environment, region);
 }

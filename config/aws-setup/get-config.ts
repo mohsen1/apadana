@@ -23,12 +23,9 @@ import { assertError } from '@/utils';
 // Load environment variables
 config({ path: process.env.NODE_ENV === 'production' ? '.env' : '.env.local' });
 
-// Get environment from Vercel or fallback to development
-const environment = process.env.VERCEL_ENV || 'development';
+// Get environment from AWS_DEPLOYMENT_STACK_ENV or fallback to development
+const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
 const region = process.env.AWS_REGION || 'us-east-1';
-
-// Map Vercel environment to AWS environment
-const awsEnvironment = process.env.VERCEL_ENV === 'preview' ? 'development' : environment;
 
 // AWS clients with explicit credentials
 const credentials = {
@@ -118,7 +115,7 @@ const s3Client = new S3Client({ region, credentials });
 const secretsClient = new SecretsManagerClient({ region, credentials });
 
 async function getOrCreateDBPassword(): Promise<string> {
-  const secretName = `apadana-${awsEnvironment}-db-password`;
+  const secretName = `apadana-${environment}-db-password`;
 
   try {
     // Try to get existing secret
@@ -136,7 +133,7 @@ async function getOrCreateDBPassword(): Promise<string> {
         new CreateSecretCommand({
           Name: secretName,
           SecretString: password,
-          Description: `Database password for Apadana ${awsEnvironment} environment`,
+          Description: `Database password for Apadana ${environment} environment`,
         }),
       );
 
@@ -171,7 +168,7 @@ async function getConfigurations() {
     try {
       const rdsResponse = await rdsClient.send(
         new DescribeDBInstancesCommand({
-          DBInstanceIdentifier: `apadana-${awsEnvironment}`,
+          DBInstanceIdentifier: `apadana-${environment}`,
         }),
       );
       const dbEndpoint = rdsResponse.DBInstances?.[0]?.Endpoint;
@@ -184,7 +181,7 @@ async function getConfigurations() {
       assertError(error);
       console.error('Failed to get RDS endpoint:', error);
       errors.push(
-        `RDS instance 'apadana-${awsEnvironment}' not found or not ready. Run 'pnpm cdk:deploy:resources' to create it.`,
+        `RDS instance 'apadana-${environment}' not found or not ready. Run 'pnpm cdk:deploy:resources' to create it.`,
       );
     }
 
@@ -192,7 +189,7 @@ async function getConfigurations() {
     try {
       const memoryDbResponse = await memoryDbClient.send(
         new DescribeClustersCommand({
-          ClusterName: `apadana-${awsEnvironment}`,
+          ClusterName: `apadana-${environment}`,
         }),
       );
       const clusterEndpoint = memoryDbResponse.Clusters?.[0]?.ClusterEndpoint;
@@ -205,7 +202,7 @@ async function getConfigurations() {
       assertError(error);
       console.error('Failed to get MemoryDB endpoint:', error);
       errors.push(
-        `MemoryDB cluster 'apadana-${awsEnvironment}' not found or not ready. Run 'pnpm cdk:deploy:resources' to create it.`,
+        `MemoryDB cluster 'apadana-${environment}' not found or not ready. Run 'pnpm cdk:deploy:resources' to create it.`,
       );
     }
 
@@ -213,11 +210,11 @@ async function getConfigurations() {
     try {
       const s3Response = await s3Client.send(new ListBucketsCommand({}));
       S3_BUCKET =
-        s3Response.Buckets?.find((bucket) => bucket.Name === `apadana-uploads-${awsEnvironment}`)
+        s3Response.Buckets?.find((bucket) => bucket.Name === `apadana-uploads-${environment}`)
           ?.Name || '';
       if (!S3_BUCKET) {
         errors.push(
-          `S3 bucket 'apadana-uploads-${awsEnvironment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
+          `S3 bucket 'apadana-uploads-${environment}' not found. Run 'pnpm cdk:deploy:resources' to create it.`,
         );
       } else {
         console.log('Successfully configured S3_BUCKET');
@@ -238,7 +235,7 @@ async function getConfigurations() {
 
     // Output in .env format
     const envOutput = [
-      `# AWS Configuration for ${awsEnvironment} environment`,
+      `# AWS Configuration for ${environment} environment`,
       `# Generated on ${new Date().toISOString()}`,
       '',
       `AWS_REGION="${region}"`,
