@@ -2,8 +2,12 @@
 import { config } from 'dotenv';
 import _ from 'lodash';
 
+import { createLogger } from '@/utils/logger';
+
 import { getConfig } from '../config/factory';
 import { validateResources } from '../config/validate';
+
+const logger = createLogger('wait-resources');
 
 // Load environment variables
 config({ path: process.env.NODE_ENV === 'production' ? '.env' : '.env.local' });
@@ -40,13 +44,13 @@ async function main() {
   }
 
   const awsConfig = getConfig();
-  console.log(`Waiting for resources in environment: ${awsConfig.stack.environment}`);
-  console.log('Resources to check:');
-  console.log('  - RDS Database (waiting for availability and connection test)');
-  console.log('  - MemoryDB Cluster (waiting for availability and connection test)');
-  console.log('  - S3 Bucket (checking access)');
-  console.log('  - Secrets Manager (verifying secrets)');
-  console.log('\nStarting resource validation...\n');
+  logger.info(`Waiting for resources in environment: ${awsConfig.stack.environment}`);
+  logger.info('Resources to check:');
+  logger.info('  - RDS Database (waiting for availability and connection test)');
+  logger.info('  - MemoryDB Cluster (waiting for availability and connection test)');
+  logger.info('  - S3 Bucket (checking access)');
+  logger.info('  - Secrets Manager (verifying secrets)');
+  logger.info('\nStarting resource validation...\n');
 
   let retries = 0;
   let lastResources = {};
@@ -59,15 +63,15 @@ async function main() {
 
     // Show status if resources or errors changed
     if (!_.isEqual(resources, lastResources) || !_.isEqual(currentErrors, lastErrors)) {
-      console.log(`\nStatus update (attempt ${retries + 1}/${MAX_RETRIES}):`);
-      console.log(`  RDS Database    ${getProgressSymbol(resources.rds)}`);
-      console.log(`  MemoryDB        ${getProgressSymbol(resources.memoryDb)}`);
-      console.log(`  S3 Bucket       ${getProgressSymbol(resources.s3)}`);
-      console.log(`  Secrets Manager ${getProgressSymbol(resources.secrets)}`);
+      logger.log(`\nStatus update (attempt ${retries + 1}/${MAX_RETRIES}):`);
+      logger.log(`  RDS Database    ${getProgressSymbol(resources.rds)}`);
+      logger.log(`  MemoryDB        ${getProgressSymbol(resources.memoryDb)}`);
+      logger.log(`  S3 Bucket       ${getProgressSymbol(resources.s3)}`);
+      logger.log(`  Secrets Manager ${getProgressSymbol(resources.secrets)}`);
 
       if (validation.errors.length > 0) {
-        console.log('\nCurrent issues:');
-        validation.errors.forEach((error) => console.log(`  - ${formatError(error)}`));
+        logger.log('\nCurrent issues:');
+        validation.errors.forEach((error) => logger.log(`  - ${formatError(error)}`));
       }
 
       lastResources = { ...resources };
@@ -77,18 +81,18 @@ async function main() {
     }
 
     if (validation.isValid) {
-      console.log('\n\n✅ All resources are ready and accepting connections!');
-      console.log('\nResource endpoints:');
-      console.log(`  RDS: ${awsConfig.resources.rds.instanceIdentifier}`);
-      console.log(`  MemoryDB: ${awsConfig.resources.memoryDb.clusterName}`);
-      console.log(`  S3: ${awsConfig.resources.s3.bucketPrefix}-${awsConfig.stack.environment}`);
+      logger.log('\n\n✅ All resources are ready and accepting connections!');
+      logger.log('\nResource endpoints:');
+      logger.log(`  RDS: ${awsConfig.resources.rds.instanceIdentifier}`);
+      logger.log(`  MemoryDB: ${awsConfig.resources.memoryDb.clusterName}`);
+      logger.log(`  S3: ${awsConfig.resources.s3.bucketPrefix}-${awsConfig.stack.environment}`);
       return;
     }
 
     retries++;
     if (retries < MAX_RETRIES) {
       if (validation.errors.length > 0) {
-        console.log(`\nWaiting ${RETRY_DELAY / 1000} seconds before next check...`);
+        logger.log(`\nWaiting ${RETRY_DELAY / 1000} seconds before next check...`);
       }
       await sleep(RETRY_DELAY);
     }
@@ -98,6 +102,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('\n❌ Failed while waiting for resources:', error);
+  logger.error('\n❌ Failed while waiting for resources:', error);
   process.exit(1);
 });

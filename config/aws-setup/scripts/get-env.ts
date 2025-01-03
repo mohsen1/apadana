@@ -4,7 +4,11 @@ import { DescribeDBInstancesCommand, RDSClient } from '@aws-sdk/client-rds';
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { config } from 'dotenv';
 
+import { createLogger } from '@/utils/logger';
+
 import { getConfig } from '../config/factory';
+
+const logger = createLogger('get-env');
 
 // Load environment variables
 config({ path: process.env.NODE_ENV === 'production' ? '.env' : '.env.local' });
@@ -74,10 +78,10 @@ async function main() {
   ];
 
   // Output to stdout
-  console.log(envVars.join('\n'));
+  logger.info(envVars.join('\n'));
 }
 
 main().catch((error) => {
-  console.error('Failed to generate environment variables:', error);
+  logger.error('Failed to generate environment variables:', error);
   process.exit(1);
 });

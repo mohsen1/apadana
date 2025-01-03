@@ -4,12 +4,16 @@ import {
   RDSClient,
   waitUntilDBInstanceAvailable,
 } from '@aws-sdk/client-rds';
-import { HeadBucketCommand, ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
+import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3';
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
 
+import { createLogger } from '@/utils/logger';
+
 import { AWSConfig } from './types';
+
+const logger = createLogger('validate');
 
 export interface ValidationResult {
   isValid: boolean;
@@ -78,7 +82,7 @@ async function testRedisConnection(url: string): Promise<boolean> {
     await client.connect();
     await client.ping();
     return true;
-  } catch (error) {
+  } catch {
     return false;
   } finally {
     await client.quit();
@@ -89,7 +93,7 @@ async function testS3Access(client: S3Client, bucketName: string): Promise<boole
   try {
     await client.send(new HeadBucketCommand({ Bucket: bucketName }));
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -124,7 +128,7 @@ export async function validateResources(
     }
 
     // Log instance status for debugging
-    console.log(`RDS Status: ${instance.DBInstanceStatus}`);
+    logger.info(`RDS Status: ${instance.DBInstanceStatus}`);
 
     if (instance.DBInstanceStatus !== 'available') {
       // Only wait if not already available
@@ -153,7 +157,7 @@ export async function validateResources(
 
     // Test database connection with detailed error
     const connectionString = `postgresql://${config.resources.rds.username}:${dbPassword}@${dbEndpoint.Address}:${dbEndpoint.Port}/${config.resources.rds.dbName}`;
-    console.log(`Testing connection to: ${dbEndpoint.Address}:${dbEndpoint.Port}`);
+    logger.info(`Testing connection to: ${dbEndpoint.Address}:${dbEndpoint.Port}`);
 
     const connectionTest = await testPostgresConnection(connectionString);
     if (!connectionTest.success) {
