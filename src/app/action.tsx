@@ -8,7 +8,9 @@ import { actionClient } from '@/lib/safe-action';
 
 import { EarlyAccessEmail } from '@/components/emails/EarlyAccessEmail';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 // Schema for input validation
 const InputSchema = z.object({

@@ -31,7 +31,9 @@ import {
 
 import { BookingAlterationEmail } from '@/components/emails/BookingAlterationEmail';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 export const getBookingRequest = actionClient
   .schema(GetBookingRequestSchema)

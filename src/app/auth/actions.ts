@@ -13,8 +13,10 @@ import prisma from '@/lib/prisma/client';
 import { actionClient, ClientVisibleError } from '@/lib/safe-action';
 import { ClientUserSchema, LoginSchema, SignUpSchema, SuccessfulLoginSchema } from '@/lib/schema';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
 import { createPasswordResetUrl, createVerificationUrl } from '@/utils/url';
+
+const logger = createLogger();
 
 export const login = actionClient
   .schema(LoginSchema)

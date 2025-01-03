@@ -8,7 +8,9 @@ import { z } from 'zod';
 import { actionClient } from '@/lib/safe-action';
 
 import { shouldUseFakeUploads } from '@/app/upload/constants';
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 const inputSchema = z.object({
   files: z.array(

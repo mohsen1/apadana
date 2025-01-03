@@ -3,7 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 
 import { shouldUseFakeUploads } from '@/app/upload/constants';
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 export const runtime = 'nodejs';
 
