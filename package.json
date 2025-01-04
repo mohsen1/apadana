@@ -11,6 +11,7 @@
     "docker:prod:rebuild": "docker-compose -f src/docker/docker-compose.yml build app_prod --parallel",
     "docker:prod:restart": "docker-compose -f src/docker/docker-compose.yml up -d --no-deps app_prod",
     "docker:prod:redeploy": "pnpm docker:prod:rebuild && pnpm docker:prod:restart",
+    "docker:prod:logs": "docker-compose -f src/docker/docker-compose.yml logs -f app_prod",
     "next:start": "next start",
     "predev": "pnpm prisma:generate && pnpm prisma:migrate",
     "dev": "concurrently --color --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold\" npm:dev:*",

@@ -1,6 +1,5 @@
 General
 • Production URL: https://apadana.app
-• Sender Emails: bookings@apadana.app, onboarding@apadana.app, support@apadana.app
 • Use logger (default export from @/utils/logger) for logging
 • Utilities in src/utils
 • Non-route handlers in src/lib
@@ -11,10 +10,9 @@ General
 • Prisma schema/seed in src/prisma/schema
 • Don’t create new root directories
 • Component stories go next to components, never in a global stories folder
-• Create a story for every email and visual component
+
 • Use argon2 for hashing
-• Send emails via sendEmail function in send-email.ts
-• All emails must use EmailLayout component
+
 • Check package.json for available pnpm commands
 • Minimize global variables.
 • Keep files short.
@@ -27,6 +25,13 @@ General
 • Write e2e tests for critical paths.
 • Commit often with short, meaningful messages.
 • Avoid mixing data fetching and rendering in the same file.
+
+Email
+• Send emails via sendEmail function in send-email.ts
+• Sender Emails defined in send-email.ts
+• All emails must use EmailLayout component
+• Create a story for every email and visual component
+• **ALWAYS** use @react-email/components in emails
 
 TypeScript
 • Use assertError for error assertions
@@ -66,6 +71,5 @@ actionClient.schema(input).action(async ({ parsedInput, ctx }) => {
 E2E Testing
 • Use Playwright with import { test, expect } from 'base'
 • Create test data with TestData class
-• Destructure test data in tests:
-
-test('sample test', async ({ page, data }) => {
+• Destructure test data in tests: test('sample test', async ({ page, data }) => {
+• never use await page.waitForTimeout(1000);
