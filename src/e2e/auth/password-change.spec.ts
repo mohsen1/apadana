@@ -1,50 +1,41 @@
+import { Page } from '@playwright/test';
+import crypto from 'crypto';
+
 import { expect, test } from '@/e2e/base';
 
-test.describe('Password Change Flow', () => {
-  test('forgot password link shows up after failed login attempts', async ({ page, data }) => {
-    // Create a test user with email and password
-    const testEmail = 'test@e2e-testing.apadana.app';
-    const testPassword = 'OldPassword123!';
-    await data.createUser(testEmail, testPassword);
-
-    // Go to login page
-    await page.goto('/signin');
-
-    // First failed attempt
-    await page.getByLabel(/email/i).fill(testEmail);
-    await page.getByLabel(/password/i).fill('WrongPassword1!');
-    await page.getByRole('button', { name: /sign in/i }).click();
-
-    // Second failed attempt
-    await page.getByLabel(/password/i).fill('WrongPassword2!');
-    await page.getByRole('button', { name: /sign in/i }).click();
-
-    // Verify forgot password link appears
-    const forgotPasswordLink = page.getByRole('link', { name: /forgot.*password/i });
-    await expect(forgotPasswordLink).toBeVisible();
-
-    // Click forgot password and verify flow
-    await forgotPasswordLink.click();
-    await expect(page).toHaveURL('/forgot-password');
-
-    // Fill in email
-    await page.getByLabel(/email/i).fill(testEmail);
-    await page.getByRole('button', { name: /send reset link/i }).click();
-
-    // Verify success message
-    await expect(page.getByText(/check your email/i)).toBeVisible();
-    await expect(page.getByText(new RegExp(`If an account exists for ${testEmail}`))).toBeVisible();
-    await expect(page.getByRole('link', { name: /return to sign in/i })).toBeVisible();
-  });
-
-  test('shows validation error for invalid email', async ({ page }) => {
+test('Password Change Flow', async ({ page, data }) => {
+  const USER_EMAIL = 'test-password-change@example.com';
+  await test.step('Sends password change email', async () => {
+    await data.createUser(USER_EMAIL, crypto.randomBytes(16).toString('hex'));
     await page.goto('/forgot-password');
-
-    // Try with invalid email
-    await page.getByLabel(/email/i).fill('invalid-email');
-    await page.getByRole('button', { name: /send reset link/i }).click();
-
-    // Verify validation error
-    await expect(page.getByText(/please enter a valid email/i)).toBeVisible();
+    await page.getByPlaceholder('Enter your email').fill(USER_EMAIL);
+    await page.getByRole('button', { name: 'Send Reset Link' }).click();
+    await expect(page.getByText(/check your email/i)).toBeVisible();
+  });
+  let resetPage: Page;
+  await test.step('Open inbox and click on password change link', async () => {
+    await page.goto('/local-inbox');
+    await page.waitForTimeout(1000);
+    const newPagePromise = page.waitForEvent('popup');
+    await page.getByRole('link', { name: 'Reset Password' }).click();
+    resetPage = await newPagePromise;
+    await expect(resetPage.getByText(/Reset Your Password/i)).toBeVisible();
+  });
+  // new tab opens with Reset Your Password title
+  await test.step('New tab opens with Reset Your Password title', async () => {
+    await expect(resetPage.getByText(/Reset Your Password/i)).toBeVisible();
+  });
+  await test.step('Fill in new password', async () => {
+    const resetPage = page.context().pages()[1]; // Get the reset password page
+    await resetPage.locator('input[name="password"]').fill('newpassword123');
+    await resetPage.locator('input[name="confirmPassword"]').fill('newpassword123');
+    await resetPage.getByRole('button', { name: 'Reset Password' }).click();
+  });
+  await test.step('Navigates to log in page and log in with new password', async () => {
+    await expect(resetPage.getByText(/Login to your account/i)).toBeVisible();
+    await resetPage.getByLabel(/email/i).fill(USER_EMAIL);
+    await resetPage.getByLabel(/password/i).fill('newpassword123');
+    await resetPage.getByRole('button', { name: /log in/i }).click();
+    await expect(resetPage.getByTestId('nav-user-name')).toBeVisible();
   });
 });
