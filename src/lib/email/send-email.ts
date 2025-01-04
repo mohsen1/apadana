@@ -30,7 +30,7 @@ function sendEmail({
   from: string;
   react: React.ReactNode;
 }) {
-  if (email.includes('@e2e-testing.apadana.app')) {
+  if (email.includes('@e2e-testing.apadana.app') || email.includes('@example.com')) {
     return;
   }
 
