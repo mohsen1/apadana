@@ -29,7 +29,7 @@ export function EmailContent({ email }: EmailContentProps) {
       </ScrollArea>
 
       <footer className='border-border mt-auto border-t bg-zinc-200 p-4'>
-        <p className='text-muted-foreground text-sm'>
+        <p className='text-muted-foreground text-sm' suppressHydrationWarning>
           Sent at: {format(new Date(email.createdAt), 'PPp')}
         </p>
       </footer>
