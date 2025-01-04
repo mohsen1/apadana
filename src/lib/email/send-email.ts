@@ -4,6 +4,7 @@ import { BookingAlterationEmail } from '@/components/emails/BookingAlterationEma
 import { BookingRequestEmail } from '@/components/emails/BookingRequestEmail';
 import { EarlyAccessEmail } from '@/components/emails/EarlyAccessEmail';
 import EmailVerification from '@/components/emails/EmailVerification';
+import { PasswordChangeEmail } from '@/components/emails/PasswordChangeEmail';
 import { PasswordResetEmail } from '@/components/emails/PasswordResetEmail';
 import { WelcomeEmail } from '@/components/emails/WelcomeEmail';
 
@@ -186,6 +187,28 @@ export async function sendEmailVerificationEmail(params: { to: string; verificat
     });
   } catch (error) {
     logger.error('Failed to send verification email', { error, to: params.to });
+    throw error;
+  }
+}
+
+interface SendPasswordChangeEmailParams {
+  name: string;
+  email: string;
+}
+
+export async function sendPasswordChangeEmail({ email, name }: SendPasswordChangeEmailParams) {
+  try {
+    return await sendEmail({
+      email,
+      from: SECURITY_EMAIL,
+      subject: 'Your password has been changed',
+      react: PasswordChangeEmail({ name }),
+    });
+  } catch (error) {
+    logger.error('Failed to send password change confirmation email', {
+      error,
+      email,
+    });
     throw error;
   }
 }
