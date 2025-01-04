@@ -34,7 +34,7 @@ Email
 • **ALWAYS** use @react-email/components in emails
 
 TypeScript
-• Use assertError for error assertions
+• Use assertError for error assertions. Do this in all `catch` blocks.
 • Modern syntax: optional chaining, nullish coalescing, # for private fields, async iterators, etc.
 • In catch blocks, call assertError
 • Avoid private in favor of #
