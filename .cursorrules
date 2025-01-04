@@ -1,61 +1,71 @@
-## You are an expert AI programming assistant that focuses on producing clear, readable React and TypeScript code in a Next.js App.
+General
+• Production URL: https://apadana.app
+• Sender Emails: bookings@apadana.app, onboarding@apadana.app, support@apadana.app
+• Use logger (default export from @/utils/logger) for logging
+• Utilities in src/utils
+• Non-route handlers in src/lib
+• Package manager: pnpm
+• Unit testing: Vitest
+• Date operations: date-fns
+• Prefer import \_ from 'lodash' over destructuring
+• Prisma schema/seed in src/prisma/schema
+• Don’t create new root directories
+• Component stories go next to components, never in a global stories folder
+• Create a story for every email and visual component
+• Use argon2 for hashing
+• Send emails via sendEmail function in send-email.ts
+• All emails must use EmailLayout component
+• Check package.json for available pnpm commands
+• Minimize global variables.
+• Keep files short.
+• Avoid inline styling, prefer tailwind classes
+• Validate every user input with Zod.
+• Cache frequently accessed data.
+• Group related utilities under src/utils.
+• Store secrets only in .env
+• Use logger in place of console logs. use createLogger from @/utils/logger
+• Write e2e tests for critical paths.
+• Commit often with short, meaningful messages.
+• Avoid mixing data fetching and rendering in the same file.
 
-General Rules:
+TypeScript
+• Use assertError for error assertions
+• Modern syntax: optional chaining, nullish coalescing, # for private fields, async iterators, etc.
+• In catch blocks, call assertError
+• Avoid private in favor of #
 
-- The website is hosted at `https://apadana.app`.
-- Emails are sent from `bookings@apadana.app`, `onboarding@apadana.app`, and `support@apadana.app`.
-- Use `logger` from `@/utils/logger` to log errors and messages. (default export)
-- Utility functions are in `src/utils`.
-- Non-route handler code is in `src/lib`.
-- Use `pnpm` as the package manager.
-- We use Vitest for unit testing.
-- Use data-fns for date operations.
-- prefer `import _ from 'lodash'` over destructuring
-- Prisma schema and seed are in `src/prisma/schema` directory
-- AVOID CREATING NEW DIRECTORIES DIRECTLY IN ROOT
-- Component stories are sibling to the component. NOT IN **stories**
+Next.js
+• Use the latest stable versions of Next.js, TypeScript, React, Node.js, ShadCDN UI, Tailwind CSS, Prisma, and Lucide icons
+• Rely on tailwind.config.ts for theme colors
+• Use the App Router from src
+• Don’t create new folders under src/app unless it’s a route
+• Shared components in src/components; ShadCDN UI components in src/components/ui
+• Hooks in src/hooks; emails in src/components/emails
+• Theme-defined colors: Gray, Red, Yellow, Green, Blue, Indigo, Purple, Pink
+• Always handle dark mode in components
+• Use ShadCDN UI’s Button for links
 
-Typescript Rules:
+Backend
+• All backend code lives in src/app/api
+• Use SafeAction from @/lib/safe-action
+• Validate input/output with Zod
+• Use Prisma (import prisma from '@/lib/prisma/client')
+• For forms, use React-Hook-Form with next-safe-action
+• Resend + React-Email + Tailwind CSS + clsx for emails
+• Refer to src/prisma/schema.prisma for DB structure
+• Import model schemas from src/prisma/schema.ts or src/prisma/zod/index.ts
+• No NextAuth; retrieve server user via getUserInServer
+• No react-query; query data from Prisma in backend
+• Access env vars directly from process.env
 
-- Use `assertError` to assert errors
-- Use modern syntax: ?. ?? #private AsyncIterators for..of and anything ES2022+
-- in catch blocks, use `assertError` to assert errors
-- Instead of `private` use `#`
+Action Signature
+• We use [Next Safe Action](https://next-safe-action.dev/docs/getting-started)
 
-Next.js Rules:
+actionClient.schema(input).action(async ({ parsedInput, ctx }) => {
 
-- Use the latest stable versions of Next.js, TypeScript, React, Node.js, ShadCDN UI, Tailwind CSS, Prisma, and Lucide icons.
-- Look into `tailwind.config.ts` to understand the theme and use only colors defined in the theme.
-- Use the App Router with source code in the `src` directory.
-- Do not add new directories directly under `src/app` unless it's for a route.
-- Non-page common components are in `src/components`; ShadCDN UI components are in `src/components/ui`.
-- Hooks are in `src/hooks`; emails are in `src/components/emails`.
-- Use theme-defined colors instead of hardcoded ones; available colors include Gray, Red, Yellow, Green, Blue, Indigo, Purple, and Pink.
-- Always handle dark mode in components.
-- for links use `Button` from ShadCDN UI
+E2E Testing
+• Use Playwright with import { test, expect } from 'base'
+• Create test data with TestData class
+• Destructure test data in tests:
 
-Backend Rules:
-
-- Backend code is in `src/app/api`.
-- Use SafeAction for backend actions: `import { actionClient } from '@/lib/safe-action'`.
-- Define input and output schemas using Zod.
-- Use Prisma ORM for database interactions: `import prisma from '@/lib/prisma/client'`.
-- Use React-Hook-Form and `next-safe-action` for form handling.
-- Use Resend for sending emails, React-Email for templates, and Tailwind CSS with `clsx` for styling.
-- Pay attention to src/prisma/schema.prisma to understand the database schema.
-- Always try to import model schemas from `src/prisma/schema.ts` or `src/prisma/zod/index.ts`
-- Avoid defining duplicate schemas and interfaces that can be imported from above file
-- We are NOT USING NextAuth. In server user getUserInServer
-- We are NOT USING react-query. Query directly from Prisma Client in backend
-- Access env variables directly from process.env
-- Use this API signature for actions:
-
-  ```typescript
-  actionClient.schema(input).action(async ({ parsedInput, ctx }) => {
-    // ...
-  });
-  ```
-
-  Testing Rules:
-
-- import playwright test and expect from 'base'
+test('sample test', async ({ page, data }) => {
