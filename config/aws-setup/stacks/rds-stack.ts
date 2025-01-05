@@ -44,36 +44,29 @@ export class RDSStack extends cdk.Stack {
 
     const secretName = `apadana-${props.environment}-db-password`;
     let secret: secretsmanager.ISecret;
-    try {
-      // Try to import existing secret
-      secret = secretsmanager.Secret.fromSecretNameV2(this, 'RDSSecret', secretName);
-      console.log('Using existing RDS secret');
-    } catch (error) {
-      // Create new secret with a timestamp to avoid conflicts
-      const timestamp = new Date().getTime();
-      const newSecretName = `${secretName}-${timestamp}`;
-      secret = new secretsmanager.Secret(this, 'RDSSecret', {
-        secretName: newSecretName,
-        description: `Database password for Apadana ${props.environment} environment`,
-        generateSecretString: {
-          excludePunctuation: true,
-          includeSpace: false,
-          passwordLength: 32,
-          excludeCharacters: ' %+~`#$&*()|[]{}:;<>?!\'/@"\\',
-          secretStringTemplate: JSON.stringify({
-            username: 'postgres',
-            dbname: 'apadana',
-            engine: 'postgres',
-            port: 5432,
-            host: 'PLACEHOLDER',
-          }),
-          generateStringKey: 'password',
-        },
-        removalPolicy:
-          props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
-      });
-      console.log('Created new RDS secret with name:', newSecretName);
-    }
+
+    // Create new secret
+    secret = new secretsmanager.Secret(this, 'RDSSecret', {
+      secretName,
+      description: `Database password for Apadana ${props.environment} environment`,
+      generateSecretString: {
+        excludePunctuation: true,
+        includeSpace: false,
+        passwordLength: 32,
+        excludeCharacters: ' %+~`#$&*()|[]{}:;<>?!\'/@"\\',
+        secretStringTemplate: JSON.stringify({
+          username: 'postgres',
+          dbname: 'apadana',
+          engine: 'postgres',
+          port: 5432,
+          host: 'PLACEHOLDER',
+        }),
+        generateStringKey: 'password',
+      },
+      removalPolicy:
+        props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
+    console.log('Created RDS secret with name:', secretName);
 
     const instanceIdentifier = `apadana-${props.environment}`;
 
@@ -122,6 +115,10 @@ export class RDSStack extends cdk.Stack {
       port: 5432,
       parameterGroup,
     });
+
+    // Update the secret with the actual host after instance creation
+    const cfnSecret = secret.node.defaultChild as secretsmanager.CfnSecret;
+    cfnSecret.addDependsOn(this.instance.node.defaultChild as rds.CfnDBInstance);
 
     // Outputs
     new cdk.CfnOutput(this, 'DatabaseEndpoint', {
