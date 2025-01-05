@@ -26,7 +26,17 @@ ls -la .env
 
 # Save the output to .env file
 echo "Saving deployment values to .env..."
-pnpm tsx src/aws-setup/scripts/print-deployment-values.ts >.env
+if ! pnpm tsx src/aws-setup/scripts/print-deployment-values.ts >.env 2>print-values.err; then
+  echo "Error running print-deployment-values script:"
+  cat print-values.err
+  exit 1
+fi
+
+if [ ! -s .env ]; then
+  echo "Error: .env file is empty after running print-deployment-values"
+  exit 1
+fi
+
 cat .env
 
 # Make some AWS environment variables available to the build process
