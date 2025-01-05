@@ -19,20 +19,7 @@ export CDK_DEFAULT_ACCOUNT=$AWS_ACCOUNT_ID
 echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with account '$CDK_DEFAULT_ACCOUNT' in $AWS_REGION region"
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
-# Generating .env file from AWS resources
-output=$(pnpm tsx src/aws-setup/scripts/print-deployment-values.ts)
-if [ $? -ne 0 ]; then
-  echo "Error: Failed to get deployment values"
-  exit 1
-fi
-
-# Validate env file format and check for empty values
-env -i sh -c "set -a && . /dev/stdin && env" <<<"$output" >/dev/null || {
-  echo "Error: Invalid environment file format or empty values"
-  exit 1
-}
-
-echo "$output" >.env
+pnpm cdk:print-values >.env
 
 # Make some AWS environment variables available to the build process
 echo "NEXT_PUBLIC_AWS_REGION=$AWS_REGION" >>.env
