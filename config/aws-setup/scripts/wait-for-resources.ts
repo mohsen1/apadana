@@ -17,7 +17,7 @@ async function waitForStacks(environment: string) {
   while (Date.now() - startTime < TIMEOUT_MINUTES * 60 * 1000) {
     const { Stacks } = await cfn.send(new DescribeStacksCommand({}));
     const envStacks = Stacks?.filter(
-      (s) => s.StackName.includes(environment) && s.StackName.startsWith(STACK_PREFIX)
+      (s) => s.StackName && s.StackName.includes(environment) && s.StackName.startsWith(STACK_PREFIX) && s.StackStatus
     );
 
     if (!envStacks?.length) {
@@ -25,9 +25,9 @@ async function waitForStacks(environment: string) {
       return false;
     }
 
-    const inProgress = envStacks.filter((s) => s.StackStatus.endsWith('_IN_PROGRESS'));
+    const inProgress = envStacks.filter((s) => s.StackStatus?.endsWith('_IN_PROGRESS'));
     if (!inProgress.length) {
-      const failed = envStacks.filter((s) => s.StackStatus.endsWith('_FAILED'));
+      const failed = envStacks.filter((s) => s.StackStatus?.endsWith('_FAILED'));
       if (failed.length) {
         console.error('Some stacks failed:', failed.map((s) => s.StackName).join(', '));
         return false;
