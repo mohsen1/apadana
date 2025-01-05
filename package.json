@@ -56,6 +56,7 @@
     "cdk:deploy:bootstrap": "AWS_DEPLOYMENT_STACK_TYPE=bootstrap cdk deploy ApadanaBootstrapStack --app 'tsx config/aws-setup/cdk.ts'",
     "cdk:deploy:resources": "AWS_DEPLOYMENT_STACK_TYPE=resources cdk deploy --all --app 'tsx config/aws-setup/cdk.ts'",
     "cdk:deploy:resources:ci": "AWS_DEPLOYMENT_STACK_TYPE=resources cdk deploy --all --require-approval never --app 'tsx config/aws-setup/cdk.ts'",
+    "cdk:deploy:shared": "AWS_DEPLOYMENT_STACK_TYPE=shared cdk deploy --all --app 'tsx config/aws-setup/cdk.ts'",
     "cdk:destroy": "cdk destroy --app 'tsx config/aws-setup/cdk.ts'",
     "cdk:diff": "cdk diff --app 'tsx config/aws-setup/cdk.ts'",
     "cdk:synth": "cdk synth --app 'tsx config/aws-setup/cdk.ts'",
