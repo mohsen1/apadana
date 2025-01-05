@@ -45,23 +45,31 @@ if ! pnpm run aws:preflight; then
   echo "Resources not found, deploying AWS infrastructure..."
 
   # Deploy network infrastructure first if it doesn't exist
-  echo "Deploying network infrastructure..."
+  echo "Checking network infrastructure..."
   if ! pnpm run cdk:deploy:network; then
-    echo "Failed to deploy network infrastructure"
-    exit 1
+    # If network deployment fails due to VPC limit, it might already exist
+    # Try deploying resources anyway
+    echo "Network deployment failed, assuming network exists and proceeding with resources..."
   fi
 
   # Deploy AWS resources
   echo "Deploying AWS resources..."
-  pnpm run cdk:deploy:resources:ci
+  if ! pnpm run cdk:deploy:resources:ci; then
+    echo "Failed to deploy AWS resources"
+    exit 1
+  fi
 
   echo "Waiting for AWS resources to be ready..."
   pnpm run aws:wait-resources
 
   # Run preflight again to verify resources
   echo "Verifying resources..."
-  pnpm run aws:preflight
+  if ! pnpm run aws:preflight; then
+    echo "Resource verification failed after deployment"
+    exit 1
+  fi
 fi
+
 echo "Fetching AWS configuration..."
 pnpm --silent aws:env >.env.production
 
