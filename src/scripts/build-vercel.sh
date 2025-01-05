@@ -31,7 +31,12 @@ echo "NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$NEXT_PUBLIC_AWS_S3_BUCKET_NAME" >>.env
 pnpm cdk:print-values >.env
 
 # Load required environment variables from .env file
-source .env
+echo "Loading environment variables..."
+while IFS='=' read -r key value; do
+  if [ -n "$key" ] && [ -n "$value" ]; then
+    export "$key=$value"
+  fi
+done <.env
 
 variables=(
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
