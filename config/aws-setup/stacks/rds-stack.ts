@@ -26,21 +26,12 @@ export class RDSStack extends cdk.Stack {
       securityGroupName: `apadana-rds-sg-${props.environment}`,
     });
 
-    // Allow inbound PostgreSQL access from Vercel IP ranges
-    const vercelIpRanges = [
-      '76.76.21.0/24', // Vercel US East
-      '76.76.22.0/24', // Vercel US West
-      '76.76.23.0/24', // Vercel EU
-      '76.76.24.0/24', // Vercel AP
-    ];
-
-    vercelIpRanges.forEach((ipRange) => {
-      rdsSG.addIngressRule(
-        ec2.Peer.ipv4(ipRange),
-        ec2.Port.tcp(5432),
-        `Allow PostgreSQL access from Vercel ${ipRange}`,
-      );
-    });
+    // Temporarily allow all inbound traffic for testing
+    rdsSG.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(5432),
+      'Allow PostgreSQL access from anywhere (temporary)',
+    );
 
     // Allow inbound access from the VPC CIDR
     rdsSG.addIngressRule(
@@ -73,6 +64,20 @@ export class RDSStack extends cdk.Stack {
 
     const instanceIdentifier = `apadana-${props.environment}`;
 
+    // Create a custom parameter group
+    const parameterGroup = new rds.ParameterGroup(this, 'CustomParameterGroup', {
+      engine: rds.DatabaseInstanceEngine.postgres({
+        version: rds.PostgresEngineVersion.VER_15,
+      }),
+      description: `Custom parameter group for Apadana ${props.environment}`,
+      parameters: {
+        tcp_keepalives_idle: '60', // Seconds before sending keepalive
+        tcp_keepalives_interval: '10', // Seconds between keepalives
+        tcp_keepalives_count: '6', // Max number of keepalive retransmits
+        idle_in_transaction_session_timeout: '60000', // Milliseconds (60 seconds)
+      },
+    });
+
     // Create new instance
     this.instance = new rds.DatabaseInstance(this, 'PostgresInstance', {
       engine: rds.DatabaseInstanceEngine.postgres({
@@ -95,9 +100,9 @@ export class RDSStack extends cdk.Stack {
       removalPolicy:
         props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
       deletionProtection: props.environment === 'production',
-      // Add network configuration
       networkType: rds.NetworkType.IPV4,
       port: 5432,
+      parameterGroup,
     });
 
     // Outputs
