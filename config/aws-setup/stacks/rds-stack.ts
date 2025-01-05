@@ -26,11 +26,11 @@ export class RDSStack extends cdk.Stack {
       securityGroupName: `apadana-rds-sg-${props.environment}`,
     });
 
-    // Allow inbound PostgreSQL access from anywhere
+    // Allow inbound PostgreSQL access from Vercel IPs
     rdsSG.addIngressRule(
-      ec2.Peer.anyIpv4(),
+      ec2.Peer.ipv4('76.76.21.0/24'),
       ec2.Port.tcp(5432),
-      'Allow PostgreSQL access from anywhere',
+      'Allow PostgreSQL access from Vercel',
     );
 
     // Allow inbound access from the VPC CIDR
@@ -74,6 +74,7 @@ export class RDSStack extends cdk.Stack {
       vpc: sharedVpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PUBLIC,
+        onePerAz: true,
       },
       securityGroups: [rdsSG],
       databaseName: 'apadana',
@@ -85,6 +86,9 @@ export class RDSStack extends cdk.Stack {
       removalPolicy:
         props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
       deletionProtection: props.environment === 'production',
+      // Add network configuration
+      networkType: rds.NetworkType.IPV4,
+      port: 5432,
     });
 
     // Outputs
