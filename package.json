@@ -57,10 +57,10 @@
     "cdk:destroy": "cdk destroy --all",
     "cdk:diff": "cdk diff",
     "cdk:synth": "cdk synth",
-    "cdk:preflight": "tsx config/aws-setup/scripts/preflight.ts",
-    "cdk:deployer:create": "tsx config/aws-setup/scripts/create-deployer.ts",
-    "cdk:wait": "tsx config/aws-setup/scripts/wait-for-ready.ts",
-    "cdk:print-values": "tsx config/aws-setup/scripts/print-deployment-values.ts"
+    "cdk:preflight": "tsx src/aws-setup/scripts/preflight.ts",
+    "cdk:deployer:create": "tsx src/aws-setup/scripts/create-deployer.ts",
+    "cdk:wait": "tsx src/aws-setup/scripts/wait-for-ready.ts",
+    "cdk:print-values": "tsx src/aws-setup/scripts/print-deployment-values.ts"
   },
   "dependencies": {
     "@adobe/react-spectrum": "^3.38.1",
