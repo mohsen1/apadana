@@ -51,38 +51,28 @@ export class RDSStack extends cdk.Stack {
 
     const instanceIdentifier = `apadana-${props.environment}`;
 
-    if (props.useExisting) {
-      // Import existing instance by identifier
-      this.instance = rds.DatabaseInstance.fromDatabaseInstanceAttributes(this, 'ImportedDB', {
-        instanceEndpointAddress: cdk.Fn.importValue(`ApadanaDatabaseEndpoint-${props.environment}`),
-        instanceIdentifier,
-        port: 5432,
-        securityGroups: [rdsSG],
-      });
-    } else {
-      // Create new instance
-      this.instance = new rds.DatabaseInstance(this, 'PostgresInstance', {
-        engine: rds.DatabaseInstanceEngine.postgres({
-          version: rds.PostgresEngineVersion.VER_15,
-        }),
-        instanceIdentifier,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
-        vpc: sharedVpc,
-        vpcSubnets: {
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-        securityGroups: [rdsSG],
-        databaseName: 'apadana',
-        credentials: rds.Credentials.fromSecret(secret, 'postgres'),
-        backupRetention: cdk.Duration.days(7),
-        allocatedStorage: 20,
-        maxAllocatedStorage: 100,
-        publiclyAccessible: true,
-        removalPolicy:
-          props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
-        deletionProtection: props.environment === 'production',
-      });
-    }
+    // Create new instance
+    this.instance = new rds.DatabaseInstance(this, 'PostgresInstance', {
+      engine: rds.DatabaseInstanceEngine.postgres({
+        version: rds.PostgresEngineVersion.VER_15,
+      }),
+      instanceIdentifier,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
+      vpc: sharedVpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PUBLIC,
+      },
+      securityGroups: [rdsSG],
+      databaseName: 'apadana',
+      credentials: rds.Credentials.fromSecret(secret, 'postgres'),
+      backupRetention: cdk.Duration.days(7),
+      allocatedStorage: 20,
+      maxAllocatedStorage: 100,
+      publiclyAccessible: true,
+      removalPolicy:
+        props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+      deletionProtection: props.environment === 'production',
+    });
 
     // Outputs
     new cdk.CfnOutput(this, 'DatabaseEndpoint', {

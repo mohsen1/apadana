@@ -30,6 +30,7 @@ export class SharedNetworkStack extends cdk.Stack {
             name: 'Public',
             subnetType: ec2.SubnetType.PUBLIC,
             cidrMask: 24,
+            mapPublicIpOnLaunch: true,
           },
           {
             name: 'Private',
@@ -42,6 +43,33 @@ export class SharedNetworkStack extends cdk.Stack {
             cidrMask: 24,
           },
         ],
+        gatewayEndpoints: {
+          S3: {
+            service: ec2.GatewayVpcEndpointAwsService.S3,
+          },
+        },
+      });
+
+      // Create and attach Internet Gateway
+      const igw = new ec2.CfnInternetGateway(this, 'InternetGateway', {
+        tags: [
+          { key: 'Name', value: 'apadana-shared-vpc-igw' },
+          { key: 'Project', value: 'Apadana' },
+        ],
+      });
+
+      new ec2.CfnVPCGatewayAttachment(this, 'VpcIgwAttachment', {
+        vpcId: this.vpc.vpcId,
+        internetGatewayId: igw.ref,
+      });
+
+      // Add default route to public subnets
+      this.vpc.publicSubnets.forEach((subnet, index) => {
+        new ec2.CfnRoute(this, `PublicSubnetDefaultRoute${index}`, {
+          routeTableId: subnet.routeTable.routeTableId,
+          destinationCidrBlock: '0.0.0.0/0',
+          gatewayId: igw.ref,
+        });
       });
 
       // Tag all resources
