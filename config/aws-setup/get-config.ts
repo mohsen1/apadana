@@ -265,19 +265,30 @@ async function getOrCreateDBPassword(): Promise<string> {
   try {
     // Try to get existing secret
     const response = await secretsClient.send(new GetSecretValueCommand({ SecretId: secretName }));
-    return response.SecretString || '';
+    const secretData = JSON.parse(response.SecretString || '{}');
+    return secretData.password || '';
   } catch (error) {
     assertError(error);
     if (error instanceof ResourceNotFoundException) {
-      // Generate a new password if secret doesn't exist
+      // Generate a new password
       const password = randomBytes(32)
         .toString('base64')
         .replace(/[^a-zA-Z0-9]/g, '');
 
+      // Create secret with proper JSON structure
+      const secretString = JSON.stringify({
+        username: 'postgres',
+        password,
+        dbname: 'apadana',
+        engine: 'postgres',
+        port: 5432,
+        host: 'PLACEHOLDER',
+      });
+
       await secretsClient.send(
         new CreateSecretCommand({
           Name: secretName,
-          SecretString: password,
+          SecretString: secretString,
           Description: `Database password for Apadana ${environment} environment`,
         }),
       );

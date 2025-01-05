@@ -25,32 +25,8 @@ export class MemoryDBStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: MemoryDBStackProps) {
     super(scope, id, props);
 
-    const isProd = props.environment === 'production';
-
-    // Only try to import existing cluster if useExisting is true
-    if (props.useExisting) {
-      try {
-        const existingCluster = cdk.Fn.importValue(
-          `apadana-memorydb-endpoint-${props.environment}`,
-        );
-        if (existingCluster) {
-          logger.info('Successfully imported existing MemoryDB cluster');
-          return;
-        }
-      } catch (error) {
-        logger.info('No existing MemoryDB cluster found, creating new one');
-      }
-    }
-
-    // Import the shared VPC using the exported value
-    const sharedVpcId = cdk.Fn.importValue('ApadanaSharedVpcId');
-    const sharedVpc = ec2.Vpc.fromVpcAttributes(this, 'ImportedSharedVpc', {
-      vpcId: sharedVpcId,
-      availabilityZones: ['us-east-1a', 'us-east-1b'],
-      privateSubnetIds: [
-        cdk.Fn.importValue('ApadanaPrivateSubnet1Id'),
-        cdk.Fn.importValue('ApadanaPrivateSubnet2Id'),
-      ],
+    const sharedVpc = ec2.Vpc.fromLookup(this, 'ImportedSharedVpc', {
+      vpcId: 'vpc-082ee4f6e9a6a861f',
     });
 
     const memoryDbSG = new ec2.SecurityGroup(this, 'MemoryDBSecurityGroup', {
@@ -59,7 +35,16 @@ export class MemoryDBStack extends cdk.Stack {
       allowAllOutbound: true,
       securityGroupName: `apadana-memorydb-sg-${props.environment}`,
     });
-    memoryDbSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(6379));
+
+    // Allow inbound access from the VPC CIDR
+    memoryDbSG.addIngressRule(
+      ec2.Peer.ipv4(sharedVpc.vpcCidrBlock),
+      ec2.Port.tcp(props.port || 6379),
+      'Allow Redis access from within VPC',
+    );
+
+    // Temporarily allow all inbound traffic for testing
+    memoryDbSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(props.port || 6379));
 
     const key = new kms.Key(this, 'MemoryDBKey', {
       alias: `apadana-memorydb-key-${props.environment}`,
@@ -83,91 +68,111 @@ export class MemoryDBStack extends cdk.Stack {
         : cdk.CfnDeletionPolicy.DELETE;
 
     const secretName = `apadana-memorydb-secret-${props.environment}`;
-    const secret = new secretsmanager.Secret(this, 'MemoryDBSecret', {
-      description: `MemoryDB user password for ${props.environment}`,
-      secretName,
-      generateSecretString: {
-        excludePunctuation: true,
-        includeSpace: false,
-        passwordLength: 32,
-        excludeCharacters: ' %+~`#$&*()|[]{}:;<>?!\'/@"\\',
-      },
-      removalPolicy:
-        props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
-    });
+    let secret: secretsmanager.ISecret;
+    let memoryDbPassword: string;
 
-    const userName = `apadana-mdb-user-${props.environment}`;
-    const clusterName = `apadana-${props.environment}`;
+    try {
+      // Try to import existing secret
+      secret = secretsmanager.Secret.fromSecretNameV2(this, 'MemoryDBSecret', secretName);
+      console.log('Using existing MemoryDB secret');
+      memoryDbPassword = secret.secretValue.unsafeUnwrap();
+    } catch (error) {
+      // Create new secret with a timestamp to avoid conflicts
+      const timestamp = new Date().getTime();
+      const newSecretName = `${secretName}-${timestamp}`;
+      const tempPassword = 'TempPassword123!'; // Temporary password for initial creation
 
-    // Create new user
+      secret = new secretsmanager.Secret(this, 'MemoryDBSecret', {
+        description: `MemoryDB user password for ${props.environment}`,
+        secretName: newSecretName,
+        generateSecretString: {
+          excludePunctuation: true,
+          includeSpace: false,
+          passwordLength: 32,
+          excludeCharacters: ' %+~`#$&*()|[]{}:;<>?!\'/@"\\',
+        },
+        removalPolicy:
+          props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+      });
+      console.log('Created new MemoryDB secret with name:', newSecretName);
+      memoryDbPassword = tempPassword;
+    }
+
+    // Create MemoryDB user with forced dependency on secret
+    const userName = `apadana-user-${props.environment}`;
     const user = new memorydb.CfnUser(this, 'MemoryDBUser', {
       userName,
       accessString: SecurityConfig.memoryDb.accessString,
       authenticationMode: {
         Type: 'password',
-        Passwords: [secret.secretValue.toString()],
+        Passwords: [memoryDbPassword],
       },
     });
+
+    // Force dependency on secret
+    user.node.addDependency(secret);
     user.cfnOptions.deletionPolicy =
       props.environment === 'production'
         ? cdk.CfnDeletionPolicy.RETAIN
         : cdk.CfnDeletionPolicy.DELETE;
 
-    // Create new ACL
+    // Create ACL with forced dependency on user
+    const aclName = `apadana-acl-${props.environment}`;
     const acl = new memorydb.CfnACL(this, 'MemoryDBACL', {
-      aclName: `apadana-mdb-acl-${props.environment}`,
-      userNames: [user.userName],
+      aclName,
+      userNames: [userName],
     });
+
+    // Force dependency on user
+    acl.node.addDependency(user);
     acl.cfnOptions.deletionPolicy =
       props.environment === 'production'
         ? cdk.CfnDeletionPolicy.RETAIN
         : cdk.CfnDeletionPolicy.DELETE;
-    acl.addDependency(user);
 
-    // Create new cluster with retention
-    const memoryDbCluster = new memorydb.CfnCluster(this, 'ApadanaMemoryDB', {
+    const clusterName = `apadana-${props.environment}`;
+    const cluster = new memorydb.CfnCluster(this, 'MemoryDBCluster', {
       clusterName,
-      nodeType: props.nodeType || 'db.t4g.small',
+      nodeType: props.nodeType || 'db.t4g.medium',
       numShards: props.numShards || 1,
       numReplicasPerShard: props.numReplicasPerShard || 1,
-      subnetGroupName: subnetGroup.subnetGroupName,
-      aclName: acl.aclName,
       engineVersion: props.engineVersion || '7.0',
       port: props.port || 6379,
       securityGroupIds: [memoryDbSG.securityGroupId],
-      tlsEnabled: SecurityConfig.memoryDb.encryption.inTransit,
+      subnetGroupName: subnetGroup.subnetGroupName,
+      tlsEnabled: true,
       kmsKeyId: key.keyArn,
+      autoMinorVersionUpgrade: true,
+      snapshotRetentionLimit: props.environment === 'production' ? 7 : 1,
+      snapshotWindow: SecurityConfig.memoryDb.backup.snapshotWindow,
       maintenanceWindow: SecurityConfig.memoryDb.backup.preferredMaintenanceWindow,
+      aclName: aclName,
     });
 
-    memoryDbCluster.addDependency(subnetGroup);
-    memoryDbCluster.addDependency(acl);
+    // Force dependencies
+    cluster.node.addDependency(acl);
+    cluster.node.addDependency(subnetGroup);
 
-    memoryDbCluster.addPropertyOverride('Tags', [
-      { Key: 'Name', Value: `apadana-memorydb-${props.environment}` },
-      { Key: 'Project', Value: 'Apadana' },
-      { Key: 'Environment', Value: props.environment },
-    ]);
-    memoryDbCluster.cfnOptions.deletionPolicy = isProd
-      ? cdk.CfnDeletionPolicy.RETAIN
-      : cdk.CfnDeletionPolicy.DELETE;
-    memoryDbCluster.cfnOptions.updateReplacePolicy = cdk.CfnDeletionPolicy.RETAIN;
+    cluster.cfnOptions.deletionPolicy =
+      props.environment === 'production'
+        ? cdk.CfnDeletionPolicy.RETAIN
+        : cdk.CfnDeletionPolicy.DELETE;
 
     // Outputs
     new cdk.CfnOutput(this, 'ClusterEndpoint', {
-      value: memoryDbCluster.attrClusterEndpointAddress,
+      value: cluster.attrClusterEndpointAddress,
       description: 'MemoryDB Cluster Endpoint',
       exportName: `apadana-memorydb-endpoint-${props.environment}`,
     });
 
     new cdk.CfnOutput(this, 'ClusterPort', {
-      value: memoryDbCluster.port?.toString() || '6379',
+      value: (props.port || 6379).toString(),
       description: 'MemoryDB Cluster Port',
       exportName: `apadana-memorydb-port-${props.environment}`,
     });
 
     new cdk.CfnOutput(this, 'MemoryDBUserName', {
-      value: user.userName,
+      value: userName,
       description: 'MemoryDB User Name',
       exportName: `apadana-memorydb-username-${props.environment}`,
     });
@@ -176,12 +181,6 @@ export class MemoryDBStack extends cdk.Stack {
       value: secret.secretArn,
       description: 'MemoryDB Secret ARN',
       exportName: `apadana-memorydb-secret-arn-${props.environment}`,
-    });
-
-    new cdk.CfnOutput(this, 'LogGroupName', {
-      value: logGroup.logGroupName,
-      description: 'CloudWatch Log Group for MemoryDB',
-      exportName: `apadana-memorydb-log-group-${props.environment}`,
     });
 
     // Tag all resources

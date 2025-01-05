@@ -7,6 +7,8 @@ import { Construct } from 'constructs';
 interface RDSStackProps extends cdk.StackProps {
   environment: string;
   useExisting?: boolean;
+  instanceClass?: string;
+  allocatedStorage?: number;
 }
 
 export class RDSStack extends cdk.Stack {
@@ -41,26 +43,37 @@ export class RDSStack extends cdk.Stack {
     );
 
     const secretName = `apadana-${props.environment}-db-password`;
-    const secret = new secretsmanager.Secret(this, 'RDSSecret', {
-      secretName,
-      description: `Database password for Apadana ${props.environment} environment`,
-      generateSecretString: {
-        excludePunctuation: true,
-        includeSpace: false,
-        passwordLength: 32,
-        excludeCharacters: ' %+~`#$&*()|[]{}:;<>?!\'/@"\\',
-        secretStringTemplate: JSON.stringify({
-          username: 'postgres',
-          dbname: 'apadana',
-          engine: 'postgres',
-          port: 5432,
-          host: 'PLACEHOLDER',
-        }),
-        generateStringKey: 'password',
-      },
-      removalPolicy:
-        props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
-    });
+    let secret: secretsmanager.ISecret;
+    try {
+      // Try to import existing secret
+      secret = secretsmanager.Secret.fromSecretNameV2(this, 'RDSSecret', secretName);
+      console.log('Using existing RDS secret');
+    } catch (error) {
+      // Create new secret with a timestamp to avoid conflicts
+      const timestamp = new Date().getTime();
+      const newSecretName = `${secretName}-${timestamp}`;
+      secret = new secretsmanager.Secret(this, 'RDSSecret', {
+        secretName: newSecretName,
+        description: `Database password for Apadana ${props.environment} environment`,
+        generateSecretString: {
+          excludePunctuation: true,
+          includeSpace: false,
+          passwordLength: 32,
+          excludeCharacters: ' %+~`#$&*()|[]{}:;<>?!\'/@"\\',
+          secretStringTemplate: JSON.stringify({
+            username: 'postgres',
+            dbname: 'apadana',
+            engine: 'postgres',
+            port: 5432,
+            host: 'PLACEHOLDER',
+          }),
+          generateStringKey: 'password',
+        },
+        removalPolicy:
+          props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+      });
+      console.log('Created new RDS secret with name:', newSecretName);
+    }
 
     const instanceIdentifier = `apadana-${props.environment}`;
 
@@ -71,12 +84,17 @@ export class RDSStack extends cdk.Stack {
       }),
       description: `Custom parameter group for Apadana ${props.environment}`,
       parameters: {
-        tcp_keepalives_idle: '60', // Seconds before sending keepalive
-        tcp_keepalives_interval: '10', // Seconds between keepalives
-        tcp_keepalives_count: '6', // Max number of keepalive retransmits
-        idle_in_transaction_session_timeout: '60000', // Milliseconds (60 seconds)
+        tcp_keepalives_idle: '60',
+        tcp_keepalives_interval: '10',
+        tcp_keepalives_count: '6',
+        idle_in_transaction_session_timeout: '60000',
       },
     });
+
+    // Determine instance type based on environment
+    const instanceType = props.instanceClass
+      ? ec2.InstanceType.of(ec2.InstanceClass.T3, props.instanceClass as ec2.InstanceSize)
+      : ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM);
 
     // Create new instance
     this.instance = new rds.DatabaseInstance(this, 'PostgresInstance', {
@@ -84,7 +102,7 @@ export class RDSStack extends cdk.Stack {
         version: rds.PostgresEngineVersion.VER_15,
       }),
       instanceIdentifier,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
+      instanceType,
       vpc: sharedVpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PUBLIC,
@@ -93,9 +111,9 @@ export class RDSStack extends cdk.Stack {
       securityGroups: [rdsSG],
       databaseName: 'apadana',
       credentials: rds.Credentials.fromSecret(secret, 'postgres'),
-      backupRetention: cdk.Duration.days(7),
-      allocatedStorage: 20,
-      maxAllocatedStorage: 100,
+      backupRetention: cdk.Duration.days(props.environment === 'production' ? 7 : 1),
+      allocatedStorage: props.allocatedStorage || 20,
+      maxAllocatedStorage: props.environment === 'production' ? 100 : 50,
       publiclyAccessible: true,
       removalPolicy:
         props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,

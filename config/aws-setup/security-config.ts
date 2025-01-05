@@ -49,7 +49,7 @@ export const SecurityConfig = {
     // Tags required for resource access
     requiredTags: {
       Project: 'Apadana',
-      Environment: ['development', 'production'],
+      Environment: ['development', 'production', 'preview'],
     },
   },
 
