@@ -147,28 +147,50 @@ async function main() {
   }
 
   if (stackType === 'network' || stackType === 'all') {
+    // Get AWS account ID from credentials
+    const iam = new IAM({
+      region: process.env.AWS_REGION || 'us-east-1',
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+      },
+    });
+    const { User } = await iam.getUser({});
+    const accountId = User?.Arn?.split(':')[4];
+
     // Deploy shared network stack (only once)
     new SharedNetworkStack(app, 'apadana-shared-network', {
-      env: { region },
+      env: { region, account: accountId },
     });
   }
 
   if (stackType === 'resources' || stackType === 'all') {
+    // Get AWS account ID from credentials
+    const iam = new IAM({
+      region: process.env.AWS_REGION || 'us-east-1',
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+      },
+    });
+    const { User } = await iam.getUser({});
+    const accountId = User?.Arn?.split(':')[4];
+
     // S3 stack with environment prop
     new S3Stack(app, `apadana-s3-${environment}`, {
-      env: { region },
+      env: { region, account: accountId },
       environment,
     });
 
     // MemoryDB stack with environment
     new MemoryDBStack(app, `apadana-memorydb-${environment}`, {
-      env: { region },
+      env: { region, account: accountId },
       environment,
     });
 
     // RDS stack with environment
     new RDSStack(app, `apadana-rds-${environment}`, {
-      env: { region },
+      env: { region, account: accountId },
       environment,
     });
   }
