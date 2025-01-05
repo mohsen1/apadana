@@ -194,6 +194,7 @@ async function createDeployerUser() {
 
             // Secrets Manager
             'arn:aws:secretsmanager:*:*:secret:apadana-*',
+            'arn:aws:secretsmanager:*:*:secret:Apadana*',
 
             // CloudWatch Logs
             'arn:aws:logs:*:*:log-group:/apadana/*',

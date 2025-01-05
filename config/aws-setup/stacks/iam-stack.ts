@@ -162,7 +162,10 @@ export class IAMStack extends cdk.Stack {
             'secretsmanager:UpdateSecret',
             'secretsmanager:TagResource',
           ],
-          resources: [`arn:aws:secretsmanager:${this.region}:${this.account}:secret:Apadana*`],
+          resources: [
+            `arn:aws:secretsmanager:${this.region}:${this.account}:secret:apadana-*`,
+            `arn:aws:secretsmanager:${this.region}:${this.account}:secret:Apadana*`,
+          ],
         }),
       ],
     });
