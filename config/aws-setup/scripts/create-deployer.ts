@@ -5,6 +5,11 @@
 
 import { IAM } from '@aws-sdk/client-iam';
 import { fromIni } from '@aws-sdk/credential-provider-ini';
+import { spawn } from 'child_process';
+import { createReadStream } from 'fs';
+import { writeFile } from 'fs/promises';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
 // Define required permissions that will be used in both create-deployer.ts and cdk.ts
 const requiredPermissions = [
@@ -44,6 +49,53 @@ const requiredPermissions = [
   'ssm:*',
 ];
 
+function execVercel(args: string[], inputFile?: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const proc = spawn('vercel', args);
+
+    if (inputFile) {
+      const readStream = createReadStream(inputFile);
+      readStream.pipe(proc.stdin);
+    }
+
+    proc.stdout.pipe(process.stdout);
+    proc.stderr.pipe(process.stderr);
+
+    proc.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`vercel command failed with code ${code}`));
+      }
+    });
+  });
+}
+
+async function addToVercel(accessKeyId: string, secretAccessKey: string, env: string) {
+  try {
+    const tmpDir = tmpdir();
+    const keyIdFile = join(tmpDir, 'aws-key-id');
+    const secretFile = join(tmpDir, 'aws-secret');
+    const regionFile = join(tmpDir, 'aws-region');
+
+    await writeFile(keyIdFile, accessKeyId);
+    await writeFile(secretFile, secretAccessKey);
+    await writeFile(regionFile, 'us-east-1');
+
+    await execVercel(['env', 'add', 'AWS_ACCESS_KEY_ID', env, '--force'], keyIdFile);
+    await execVercel(
+      ['env', 'add', 'AWS_SECRET_ACCESS_KEY', env, '--force', '--sensitive'],
+      secretFile,
+    );
+    await execVercel(['env', 'add', 'AWS_REGION', env, '--force'], regionFile);
+
+    console.log(`✅ AWS credentials added to Vercel ${env} environment`);
+  } catch (error) {
+    console.error('Error adding credentials to Vercel:', error);
+    throw error;
+  }
+}
+
 async function createDeployerUser() {
   const iam = new IAM({
     credentials: fromIni({ profile: 'default' }),
@@ -51,6 +103,9 @@ async function createDeployerUser() {
   });
 
   const username = 'apadana-deployer';
+  const shouldAddToVercel = process.argv.includes('--add-to-vercel');
+  const targetEnv =
+    process.argv.find((arg) => arg.startsWith('--env='))?.split('=')[1] || 'preview';
 
   try {
     // Check if user exists
@@ -84,7 +139,9 @@ async function createDeployerUser() {
 
     // Create new access key
     const { AccessKey } = await iam.createAccessKey({ UserName: username });
-    if (!AccessKey) throw new Error('Failed to create access key');
+    if (!AccessKey || !AccessKey.AccessKeyId || !AccessKey.SecretAccessKey) {
+      throw new Error('Failed to create access key or missing required properties');
+    }
 
     // Output credentials immediately in .env format
     console.log('\n# AWS Credentials for Vercel Deployment');
@@ -93,6 +150,11 @@ async function createDeployerUser() {
     console.log(`AWS_ACCESS_KEY_ID=${AccessKey.AccessKeyId}`);
     console.log(`AWS_SECRET_ACCESS_KEY=${AccessKey.SecretAccessKey}`);
     console.log('AWS_REGION=us-east-1\n');
+
+    // Add to Vercel if flag is present
+    if (shouldAddToVercel) {
+      await addToVercel(AccessKey.AccessKeyId, AccessKey.SecretAccessKey, targetEnv);
+    }
 
     // Attach inline policy to user
     const policyDocument = {
