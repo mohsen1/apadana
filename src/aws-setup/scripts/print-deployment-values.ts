@@ -44,7 +44,10 @@ const logger = createLogger(__filename);
               new GetSecretValueCommand({ SecretId: secretKey }),
             );
             if (secretRes.SecretString) {
-              const secretJson = JSON.parse(secretRes.SecretString);
+              const secretJson = JSON.parse(secretRes.SecretString) as {
+                username: string;
+                password: string;
+              };
               const username = secretJson.username;
               const password = secretJson.password;
               dbUrl = `postgresql://${username}:${password}@${host}:5432/ap_db`;

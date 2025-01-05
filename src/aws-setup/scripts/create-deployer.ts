@@ -5,6 +5,7 @@ import {
   IAMClient,
 } from '@aws-sdk/client-iam';
 
+import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename);
@@ -16,7 +17,8 @@ const logger = createLogger(__filename);
   try {
     await iamClient.send(new CreateUserCommand({ UserName: userName }));
     logger.info(`Created user: ${userName}`);
-  } catch (err: any) {
+  } catch (err) {
+    assertError(err);
     if (err.name === 'EntityAlreadyExists') {
       logger.info(`User ${userName} already exists, continuing...`);
     } else {

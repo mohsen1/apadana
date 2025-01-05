@@ -46,7 +46,7 @@ export class IamStack extends cdk.Stack {
     logger.debug('Created deployment policy');
 
     // Create a group for deployers
-    const deployerGroup = new iam.Group(this, 'DeployerGroup', {
+    new iam.Group(this, 'DeployerGroup', {
       groupName: `ap-deployer-group-${props.environment}`,
       managedPolicies: [devPolicy],
     });
