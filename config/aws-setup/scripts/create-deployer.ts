@@ -228,6 +228,7 @@ async function createDeployerUser() {
             's3:List*',
             'kms:List*',
             'secretsmanager:List*',
+            'secretsmanager:Describe*',
             'logs:Describe*',
             'cloudformation:List*',
             'iam:List*',

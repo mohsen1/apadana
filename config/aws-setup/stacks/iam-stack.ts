@@ -161,11 +161,19 @@ export class IAMStack extends cdk.Stack {
             'secretsmanager:PutSecretValue',
             'secretsmanager:UpdateSecret',
             'secretsmanager:TagResource',
+            'secretsmanager:ListSecrets',
+            'secretsmanager:DescribeSecret',
           ],
           resources: [
             `arn:aws:secretsmanager:${this.region}:${this.account}:secret:apadana-*`,
             `arn:aws:secretsmanager:${this.region}:${this.account}:secret:Apadana*`,
           ],
+        }),
+        // Add a separate statement for List operations that don't support resource-level permissions
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['secretsmanager:ListSecrets'],
+          resources: ['*'],
         }),
       ],
     });
