@@ -1,10 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 import { IAM } from '@aws-sdk/client-iam';
 import * as cdk from 'aws-cdk-lib';
 import { config } from 'dotenv';
@@ -22,33 +18,6 @@ config({ path: process.env.NODE_ENV === 'production' ? '.env' : '.env.local' });
 // Get environment from AWS_DEPLOYMENT_STACK_ENV
 const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
 console.log(`Using AWS deployment stack environment: ${environment}`);
-
-// Define required permissions - must match create-deployer.ts
-const requiredPermissions = [
-  // Self-inspection permissions
-  'iam:GetUser',
-  'iam:ListUserPolicies',
-  'iam:GetUserPolicy',
-  'iam:ListAttachedUserPolicies',
-  'iam:PassRole',
-  'iam:GetRole',
-  'iam:ListRoles',
-  // CloudFormation for stack management
-  'cloudformation:*',
-  // Network resources
-  'ec2:*',
-  'vpc:*',
-  'elasticloadbalancing:*',
-  // Database resources
-  'rds:*',
-  'elasticache:*',
-  'memorydb:*',
-  // Storage and encryption
-  's3:*',
-  'kms:*',
-  // Monitoring and logging
-  'logs:*',
-];
 
 async function checkPermissions() {
   // Get AWS account ID from credentials
@@ -68,7 +37,7 @@ async function checkPermissions() {
     }
 
     // Get attached policies
-    const { AttachedPolicies } = await iam.listAttachedUserPolicies({
+    await iam.listAttachedUserPolicies({
       UserName: User.UserName,
     });
 
@@ -78,7 +47,7 @@ async function checkPermissions() {
     });
 
     // Get policy documents for inline policies
-    const inlinePolicies = await Promise.all(
+    await Promise.all(
       PolicyNames.map(async (policyName) => {
         const { PolicyDocument } = await iam.getUserPolicy({
           UserName: User.UserName,

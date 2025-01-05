@@ -22,8 +22,12 @@ export class MemoryDBStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: MemoryDBStackProps) {
     super(scope, id, props);
 
+    // Import VPC by name tag
     const sharedVpc = ec2.Vpc.fromLookup(this, 'ImportedSharedVpc', {
-      tags: { Name: 'apadana-shared-vpc' },
+      tags: {
+        Name: 'apadana-shared-vpc',
+        Project: 'Apadana',
+      },
     });
 
     const memoryDbSG = new ec2.SecurityGroup(this, 'MemoryDBSecurityGroup', {
