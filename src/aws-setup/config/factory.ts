@@ -18,7 +18,7 @@ export function getEnvConfig(env: string): EnvConfig {
         memoryDbNumReplicas: 1,
         memoryDbShardCount: 1,
         backupRetentionDays: 7,
-        publicDbAccess: true
+        publicDbAccess: true,
       };
     case 'preview':
       return {
@@ -32,7 +32,7 @@ export function getEnvConfig(env: string): EnvConfig {
         memoryDbNumReplicas: 0,
         memoryDbShardCount: 1,
         backupRetentionDays: 1,
-        publicDbAccess: true
+        publicDbAccess: true,
       };
     default:
       return {
@@ -46,7 +46,7 @@ export function getEnvConfig(env: string): EnvConfig {
         memoryDbNumReplicas: 0,
         memoryDbShardCount: 1,
         backupRetentionDays: 1,
-        publicDbAccess: true
+        publicDbAccess: true,
       };
   }
-} 
+}

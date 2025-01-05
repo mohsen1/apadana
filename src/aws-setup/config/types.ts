@@ -15,4 +15,4 @@ export interface EnvConfig {
 
   // Flag for allowing public DB access (for Vercel)
   publicDbAccess: boolean;
-} 
+}

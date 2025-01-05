@@ -1,8 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_memorydb as memorydb } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { aws_memorydb as memorydb, aws_ec2 as ec2 } from 'aws-cdk-lib';
-import { getEnvConfig } from '../config/factory';
+
 import { createLogger } from '@/utils/logger';
+
+import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(__filename);
 
@@ -51,7 +53,7 @@ export class MemoryDbStack extends cdk.Stack {
     this.redisHostOutput = new cdk.CfnOutput(this, 'RedisEndpoint', {
       exportName: `${this.stackName}-RedisEndpoint`,
       value: redisCluster.attrClusterEndpointAddress,
-      description: 'MemoryDB cluster endpoint'
+      description: 'MemoryDB cluster endpoint',
     });
     logger.debug('Added Redis endpoint output');
   }

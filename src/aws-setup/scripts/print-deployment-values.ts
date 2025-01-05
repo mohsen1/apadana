@@ -1,19 +1,13 @@
-import {
-  CloudFormationClient,
-  DescribeStacksCommand
-} from '@aws-sdk/client-cloudformation';
-import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
+import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename);
 
 (async () => {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
-  const stackNames = [
-    `MemoryDbStack-${env}`,
-    `RdsStack-${env}`,
-    `S3Stack-${env}`
-  ];
+  const stackNames = [`MemoryDbStack-${env}`, `RdsStack-${env}`, `S3Stack-${env}`];
 
   logger.info(`Fetching outputs for environment: ${env}`);
 
@@ -43,11 +37,11 @@ const logger = createLogger(__filename);
         // Check for RDS
         if (key === 'RdsEndpoint' && val) {
           const host = val;
-          const secretKey = outputs.find(o => o.OutputKey === 'RdsSecretName')?.OutputValue || '';
+          const secretKey = outputs.find((o) => o.OutputKey === 'RdsSecretName')?.OutputValue || '';
           if (secretKey) {
             logger.debug('Found RDS secret, fetching credentials');
             const secretRes = await secretsClient.send(
-              new GetSecretValueCommand({ SecretId: secretKey })
+              new GetSecretValueCommand({ SecretId: secretKey }),
             );
             if (secretRes.SecretString) {
               const secretJson = JSON.parse(secretRes.SecretString);
@@ -74,4 +68,4 @@ const logger = createLogger(__filename);
   process.stdout.write(`REDIS_URL=${redisUrl}\n`);
   process.stdout.write(`DATABASE_URL=${dbUrl}\n`);
   process.stdout.write(`AWS_S3_BUCKET_NAME=${s3Bucket}\n`);
-})(); 
+})();

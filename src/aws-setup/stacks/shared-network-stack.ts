@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
 import { aws_ec2 as ec2 } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename);
@@ -24,4 +25,4 @@ export class SharedNetworkStack extends cdk.Stack {
     });
     logger.debug('Created VPC');
   }
-} 
+}

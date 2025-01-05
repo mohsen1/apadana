@@ -1,4 +1,10 @@
-import { IAMClient, CreateUserCommand, AttachUserPolicyCommand, CreateAccessKeyCommand } from '@aws-sdk/client-iam';
+import {
+  AttachUserPolicyCommand,
+  CreateAccessKeyCommand,
+  CreateUserCommand,
+  IAMClient,
+} from '@aws-sdk/client-iam';
+
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename);
@@ -20,10 +26,12 @@ const logger = createLogger(__filename);
 
   // Attach the policy. This could be a managed policy you created.
   const policyArn = 'arn:aws:iam::aws:policy/AdministratorAccess'; // or a custom one
-  await iamClient.send(new AttachUserPolicyCommand({
-    PolicyArn: policyArn,
-    UserName: userName,
-  }));
+  await iamClient.send(
+    new AttachUserPolicyCommand({
+      PolicyArn: policyArn,
+      UserName: userName,
+    }),
+  );
   logger.info(`Attached policy ${policyArn} to ${userName}`);
 
   // Create access key

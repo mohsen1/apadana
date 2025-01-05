@@ -1,12 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_rds as rds, aws_secretsmanager as secretsmanager } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import {
-  aws_rds as rds,
-  aws_ec2 as ec2,
-  aws_secretsmanager as secretsmanager
-} from 'aws-cdk-lib';
-import { getEnvConfig } from '../config/factory';
+
 import { createLogger } from '@/utils/logger';
+
+import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(__filename);
 
@@ -45,12 +43,9 @@ export class RdsStack extends cdk.Stack {
 
     const dbInstance = new rds.DatabaseInstance(this, 'ApadanaPostgres', {
       engine: rds.DatabaseInstanceEngine.postgres({
-        version: rds.PostgresEngineVersion.VER_15
+        version: rds.PostgresEngineVersion.VER_15,
       }),
-      instanceType: ec2.InstanceType.of(
-        ec2.InstanceClass.T3,
-        ec2.InstanceSize.MEDIUM
-      ),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
       vpc: props.vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
       securityGroups: [dbSG],
@@ -63,20 +58,20 @@ export class RdsStack extends cdk.Stack {
       databaseName: 'ap_db',
       instanceIdentifier: `ap-rds-${cfg.environment}`,
       storageEncrypted: true,
-      autoMinorVersionUpgrade: true
+      autoMinorVersionUpgrade: true,
     });
     logger.debug('Created RDS instance');
 
     this.rdsHostOutput = new cdk.CfnOutput(this, 'RdsEndpoint', {
       exportName: `${this.stackName}-Endpoint`,
       value: dbInstance.instanceEndpoint.hostname,
-      description: 'RDS endpoint'
+      description: 'RDS endpoint',
     });
 
     this.rdsSecretNameOutput = new cdk.CfnOutput(this, 'RdsSecretName', {
       exportName: `${this.stackName}-SecretName`,
       value: dbSecret.secretName,
-      description: 'Name of SecretsManager secret for RDS'
+      description: 'Name of SecretsManager secret for RDS',
     });
     logger.debug('Added RDS outputs');
   }

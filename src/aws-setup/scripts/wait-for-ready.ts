@@ -1,4 +1,5 @@
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
+
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename);
@@ -15,7 +16,7 @@ export async function waitForReady() {
     `SharedNetworkStack-${env}`,
     `MemoryDbStack-${env}`,
     `RdsStack-${env}`,
-    `S3Stack-${env}`
+    `S3Stack-${env}`,
   ];
 
   const client = new CloudFormationClient({});
@@ -68,4 +69,4 @@ export async function main() {
 
 if (require.main === module) {
   void main();
-} 
+}

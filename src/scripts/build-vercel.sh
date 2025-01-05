@@ -20,7 +20,14 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
 # Generating .env file from AWS resources
-pnpm cdk:print-values >.env
+output=$(pnpm cdk:print-values)
+# Validate env file format and check for empty values
+env -i sh -c "set -a && . /dev/stdin && env" <<<"$output" >/dev/null || {
+  echo "Error: Invalid environment file format or empty values"
+  exit 1
+}
+
+echo "$output" >.env
 
 # Make some AWS environment variables available to the build process
 echo "NEXT_PUBLIC_AWS_REGION=$AWS_REGION" >>.env
