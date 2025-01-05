@@ -1,5 +1,12 @@
 #! /bin/bash
 
+# Debug AWS credentials
+echo "Checking AWS credentials..."
+echo "AWS_ACCESS_KEY_ID is ${AWS_ACCESS_KEY_ID:+set}"
+echo "AWS_SECRET_ACCESS_KEY is ${AWS_SECRET_ACCESS_KEY:+set}"
+echo "AWS_REGION is ${AWS_REGION:+set}"
+echo "AWS_ACCOUNT_ID is ${AWS_ACCOUNT_ID:+set}"
+
 # Build for production. This script assumes all of the environment variables are set.
 # for build process to work, the following commands must be run
 
