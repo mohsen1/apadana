@@ -14,39 +14,29 @@ export class NetworkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: NetworkStackProps) {
     super(scope, id, props);
 
-    // Look up existing VPC
-    const vpcName =
-      props.environment === 'preview' ? 'apadana-vpc-preview' : `apadana-vpc-${props.environment}`;
-
-    try {
-      // Try to look up existing VPC
-      this.vpc = ec2.Vpc.fromLookup(this, 'VPC', {
-        tags: {
-          Name: vpcName,
+    // Create VPC with minimal configuration
+    this.vpc = new ec2.Vpc(this, 'VPC', {
+      maxAzs: 1,
+      natGateways: 0,
+      vpcName:
+        props.environment === 'preview'
+          ? 'apadana-vpc-preview'
+          : `apadana-vpc-${props.environment}`,
+      ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/24'),
+      subnetConfiguration: [
+        {
+          cidrMask: 25,
+          name:
+            props.environment === 'preview' ? 'private-preview' : `private-${props.environment}`,
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
         },
-      });
-    } catch (error) {
-      // If VPC doesn't exist, create a new one
-      this.vpc = new ec2.Vpc(this, 'VPC', {
-        maxAzs: 2,
-        natGateways: 1,
-        vpcName,
-        subnetConfiguration: [
-          {
-            cidrMask: 24,
-            name:
-              props.environment === 'preview' ? 'private-preview' : `private-${props.environment}`,
-            subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-          },
-          {
-            cidrMask: 24,
-            name:
-              props.environment === 'preview' ? 'public-preview' : `public-${props.environment}`,
-            subnetType: ec2.SubnetType.PUBLIC,
-          },
-        ],
-      });
-    }
+        {
+          cidrMask: 25,
+          name: props.environment === 'preview' ? 'public-preview' : `public-${props.environment}`,
+          subnetType: ec2.SubnetType.PUBLIC,
+        },
+      ],
+    });
 
     // Create security group for MemoryDB
     this.memoryDbSG = new ec2.SecurityGroup(this, 'MemoryDBSecurityGroup', {
