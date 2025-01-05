@@ -8,23 +8,9 @@ export class SharedNetworkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // Single shared VPC
-    this.vpc = new ec2.Vpc(this, 'SharedVpc', {
-      vpcName: 'apadana-shared-vpc',
-      ipAddresses: ec2.IpAddresses.cidr('172.31.0.0/16'),
-      maxAzs: 2,
-      natGateways: 0,
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'public-subnet',
-          subnetType: ec2.SubnetType.PUBLIC,
-          mapPublicIpOnLaunch: true,
-        },
-      ],
-      enableDnsHostnames: true,
-      enableDnsSupport: true,
-      restrictDefaultSecurityGroup: false,
+    // Import existing shared VPC
+    this.vpc = ec2.Vpc.fromLookup(this, 'SharedVpc', {
+      vpcId: 'vpc-0576ee079f3c8d8c4',
     });
 
     // Tag all resources
