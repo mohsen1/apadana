@@ -1,28 +1,11 @@
 #! /bin/bash
 
-# Debug AWS credentials
-echo "Checking AWS credentials..."
-echo "AWS_ACCESS_KEY_ID is ${AWS_ACCESS_KEY_ID:+set}"
-echo "AWS_SECRET_ACCESS_KEY is ${AWS_SECRET_ACCESS_KEY:+set}"
-echo "AWS_REGION is ${AWS_REGION:+set}"
-echo "AWS_ACCOUNT_ID is ${AWS_ACCOUNT_ID:+set}"
-
 # Build for production. This script assumes all of the environment variables are set.
 # for build process to work, the following commands must be run
 
-# if The following environment variable is not set, exit
-variables=(
-  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-  RESEND_API_KEY
-  NEXT_PUBLIC_S3_UPLOAD_BUCKET
-  NEXT_PUBLIC_S3_UPLOAD_REGION
-  S3_UPLOAD_KEY
-  S3_UPLOAD_SECRET
-)
-
 # deploy aws resources
 export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
-export CDK_DEFAULT_ACCOUNT=$AWS_ACCOUNT_ID
+export CDK_DEFAULT_ACCOUNT=$AWS_ACCESS_KEY_ID
 echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with account '$CDK_DEFAULT_ACCOUNT' in $AWS_REGION region"
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
@@ -53,6 +36,15 @@ NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$(grep AWS_S3_BUCKET_NAME .env | cut -d '=' -f2)
 echo "NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$NEXT_PUBLIC_AWS_S3_BUCKET_NAME" >>.env
 cat .env
 
+# if The following environment variable is not set, exit
+variables=(
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+  RESEND_API_KEY
+  NEXT_PUBLIC_S3_UPLOAD_BUCKET
+  NEXT_PUBLIC_S3_UPLOAD_REGION
+  S3_UPLOAD_KEY
+  S3_UPLOAD_SECRET
+)
 # Load .env file
 echo "Loading .env file..."
 if [ -f .env ]; then
