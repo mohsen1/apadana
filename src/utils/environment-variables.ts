@@ -16,10 +16,10 @@ const schema = z.object({
   VERCEL_URL: z.string(),
 
   // S3 Upload
-  NEXT_PUBLIC_S3_UPLOAD_BUCKET: z.string(),
-  NEXT_PUBLIC_S3_UPLOAD_REGION: z.string(),
-  S3_UPLOAD_KEY: z.string(),
-  S3_UPLOAD_SECRET: z.string(),
+  NEXT_PUBLIC_AWS_S3_BUCKET_NAME: z.string(),
+  NEXT_PUBLIC_AWS_REGION: z.string(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_ACCESS_KEY_SECRET: z.string(),
 
   // 3rd Party
   RESEND_API_KEY: z.string(),

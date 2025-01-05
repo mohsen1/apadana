@@ -33,11 +33,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: `${process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.amazonaws.com`,
+        hostname: `${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME}.s3.amazonaws.com`,
       },
       {
         protocol: 'https',
-        hostname: `${process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET}.s3.${process.env.NEXT_PUBLIC_S3_UPLOAD_REGION}.amazonaws.com`,
+        hostname: `${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`,
       },
     ],
   },

@@ -47,10 +47,10 @@ const getUploadSignedUrl = actionClient
 
     // Initialize S3 client
     const s3Client = new S3Client({
-      region: process.env.NEXT_PUBLIC_S3_UPLOAD_REGION,
+      region: process.env.NEXT_PUBLIC_AWS_REGION,
       credentials: {
-        accessKeyId: process.env.S3_UPLOAD_KEY,
-        secretAccessKey: process.env.S3_UPLOAD_SECRET,
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_ACCESS_KEY_SECRET,
       },
     });
     try {
@@ -61,7 +61,7 @@ const getUploadSignedUrl = actionClient
           const key = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}/${crypto.randomUUID()}.${fileExtension}`;
 
           const command = new PutObjectCommand({
-            Bucket: process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET,
+            Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
             Key: key,
             ContentType: file.contentType,
           });
