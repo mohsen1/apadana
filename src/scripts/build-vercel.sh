@@ -20,21 +20,29 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
 # Create .env file
+echo "Creating .env file..."
 touch .env
+ls -la .env
 
 # Save the output to .env file
+echo "Saving deployment values to .env..."
 pnpm tsx src/aws-setup/scripts/print-deployment-values.ts >.env
+cat .env
 
 # Make some AWS environment variables available to the build process
+echo "Adding AWS environment variables..."
 echo "NEXT_PUBLIC_AWS_REGION=$AWS_REGION" >>.env
 NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$(grep AWS_S3_BUCKET_NAME .env | cut -d '=' -f2)
 echo "NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$NEXT_PUBLIC_AWS_S3_BUCKET_NAME" >>.env
+cat .env
 
 # Load .env file
+echo "Loading .env file..."
 if [ -f .env ]; then
   set -a
   . .env
   set +a
+  echo "Environment variables loaded successfully"
 else
   echo "Error: .env file not found"
   exit 1
