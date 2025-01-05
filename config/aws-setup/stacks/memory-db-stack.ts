@@ -6,7 +6,10 @@ import * as memorydb from 'aws-cdk-lib/aws-memorydb';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
+import { createLogger } from '@/utils/logger';
 import { SecurityConfig } from '../security-config';
+
+const logger = createLogger('MemoryDBStack');
 
 interface MemoryDBStackProps extends cdk.StackProps {
   environment: string;
@@ -22,12 +25,21 @@ export class MemoryDBStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: MemoryDBStackProps) {
     super(scope, id, props);
 
-    // Import VPC by name tag
+    const isProd = props.environment === 'production';
+
+    // Try to import existing cluster
+    try {
+      const existingCluster = cdk.Fn.importValue(`apadana-memorydb-endpoint-${props.environment}`);
+      if (existingCluster) {
+        logger.info('Successfully imported existing MemoryDB cluster');
+        return;
+      }
+    } catch (error) {
+      logger.info('No existing MemoryDB cluster found, creating new one');
+    }
+
     const sharedVpc = ec2.Vpc.fromLookup(this, 'ImportedSharedVpc', {
-      tags: {
-        Name: 'apadana-shared-vpc',
-        Project: 'Apadana',
-      },
+      tags: { Name: 'apadana-shared-vpc' },
     });
 
     const memoryDbSG = new ec2.SecurityGroup(this, 'MemoryDBSecurityGroup', {
@@ -101,7 +113,7 @@ export class MemoryDBStack extends cdk.Stack {
         : cdk.CfnDeletionPolicy.DELETE;
     acl.addDependency(user);
 
-    // Create new cluster
+    // Create new cluster with retention
     const memoryDbCluster = new memorydb.CfnCluster(this, 'ApadanaMemoryDB', {
       clusterName,
       nodeType: props.nodeType || 'db.t4g.small',
@@ -114,22 +126,21 @@ export class MemoryDBStack extends cdk.Stack {
       securityGroupIds: [memoryDbSG.securityGroupId],
       tlsEnabled: SecurityConfig.memoryDb.encryption.inTransit,
       kmsKeyId: key.keyArn,
-      snapshotWindow: SecurityConfig.memoryDb.backup.snapshotWindow,
-      snapshotRetentionLimit: SecurityConfig.memoryDb.backup.retentionDays,
       maintenanceWindow: SecurityConfig.memoryDb.backup.preferredMaintenanceWindow,
-      tags: [
-        { key: 'Name', value: `apadana-memorydb-${props.environment}` },
-        { key: 'Project', value: 'Apadana' },
-        { key: 'Environment', value: props.environment },
-      ],
     });
-    memoryDbCluster.cfnOptions.deletionPolicy =
-      props.environment === 'production'
-        ? cdk.CfnDeletionPolicy.RETAIN
-        : cdk.CfnDeletionPolicy.DELETE;
 
     memoryDbCluster.addDependency(subnetGroup);
     memoryDbCluster.addDependency(acl);
+
+    memoryDbCluster.addPropertyOverride('Tags', [
+      { key: 'Name', value: `apadana-memorydb-${props.environment}` },
+      { key: 'Project', value: 'Apadana' },
+      { key: 'Environment', value: props.environment },
+    ]);
+    memoryDbCluster.cfnOptions.deletionPolicy = isProd
+      ? cdk.CfnDeletionPolicy.RETAIN
+      : cdk.CfnDeletionPolicy.DELETE;
+    memoryDbCluster.cfnOptions.updateReplacePolicy = cdk.CfnDeletionPolicy.RETAIN;
 
     // Outputs
     new cdk.CfnOutput(this, 'ClusterEndpoint', {

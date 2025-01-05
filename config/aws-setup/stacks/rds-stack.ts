@@ -25,7 +25,20 @@ export class RDSStack extends cdk.Stack {
       allowAllOutbound: true,
       securityGroupName: `apadana-rds-sg-${props.environment}`,
     });
-    rdsSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(5432));
+
+    // Allow inbound PostgreSQL access from anywhere
+    rdsSG.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(5432),
+      'Allow PostgreSQL access from anywhere',
+    );
+
+    // Allow inbound access from the VPC CIDR
+    rdsSG.addIngressRule(
+      ec2.Peer.ipv4(sharedVpc.vpcCidrBlock),
+      ec2.Port.tcp(5432),
+      'Allow PostgreSQL access from within VPC',
+    );
 
     const secretName = `apadana-${props.environment}-db-password`;
     const secret = new secretsmanager.Secret(this, 'RDSSecret', {

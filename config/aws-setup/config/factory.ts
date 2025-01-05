@@ -2,6 +2,7 @@ import { AWSConfig, Environment } from './types';
 
 export function createConfig(environment: Environment, region: string): AWSConfig {
   const prefix = 'apadana';
+  const isProd = environment === 'production';
 
   return {
     stack: {
@@ -9,6 +10,10 @@ export function createConfig(environment: Environment, region: string): AWSConfi
       prefix,
       environment,
       region,
+      retention: {
+        enabled: isProd,
+        resources: ['rds', 'memorydb', 's3', 'vpc'],
+      },
     },
     resources: {
       rds: {

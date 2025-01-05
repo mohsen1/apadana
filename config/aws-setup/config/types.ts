@@ -5,6 +5,10 @@ export interface StackConfig {
   prefix: string;
   environment: Environment;
   region: string;
+  retention: {
+    enabled: boolean;
+    resources: string[];
+  };
 }
 
 export interface ResourceConfig {
