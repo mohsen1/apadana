@@ -42,8 +42,15 @@ export class MemoryDBStack extends cdk.Stack {
       }
     }
 
-    const sharedVpc = ec2.Vpc.fromLookup(this, 'ImportedSharedVpc', {
-      tags: { Name: 'apadana-shared-vpc' },
+    // Import the shared VPC using the exported value
+    const sharedVpcId = cdk.Fn.importValue('ApadanaSharedVpcId');
+    const sharedVpc = ec2.Vpc.fromVpcAttributes(this, 'ImportedSharedVpc', {
+      vpcId: sharedVpcId,
+      availabilityZones: cdk.Stack.of(this).availabilityZones,
+      privateSubnetIds: [
+        cdk.Fn.importValue('ApadanaPrivateSubnet1Id'),
+        cdk.Fn.importValue('ApadanaPrivateSubnet2Id'),
+      ],
     });
 
     const memoryDbSG = new ec2.SecurityGroup(this, 'MemoryDBSecurityGroup', {
