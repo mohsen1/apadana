@@ -15,19 +15,19 @@ importers:
         specifier: ^3.38.1
         version: 3.38.1(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
       '@aws-sdk/client-iam':
-        specifier: ^3.485.0
+        specifier: 3.721.0
         version: 3.721.0
       '@aws-sdk/client-memorydb':
-        specifier: ^3.721.0
+        specifier: 3.721.0
         version: 3.721.0
       '@aws-sdk/client-rds':
-        specifier: ^3.721.0
+        specifier: 3.721.0
         version: 3.721.0
       '@aws-sdk/client-s3':
         specifier: ^3.717.0
         version: 3.717.0
       '@aws-sdk/client-sts':
-        specifier: ^3.485.0
+        specifier: 3.716.0
         version: 3.716.0
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.717.0
@@ -132,7 +132,7 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(next@15.1.3(@babel/core@7.26.0)(@opentelemetry/api@1.4.1)(@playwright/test@1.49.1)(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
       aws-cdk-lib:
-        specifier: ^2.115.0
+        specifier: 2.174.0
         version: 2.174.0(constructs@10.4.2)
       axios:
         specifier: ^1.7.9
@@ -150,7 +150,7 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       constructs:
-        specifier: ^10.3.0
+        specifier: 10.4.2
         version: 10.4.2
       date-fns:
         specifier: ^4.1.0
@@ -244,10 +244,10 @@ importers:
         version: 3.2.1(@prisma/client@6.1.0(prisma@6.1.0))(prisma@6.1.0)
     devDependencies:
       '@aws-sdk/client-cloudformation':
-        specifier: ^3.721.0
+        specifier: 3.721.0
         version: 3.721.0
       '@aws-sdk/client-secrets-manager':
-        specifier: ^3.721.0
+        specifier: 3.721.0
         version: 3.721.0
       '@octokit/auth-app':
         specifier: ^7.1.3
@@ -328,7 +328,7 @@ importers:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
       aws-cdk:
-        specifier: ^2.174.0
+        specifier: 2.174.0
         version: 2.174.0
       concurrently:
         specifier: ^9.1.1
