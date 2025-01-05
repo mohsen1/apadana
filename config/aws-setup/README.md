@@ -56,8 +56,14 @@ The infrastructure is split into several stacks:
    ```
 
 5. Deploy all resources:
+
    ```bash
    pnpm cdk:deploy:resources
+   ```
+
+6. Wait for all stacks to be ready:
+   ```bash
+   pnpm cdk:wait
    ```
 
 ## Environment Configuration

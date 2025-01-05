@@ -13,6 +13,20 @@ variables=(
   S3_UPLOAD_SECRET
 )
 
+# deploy aws resources
+export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
+export CDK_DEFAULT_ACCOUNT=$AWS_ACCOUNT_ID
+echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with account '$CDK_DEFAULT_ACCOUNT' in $AWS_REGION region"
+pnpm cdk:deploy
+
+# Generating .env file from AWS resources
+pnpm cdk:print-values >.env
+
+# Make some AWS environment variables available to the build process
+echo "NEXT_PUBLIC_AWS_REGION=$AWS_REGION" >>.env
+NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$(grep AWS_S3_BUCKET_NAME .env | cut -d '=' -f2)
+echo "NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$NEXT_PUBLIC_AWS_S3_BUCKET_NAME" >>.env
+
 for variable in "${variables[@]}"; do
   if [ -z "${!variable}" ]; then
     echo "$variable is not set"
