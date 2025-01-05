@@ -17,7 +17,7 @@ variables=(
 export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
 export CDK_DEFAULT_ACCOUNT=$AWS_ACCOUNT_ID
 echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with account '$CDK_DEFAULT_ACCOUNT' in $AWS_REGION region"
-pnpm cdk:deploy
+pnpm cdk:deploy --require-approval never
 
 # Generating .env file from AWS resources
 pnpm cdk:print-values >.env
