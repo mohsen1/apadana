@@ -137,9 +137,9 @@ export class MemoryDBStack extends cdk.Stack {
     memoryDbCluster.addDependency(acl);
 
     memoryDbCluster.addPropertyOverride('Tags', [
-      { key: 'Name', value: `apadana-memorydb-${props.environment}` },
-      { key: 'Project', value: 'Apadana' },
-      { key: 'Environment', value: props.environment },
+      { Key: 'Name', Value: `apadana-memorydb-${props.environment}` },
+      { Key: 'Project', Value: 'Apadana' },
+      { Key: 'Environment', Value: props.environment },
     ]);
     memoryDbCluster.cfnOptions.deletionPolicy = isProd
       ? cdk.CfnDeletionPolicy.RETAIN
