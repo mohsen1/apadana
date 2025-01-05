@@ -20,7 +20,12 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
 # Generating .env file from AWS resources
-output=$(pnpm cdk:print-values)
+output=$(pnpm tsx src/aws-setup/scripts/print-deployment-values.ts)
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to get deployment values"
+  exit 1
+fi
+
 # Validate env file format and check for empty values
 env -i sh -c "set -a && . /dev/stdin && env" <<<"$output" >/dev/null || {
   echo "Error: Invalid environment file format or empty values"
@@ -35,9 +40,14 @@ NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$(grep AWS_S3_BUCKET_NAME .env | cut -d '=' -f2)
 echo "NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$NEXT_PUBLIC_AWS_S3_BUCKET_NAME" >>.env
 
 # Load .env file
-set -a
-. .env
-set +a
+if [ -f .env ]; then
+  set -a
+  . .env
+  set +a
+else
+  echo "Error: .env file not found"
+  exit 1
+fi
 
 for variable in "${variables[@]}"; do
   if [ -z "${!variable}" ]; then
