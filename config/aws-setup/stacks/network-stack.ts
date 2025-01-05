@@ -22,7 +22,7 @@ export class NetworkStack extends cdk.Stack {
         props.environment === 'preview'
           ? 'apadana-vpc-preview'
           : `apadana-vpc-${props.environment}`,
-      ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/24'),
+      ipAddresses: ec2.IpAddresses.cidr('172.16.0.0/24'),
       subnetConfiguration: [
         {
           cidrMask: 25,
@@ -36,6 +36,8 @@ export class NetworkStack extends cdk.Stack {
           subnetType: ec2.SubnetType.PUBLIC,
         },
       ],
+      enableDnsHostnames: true,
+      enableDnsSupport: true,
     });
 
     // Create security group for MemoryDB
