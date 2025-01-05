@@ -163,6 +163,76 @@ async function createDeployerUser() {
         {
           Effect: 'Allow',
           Action: requiredPermissions,
+          Resource: [
+            // VPC and related resources
+            'arn:aws:ec2:*:*:vpc/*',
+            'arn:aws:ec2:*:*:subnet/*',
+            'arn:aws:ec2:*:*:route-table/*',
+            'arn:aws:ec2:*:*:internet-gateway/*',
+            'arn:aws:ec2:*:*:nat-gateway/*',
+            'arn:aws:ec2:*:*:security-group/*',
+            'arn:aws:ec2:*:*:elastic-ip/*',
+
+            // RDS resources
+            'arn:aws:rds:*:*:db:*',
+            'arn:aws:rds:*:*:subgrp:*',
+            'arn:aws:rds:*:*:secgrp:*',
+
+            // MemoryDB resources
+            'arn:aws:memorydb:*:*:cluster/*',
+            'arn:aws:memorydb:*:*:subnetgroup/*',
+            'arn:aws:memorydb:*:*:user/*',
+            'arn:aws:memorydb:*:*:acl/*',
+
+            // S3 buckets
+            'arn:aws:s3:::apadana-*',
+            'arn:aws:s3:::apadana-*/*',
+
+            // KMS keys
+            'arn:aws:kms:*:*:key/*',
+            'arn:aws:kms:*:*:alias/*',
+
+            // Secrets Manager
+            'arn:aws:secretsmanager:*:*:secret:apadana-*',
+
+            // CloudWatch Logs
+            'arn:aws:logs:*:*:log-group:/apadana/*',
+            'arn:aws:logs:*:*:log-group:/apadana/*:log-stream:*',
+
+            // CloudFormation
+            'arn:aws:cloudformation:*:*:stack/apadana-*/*',
+            'arn:aws:cloudformation:*:*:stackset/apadana-*:*',
+
+            // IAM roles
+            'arn:aws:iam::*:role/apadana-*',
+            'arn:aws:iam::*:role/service-role/apadana-*',
+
+            // SSM parameters
+            'arn:aws:ssm:*:*:parameter/apadana-*',
+
+            // Load Balancer
+            'arn:aws:elasticloadbalancing:*:*:loadbalancer/app/apadana-*/*',
+            'arn:aws:elasticloadbalancing:*:*:targetgroup/apadana-*/*',
+            'arn:aws:elasticloadbalancing:*:*:listener/app/apadana-*/*',
+            'arn:aws:elasticloadbalancing:*:*:listener-rule/app/apadana-*/*',
+          ],
+        },
+        {
+          // Allow describing resources without resource-level restrictions
+          Effect: 'Allow',
+          Action: [
+            'ec2:Describe*',
+            'rds:Describe*',
+            'memorydb:Describe*',
+            's3:List*',
+            'kms:List*',
+            'secretsmanager:List*',
+            'logs:Describe*',
+            'cloudformation:List*',
+            'iam:List*',
+            'ssm:Describe*',
+            'elasticloadbalancing:Describe*',
+          ],
           Resource: '*',
         },
       ],
