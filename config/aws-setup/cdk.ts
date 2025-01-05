@@ -128,7 +128,7 @@ async function main() {
   await checkPermissions();
 
   const app = new cdk.App();
-  const stackType = process.env.STACK_TYPE || 'all';
+  const stackType = process.env.AWS_DEPLOYMENT_STACK_TYPE || 'all';
   const region = process.env.AWS_REGION || 'us-east-1';
 
   console.log(`Deploying ${stackType} stacks to ${region} for environment: ${environment}`);

@@ -30,6 +30,8 @@ fi
 # Set AWS_DEPLOYMENT_STACK_ENV based on VERCEL_ENV
 if [ "$VERCEL_ENV" = "preview" ]; then
   export AWS_DEPLOYMENT_STACK_ENV="preview"
+elif [ "$VERCEL_ENV" = "development" ]; then
+  export AWS_DEPLOYMENT_STACK_ENV="development"
 else
   export AWS_DEPLOYMENT_STACK_ENV="production"
 fi
@@ -44,8 +46,11 @@ if ! pnpm run aws:preflight; then
 
   # Deploy AWS resources
   echo "Deploying AWS resources..."
-  # Pass AWS_DEPLOYMENT_STACK_ENV to CDK
-  STACK_TYPE=resources CDK_DEPLOY_ENVIRONMENT="$AWS_DEPLOYMENT_STACK_ENV" pnpm run cdk:deploy:resources:ci
+  # First deploy network stack
+  AWS_DEPLOYMENT_STACK_TYPE=network pnpm run cdk:deploy:ci
+
+  # Then deploy other resources
+  AWS_DEPLOYMENT_STACK_TYPE=resources pnpm run cdk:deploy:ci
 
   echo "Waiting for AWS resources to be ready..."
   pnpm run aws:wait-resources
