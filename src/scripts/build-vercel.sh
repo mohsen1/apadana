@@ -28,8 +28,6 @@ echo "NEXT_PUBLIC_AWS_REGION=$AWS_REGION" >>.env
 NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$(grep AWS_S3_BUCKET_NAME .env | cut -d '=' -f2)
 echo "NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$NEXT_PUBLIC_AWS_S3_BUCKET_NAME" >>.env
 
-pnpm cdk:print-values >.env
-
 # Load required environment variables from .env file
 echo "Loading environment variables..."
 while IFS='=' read -r key value; do
@@ -41,8 +39,8 @@ done <.env
 variables=(
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
   RESEND_API_KEY
-  AWS_ACCESS_KEY
-  AWS_ACCESS_KEY_SECRET
+  AWS_ACCESS_KEY_ID
+  AWS_SECRET_ACCESS_KEY
   AWS_REGION
   NEXT_PUBLIC_AWS_S3_BUCKET_NAME
   NEXT_PUBLIC_AWS_REGION
