@@ -3,6 +3,7 @@ import {
   DescribeStacksCommand
 } from '@aws-sdk/client-cloudformation';
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
+import logger from '@/utils/logger';
 
 (async () => {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
@@ -56,11 +57,12 @@ import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-sec
         }
       }
     } catch (err) {
-      console.error(`Error describing stack ${stackName}:`, err);
+      logger.error(`Error describing stack ${stackName}:`, err);
     }
   }
 
-  console.log(`REDIS_URL=${redisUrl}`);
-  console.log(`DATABASE_URL=${dbUrl}`);
-  console.log(`AWS_S3_BUCKET_NAME=${s3Bucket}`);
+  // Use process.stdout.write to avoid any prepending
+  process.stdout.write(`REDIS_URL=${redisUrl}\n`);
+  process.stdout.write(`DATABASE_URL=${dbUrl}\n`);
+  process.stdout.write(`AWS_S3_BUCKET_NAME=${s3Bucket}\n`);
 })(); 
