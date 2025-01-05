@@ -23,7 +23,7 @@ export class MemoryDBStack extends cdk.Stack {
     super(scope, id, props);
 
     const sharedVpc = ec2.Vpc.fromLookup(this, 'ImportedSharedVpc', {
-      vpcName: 'apadana-shared-vpc',
+      tags: { Name: 'apadana-shared-vpc' },
     });
 
     const memoryDbSG = new ec2.SecurityGroup(this, 'MemoryDBSecurityGroup', {
@@ -47,7 +47,7 @@ export class MemoryDBStack extends cdk.Stack {
 
     const subnetGroupName = `apadana-memorydb-subnet-${props.environment}`;
     const subnetGroup = new memorydb.CfnSubnetGroup(this, 'MemoryDBSubnetGroup', {
-      subnetIds: sharedVpc.publicSubnets.map((subnet) => subnet.subnetId),
+      subnetIds: sharedVpc.privateSubnets.map((subnet) => subnet.subnetId),
       subnetGroupName,
     });
     subnetGroup.cfnOptions.deletionPolicy =

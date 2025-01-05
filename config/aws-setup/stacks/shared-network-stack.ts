@@ -15,7 +15,7 @@ export class SharedNetworkStack extends cdk.Stack {
     if (props?.useExisting) {
       // Import existing VPC by name
       this.vpc = ec2.Vpc.fromLookup(this, 'ImportedSharedVpc', {
-        vpcName: 'apadana-shared-vpc',
+        tags: { Name: 'apadana-shared-vpc' },
       });
     } else {
       // Create a new VPC with public and private subnets
@@ -45,31 +45,6 @@ export class SharedNetworkStack extends cdk.Stack {
         ],
       });
 
-      // Create and attach Internet Gateway
-      const igw = new ec2.CfnInternetGateway(this, 'InternetGateway', {
-        tags: [
-          { key: 'Name', value: 'apadana-shared-vpc-igw' },
-          { key: 'Project', value: 'Apadana' },
-        ],
-      });
-
-      new ec2.CfnVPCGatewayAttachment(this, 'VpcIgwAttachment', {
-        vpcId: this.vpc.vpcId,
-        internetGatewayId: igw.ref,
-      });
-
-      // Add default route to public subnets
-      this.vpc.publicSubnets.forEach((subnet, index) => {
-        new ec2.CfnRoute(this, `PublicSubnetDefaultRoute${index}`, {
-          routeTableId: subnet.routeTable.routeTableId,
-          destinationCidrBlock: '0.0.0.0/0',
-          gatewayId: igw.ref,
-        });
-
-        // Tag public subnets
-        cdk.Tags.of(subnet).add('Name', `apadana-public-subnet-${index + 1}`);
-      });
-
       // Tag all resources
       cdk.Tags.of(this).add('Project', 'Apadana');
       cdk.Tags.of(this.vpc).add('Name', 'apadana-shared-vpc');
@@ -87,6 +62,14 @@ export class SharedNetworkStack extends cdk.Stack {
         value: subnet.subnetId,
         description: `Public Subnet ${index + 1} ID`,
         exportName: `ApadanaPublicSubnet${index + 1}Id`,
+      });
+    });
+
+    this.vpc.privateSubnets.forEach((subnet, index) => {
+      new cdk.CfnOutput(this, `PrivateSubnet${index + 1}Id`, {
+        value: subnet.subnetId,
+        description: `Private Subnet ${index + 1} ID`,
+        exportName: `ApadanaPrivateSubnet${index + 1}Id`,
       });
     });
   }

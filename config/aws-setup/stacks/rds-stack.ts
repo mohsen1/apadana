@@ -16,7 +16,7 @@ export class RDSStack extends cdk.Stack {
     super(scope, id, props);
 
     const sharedVpc = ec2.Vpc.fromLookup(this, 'ImportedSharedVpc', {
-      vpcName: 'apadana-shared-vpc',
+      vpcId: 'vpc-082ee4f6e9a6a861f',
     });
 
     const rdsSG = new ec2.SecurityGroup(this, 'RDSSecurityGroup', {
