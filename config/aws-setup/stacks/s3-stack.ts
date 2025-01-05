@@ -8,6 +8,8 @@ interface S3StackProps extends cdk.StackProps {
 }
 
 export class S3Stack extends cdk.Stack {
+  public readonly bucketNameOutput: cdk.CfnOutput;
+
   constructor(scope: Construct, id: string, props: S3StackProps) {
     super(scope, id, props);
 
@@ -27,6 +29,12 @@ export class S3Stack extends cdk.Stack {
     bucket.addLifecycleRule({
       abortIncompleteMultipartUploadAfter: cdk.Duration.days(7),
       enabled: true,
+    });
+
+    this.bucketNameOutput = new cdk.CfnOutput(this, 'BucketName', {
+      exportName: `${this.stackName}-BucketName`,
+      value: bucket.bucketName,
+      description: 'Name of the S3 bucket'
     });
   }
 } 

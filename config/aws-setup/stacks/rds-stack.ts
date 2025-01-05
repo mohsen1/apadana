@@ -13,6 +13,9 @@ interface RdsStackProps extends cdk.StackProps {
 }
 
 export class RdsStack extends cdk.Stack {
+  public readonly rdsHostOutput: cdk.CfnOutput;
+  public readonly rdsSecretNameOutput: cdk.CfnOutput;
+
   constructor(scope: Construct, id: string, props: RdsStackProps) {
     super(scope, id, props);
 
@@ -24,20 +27,16 @@ export class RdsStack extends cdk.Stack {
       allowAllOutbound: true,
     });
 
-    // If you truly need public access (e.g. from Vercel), allow inbound from anywhere on port 5432.
-    // This is not recommended for production. But if it's truly required:
     if (cfg.publicDbAccess) {
       dbSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(5432), 'Public inbound for Postgres');
     }
 
-    // Create a secret for the DB credentials
     const dbSecret = new rds.DatabaseSecret(this, 'DbSecret', {
       secretName: `ap-rds-secret-${cfg.environment}`,
       username: 'postgres',
     });
 
-    // Create an RDS instance
-    new rds.DatabaseInstance(this, 'ApadanaPostgres', {
+    const dbInstance = new rds.DatabaseInstance(this, 'ApadanaPostgres', {
       engine: rds.DatabaseInstanceEngine.postgres({
         version: rds.PostgresEngineVersion.VER_15
       }),
@@ -53,11 +52,23 @@ export class RdsStack extends cdk.Stack {
       maxAllocatedStorage: cfg.rdsMaxAllocatedStorage,
       backupRetention: cdk.Duration.days(cfg.backupRetentionDays),
       deletionProtection: cfg.environment === 'production',
-      publiclyAccessible: cfg.publicDbAccess, // This sets up a public IP
+      publiclyAccessible: cfg.publicDbAccess,
       databaseName: 'ap_db',
       instanceIdentifier: `ap-rds-${cfg.environment}`,
       storageEncrypted: true,
       autoMinorVersionUpgrade: true
+    });
+
+    this.rdsHostOutput = new cdk.CfnOutput(this, 'RdsEndpoint', {
+      exportName: `${this.stackName}-Endpoint`,
+      value: dbInstance.instanceEndpoint.hostname,
+      description: 'RDS endpoint'
+    });
+
+    this.rdsSecretNameOutput = new cdk.CfnOutput(this, 'RdsSecretName', {
+      exportName: `${this.stackName}-SecretName`,
+      value: dbSecret.secretName,
+      description: 'Name of SecretsManager secret for RDS'
     });
   }
 }

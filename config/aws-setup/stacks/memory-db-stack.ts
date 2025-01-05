@@ -9,6 +9,8 @@ interface MemoryDbStackProps extends cdk.StackProps {
 }
 
 export class MemoryDbStack extends cdk.Stack {
+  public readonly redisHostOutput: cdk.CfnOutput;
+
   constructor(scope: Construct, id: string, props: MemoryDbStackProps) {
     super(scope, id, props);
 
@@ -19,19 +21,14 @@ export class MemoryDbStack extends cdk.Stack {
       subnetIds: props.vpc.privateSubnets.map((s) => s.subnetId),
     });
 
-    // Example security group
     const memoryDbSG = new ec2.SecurityGroup(this, 'MemoryDbSG', {
       vpc: props.vpc,
       description: 'MemoryDB security group',
       allowAllOutbound: true,
     });
 
-    // For publicly accessible resources, you'd add inbound rules if needed.
-    // But typically MemoryDB is kept private. Modify if you truly want public.
-    // memoryDbSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(6379), 'Allow inbound Redis');
-
-    new memorydb.CfnCluster(this, 'MemoryDbCluster', {
-      aclName: 'open-access', // or "default". 'open-access' if you want no ACL restrictions
+    const redisCluster = new memorydb.CfnCluster(this, 'MemoryDbCluster', {
+      aclName: 'open-access',
       clusterName: `apadana-memorydb-${cfg.environment}`,
       engineVersion: '6.2',
       nodeType: cfg.memoryDbNodeType,
@@ -42,6 +39,12 @@ export class MemoryDbStack extends cdk.Stack {
       tlsEnabled: true,
       autoMinorVersionUpgrade: true,
       snapshotRetentionLimit: cfg.backupRetentionDays,
+    });
+
+    this.redisHostOutput = new cdk.CfnOutput(this, 'RedisEndpoint', {
+      exportName: `${this.stackName}-RedisEndpoint`,
+      value: redisCluster.attrClusterEndpointAddress,
+      description: 'MemoryDB cluster endpoint'
     });
   }
 }
