@@ -34,6 +34,11 @@ echo "NEXT_PUBLIC_AWS_REGION=$AWS_REGION" >>.env
 NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$(grep AWS_S3_BUCKET_NAME .env | cut -d '=' -f2)
 echo "NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$NEXT_PUBLIC_AWS_S3_BUCKET_NAME" >>.env
 
+# Load .env file
+set -a
+. .env
+set +a
+
 for variable in "${variables[@]}"; do
   if [ -z "${!variable}" ]; then
     echo "$variable is not set"
