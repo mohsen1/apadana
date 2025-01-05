@@ -49,7 +49,16 @@
     "docker:dev": "DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml up app_dev",
     "docker:prod": "DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml up app_prod",
     "test:storybook": "playwright test --config=config/playwright.storybook.config.ts",
-    "test:storybook:update": "playwright test --config=config/playwright.storybook.config.ts --update-snapshots"
+    "test:storybook:update": "playwright test --config=config/playwright.storybook.config.ts --update-snapshots",
+    "cdk:bootstrap": "cdk bootstrap",
+    "cdk:deploy:bootstrap": "pnpm build && cdk deploy BootstrapStack",
+    "cdk:deploy:resources": "pnpm build && cdk deploy --all",
+    "cdk:deploy": "pnpm build && cdk deploy",
+    "cdk:destroy": "pnpm build && cdk destroy --all",
+    "cdk:diff": "pnpm build && cdk diff",
+    "cdk:synth": "pnpm build && cdk synth",
+    "cdk:preflight": "ts-node --project tsconfig.json config/aws-setup/scripts/preflight.ts",
+    "cdk:deployer:create": "ts-node --project tsconfig.json config/aws-setup/scripts/create-deployer.ts"
   },
   "dependencies": {
     "@adobe/react-spectrum": "^3.38.1",
@@ -122,7 +131,11 @@
     "yargs": "^17.7.2",
     "yet-another-react-lightbox": "^3.21.7",
     "zod": "^3.24.1",
-    "zod-prisma-types": "^3.2.1"
+    "zod-prisma-types": "^3.2.1",
+    "@aws-sdk/client-iam": "^3.485.0",
+    "@aws-sdk/client-sts": "^3.485.0",
+    "aws-cdk-lib": "^2.115.0",
+    "constructs": "^10.3.0"
   },
   "devDependencies": {
     "@octokit/auth-app": "^7.1.3",

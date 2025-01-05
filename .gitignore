@@ -89,3 +89,7 @@ repo-serialized/
 *.fish
 *.sh
 *.bash
+
+# AWS CDK
+.aws-sam/
+cdk.out/
