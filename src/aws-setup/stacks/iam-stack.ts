@@ -38,6 +38,7 @@ export class IamStack extends cdk.Stack {
             'secretsmanager:PutSecretValue',
             'secretsmanager:UpdateSecret',
             'secretsmanager:TagResource',
+            'secretsmanager:ListSecrets',
           ],
           resources: ['*'],
         }),

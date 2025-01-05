@@ -47,7 +47,7 @@ export class RdsStack extends cdk.Stack {
       }),
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
       vpc: props.vpc,
-      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+      vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
       securityGroups: [dbSG],
       credentials: rds.Credentials.fromSecret(dbSecret),
       allocatedStorage: cfg.rdsAllocatedStorage,
