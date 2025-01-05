@@ -26,12 +26,21 @@ export class RDSStack extends cdk.Stack {
       securityGroupName: `apadana-rds-sg-${props.environment}`,
     });
 
-    // Allow inbound PostgreSQL access from Vercel IPs
-    rdsSG.addIngressRule(
-      ec2.Peer.ipv4('76.76.21.0/24'),
-      ec2.Port.tcp(5432),
-      'Allow PostgreSQL access from Vercel',
-    );
+    // Allow inbound PostgreSQL access from Vercel IP ranges
+    const vercelIpRanges = [
+      '76.76.21.0/24', // Vercel US East
+      '76.76.22.0/24', // Vercel US West
+      '76.76.23.0/24', // Vercel EU
+      '76.76.24.0/24', // Vercel AP
+    ];
+
+    vercelIpRanges.forEach((ipRange) => {
+      rdsSG.addIngressRule(
+        ec2.Peer.ipv4(ipRange),
+        ec2.Port.tcp(5432),
+        `Allow PostgreSQL access from Vercel ${ipRange}`,
+      );
+    });
 
     // Allow inbound access from the VPC CIDR
     rdsSG.addIngressRule(
