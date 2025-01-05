@@ -2,167 +2,262 @@
 
 This directory contains the AWS CDK code for setting up the infrastructure required by the Apadana application.
 
-## For Root Users: Initial Setup
+## Quick Start
 
-As a root user, you need to perform these steps only once to set up the infrastructure deployment pipeline:
+### For Root Users (One-time Setup)
 
 1. Configure AWS CLI with root credentials:
 
-```bash
-aws configure
-# Enter your root user access key and secret
-```
+   ```bash
+   aws configure
+   ```
 
-2. Check existing resources:
+2. Create and attach bootstrap policy:
 
-   1. Go to AWS Console → MemoryDB
-   2. Note if you have any existing clusters or ACLs
-   3. The stack will use the default ACL if it exists
+   - Go to AWS Console → IAM → Policies → Create Policy
+   - Use this JSON:
 
-3. Create initial bootstrap policy (one-time setup):
-   1. Go to AWS Console → IAM → Policies → Create Policy
-   2. Choose JSON and paste:
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Action": [
+           "cloudformation:*",
+           "ssm:*",
+           "s3:*",
+           "iam:*",
+           "lambda:*",
+           "ec2:*",
+           "memorydb:*"
+         ],
+         "Resource": "*"
+       }
+     ]
+   }
+   ```
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["cloudformation:*", "ssm:*", "s3:*", "iam:*", "lambda:*", "ec2:*", "memorydb:*"],
-      "Resource": "*"
-    }
-  ]
-}
-```
+3. Deploy bootstrap:
 
-4.  Name it `ApadanaCDKBootstrapPolicy`
-5.  Add tags if needed
-6.  Click "Create Policy"
+   ```bash
+   pnpm cdk:bootstrap
+   pnpm cdk:deploy:bootstrap
+   ```
 
-7.  Attach the policy to your user:
+4. Share deployment credentials with developers:
 
-    1.  Go to AWS Console → IAM → Users → Your User
-    2.  Click "Add permissions"
-    3.  Choose "Attach policies directly"
-    4.  Search for `ApadanaCDKBootstrapPolicy`
-    5.  Select it and click "Next"
-    6.  Click "Add permissions"
+   - Access key ID
+   - Secret access key
+   - AWS Console credentials (if needed)
 
-8.  Bootstrap the AWS environment:
+5. Remove bootstrap policy from root user after verification
 
-```bash
-pnpm cdk:bootstrap
-```
+### For Developers
 
-9. Deploy the bootstrap stack:
+1. Configure AWS CLI with deployment credentials:
 
-```bash
-pnpm cdk:deploy:bootstrap
-```
+   ```bash
+   aws configure --profile apadana
+   export AWS_PROFILE=apadana
+   ```
 
-10. After successful deployment, you'll receive outputs containing:
+2. Create `.env.local`:
 
-- Deployment user name (`apadana-cdk-deployer`)
-- Access key ID
-- Secret access key
+   ```bash
+   AWS_REGION=us-east-1  # or preferred region
+   ```
 
-11. Create IAM Console access for developers:
+3. Deploy infrastructure:
 
-    1. Go to AWS Console → IAM → Users
-    2. Create a new user for each developer
-    3. Enable Console access
-    4. Add user to appropriate groups
-    5. Share console credentials securely
+   ```bash
+   # For development environment
+   AWS_DEPLOYMENT_STACK_ENV=development pnpm cdk:deploy:resources
 
-12. Share deployment credentials with the development team securely:
+   # For preview environment
+   AWS_DEPLOYMENT_STACK_ENV=preview pnpm cdk:deploy:resources
 
-    - Access key ID
-    - Secret access key
-    - AWS Console credentials (if needed)
+   # For production environment
+   AWS_DEPLOYMENT_STACK_ENV=production pnpm cdk:deploy:resources
+   ```
 
-### Cleanup After Bootstrap
+## Infrastructure Components
 
-After successful bootstrap and verification that developers can deploy:
+### MemoryDB (Redis) Cluster
 
-1. Go to AWS Console → IAM → Users → Your User
-2. Under "Permissions" tab, find `ApadanaCDKBootstrapPolicy`
-3. Click the "X" to remove it or use the "Remove" button
-4. Confirm removal
+- Single shard with replica (production)
+- Single shard, no replica (preview)
+- Private subnet deployment
+- VPC security groups
+- TLS enabled
+- Automatic backups
+  - Production: 7 days retention
+  - Preview/Development: 1 day retention
 
-## For Developers (Non-Root Users)
+### RDS (PostgreSQL)
 
-Before deploying infrastructure:
+- PostgreSQL 15
+- Instance types:
+  - Production: t3.medium
+  - Preview: t3.micro
+  - Development: t3.medium
+- Automated backups
+  - Production: 7 days retention
+  - Preview/Development: 1 day retention
+- Storage:
+  - Production: 20GB initial, up to 100GB
+  - Preview: 10GB initial, up to 50GB
+  - Development: 20GB initial, up to 50GB
 
-1. Get AWS Console access from root user
-2. Create access keys for deployment:
+### S3 Storage
 
-   1. Log into AWS Console
-   2. Go to IAM → Users → `apadana-cdk-deployer`
-   3. Security credentials tab → Create access key
-   4. Store the credentials securely
+- Separate buckets for each environment
+- Private access only
+- Server-side encryption
+- Versioning enabled
+- Lifecycle rules for cost optimization
 
-3. Configure AWS CLI with the deployment credentials:
+### Security
 
-```bash
-aws configure --profile apadana
-# Enter the access key and secret you created
-```
+- VPC-deployed resources, One VPC for all environments
+- Security groups with minimal access
+- TLS encryption for all services
+- AWS Secrets Manager for credentials
+- KMS encryption for sensitive data
+- IAM roles with least privilege
 
-4. Set the AWS profile:
+## Environment Configurations
 
-```bash
-export AWS_PROFILE=apadana
-```
+### Preview Environment
 
-5. Create `.env.local` in the project root:
+- Minimal resource allocation
+- Reduced costs
+- Short backup retention
+- Suitable for PR reviews and testing
 
-```bash
-AWS_REGION=us-east-1  # or your preferred region
-```
+### Development Environment
 
-6. Deploy infrastructure:
+- Moderate resource allocation
+- Local development testing
+- Short backup retention
+- Debugging capabilities
 
-```bash
-pnpm cdk:deploy:resources
-```
+### Production Environment
 
-## Current Infrastructure
-
-- MemoryDB (Redis) cluster for caching and session management
-  - Single shard with one replica for high availability
-  - Running in private subnets
-  - Secured with VPC security groups
-  - TLS enabled
+- Full resource allocation
+- High availability
+- Extended backup retention
+- Delete protection enabled
 
 ## Available Commands
 
-```bash
-# For root users only
-pnpm cdk:bootstrap        # Bootstrap CDK environment (root only)
-pnpm cdk:deploy:bootstrap # Create deployment user (root only)
+| Command                        | Description            | User       | Environment Variable     |
+| ------------------------------ | ---------------------- | ---------- | ------------------------ |
+| `pnpm cdk:bootstrap`           | Bootstrap CDK          | Root only  | -                        |
+| `pnpm cdk:deploy:bootstrap`    | Create deployer        | Root only  | -                        |
+| `pnpm cdk:deploy:resources`    | Deploy all stacks      | Developers | AWS_DEPLOYMENT_STACK_ENV |
+| `pnpm cdk:deploy [stack-name]` | Deploy specific stack  | Developers | AWS_DEPLOYMENT_STACK_ENV |
+| `pnpm cdk:destroy`             | Destroy stacks         | Developers | AWS_DEPLOYMENT_STACK_ENV |
+| `pnpm cdk:diff`                | Show changes           | Developers | AWS_DEPLOYMENT_STACK_ENV |
+| `pnpm cdk:synth`               | Generate template      | Developers | AWS_DEPLOYMENT_STACK_ENV |
+| `pnpm aws:preflight`           | Run preflight checks   | Developers | AWS_DEPLOYMENT_STACK_ENV |
+| `pnpm aws:deployer:create`     | Create/update deployer | Root only  | -                        |
 
-# For developers
-pnpm cdk:deploy:resources # Deploy all infrastructure stacks
-pnpm cdk:destroy         # Destroy all stacks
-pnpm cdk:diff           # Show changes to be deployed
-pnpm cdk:synth         # Synthesize CloudFormation template
+## Stack Organization
+
 ```
-
-## Security Considerations
-
-- Root user only needed for initial bootstrap
-- Developers use dedicated deployment user with minimal permissions
-- All resources are deployed within a VPC
-- Security groups are configured with minimal required access
-- TLS is enabled for all applicable services
-- Credentials and sensitive data are managed through AWS Secrets Manager
+config/aws-setup/
+├── stacks/
+│   ├── bootstrap-stack.ts    # Initial setup
+│   ├── iam-stack.ts         # IAM roles and policies
+│   ├── memory-db-stack.ts   # Redis cluster
+│   ├── rds-stack.ts         # PostgreSQL database
+│   ├── s3-stack.ts          # Storage buckets
+│   └── shared-network-stack.ts # VPC and networking
+├── scripts/
+│   ├── create-deployer.ts   # Deployment user setup
+│   └── preflight.ts         # Environment checks
+├── config/
+│   ├── factory.ts           # Configuration factory
+│   ├── types.ts            # TypeScript types
+│   └── validate.ts         # Configuration validation
+└── cdk.ts                  # Main CDK app
+```
 
 ## Adding New Resources
 
-When adding new AWS resources:
+1. Create stack in `stacks/`:
 
-1. Create a new stack file in the `stacks` directory
-2. Import and use it in `cdk.ts`
-3. Update this README with the new resource details
-4. If new permissions are needed, ask root user to update the bootstrap stack
+   ```typescript
+   export class NewStack extends cdk.Stack {
+     constructor(scope: Construct, id: string, props: Props) {
+       super(scope, id, props);
+       // Resource definitions
+     }
+   }
+   ```
+
+2. Import in `cdk.ts`:
+
+   ```typescript
+   import { NewStack } from './stacks/new-stack';
+   ```
+
+3. Add to app:
+
+   ```typescript
+   new NewStack(app, `apadana-new-${environment}`, {
+     environment,
+     // other props
+   });
+   ```
+
+4. Update README
+
+5. Request permission updates if needed
+
+## Security Best Practices
+
+- Root user only for bootstrap
+- Minimal permissions for developers
+- VPC-deployed resources
+- Restrictive security groups
+- TLS encryption
+- AWS Secrets Manager for credentials
+- Regular secret rotation
+- Resource tagging for access control
+- Audit logging enabled
+
+## Troubleshooting
+
+1. Permission Issues:
+
+   ```bash
+   pnpm aws:deployer:create --env=preview
+   ```
+
+2. Stack Deployment Failures:
+
+   ```bash
+   AWS_DEPLOYMENT_STACK_ENV=preview pnpm aws:preflight
+   ```
+
+3. Resource Cleanup:
+   ```bash
+   AWS_DEPLOYMENT_STACK_ENV=preview pnpm cdk destroy [stack-name]
+   ```
+
+## Maintenance
+
+1. Regular Updates:
+
+   - Check for CDK updates
+   - Review security groups
+   - Rotate secrets
+   - Update instance types
+
+2. Monitoring:
+   - CloudWatch metrics
+   - RDS performance
+   - MemoryDB cluster health
+   - S3 usage and costs
