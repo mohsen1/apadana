@@ -71,3 +71,7 @@ Development Rules:
 
 - Everything beside e2e tests run in the docker. see package.json scripts
 - Run `pnpm typecheck` to check for type errors before finishing a task
+
+Deployment Rules:
+
+- Always commit changes before deploying to vercel
