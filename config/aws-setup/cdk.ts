@@ -140,22 +140,26 @@ async function main() {
 
   if (stackType === 'resources' || stackType === 'all') {
     // S3 stack with environment prop
-    new S3Stack(app, `apadana-s3-${environment}`, {
+    const s3Stack = new S3Stack(app, `apadana-s3-${environment}`, {
       env: { region, account: accountId },
       environment,
     });
 
     // MemoryDB stack with environment
-    new MemoryDBStack(app, `apadana-memorydb-${environment}`, {
+    const memoryDbStack = new MemoryDBStack(app, `apadana-memorydb-${environment}`, {
       env: { region, account: accountId },
       environment,
     });
 
     // RDS stack with environment
-    new RDSStack(app, `apadana-rds-${environment}`, {
+    const rdsStack = new RDSStack(app, `apadana-rds-${environment}`, {
       env: { region, account: accountId },
       environment,
     });
+
+    // Configure parallel deployment
+    memoryDbStack.addDependency(s3Stack);
+    rdsStack.addDependency(s3Stack);
   }
 }
 

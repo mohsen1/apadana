@@ -25,7 +25,7 @@ export class RDSStack extends cdk.Stack {
       allowAllOutbound: true,
       securityGroupName: `apadana-rds-sg-${props.environment}`,
     });
-    rdsSG.addIngressRule(ec2.Peer.ipv4(sharedVpc.vpcCidrBlock), ec2.Port.tcp(5432));
+    rdsSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(5432));
 
     const secretName = `apadana-${props.environment}-db-password`;
     const secret = new secretsmanager.Secret(this, 'RDSSecret', {
@@ -36,6 +36,14 @@ export class RDSStack extends cdk.Stack {
         includeSpace: false,
         passwordLength: 32,
         excludeCharacters: ' %+~`#$&*()|[]{}:;<>?!\'/@"\\',
+        secretStringTemplate: JSON.stringify({
+          username: 'postgres',
+          dbname: 'apadana',
+          engine: 'postgres',
+          port: 5432,
+          host: 'PLACEHOLDER',
+        }),
+        generateStringKey: 'password',
       },
       removalPolicy:
         props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
@@ -69,7 +77,7 @@ export class RDSStack extends cdk.Stack {
         backupRetention: cdk.Duration.days(7),
         allocatedStorage: 20,
         maxAllocatedStorage: 100,
-        publiclyAccessible: false,
+        publiclyAccessible: true,
         removalPolicy:
           props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
         deletionProtection: props.environment === 'production',

@@ -32,7 +32,7 @@ export class MemoryDBStack extends cdk.Stack {
       allowAllOutbound: true,
       securityGroupName: `apadana-memorydb-sg-${props.environment}`,
     });
-    memoryDbSG.addIngressRule(ec2.Peer.ipv4(sharedVpc.vpcCidrBlock), ec2.Port.tcp(6379));
+    memoryDbSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(6379));
 
     const key = new kms.Key(this, 'MemoryDBKey', {
       alias: `apadana-memorydb-key-${props.environment}`,

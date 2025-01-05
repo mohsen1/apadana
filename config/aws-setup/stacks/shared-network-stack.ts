@@ -23,6 +23,8 @@ export class SharedNetworkStack extends cdk.Stack {
         ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
         maxAzs: 2,
         natGateways: 1,
+        enableDnsHostnames: true,
+        enableDnsSupport: true,
         subnetConfiguration: [
           {
             name: 'Public',
