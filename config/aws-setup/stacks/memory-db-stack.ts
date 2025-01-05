@@ -27,15 +27,19 @@ export class MemoryDBStack extends cdk.Stack {
 
     const isProd = props.environment === 'production';
 
-    // Try to import existing cluster
-    try {
-      const existingCluster = cdk.Fn.importValue(`apadana-memorydb-endpoint-${props.environment}`);
-      if (existingCluster) {
-        logger.info('Successfully imported existing MemoryDB cluster');
-        return;
+    // Only try to import existing cluster if useExisting is true
+    if (props.useExisting) {
+      try {
+        const existingCluster = cdk.Fn.importValue(
+          `apadana-memorydb-endpoint-${props.environment}`,
+        );
+        if (existingCluster) {
+          logger.info('Successfully imported existing MemoryDB cluster');
+          return;
+        }
+      } catch (error) {
+        logger.info('No existing MemoryDB cluster found, creating new one');
       }
-    } catch (error) {
-      logger.info('No existing MemoryDB cluster found, creating new one');
     }
 
     const sharedVpc = ec2.Vpc.fromLookup(this, 'ImportedSharedVpc', {
