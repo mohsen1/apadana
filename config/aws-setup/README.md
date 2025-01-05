@@ -40,7 +40,7 @@ The infrastructure is split into several stacks:
 2. Create a deployer user (if needed):
 
    ```bash
-   pnpm aws:deployer:create
+   pnpm cdk:deployer:create
    ```
 
 3. Bootstrap the CDK (one-time setup per account/region):
