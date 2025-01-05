@@ -74,4 +74,5 @@ Development Rules:
 
 Deployment Rules:
 
-- Always commit changes before deploying to vercel
+- Always commit changes before deploying to vercel, make sure all changes are committed
+- We use Fish shell.
