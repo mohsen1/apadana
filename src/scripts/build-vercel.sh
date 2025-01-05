@@ -27,9 +27,12 @@ echo "Adding AWS environment variables..."
 echo "NEXT_PUBLIC_AWS_REGION=$AWS_REGION" >>.env
 NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$(grep AWS_S3_BUCKET_NAME .env | cut -d '=' -f2)
 echo "NEXT_PUBLIC_AWS_S3_BUCKET_NAME=$NEXT_PUBLIC_AWS_S3_BUCKET_NAME" >>.env
-cat .env
 
-# if The following environment variable is not set, exit
+pnpm cdk:print-values >.env
+
+# Load required environment variables from .env file
+source .env
+
 variables=(
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
   RESEND_API_KEY
@@ -38,20 +41,6 @@ variables=(
   S3_UPLOAD_KEY
   S3_UPLOAD_SECRET
 )
-# Load .env file
-echo "Loading .env file..."
-if [ -f .env ]; then
-  while IFS='=' read -r key value; do
-    if [ -n "$key" ] && [ -n "$value" ]; then
-      export "$key=$value"
-    fi
-  done <.env
-  echo "Environment variables loaded successfully"
-else
-  echo "Error: .env file not found"
-  exit 1
-fi
-
 for variable in "${variables[@]}"; do
   if [ -z "${!variable}" ]; then
     echo "$variable is not set"
