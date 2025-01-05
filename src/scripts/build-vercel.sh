@@ -10,24 +10,17 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
 # Create .env file
+# Create .env and populate with deployment values
 echo "Creating .env file..."
-touch .env
-ls -la .env
-
-# Save the output to .env file
-echo "Saving deployment values to .env..."
-if ! pnpm tsx src/aws-setup/scripts/print-deployment-values.ts >.env 2>print-values.err; then
-  echo "Error running print-deployment-values script:"
-  cat print-values.err
+if ! pnpm tsx src/aws-setup/scripts/print-deployment-values.ts >.env; then
+  echo "Error generating deployment values"
   exit 1
 fi
 
 if [ ! -s .env ]; then
-  echo "Error: .env file is empty after running print-deployment-values"
+  echo "Error: .env file is empty"
   exit 1
 fi
-
-cat .env
 
 # Make some AWS environment variables available to the build process
 echo "Adding AWS environment variables..."
@@ -48,9 +41,11 @@ variables=(
 # Load .env file
 echo "Loading .env file..."
 if [ -f .env ]; then
-  set -a
-  . .env
-  set +a
+  while IFS='=' read -r key value; do
+    if [ -n "$key" ] && [ -n "$value" ]; then
+      export "$key=$value"
+    fi
+  done <.env
   echo "Environment variables loaded successfully"
 else
   echo "Error: .env file not found"
