@@ -19,10 +19,11 @@ export CDK_DEFAULT_ACCOUNT=$AWS_ACCOUNT_ID
 echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with account '$CDK_DEFAULT_ACCOUNT' in $AWS_REGION region"
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
-pnpm cdk:print-values
+# Create .env file
+touch .env
 
 # Save the output to .env file
-pnpm tsx src/aws-setup/scripts/print-deployment-values.ts >>.env
+pnpm tsx src/aws-setup/scripts/print-deployment-values.ts >.env
 
 # Make some AWS environment variables available to the build process
 echo "NEXT_PUBLIC_AWS_REGION=$AWS_REGION" >>.env
