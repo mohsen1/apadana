@@ -39,39 +39,83 @@ fi
 echo "Using AWS deployment stack environment: $AWS_DEPLOYMENT_STACK_ENV"
 echo "AWS Region: $AWS_REGION"
 
+# Function to wait for resources with timeout and verbose logging
+wait_for_resources() {
+  local max_attempts=30
+  local attempt=1
+  local wait_time=10
+
+  echo "Starting resource validation with max $max_attempts attempts..."
+  echo "Will wait $wait_time seconds between attempts"
+
+  while [ $attempt -le $max_attempts ]; do
+    echo "🔄 Attempt $attempt of $max_attempts"
+
+    if pnpm run aws:preflight; then
+      echo "✅ All resources are ready!"
+      return 0
+    fi
+
+    echo "⏳ Resources not ready yet. Waiting $wait_time seconds before next attempt..."
+    sleep $wait_time
+    attempt=$((attempt + 1))
+  done
+
+  echo "❌ Timeout waiting for resources after $max_attempts attempts"
+  return 1
+}
+
+# Function to deploy resources with retries
+deploy_resources() {
+  local max_retries=3
+  local retry=1
+
+  while [ $retry -le $max_retries ]; do
+    echo "📦 Deploying resources (attempt $retry of $max_retries)..."
+
+    if pnpm run cdk:deploy:resources:ci; then
+      echo "✅ Resources deployed successfully!"
+      return 0
+    fi
+
+    echo "⚠️ Deployment failed, retrying in 10 seconds..."
+    sleep 10
+    retry=$((retry + 1))
+  done
+
+  echo "❌ Failed to deploy resources after $max_retries attempts"
+  return 1
+}
+
 # Run preflight checks to see if resources exist
-echo "Running AWS preflight checks..."
+echo "🔍 Running initial AWS preflight checks..."
 if ! pnpm run aws:preflight; then
-  echo "Resources not found, deploying AWS infrastructure..."
+  echo "📢 Resources not found, starting infrastructure deployment..."
 
   # Deploy network infrastructure first if it doesn't exist
-  echo "Checking network infrastructure..."
+  echo "🌐 Checking network infrastructure..."
   if ! pnpm run cdk:deploy:network; then
-    # If network deployment fails due to VPC limit, it might already exist
-    # Try deploying resources anyway
-    echo "Network deployment failed, assuming network exists and proceeding with resources..."
+    echo "⚠️ Network deployment failed, assuming network exists and proceeding..."
   fi
 
-  # Deploy AWS resources
-  echo "Deploying AWS resources..."
-  if ! pnpm run cdk:deploy:resources:ci; then
-    echo "Failed to deploy AWS resources"
+  # Deploy AWS resources with retries
+  if ! deploy_resources; then
+    echo "❌ Failed to deploy AWS resources"
     exit 1
   fi
 
-  echo "Waiting for AWS resources to be ready..."
-  pnpm run aws:wait-resources
-
-  # Run preflight again to verify resources
-  echo "Verifying resources..."
-  if ! pnpm run aws:preflight; then
-    echo "Resource verification failed after deployment"
+  echo "⏳ Waiting for AWS resources to be ready..."
+  if ! wait_for_resources; then
+    echo "❌ Resource verification failed after maximum attempts"
     exit 1
   fi
 fi
 
-echo "Fetching AWS configuration..."
-pnpm --silent aws:env >.env.production
+echo "⚙️ Fetching AWS configuration..."
+if ! pnpm --silent aws:env >.env.production; then
+  echo "❌ Failed to fetch AWS configuration"
+  exit 1
+fi
 
-echo "Building Next.js application..."
+echo "🏗️ Building Next.js application..."
 pnpm build
