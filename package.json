@@ -63,7 +63,10 @@
   },
   "dependencies": {
     "@adobe/react-spectrum": "^3.38.1",
+    "@aws-sdk/client-cloudformation": "^3.721.0",
     "@aws-sdk/client-iam": "^3.485.0",
+    "@aws-sdk/client-memorydb": "^3.721.0",
+    "@aws-sdk/client-rds": "^3.721.0",
     "@aws-sdk/client-s3": "^3.717.0",
     "@aws-sdk/client-sts": "^3.485.0",
     "@aws-sdk/s3-request-presigner": "^3.717.0",
@@ -136,10 +139,7 @@
     "yargs": "^17.7.2",
     "yet-another-react-lightbox": "^3.21.7",
     "zod": "^3.24.1",
-    "zod-prisma-types": "^3.2.1",
-    "@aws-sdk/client-cloudformation": "^3.485.0",
-    "@aws-sdk/client-memorydb": "^3.485.0",
-    "@aws-sdk/client-rds": "^3.485.0"
+    "zod-prisma-types": "^3.2.1"
   },
   "devDependencies": {
     "@octokit/auth-app": "^7.1.3",
