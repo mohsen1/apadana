@@ -60,7 +60,6 @@
     "cdk:diff": "cdk diff --app 'tsx config/aws-setup/cdk.ts'",
     "cdk:synth": "cdk synth --app 'tsx config/aws-setup/cdk.ts'",
     "aws:env": "tsx config/aws-setup/scripts/get-env.ts",
-    "aws:env:prod": "tsx config/aws-setup/get-config.ts",
     "aws:deployer:create": "tsx config/aws-setup/scripts/create-deployer.ts",
     "aws:wait-resources": "tsx config/aws-setup/scripts/wait-resources.ts",
     "aws:preflight": "tsx config/aws-setup/scripts/preflight.ts"

@@ -46,11 +46,9 @@ if ! pnpm run aws:preflight; then
 
   # Deploy AWS resources
   echo "Deploying AWS resources..."
-  # First deploy network stack
-  AWS_DEPLOYMENT_STACK_TYPE=network pnpm run cdk:deploy:ci
 
   # Then deploy other resources
-  AWS_DEPLOYMENT_STACK_TYPE=resources pnpm run cdk:deploy:ci
+  pnpm run cdk:deploy:resources:ci
 
   echo "Waiting for AWS resources to be ready..."
   pnpm run aws:wait-resources
