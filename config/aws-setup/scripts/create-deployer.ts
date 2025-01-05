@@ -1,4 +1,7 @@
 import { IAMClient, CreateUserCommand, AttachUserPolicyCommand, CreateAccessKeyCommand } from '@aws-sdk/client-iam';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger(__filename);
 
 (async () => {
   const iamClient = new IAMClient({});
@@ -6,10 +9,10 @@ import { IAMClient, CreateUserCommand, AttachUserPolicyCommand, CreateAccessKeyC
   const userName = process.env.AWS_DEPLOYER_USER || 'ap-deployer';
   try {
     await iamClient.send(new CreateUserCommand({ UserName: userName }));
-    console.log(`Created user: ${userName}`);
+    logger.info(`Created user: ${userName}`);
   } catch (err: any) {
     if (err.name === 'EntityAlreadyExists') {
-      console.log(`User ${userName} already exists, continuing...`);
+      logger.info(`User ${userName} already exists, continuing...`);
     } else {
       throw err;
     }
@@ -21,10 +24,10 @@ import { IAMClient, CreateUserCommand, AttachUserPolicyCommand, CreateAccessKeyC
     PolicyArn: policyArn,
     UserName: userName,
   }));
-  console.log(`Attached policy ${policyArn} to ${userName}`);
+  logger.info(`Attached policy ${policyArn} to ${userName}`);
 
   // Create access key
   const accessKey = await iamClient.send(new CreateAccessKeyCommand({ UserName: userName }));
-  console.log(`Deployer Access Key: ${accessKey.AccessKey?.AccessKeyId}`);
-  console.log(`Deployer Secret Key: ${accessKey.AccessKey?.SecretAccessKey}`);
+  logger.info(`Deployer Access Key: ${accessKey.AccessKey?.AccessKeyId}`);
+  logger.info(`Deployer Secret Key: ${accessKey.AccessKey?.SecretAccessKey}`);
 })();

@@ -6,6 +6,9 @@ import {
   aws_secretsmanager as secretsmanager
 } from 'aws-cdk-lib';
 import { getEnvConfig } from '../config/factory';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger(__filename);
 
 interface RdsStackProps extends cdk.StackProps {
   environment: string;
@@ -20,21 +23,25 @@ export class RdsStack extends cdk.Stack {
     super(scope, id, props);
 
     const cfg = getEnvConfig(props.environment);
+    logger.info(`Creating RDS stack for environment: ${props.environment}`);
 
     const dbSG = new ec2.SecurityGroup(this, 'RdsSecurityGroup', {
       vpc: props.vpc,
       description: 'RDS PostgreSQL Security Group',
       allowAllOutbound: true,
     });
+    logger.debug('Created RDS security group');
 
     if (cfg.publicDbAccess) {
       dbSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(5432), 'Public inbound for Postgres');
+      logger.debug('Added public access rule to RDS security group');
     }
 
     const dbSecret = new rds.DatabaseSecret(this, 'DbSecret', {
       secretName: `ap-rds-secret-${cfg.environment}`,
       username: 'postgres',
     });
+    logger.debug('Created RDS secret');
 
     const dbInstance = new rds.DatabaseInstance(this, 'ApadanaPostgres', {
       engine: rds.DatabaseInstanceEngine.postgres({
@@ -58,6 +65,7 @@ export class RdsStack extends cdk.Stack {
       storageEncrypted: true,
       autoMinorVersionUpgrade: true
     });
+    logger.debug('Created RDS instance');
 
     this.rdsHostOutput = new cdk.CfnOutput(this, 'RdsEndpoint', {
       exportName: `${this.stackName}-Endpoint`,
@@ -70,5 +78,6 @@ export class RdsStack extends cdk.Stack {
       value: dbSecret.secretName,
       description: 'Name of SecretsManager secret for RDS'
     });
+    logger.debug('Added RDS outputs');
   }
 }

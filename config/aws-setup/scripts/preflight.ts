@@ -1,8 +1,12 @@
 import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger(__filename);
 
 (async () => {
   const stsClient = new STSClient({});
   const identity = await stsClient.send(new GetCallerIdentityCommand({}));
-  console.log('Caller identity:', identity);
-  console.log('Preflight checks passed.');
+  logger.info('Caller identity:', identity);
+  logger.info('Preflight checks passed.');
+  process.exit(0);
 })(); 

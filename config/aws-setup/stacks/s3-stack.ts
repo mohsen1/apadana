@@ -2,6 +2,9 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { aws_s3 as s3 } from 'aws-cdk-lib';
 import { getEnvConfig } from '../config/factory';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger(__filename);
 
 interface S3StackProps extends cdk.StackProps {
   environment: string;
@@ -14,8 +17,8 @@ export class S3Stack extends cdk.Stack {
     super(scope, id, props);
 
     const cfg = getEnvConfig(props.environment);
+    logger.info(`Creating S3 stack for environment: ${props.environment}`);
 
-    // S3 bucket for that environment
     const bucket = new s3.Bucket(this, 'ApadanaBucket', {
       bucketName: `ap-${cfg.environment}-${this.account}-${this.region}`,
       versioned: true,
@@ -24,17 +27,19 @@ export class S3Stack extends cdk.Stack {
       enforceSSL: true,
       removalPolicy: cdk.RemovalPolicy.RETAIN
     });
+    logger.debug('Created S3 bucket');
 
-    // Example lifecycle rules for cost optimization
     bucket.addLifecycleRule({
       abortIncompleteMultipartUploadAfter: cdk.Duration.days(7),
       enabled: true,
     });
+    logger.debug('Added lifecycle rule to S3 bucket');
 
     this.bucketNameOutput = new cdk.CfnOutput(this, 'BucketName', {
       exportName: `${this.stackName}-BucketName`,
       value: bucket.bucketName,
       description: 'Name of the S3 bucket'
     });
+    logger.debug('Added bucket name output');
   }
 } 

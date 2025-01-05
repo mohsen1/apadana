@@ -1,11 +1,14 @@
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger(__filename);
 
 interface CloudFormationError {
   name: string;
   message: string;
 }
 
-(async () => {
+export async function waitForReady() {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
   const stackNames = [
     `IamStack-${env}`,
@@ -19,19 +22,19 @@ interface CloudFormationError {
 
   for (const stackName of stackNames) {
     let isReady = false;
-    console.log(`Waiting for stack: ${stackName}`);
+    logger.info(`Waiting for stack: ${stackName}`);
 
     while (!isReady) {
       try {
         const res = await client.send(new DescribeStacksCommand({ StackName: stackName }));
         const status = res.Stacks?.[0]?.StackStatus ?? 'UNKNOWN';
-        console.log(`${stackName} => ${status}`);
+        logger.debug(`${stackName} => ${status}`);
 
         // Check if stable/successful
         if (status.endsWith('_COMPLETE') && !status.startsWith('ROLLBACK')) {
           isReady = true;
         } else if (status.endsWith('_FAILED') || status.includes('ROLLBACK')) {
-          console.error(`Stack ${stackName} failed with status: ${status}`);
+          logger.error(`Stack ${stackName} failed with status: ${status}`);
           process.exit(1);
         } else {
           // Sleep 10 seconds, then check again
@@ -40,7 +43,7 @@ interface CloudFormationError {
       } catch (error) {
         const cfError = error as CloudFormationError;
         if (cfError.name === 'ValidationError' && cfError.message.includes('does not exist')) {
-          console.log(`${stackName} => NOT_CREATED_YET`);
+          logger.debug(`${stackName} => NOT_CREATED_YET`);
           await new Promise((resolve) => setTimeout(resolve, 10000));
         } else {
           throw error;
@@ -48,9 +51,21 @@ interface CloudFormationError {
       }
     }
 
-    console.log(`Stack ${stackName} is ready`);
+    logger.info(`Stack ${stackName} is ready`);
   }
 
-  console.log('All stacks are ready.');
-  process.exit(0);
-})(); 
+  logger.info('All stacks are ready.');
+}
+
+export async function main() {
+  try {
+    await waitForReady();
+  } catch (err) {
+    logger.error('Error waiting for resources:', err);
+    process.exit(1);
+  }
+}
+
+if (require.main === module) {
+  void main();
+} 
