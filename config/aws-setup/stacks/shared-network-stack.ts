@@ -43,11 +43,6 @@ export class SharedNetworkStack extends cdk.Stack {
             cidrMask: 24,
           },
         ],
-        gatewayEndpoints: {
-          S3: {
-            service: ec2.GatewayVpcEndpointAwsService.S3,
-          },
-        },
       });
 
       // Create and attach Internet Gateway
@@ -70,6 +65,9 @@ export class SharedNetworkStack extends cdk.Stack {
           destinationCidrBlock: '0.0.0.0/0',
           gatewayId: igw.ref,
         });
+
+        // Tag public subnets
+        cdk.Tags.of(subnet).add('Name', `apadana-public-subnet-${index + 1}`);
       });
 
       // Tag all resources
@@ -77,11 +75,19 @@ export class SharedNetworkStack extends cdk.Stack {
       cdk.Tags.of(this.vpc).add('Name', 'apadana-shared-vpc');
     }
 
-    // Output VPC ID for cross-stack references
+    // Output VPC ID and subnet information
     new cdk.CfnOutput(this, 'SharedVpcId', {
       value: this.vpc.vpcId,
       description: 'Shared VPC ID for Apadana',
       exportName: 'ApadanaSharedVpcId',
+    });
+
+    this.vpc.publicSubnets.forEach((subnet, index) => {
+      new cdk.CfnOutput(this, `PublicSubnet${index + 1}Id`, {
+        value: subnet.subnetId,
+        description: `Public Subnet ${index + 1} ID`,
+        exportName: `ApadanaPublicSubnet${index + 1}Id`,
+      });
     });
   }
 }
