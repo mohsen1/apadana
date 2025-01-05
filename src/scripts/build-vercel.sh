@@ -44,10 +44,10 @@ echo "Running AWS preflight checks..."
 if ! pnpm run aws:preflight; then
   echo "Resources not found, deploying AWS infrastructure..."
 
-  # Deploy shared infrastructure first if it doesn't exist
-  echo "Deploying shared infrastructure..."
-  if ! pnpm run cdk:deploy:shared; then
-    echo "Failed to deploy shared infrastructure"
+  # Deploy network infrastructure first if it doesn't exist
+  echo "Deploying network infrastructure..."
+  if ! pnpm run cdk:deploy:network; then
+    echo "Failed to deploy network infrastructure"
     exit 1
   fi
 
@@ -62,7 +62,6 @@ if ! pnpm run aws:preflight; then
   echo "Verifying resources..."
   pnpm run aws:preflight
 fi
-
 echo "Fetching AWS configuration..."
 pnpm --silent aws:env >.env.production
 
