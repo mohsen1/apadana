@@ -46,7 +46,7 @@ export class MemoryDBStack extends cdk.Stack {
     const sharedVpcId = cdk.Fn.importValue('ApadanaSharedVpcId');
     const sharedVpc = ec2.Vpc.fromVpcAttributes(this, 'ImportedSharedVpc', {
       vpcId: sharedVpcId,
-      availabilityZones: cdk.Stack.of(this).availabilityZones,
+      availabilityZones: ['us-east-1a', 'us-east-1b'],
       privateSubnetIds: [
         cdk.Fn.importValue('ApadanaPrivateSubnet1Id'),
         cdk.Fn.importValue('ApadanaPrivateSubnet2Id'),
