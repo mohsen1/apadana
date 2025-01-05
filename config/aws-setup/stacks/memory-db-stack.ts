@@ -10,8 +10,6 @@ import { Construct } from 'constructs';
 import { SecurityConfig } from '../security-config';
 
 interface MemoryDBStackProps extends cdk.StackProps {
-  vpc: ec2.Vpc;
-  securityGroup: ec2.SecurityGroup;
   environment: string;
   nodeType?: string;
   numShards?: number;
@@ -24,37 +22,31 @@ export class MemoryDBStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: MemoryDBStackProps) {
     super(scope, id, props);
 
+    // Import the shared VPC
+    const sharedVpc = ec2.Vpc.fromLookup(this, 'ImportedSharedVpc', {
+      vpcName: 'apadana-shared-vpc',
+    });
+
+    // Create environment-specific security group
+    const memoryDbSG = new ec2.SecurityGroup(this, 'MemoryDBSecurityGroup', {
+      vpc: sharedVpc,
+      description: `Security group for MemoryDB - ${props.environment}`,
+      allowAllOutbound: true,
+      securityGroupName: `apadana-memorydb-sg-${props.environment}`,
+    });
+    memoryDbSG.addIngressRule(ec2.Peer.ipv4(sharedVpc.vpcCidrBlock), ec2.Port.tcp(6379));
+
     // Create KMS key for encryption
     const key = new kms.Key(this, 'MemoryDBKey', {
-      enableKeyRotation: SecurityConfig.memoryDb.encryption.kmsKeyRotation,
+      alias: `apadana-memorydb-key-${props.environment}`,
       description: `KMS key for MemoryDB encryption - ${props.environment}`,
+      enableKeyRotation: true,
       removalPolicy:
         props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
 
-    // Add CloudWatch Logs service principal to KMS key policy
-    key.addToResourcePolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        principals: [new iam.ServicePrincipal('logs.amazonaws.com')],
-        actions: [
-          'kms:Encrypt*',
-          'kms:Decrypt*',
-          'kms:ReEncrypt*',
-          'kms:GenerateDataKey*',
-          'kms:Describe*',
-        ],
-        resources: ['*'],
-        conditions: {
-          ArnLike: {
-            'kms:EncryptionContext:aws:logs:arn': `arn:aws:logs:${this.region}:${this.account}:*`,
-          },
-        },
-      }),
-    );
-
-    // Create log group (or import if it exists)
-    const logGroupName = `apadana-memorydb-logs-${props.environment}-${this.account}-${this.region}`;
+    // Create CloudWatch log group
+    const logGroupName = `/apadana/memorydb/${props.environment}`;
     let logGroup: logs.ILogGroup;
     try {
       logGroup = logs.LogGroup.fromLogGroupName(this, 'MemoryDBLogs', logGroupName);
@@ -69,7 +61,7 @@ export class MemoryDBStack extends cdk.Stack {
 
     // Create subnet group for MemoryDB
     const subnetGroup = new memorydb.CfnSubnetGroup(this, 'MemoryDBSubnetGroup', {
-      subnetIds: props.vpc.privateSubnets.map((subnet) => subnet.subnetId),
+      subnetIds: sharedVpc.publicSubnets.map((subnet) => subnet.subnetId),
       subnetGroupName: `apadana-memorydb-subnet-${props.environment}`,
     });
     subnetGroup.cfnOptions.deletionPolicy =
@@ -127,7 +119,7 @@ export class MemoryDBStack extends cdk.Stack {
       aclName: acl.aclName,
       engineVersion: props.engineVersion || '7.0',
       port: props.port || 6379,
-      securityGroupIds: [props.securityGroup.securityGroupId],
+      securityGroupIds: [memoryDbSG.securityGroupId],
       tlsEnabled: SecurityConfig.memoryDb.encryption.inTransit,
       kmsKeyId: key.keyArn,
       snapshotWindow: SecurityConfig.memoryDb.backup.snapshotWindow,
@@ -177,5 +169,9 @@ export class MemoryDBStack extends cdk.Stack {
       description: 'CloudWatch Log Group for MemoryDB',
       exportName: `apadana-memorydb-log-group-${props.environment}`,
     });
+
+    // Tag all resources
+    cdk.Tags.of(this).add('Environment', props.environment);
+    cdk.Tags.of(this).add('Project', 'Apadana');
   }
 }

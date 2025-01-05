@@ -12,9 +12,9 @@ import { config } from 'dotenv';
 import { BootstrapStack } from './stacks/bootstrap-stack';
 import { IAMStack } from './stacks/iam-stack';
 import { MemoryDBStack } from './stacks/memory-db-stack';
-import { NetworkStack } from './stacks/network-stack';
 import { RDSStack } from './stacks/rds-stack';
 import { S3Stack } from './stacks/s3-stack';
+import { SharedNetworkStack } from './stacks/shared-network-stack';
 
 // Load environment variables from .env.local
 config({ path: process.env.NODE_ENV === 'production' ? '.env' : '.env.local' });
@@ -146,33 +146,30 @@ async function main() {
     });
   }
 
-  if (stackType === 'resources' || stackType === 'all') {
-    // Network stack with environment prop
-    const networkStack = new NetworkStack(app, `apadana-network-${environment}`, {
+  if (stackType === 'network' || stackType === 'all') {
+    // Deploy shared network stack (only once)
+    new SharedNetworkStack(app, 'apadana-shared-network', {
       env: { region },
-      environment,
     });
+  }
 
+  if (stackType === 'resources' || stackType === 'all') {
     // S3 stack with environment prop
     new S3Stack(app, `apadana-s3-${environment}`, {
       env: { region },
       environment,
     });
 
-    // MemoryDB stack with environment and network props
+    // MemoryDB stack with environment
     new MemoryDBStack(app, `apadana-memorydb-${environment}`, {
       env: { region },
       environment,
-      vpc: networkStack.vpc,
-      securityGroup: networkStack.memoryDbSG,
     });
 
-    // RDS stack with environment and network props
+    // RDS stack with environment
     new RDSStack(app, `apadana-rds-${environment}`, {
       env: { region },
       environment,
-      vpc: networkStack.vpc,
-      securityGroup: networkStack.rdsSG,
     });
   }
 }

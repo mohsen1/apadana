@@ -5,8 +5,6 @@ import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
 interface RDSStackProps extends cdk.StackProps {
-  vpc: ec2.IVpc;
-  securityGroup: ec2.SecurityGroup;
   environment: string;
 }
 
@@ -16,7 +14,21 @@ export class RDSStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: RDSStackProps) {
     super(scope, id, props);
 
-    // Create or import the secret for RDS credentials
+    // Import the shared VPC
+    const sharedVpc = ec2.Vpc.fromLookup(this, 'ImportedSharedVpc', {
+      vpcName: 'apadana-shared-vpc',
+    });
+
+    // Create environment-specific security group
+    const rdsSG = new ec2.SecurityGroup(this, 'RDSSecurityGroup', {
+      vpc: sharedVpc,
+      description: `Security group for RDS - ${props.environment}`,
+      allowAllOutbound: true,
+      securityGroupName: `apadana-rds-sg-${props.environment}`,
+    });
+    rdsSG.addIngressRule(ec2.Peer.ipv4(sharedVpc.vpcCidrBlock), ec2.Port.tcp(5432));
+
+    // Create secret for RDS credentials
     const secret = new secretsmanager.Secret(this, 'RDSSecret', {
       secretName: `apadana-${props.environment}-db-password`,
       description: `Database password for Apadana ${props.environment} environment`,
@@ -36,11 +48,11 @@ export class RDSStack extends cdk.Stack {
       }),
       instanceIdentifier: `apadana-${props.environment}`,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
-      vpc: props.vpc,
+      vpc: sharedVpc,
       vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        subnetType: ec2.SubnetType.PUBLIC,
       },
-      securityGroups: [props.securityGroup],
+      securityGroups: [rdsSG],
       databaseName: 'apadana',
       credentials: rds.Credentials.fromSecret(secret, 'postgres'),
       backupRetention: cdk.Duration.days(7),
@@ -52,6 +64,7 @@ export class RDSStack extends cdk.Stack {
       deletionProtection: props.environment === 'production',
     });
 
+    // Outputs
     new cdk.CfnOutput(this, 'DatabaseEndpoint', {
       value: this.instance.instanceEndpoint.hostname,
       description: 'Database endpoint',
@@ -63,5 +76,9 @@ export class RDSStack extends cdk.Stack {
       description: 'Database credentials secret ARN',
       exportName: `ApadanaDatabaseSecretArn-${props.environment}`,
     });
+
+    // Tag all resources
+    cdk.Tags.of(this).add('Environment', props.environment);
+    cdk.Tags.of(this).add('Project', 'Apadana');
   }
 }
