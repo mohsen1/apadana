@@ -10,7 +10,9 @@ export class SharedNetworkStack extends cdk.Stack {
 
     // Import existing shared VPC
     this.vpc = ec2.Vpc.fromLookup(this, 'SharedVpc', {
-      vpcId: 'vpc-0576ee079f3c8d8c4',
+      tags: {
+        Name: 'apadana-shared-vpc',
+      },
     });
 
     // Tag all resources
