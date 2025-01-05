@@ -67,36 +67,20 @@ export class MemoryDBStack extends cdk.Stack {
         ? cdk.CfnDeletionPolicy.RETAIN
         : cdk.CfnDeletionPolicy.DELETE;
 
+    // Always create a new secret with a fixed name
     const secretName = `apadana-memorydb-secret-${props.environment}`;
-    let secret: secretsmanager.ISecret;
-    let memoryDbPassword: string;
-
-    try {
-      // Try to import existing secret
-      secret = secretsmanager.Secret.fromSecretNameV2(this, 'MemoryDBSecret', secretName);
-      console.log('Using existing MemoryDB secret');
-      memoryDbPassword = secret.secretValue.unsafeUnwrap();
-    } catch (error) {
-      // Create new secret with a timestamp to avoid conflicts
-      const timestamp = new Date().getTime();
-      const newSecretName = `${secretName}-${timestamp}`;
-      const tempPassword = 'TempPassword123!'; // Temporary password for initial creation
-
-      secret = new secretsmanager.Secret(this, 'MemoryDBSecret', {
-        description: `MemoryDB user password for ${props.environment}`,
-        secretName: newSecretName,
-        generateSecretString: {
-          excludePunctuation: true,
-          includeSpace: false,
-          passwordLength: 32,
-          excludeCharacters: ' %+~`#$&*()|[]{}:;<>?!\'/@"\\',
-        },
-        removalPolicy:
-          props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
-      });
-      console.log('Created new MemoryDB secret with name:', newSecretName);
-      memoryDbPassword = tempPassword;
-    }
+    const secret = new secretsmanager.Secret(this, 'MemoryDBSecret', {
+      secretName,
+      description: `MemoryDB user password for ${props.environment}`,
+      generateSecretString: {
+        excludePunctuation: true,
+        includeSpace: false,
+        passwordLength: 32,
+        excludeCharacters: ' %+~`#$&*()|[]{}:;<>?!\'/@"\\',
+      },
+      removalPolicy:
+        props.environment === 'production' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
 
     // Create MemoryDB user with forced dependency on secret
     const userName = `apadana-user-${props.environment}`;
@@ -105,7 +89,7 @@ export class MemoryDBStack extends cdk.Stack {
       accessString: SecurityConfig.memoryDb.accessString,
       authenticationMode: {
         Type: 'password',
-        Passwords: [memoryDbPassword],
+        Passwords: [secret.secretValue.unsafeUnwrap()],
       },
     });
 
