@@ -13,12 +13,16 @@ export class S3Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: S3StackProps) {
     super(scope, id, props);
 
-    // Create the uploads bucket with environment-specific name
+    // Import the existing uploads bucket
     const bucketName =
       props.environment === 'preview'
         ? `apadana-uploads-preview`
         : `apadana-uploads-${props.environment}`;
 
+    // First import the bucket
+    const importedBucket = s3.Bucket.fromBucketName(this, 'ImportedUploadsBucket', bucketName);
+
+    // Then create a new bucket with the same name to manage its configuration
     this.uploadsBucket = new s3.Bucket(this, 'UploadsBucket', {
       bucketName,
       publicReadAccess: true,
@@ -28,11 +32,6 @@ export class S3Stack extends cdk.Stack {
         ignorePublicAcls: false,
         restrictPublicBuckets: false,
       }),
-      // Use DESTROY for preview environments, RETAIN for others
-      removalPolicy:
-        props.environment === 'preview' ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
-      // Enable auto-delete for preview environments
-      autoDeleteObjects: props.environment === 'preview',
       versioned: true,
       cors: [
         {
@@ -58,6 +57,7 @@ export class S3Stack extends cdk.Stack {
               },
             ]
           : undefined,
+      removalPolicy: cdk.RemovalPolicy.RETAIN, // Never delete the bucket
     });
 
     // Add bucket policy for public access
