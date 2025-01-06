@@ -58,7 +58,16 @@ const getUploadSignedUrl = actionClient
         parsedInput.files.map(async (file) => {
           // Generate a unique key for each file
           const fileExtension = file.filename.split('.').pop() ?? '';
-          const key = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}/${crypto.randomUUID()}.${fileExtension}`;
+          const path = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}`;
+          let filename = crypto.randomUUID();
+
+          // Mark files uploaded for e2e testing for easier identification.
+          // A clean up script can be run to delete these files after e2e tests are run.
+          if (process.env.NEXT_PUBLIC_TEST_ENV === 'e2e') {
+            filename = `e2e_test_upload_${filename}`;
+          }
+
+          const key = `${path}/${filename}${fileExtension ? `.${fileExtension}` : ''}`;
 
           const command = new PutObjectCommand({
             Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,

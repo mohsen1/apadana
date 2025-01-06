@@ -13,6 +13,7 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
 # Generate .env file with deployment values
+touch .env
 pnpm tsx src/aws-setup/scripts/print-deployment-values.ts >.env
 
 # Enable exporting of all sourced variables
