@@ -36,6 +36,9 @@ async function checkRdsConnection() {
     // Simple query to verify connection
     await prisma.$queryRaw`SELECT 1`;
     logger.info('RDS connection successful');
+  } catch (error) {
+    logger.error('RDS connection failed, DATABASE_URL: ', process.env.DATABASE_URL);
+    throw error;
   } finally {
     await prisma.$disconnect();
   }
