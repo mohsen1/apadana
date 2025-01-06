@@ -14,6 +14,7 @@ interface S3StackProps extends cdk.StackProps {
 
 export class S3Stack extends cdk.Stack {
   public readonly bucketNameOutput: cdk.CfnOutput;
+  public readonly bucket: s3.IBucket;
 
   constructor(scope: Construct, id: string, props: S3StackProps) {
     super(scope, id, props);
@@ -25,13 +26,8 @@ export class S3Stack extends cdk.Stack {
       bucketName: `ap-${cfg.environment}-${this.account}-${this.region}`,
       versioned: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
-      publicReadAccess: true,
-      blockPublicAccess: new s3.BlockPublicAccess({
-        blockPublicAcls: false,
-        blockPublicPolicy: false,
-        ignorePublicAcls: false,
-        restrictPublicBuckets: false,
-      }),
+      publicReadAccess: false,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       enforceSSL: true,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       cors: [
@@ -68,6 +64,7 @@ export class S3Stack extends cdk.Stack {
     });
     logger.debug('Added lifecycle rule to S3 bucket');
 
+    this.bucket = bucket;
     this.bucketNameOutput = new cdk.CfnOutput(this, 'BucketName', {
       exportName: `${this.stackName}-BucketName`,
       value: bucket.bucketName,

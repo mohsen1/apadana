@@ -79,9 +79,14 @@ export function useFileUploader({
 
     const UPLOAD_BUCKET = process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME;
     const UPLOAD_REGION = process.env.NEXT_PUBLIC_AWS_REGION;
+    const CLOUDFRONT_DOMAIN = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN;
 
     if (shouldUseFakeUploads) {
       return `/images/e2e/uploads/${key}`;
+    }
+
+    if (!CLOUDFRONT_DOMAIN) {
+      throw new Error('CLOUDFRONT_DOMAIN is not set');
     }
 
     return `https://${UPLOAD_BUCKET}.s3.${UPLOAD_REGION}.amazonaws.com/${key}`;

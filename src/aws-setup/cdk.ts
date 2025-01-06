@@ -1,73 +1,54 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { Tags } from 'aws-cdk-lib';
+import 'source-map-support/register';
 
-import { BootstrapStack } from '@/aws-setup/stacks/bootstrap-stack';
+import { createLogger } from '@/utils/logger';
 
-import { getEnvConfig } from './config/factory';
-import { validateConfig } from './config/validate';
+import { CloudFrontStack } from './stacks/cloudfront-stack';
 import { IamStack } from './stacks/iam-stack';
 import { MemoryDbStack } from './stacks/memory-db-stack';
 import { RdsStack } from './stacks/rds-stack';
 import { S3Stack } from './stacks/s3-stack';
 import { SharedNetworkStack } from './stacks/shared-network-stack';
 
-const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
+const logger = createLogger(__filename);
 
 const app = new cdk.App();
 
-// Add standard tags to all resources
-Tags.of(app).add('managed-by', 'apadana-aws-setup');
-Tags.of(app).add('environment', environment);
-Tags.of(app).add('created-at', new Date().toISOString());
+const environment = process.env.ENVIRONMENT || 'development';
+logger.info(`Deploying CDK app for environment: ${environment}`);
 
-const cfg = getEnvConfig(environment);
-validateConfig(cfg);
-
-// Bootstrap CDK
-new BootstrapStack(app, `BootstrapStack-${environment}`, {
+const sharedNetworkStack = new SharedNetworkStack(app, `ap-network-${environment}`, {
   environment,
-  env: { region: cfg.region },
 });
+logger.debug('Created shared network stack');
 
-//
-// Shared IAM stack
-//
-new IamStack(app, `IamStack-${environment}`, {
+const s3Stack = new S3Stack(app, `ap-s3-${environment}`, {
   environment,
-  env: { region: cfg.region },
 });
+logger.debug('Created S3 stack');
 
-//
-// Shared network (VPC, subnets, etc.)
-//
-const networkStack = new SharedNetworkStack(app, `SharedNetworkStack-${environment}`, {
+new CloudFrontStack(app, `ap-cloudfront-${environment}`, {
   environment,
-  env: { region: cfg.region },
+  bucket: s3Stack.bucket,
 });
+logger.debug('Created CloudFront stack');
 
-//
-// MemoryDB (Redis) stack
-//
-new MemoryDbStack(app, `MemoryDbStack-${environment}`, {
+new IamStack(app, `ap-iam-${environment}`, {
   environment,
-  vpc: networkStack.vpc,
-  env: { region: cfg.region },
 });
+logger.debug('Created IAM stack');
 
-//
-// RDS (PostgreSQL) stack
-//
-new RdsStack(app, `RdsStack-${environment}`, {
+new RdsStack(app, `ap-rds-${environment}`, {
   environment,
-  vpc: networkStack.vpc,
-  env: { region: cfg.region },
+  vpc: sharedNetworkStack.vpc,
 });
+logger.debug('Created RDS stack');
 
-//
-// S3 stack
-//
-new S3Stack(app, `S3Stack-${environment}`, {
+new MemoryDbStack(app, `ap-memorydb-${environment}`, {
   environment,
-  env: { region: cfg.region },
+  vpc: sharedNetworkStack.vpc,
 });
+logger.debug('Created MemoryDB stack');
+
+app.synth();

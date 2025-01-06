@@ -10,7 +10,12 @@ logger.disable();
 
 (async () => {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
-  const stackNames = [`MemoryDbStack-${env}`, `RdsStack-${env}`, `S3Stack-${env}`];
+  const stackNames = [
+    `ap-memorydb-${env}`,
+    `ap-rds-${env}`,
+    `ap-s3-${env}`,
+    `ap-cloudfront-${env}`,
+  ];
 
   logger.info(`Fetching outputs for environment: ${env}`);
 
@@ -20,6 +25,7 @@ logger.disable();
   let redisUrl = '';
   let dbUrl = '';
   let s3Bucket = '';
+  let cloudfrontDomain = '';
 
   for (const stackName of stackNames) {
     try {
@@ -64,6 +70,12 @@ logger.disable();
           s3Bucket = val;
           logger.debug('Found S3 bucket name');
         }
+
+        // Check for CloudFront
+        if (key === 'DistributionDomain' && val) {
+          cloudfrontDomain = val;
+          logger.debug('Found CloudFront distribution domain');
+        }
       }
     } catch (err) {
       logger.error(`Error describing stack ${stackName}:`, err);
@@ -78,4 +90,5 @@ logger.disable();
   // Next.js public environment variables
   process.stdout.write(`NEXT_PUBLIC_AWS_S3_BUCKET_NAME=${s3Bucket}\n`);
   process.stdout.write(`NEXT_PUBLIC_AWS_REGION=${process.env.AWS_REGION}\n`);
+  process.stdout.write(`NEXT_PUBLIC_CLOUDFRONT_DOMAIN=${cloudfrontDomain}\n`);
 })();
