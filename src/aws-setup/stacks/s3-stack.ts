@@ -43,6 +43,7 @@ export class S3Stack extends cdk.Stack {
             'https://apadana.app',
             'https://*.apadana.app',
             'https://*.vercel.app',
+            'https://apadana-*.vercel.app',
           ],
           allowedHeaders: ['*'],
           exposedHeaders: [
