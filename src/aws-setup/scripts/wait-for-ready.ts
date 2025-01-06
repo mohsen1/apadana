@@ -1,6 +1,7 @@
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
-import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
+
+import prisma from '@/lib/prisma';
 
 import { createLogger } from '@/utils/logger';
 
@@ -30,7 +31,6 @@ async function checkRedisConnection() {
 
 async function checkRdsConnection() {
   logger.info('Checking RDS connection...');
-  const prisma = new PrismaClient();
   try {
     await prisma.$connect();
     // Simple query to verify connection
@@ -93,8 +93,7 @@ export async function waitForReady() {
   let retries = 5;
   while (retries > 0) {
     try {
-      await checkRedisConnection();
-      await checkRdsConnection();
+      await Promise.all([checkRedisConnection(), checkRdsConnection()]);
       break;
     } catch (error) {
       logger.warn(`Database connection check failed. Retries left: ${retries - 1}`, error);

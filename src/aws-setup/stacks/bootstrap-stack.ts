@@ -45,7 +45,7 @@ export class BootstrapStack extends cdk.Stack {
     cdkBucket.grantReadWrite(filePublishingRole);
 
     // Create the lookup role with standard name
-    const lookupRole = new iam.Role(this, 'LookupRole', {
+    new iam.Role(this, 'LookupRole', {
       roleName: `cdk-${props.environment}-lookup-role-${this.account}-${this.region}`,
       assumedBy: new iam.AccountPrincipal(this.account),
       managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('ReadOnlyAccess')],
