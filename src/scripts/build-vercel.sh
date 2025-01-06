@@ -28,6 +28,11 @@ done
 # Wait for resources to be ready
 echo "Waiting for AWS resources to be ready..."
 pnpm prisma:generate
+
+# Wait a bit for Redis to be fully available
+echo "Waiting for Redis to be fully available..."
+sleep 30
+
 pnpm cdk:wait
 
 # Deploy Prisma migrations

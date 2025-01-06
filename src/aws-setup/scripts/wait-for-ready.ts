@@ -19,11 +19,37 @@ async function checkRedisConnection() {
     throw new Error('REDIS_URL is not defined');
   }
 
-  const client = createClient({ url: redisUrl });
+  logger.debug(
+    'Attempting to connect to Redis at:',
+    redisUrl.replace(/redis:\/\/(.*?)@/, 'redis://***@'),
+  );
+  const client = createClient({
+    url: redisUrl,
+    socket: {
+      connectTimeout: 5000, // 5 seconds timeout
+      reconnectStrategy: (retries) => {
+        logger.debug(`Redis reconnect attempt ${retries}`);
+        if (retries > 3) {
+          return new Error('Redis max retries reached');
+        }
+        return Math.min(retries * 1000, 3000);
+      },
+    },
+  });
+
+  client.on('error', (err) => {
+    logger.error('Redis client error:', err);
+  });
+
   try {
     await client.connect();
+    logger.debug('Redis connection established, attempting ping...');
     await client.ping();
     logger.info('Redis connection successful');
+  } catch (error) {
+    logger.error('Redis connection failed:', error);
+    logger.debug('Redis URL (sanitized):', redisUrl.replace(/redis:\/\/(.*?)@/, 'redis://***@'));
+    throw error;
   } finally {
     await client.disconnect();
   }
