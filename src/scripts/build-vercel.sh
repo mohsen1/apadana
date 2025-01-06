@@ -27,6 +27,7 @@ done
 
 # Wait for resources to be ready
 echo "Waiting for AWS resources to be ready..."
+pnpm prisma:generate
 pnpm cdk:wait
 
 # Deploy Prisma migrations
