@@ -182,7 +182,6 @@
   },
   "scripts": {
     "build": "prisma generate --schema=src/prisma/schema.prisma --no-hints && NEXT_CONFIG_FILE=config/next.config.ts next build",
-    "build-storybook": "storybook build",
     "cdk:cleanup": "tsx src/aws-setup/scripts/cleanup-untagged.ts",
     "cdk:deploy": "cdk deploy",
     "cdk:deploy:resources": "cdk deploy --all",

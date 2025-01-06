@@ -10,6 +10,7 @@ import {
   GetBucketTaggingCommand,
   ListBucketsCommand,
   S3Client,
+  S3ServiceException,
 } from '@aws-sdk/client-s3';
 
 import { assertError } from '@/utils';
@@ -25,19 +26,41 @@ async function cleanupUntaggedResources() {
     // List all CloudFormation stacks
     const stacks = await cfClient.send(new ListStacksCommand({}));
     for (const stackSummary of stacks.StackSummaries || []) {
-      const stackDetails = await cfClient.send(
-        new DescribeStacksCommand({
-          StackName: stackSummary.StackName,
-        }),
-      );
-      const stack = stackDetails.Stacks?.[0];
-      if (!stack) continue;
+      try {
+        // Skip stacks that are already being deleted or have been deleted
+        if (
+          stackSummary.StackStatus === 'DELETE_IN_PROGRESS' ||
+          stackSummary.StackStatus === 'DELETE_COMPLETE'
+        ) {
+          continue;
+        }
 
-      const tags = stack.Tags || [];
-      if (!tags.some((tag: Tag) => tag.Key === 'managed-by' && tag.Value === 'apadana-aws-setup')) {
-        logger.warn(`Found untagged stack: ${stack.StackName}`);
-        await cfClient.send(new DeleteStackCommand({ StackName: stack.StackName }));
-        logger.info(`Deleted untagged stack: ${stack.StackName}`);
+        const stackDetails = await cfClient.send(
+          new DescribeStacksCommand({
+            StackName: stackSummary.StackName,
+          }),
+        );
+        const stack = stackDetails.Stacks?.[0];
+        if (!stack) continue;
+
+        const tags = stack.Tags || [];
+        if (
+          !tags.some((tag: Tag) => tag.Key === 'managed-by' && tag.Value === 'apadana-aws-setup')
+        ) {
+          logger.warn(`Found untagged stack: ${stack.StackName}`);
+          try {
+            await cfClient.send(new DeleteStackCommand({ StackName: stack.StackName }));
+            logger.info(`Deleted untagged stack: ${stack.StackName}`);
+          } catch (deleteError) {
+            assertError(deleteError);
+            logger.error(`Failed to delete stack ${stack.StackName}:`, deleteError.message);
+          }
+        }
+      } catch (stackError) {
+        assertError(stackError);
+        // Skip if stack doesn't exist or other stack-specific errors
+        logger.warn(`Skipping stack ${stackSummary.StackName}: ${stackError.message}`);
+        continue;
       }
     }
 
@@ -49,15 +72,31 @@ async function cleanupUntaggedResources() {
         const tags = tagging.TagSet || [];
         if (!tags.some((tag) => tag.Key === 'managed-by' && tag.Value === 'apadana-aws-setup')) {
           logger.warn(`Found untagged bucket: ${bucket.Name}`);
+          try {
+            await s3Client.send(new DeleteBucketCommand({ Bucket: bucket.Name }));
+            logger.info(`Deleted untagged bucket: ${bucket.Name}`);
+          } catch (deleteError) {
+            assertError(deleteError);
+            logger.error(`Failed to delete bucket ${bucket.Name}:`, deleteError.message);
+          }
+        }
+      } catch (bucketError) {
+        if (
+          bucketError instanceof S3ServiceException &&
+          bucketError.$metadata?.httpStatusCode === 404
+        ) {
+          logger.warn(`Bucket ${bucket.Name} not found, skipping...`);
+          continue;
+        }
+        // If bucket has no tags, try to delete it
+        logger.warn(`Bucket ${bucket.Name} has no tags, attempting to delete...`);
+        try {
           await s3Client.send(new DeleteBucketCommand({ Bucket: bucket.Name }));
           logger.info(`Deleted untagged bucket: ${bucket.Name}`);
+        } catch (deleteError) {
+          assertError(deleteError);
+          logger.error(`Failed to delete bucket ${bucket.Name}:`, deleteError.message);
         }
-      } catch (error) {
-        assertError(error);
-        // If bucket has no tags, delete it
-        logger.warn(`Bucket ${bucket.Name} has no tags, deleting...`);
-        await s3Client.send(new DeleteBucketCommand({ Bucket: bucket.Name }));
-        logger.info(`Deleted untagged bucket: ${bucket.Name}`);
       }
     }
 
