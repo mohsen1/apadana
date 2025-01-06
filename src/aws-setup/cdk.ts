@@ -2,6 +2,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { Tags } from 'aws-cdk-lib';
 
+import { BootstrapStack } from '@/aws-setup/stacks/bootstrap-stack';
+
 import { getEnvConfig } from './config/factory';
 import { validateConfig } from './config/validate';
 import { IamStack } from './stacks/iam-stack';
@@ -21,6 +23,12 @@ Tags.of(app).add('created-at', new Date().toISOString());
 
 const cfg = getEnvConfig(environment);
 validateConfig(cfg);
+
+// Bootstrap CDK
+new BootstrapStack(app, `BootstrapStack-${environment}`, {
+  environment,
+  env: { region: cfg.region },
+});
 
 //
 // Shared IAM stack

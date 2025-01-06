@@ -182,7 +182,6 @@
   },
   "scripts": {
     "build": "prisma generate --schema=src/prisma/schema.prisma --no-hints && NEXT_CONFIG_FILE=config/next.config.ts next build",
-    "cdk:cleanup": "tsx src/aws-setup/scripts/cleanup-untagged.ts",
     "cdk:deploy": "cdk deploy",
     "cdk:deploy:resources": "cdk deploy --all",
     "cdk:deployer:create": "tsx src/aws-setup/scripts/create-deployer.ts",
@@ -236,9 +235,6 @@
     "test:ui": "vitest --ui --config=config/vitest.config.ts",
     "test:watch": "vitest --config=config/vitest.config.ts",
     "typecheck": "pnpm prisma:generate && tsc --noEmit --incremental false",
-    "update-packages": "tsx src/scripts/update-packages.ts",
-    "cdk:bootstrap": "tsx src/aws-setup/scripts/bootstrap.ts",
-    "cdk:bootstrap:preview": "AWS_DEPLOYMENT_STACK_ENV=preview pnpm cdk:bootstrap",
-    "cdk:bootstrap:production": "AWS_DEPLOYMENT_STACK_ENV=production pnpm cdk:bootstrap"
+    "update-packages": "tsx src/scripts/update-packages.ts"
   }
 }
