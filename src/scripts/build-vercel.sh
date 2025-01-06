@@ -12,9 +12,8 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
 # Install Vercel CLI
-echo "Running 'pnpm add --global vercel@latest'..."
-mkdir -p /tmp/.pnpm
-pnpm add --global --global-dir /tmp/.pnpm vercel@latest
+echo "Installing Vercel CLI..."
+npm install -g vercel@latest
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
