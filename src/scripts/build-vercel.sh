@@ -34,6 +34,11 @@ done
 echo "Deploying database migrations..."
 pnpm prisma:migrate
 
+# In preview run seed
+if [ "$VERCEL_ENV" == "preview" ]; then
+  pnpm prisma:seed
+fi
+
 # Build Next.js app
 echo "Building Next.js application..."
 pnpm build
