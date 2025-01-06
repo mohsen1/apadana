@@ -57,7 +57,11 @@ AWS_DEPLOYMENT_STACK_ENV=development  # or 'preview' or 'production'
 5. Deploy all resources:
 
    ```bash
+   # Normal deployment
    pnpm cdk:deploy:resources
+
+   # Force replace existing resources (use with caution)
+   AWS_FORCE_REPLACE=true pnpm cdk:deploy:resources
    ```
 
 6. Wait for all stacks to be ready:
@@ -176,8 +180,51 @@ The infrastructure is designed to work seamlessly with Vercel deployments:
    - Check CloudFormation console for detailed error messages
    - Verify IAM permissions for the deployer user
    - Review CDK synthesis output for configuration issues
+   - For resource conflicts:
+     - First, check CloudFormation console for the exact error
+     - If resources exist from a previous failed deployment:
+       1. Go to CloudFormation console
+       2. Delete the failed stack
+       3. Wait for deletion to complete
+       4. Retry deployment
+     - If resources exist outside CloudFormation:
+       1. Use `AWS_FORCE_REPLACE=true` to replace them
+       2. Or manually delete the conflicting resources
+       3. Retry deployment
+     - For protected resources in production:
+       1. Verify if deletion is really needed
+       2. Remove the protection manually if necessary
+       3. Retry deployment
 
 3. **Resource Limits**:
    - Monitor RDS storage usage
-   - Check MemoryDB connection limits
+   - Check ElastiCache connection limits and replica configuration
    - Review S3 bucket quotas
+   - Ensure VPC has sufficient IP addresses and subnets
+
+## Resource Management
+
+### Handling Existing Resources
+
+The infrastructure supports handling of existing resources:
+
+```bash
+# Force replace existing resources (use with caution)
+AWS_FORCE_REPLACE=true pnpm cdk deploy StackName-environment
+```
+
+### Removal Policies
+
+- Production resources have `RemovalPolicy.RETAIN` by default
+- Development/Preview resources can be destroyed with `AWS_FORCE_REPLACE=true`
+- ElastiCache clusters in production are protected from accidental deletion
+
+### Resource Configuration Updates
+
+- ElastiCache now conditionally enables Multi-AZ and automatic failover based on replica count
+- VPC lookup is implemented to reuse existing VPCs when available
+- All resources now include standard tags:
+  - managed-by: apadana-aws-setup
+  - environment: [development/preview/production]
+  - service: [redis/rds/etc]
+  - created-at: [timestamp]
