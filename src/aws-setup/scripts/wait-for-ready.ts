@@ -1,4 +1,6 @@
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
+import { PrismaClient } from '@prisma/client';
+import { createClient } from 'redis';
 
 import { createLogger } from '@/utils/logger';
 
@@ -7,6 +9,36 @@ const logger = createLogger(__filename);
 interface CloudFormationError {
   name: string;
   message: string;
+}
+
+async function checkRedisConnection() {
+  logger.info('Checking Redis connection...');
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) {
+    throw new Error('REDIS_URL is not defined');
+  }
+
+  const client = createClient({ url: redisUrl });
+  try {
+    await client.connect();
+    await client.ping();
+    logger.info('Redis connection successful');
+  } finally {
+    await client.disconnect();
+  }
+}
+
+async function checkRdsConnection() {
+  logger.info('Checking RDS connection...');
+  const prisma = new PrismaClient();
+  try {
+    await prisma.$connect();
+    // Simple query to verify connection
+    await prisma.$queryRaw`SELECT 1`;
+    logger.info('RDS connection successful');
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
 export async function waitForReady() {
@@ -55,7 +87,26 @@ export async function waitForReady() {
     logger.info(`Stack ${stackName} is ready`);
   }
 
-  logger.info('All stacks are ready.');
+  logger.info('All stacks are ready. Checking database connections...');
+
+  // Check database connections with retries
+  let retries = 5;
+  while (retries > 0) {
+    try {
+      await checkRedisConnection();
+      await checkRdsConnection();
+      break;
+    } catch (error) {
+      logger.warn(`Database connection check failed. Retries left: ${retries - 1}`, error);
+      if (retries === 1) {
+        throw new Error('Failed to connect to databases after multiple retries');
+      }
+      retries--;
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+  }
+
+  logger.info('All systems are ready.');
 }
 
 export async function main() {
