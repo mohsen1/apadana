@@ -128,24 +128,77 @@ export class ElastiCacheStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'index.handler',
       code: lambda.Code.fromInline(`
-        exports.handler = async (event) => {
+        const https = require('https');
+        const url = require('url');
+
+        // Send response to CloudFormation
+        async function sendResponse(event, context, responseStatus, responseData, physicalResourceId) {
+          const responseBody = JSON.stringify({
+            Status: responseStatus,
+            Reason: responseStatus === 'FAILED' ? 'See the details in CloudWatch Log Stream: ' + context.logStreamName : 'See CloudWatch Log Stream: ' + context.logStreamName,
+            PhysicalResourceId: physicalResourceId || context.logStreamName,
+            StackId: event.StackId,
+            RequestId: event.RequestId,
+            LogicalResourceId: event.LogicalResourceId,
+            NoEcho: false,
+            Data: responseData || {}
+          });
+
+          const parsedUrl = url.parse(event.ResponseURL);
+          const options = {
+            hostname: parsedUrl.hostname,
+            port: 443,
+            path: parsedUrl.path,
+            method: 'PUT',
+            headers: {
+              'content-type': '',
+              'content-length': responseBody.length
+            }
+          };
+
+          return new Promise((resolve, reject) => {
+            const request = https.request(options, (response) => {
+              console.log('Status code:', response.statusCode);
+              console.log('Status message:', response.statusMessage);
+              resolve();
+            });
+
+            request.on('error', (error) => {
+              console.log('send(..) failed executing https.request(..): ' + error);
+              reject(error);
+            });
+
+            request.write(responseBody);
+            request.end();
+          });
+        }
+
+        exports.handler = async (event, context) => {
           try {
+            console.log('Received event:', JSON.stringify(event));
+
+            // Skip processing if this is not a Create or Update
+            if (event.RequestType !== 'Create' && event.RequestType !== 'Update') {
+              await sendResponse(event, context, 'SUCCESS', {}, 'RegisterTarget');
+              return;
+            }
+
             const aws = require('aws-sdk');
             const elbv2 = new aws.ELBv2();
             
-            if (event.RequestType === 'Create' || event.RequestType === 'Update') {
-              await elbv2.registerTargets({
-                TargetGroupArn: '${targetGroup.targetGroupArn}',
-                Targets: [{
-                  Id: '${redisCluster.attrPrimaryEndPointAddress}',
-                  Port: 6379
-                }]
-              }).promise();
-            }
-            
-            return { PhysicalResourceId: 'RegisterTarget' };
+            await elbv2.registerTargets({
+              TargetGroupArn: '${targetGroup.targetGroupArn}',
+              Targets: [{
+                Id: '${redisCluster.attrPrimaryEndPointAddress}',
+                Port: 6379
+              }]
+            }).promise();
+
+            console.log('Successfully registered target');
+            await sendResponse(event, context, 'SUCCESS', {}, 'RegisterTarget');
           } catch (error) {
-            console.error('Error registering target:', error);
+            console.error('Error:', error);
+            await sendResponse(event, context, 'FAILED', { Error: error.message }, 'RegisterTarget');
             throw error;
           }
         }
@@ -180,6 +233,7 @@ export class ElastiCacheStack extends cdk.Stack {
 
     new cdk.CustomResource(this, 'RegisterTarget', {
       serviceToken: registerTargetFunction.functionArn,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     this.redisHostOutput = new cdk.CfnOutput(this, 'RedisEndpoint', {
