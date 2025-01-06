@@ -33,6 +33,23 @@ export class SharedNetworkStack extends cdk.Stack {
         maxAzs: 2,
         natGateways: 1,
         vpcName: `ap-vpc-${props.environment}`,
+        subnetConfiguration: [
+          {
+            name: 'Public',
+            subnetType: ec2.SubnetType.PUBLIC,
+            cidrMask: 24,
+          },
+          {
+            name: 'Private',
+            subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+            cidrMask: 24,
+          },
+          {
+            name: 'Isolated',
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+            cidrMask: 24,
+          },
+        ],
       });
       logger.debug('Created new VPC');
     }
