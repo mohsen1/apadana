@@ -10,6 +10,16 @@ import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename);
 
+function printEnv(accessKeyId: string, secretAccessKey: string) {
+  const envContent = [
+    `AWS_ACCESS_KEY_ID=${accessKeyId}`,
+    `AWS_SECRET_ACCESS_KEY=${secretAccessKey}`,
+    `AWS_REGION=${process.env.AWS_REGION || 'us-east-1'}`,
+  ].join('\n');
+
+  process.stdout.write(envContent);
+}
+
 (async () => {
   const iamClient = new IAMClient({});
 
@@ -26,8 +36,7 @@ const logger = createLogger(__filename);
     }
   }
 
-  // Attach the policy. This could be a managed policy you created.
-  const policyArn = 'arn:aws:iam::aws:policy/AdministratorAccess'; // or a custom one
+  const policyArn = 'arn:aws:iam::aws:policy/AdministratorAccess';
   await iamClient.send(
     new AttachUserPolicyCommand({
       PolicyArn: policyArn,
@@ -36,8 +45,10 @@ const logger = createLogger(__filename);
   );
   logger.info(`Attached policy ${policyArn} to ${userName}`);
 
-  // Create access key
   const accessKey = await iamClient.send(new CreateAccessKeyCommand({ UserName: userName }));
-  logger.info(`Deployer Access Key: ${accessKey.AccessKey?.AccessKeyId}`);
-  logger.info(`Deployer Secret Key: ${accessKey.AccessKey?.SecretAccessKey}`);
+  if (!accessKey.AccessKey?.AccessKeyId || !accessKey.AccessKey?.SecretAccessKey) {
+    throw new Error('Failed to create access key');
+  }
+
+  printEnv(accessKey.AccessKey.AccessKeyId, accessKey.AccessKey.SecretAccessKey);
 })();
