@@ -1,8 +1,6 @@
 
 import { NextConfig } from 'next';
 
-console.log('process.env.NEXT_PUBLIC_TEST_ENV', process.env.NEXT_PUBLIC_TEST_ENV);
-
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.NEXT_PUBLIC_TEST_ENV === 'e2e',
   reactStrictMode: true,
