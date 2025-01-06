@@ -3,7 +3,10 @@ import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-sec
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger(__filename, 'debug');
+
+// Disable logging for this script. Enable only for debugging purposes.
+logger.disable();
 
 (async () => {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
