@@ -3,7 +3,6 @@
 # Build for production. This script assumes all of the environment variables are set.
 # for build process to work, the following commands must be run
 
-# deploy aws resources
 export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
 export CDK_DEFAULT_ACCOUNT=$(echo $AWS_ACCESS_KEY_ID | cut -d '_' -f1)
 
@@ -14,13 +13,10 @@ pnpm cdk:deploy --all --require-approval never --concurrency 5
 
 # Generate .env.aws file with deployment values
 # testing
-pnpm run --silent cdk:print-values
-touch .env.aws
-pnpm run --silent cdk:print-values >.env.aws
 
-# Enable exporting of all sourced variables
+pnpm run --silent cdk:print-values >/tmp/env.aws
 set -o allexport
-source .env.aws
+source /tmp/env.aws
 set +o allexport
 
 # Generate Prisma client
