@@ -37,7 +37,13 @@ export class S3Stack extends cdk.Stack {
             s3.HttpMethods.DELETE,
             s3.HttpMethods.HEAD,
           ],
-          allowedOrigins: ['http://localhost:3000', 'https://apadana.app', 'https://*.apadana.app'],
+          allowedOrigins: [
+            'http://localhost:3000',
+            'https://*.apadana.local',
+            'https://apadana.app',
+            'https://*.apadana.app',
+            'https://*.vercel.app',
+          ],
           allowedHeaders: ['*'],
           exposedHeaders: [
             'ETag',
