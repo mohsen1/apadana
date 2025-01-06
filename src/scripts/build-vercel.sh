@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # Build for production. This script assumes all of the environment variables are set.
 # for build process to work, the following commands must be run
@@ -11,11 +11,11 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 # Deploy AWS resources
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
-# Add AWS environment variables to the build
-pnpm run --silent cdk:print-values >/tmp/env.aws
-set -o allexport
-source /tmp/env.aws
-set +o allexport
+# Get AWS environment variables and set them in Vercel
+echo "Setting AWS environment variables in Vercel..."
+pnpm run --silent cdk:print-values | while IFS='=' read -r key value; do
+  echo "$value" | vercel env add "$key" "$VERCEL_ENV"
+done
 
 # Generate Prisma client
 pnpm prisma generate --no-hints --schema=src/prisma/schema.prisma
