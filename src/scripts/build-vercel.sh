@@ -19,8 +19,8 @@ export PATH="$PNPM_HOME:$PATH"
 pnpm setup --global-bin-dir "$PNPM_HOME"
 
 # Install Vercel CLI
-echo "Installing Vercel CLI..."
-pnpm add -g vercel@latest
+echo "Running 'pnpm add --global vercel@latest'..."
+pnpm add --global --global-dir vercel@latest
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
