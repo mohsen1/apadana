@@ -13,6 +13,8 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
 # Generate .env.aws file with deployment values
+# testing
+pnpm run --silent cdk:print-values
 touch .env.aws
 pnpm run --silent cdk:print-values >.env.aws
 
