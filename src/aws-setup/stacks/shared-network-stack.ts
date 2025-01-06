@@ -33,21 +33,28 @@ export class SharedNetworkStack extends cdk.Stack {
         maxAzs: 2,
         natGateways: 1,
         vpcName: `ap-vpc-${props.environment}`,
+        ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
+        // Avoid the conflicting CIDR ranges (10.0.4.0/24 and 10.0.5.0/24)
+        // by using different ranges for each subnet type
         subnetConfiguration: [
           {
             name: 'Public',
             subnetType: ec2.SubnetType.PUBLIC,
             cidrMask: 24,
+            mapPublicIpOnLaunch: true,
+            reserved: false,
           },
           {
             name: 'Private',
             subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
             cidrMask: 24,
+            reserved: false,
           },
           {
             name: 'Isolated',
             subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-            cidrMask: 24,
+            cidrMask: 20,
+            reserved: false,
           },
         ],
       });
