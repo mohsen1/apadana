@@ -17,7 +17,7 @@ const logger = createLogger(__filename);
 
 async function cleanupOldBootstrap(environment: string, region: string) {
   const client = new CloudFormationClient({ region });
-  const stackName = `CDKToolkit-${environment}`;
+  const stackName = 'CDKToolkit';
 
   try {
     // Check if stack exists
@@ -61,8 +61,8 @@ async function bootstrap() {
   Tags.of(app).add('environment', environment);
   Tags.of(app).add('created-at', new Date().toISOString());
 
-  // Create the bootstrap stack
-  new BootstrapStack(app, `BootstrapStack-${environment}`, {
+  // Create the bootstrap stack with standard CDK name
+  new BootstrapStack(app, 'CDKToolkit', {
     environment,
     env: { region: cfg.region },
   });
