@@ -30,7 +30,7 @@ export class S3Stack extends cdk.Stack {
         blockPublicAcls: false,
         blockPublicPolicy: false,
         ignorePublicAcls: false,
-        restrictPublicBuckets: false
+        restrictPublicBuckets: false,
       }),
       enforceSSL: true,
       removalPolicy: cdk.RemovalPolicy.RETAIN,

@@ -53,6 +53,7 @@ async function cleanupUntaggedResources() {
           logger.info(`Deleted untagged bucket: ${bucket.Name}`);
         }
       } catch (error) {
+        assertError(error);
         // If bucket has no tags, delete it
         logger.warn(`Bucket ${bucket.Name} has no tags, deleting...`);
         await s3Client.send(new DeleteBucketCommand({ Bucket: bucket.Name }));

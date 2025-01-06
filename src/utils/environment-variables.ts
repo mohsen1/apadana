@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import _ from 'lodash';
 import { z } from 'zod';
 
