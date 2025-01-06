@@ -9,6 +9,10 @@ export CDK_DEFAULT_ACCOUNT=$(echo $AWS_ACCESS_KEY_ID | cut -d '_' -f1)
 
 echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with account '$CDK_DEFAULT_ACCOUNT' in $AWS_REGION region"
 
+# Bootstrap CDK first
+echo "Bootstrapping CDK..."
+pnpm cdk:bootstrap
+
 # Deploy AWS resources
 echo "Deploying AWS infrastructure..."
 pnpm cdk:deploy --all --require-approval never --concurrency 10
