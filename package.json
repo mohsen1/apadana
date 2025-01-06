@@ -237,7 +237,7 @@
     "test:watch": "vitest --config=config/vitest.config.ts",
     "typecheck": "pnpm prisma:generate && tsc --noEmit --incremental false",
     "update-packages": "tsx src/scripts/update-packages.ts",
-    "cdk:bootstrap": "cdk bootstrap --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess",
+    "cdk:bootstrap": "tsx src/aws-setup/scripts/bootstrap.ts",
     "cdk:bootstrap:preview": "AWS_DEPLOYMENT_STACK_ENV=preview pnpm cdk:bootstrap",
     "cdk:bootstrap:production": "AWS_DEPLOYMENT_STACK_ENV=production pnpm cdk:bootstrap"
   }
