@@ -15,7 +15,7 @@ pnpm cdk:deploy --all --require-approval never --concurrency 10
 
 # Wait for resources to be ready
 echo "Waiting for AWS resources to be ready..."
-run --silent aws:wait-for-ready
+pnpm run --silent aws:wait-for-ready
 
 # Install Vercel CLI
 echo "Installing Vercel CLI..."
@@ -30,14 +30,10 @@ pnpm run --silent cdk:print-values | while IFS='=' read -r key value; do
   rm -f /tmp/$key.aws.env
 done
 
-# Generate Prisma client
-echo "Generating Prisma client..."
-pnpm prisma generate --no-hints --schema=src/prisma/schema.prisma
-
 # Deploy Prisma migrations
 echo "Deploying database migrations..."
-pnpm prisma migrate deploy --schema=src/prisma/schema.prisma
+pnpm prisma:migrate
 
 # Build Next.js app
 echo "Building Next.js application..."
-pnpm next build
+pnpm build

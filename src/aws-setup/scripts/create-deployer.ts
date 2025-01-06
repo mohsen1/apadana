@@ -12,7 +12,7 @@ import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename);
-// logger.disable(); // Disable logging to have a clean output. For debugging, enable it.
+logger.disable(); // Disable logging to have a clean output. For debugging, enable it.
 
 function printEnv(accessKeyId: string, secretAccessKey: string) {
   const region = process.env.AWS_REGION || 'us-east-1';
