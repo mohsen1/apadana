@@ -144,7 +144,10 @@ async function cleanupUntaggedResources() {
       try {
         const tagging = await s3Client.send(new GetBucketTaggingCommand({ Bucket: bucket.Name }));
         const tags = tagging.TagSet || [];
-        if (!tags.some((tag) => tag.Key === 'managed-by' && tag.Value === 'apadana-aws-setup')) {
+        if (
+          !tags.some((tag) => tag.Key === 'managed-by' && tag.Value === 'apadana-aws-setup') &&
+          bucket.Name
+        ) {
           logger.warn(`Found untagged bucket: ${bucket.Name}`);
           try {
             await deleteBucket(s3Client, bucket.Name);
@@ -154,6 +157,10 @@ async function cleanupUntaggedResources() {
           }
         }
       } catch (bucketError) {
+        if (!bucket.Name) {
+          logger.warn('Bucket name is undefined, skipping...');
+          continue;
+        }
         if (
           bucketError instanceof S3ServiceException &&
           bucketError.$metadata?.httpStatusCode === 404

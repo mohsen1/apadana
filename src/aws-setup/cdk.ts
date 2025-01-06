@@ -27,7 +27,7 @@ validateConfig(cfg);
 //
 new IamStack(app, `IamStack-${environment}`, {
   environment,
-  env: { account: cfg.account, region: cfg.region },
+  env: { region: cfg.region },
 });
 
 //
@@ -35,7 +35,7 @@ new IamStack(app, `IamStack-${environment}`, {
 //
 const networkStack = new SharedNetworkStack(app, `SharedNetworkStack-${environment}`, {
   environment,
-  env: { account: cfg.account, region: cfg.region },
+  env: { region: cfg.region },
 });
 
 //
@@ -44,7 +44,7 @@ const networkStack = new SharedNetworkStack(app, `SharedNetworkStack-${environme
 new MemoryDbStack(app, `MemoryDbStack-${environment}`, {
   environment,
   vpc: networkStack.vpc,
-  env: { account: cfg.account, region: cfg.region },
+  env: { region: cfg.region },
 });
 
 //
@@ -53,7 +53,7 @@ new MemoryDbStack(app, `MemoryDbStack-${environment}`, {
 new RdsStack(app, `RdsStack-${environment}`, {
   environment,
   vpc: networkStack.vpc,
-  env: { account: cfg.account, region: cfg.region },
+  env: { region: cfg.region },
 });
 
 //
@@ -61,5 +61,5 @@ new RdsStack(app, `RdsStack-${environment}`, {
 //
 new S3Stack(app, `S3Stack-${environment}`, {
   environment,
-  env: { account: cfg.account, region: cfg.region },
+  env: { region: cfg.region },
 });
