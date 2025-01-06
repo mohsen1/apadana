@@ -190,7 +190,7 @@
     "cdk:destroy": "cdk destroy --all",
     "cdk:diff": "cdk diff",
     "cdk:preflight": "tsx src/aws-setup/scripts/preflight.ts",
-    "cdk:print-values": "tsx src/aws-setup/scripts/print-deployment-values.ts",
+    "cdk:env": "tsx src/aws-setup/scripts/print-deployment-values.ts",
     "cdk:synth": "cdk synth",
     "cdk:wait": "tsx src/aws-setup/scripts/wait-for-ready.ts",
     "dev": "concurrently --color --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold\" npm:dev:*",

@@ -108,7 +108,7 @@ The infrastructure supports three environments with different resource configura
 
 - All databases are deployed with appropriate security groups
 - Database credentials stored in AWS Secrets Manager
-- S3 buckets have public access blocked
+- S3 buckets configured with public read access and CORS for web access
 - Server-side encryption enabled for all storage
 - TLS enabled for all services
 - IAM roles follow the principle of least privilege
