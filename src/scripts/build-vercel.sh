@@ -11,22 +11,16 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 # Deploy AWS resources
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
-# Setup PNPM global directory
-echo "Setting up PNPM global directory..."
-export PNPM_HOME="/vercel/.pnpm"
-mkdir -p "$PNPM_HOME"
-export PATH="$PNPM_HOME:$PATH"
-pnpm setup --global-bin-dir "$PNPM_HOME"
-
 # Install Vercel CLI
 echo "Running 'pnpm add --global vercel@latest'..."
-pnpm add --global --global-dir vercel@latest
+mkdir -p /tmp/.pnpm
+pnpm add --global --global-dir /tmp/.pnpm vercel@latest
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
 pnpm run --silent cdk:print-values | while IFS='=' read -r key value; do
   echo "$value" >/tmp/$key.aws.env
-  cat /tmp/$key.aws.env | vercel env add "$key" "$VERCEL_ENV" --force
+  cat /tmp/$key.aws.env | vercel env add "$key" "$VERCEL_ENV" --force --token "$VERCEL_TOKEN"
 done
 
 # Generate Prisma client
