@@ -98,12 +98,20 @@ export async function waitForReady() {
 
   // Check database connections with retries
   let retries = 10; // Increase retries
+  let rdsReady = false;
+  let redisReady = false;
   while (retries > 0) {
     try {
-      // Check RDS first as it's usually ready faster
-      await checkRdsConnection();
-      // Then check Redis
-      await checkRedisConnection();
+      if (!rdsReady) {
+        void checkRdsConnection().then(() => {
+          rdsReady = true;
+        });
+      }
+      if (!redisReady) {
+        void checkRedisConnection().then(() => {
+          redisReady = true;
+        });
+      }
       break;
     } catch (error) {
       logger.warn(`Database connection check failed. Retries left: ${retries - 1}`, error);
