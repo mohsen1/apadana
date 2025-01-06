@@ -5,13 +5,8 @@ set -e
 
 # Build for production. This script assumes all of the environment variables are set.
 export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
-export CDK_DEFAULT_ACCOUNT=$(echo $AWS_ACCESS_KEY_ID | cut -d '_' -f1)
 
-echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with account '$CDK_DEFAULT_ACCOUNT' in $AWS_REGION region"
-
-# Bootstrap CDK first
-echo "Bootstrapping CDK..."
-pnpm cdk:bootstrap
+echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AWS_REGION region"
 
 # Deploy AWS resources
 echo "Deploying AWS infrastructure..."

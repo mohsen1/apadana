@@ -1,6 +1,5 @@
 export interface EnvConfig {
   environment: string;
-  account: string;
   region: string;
 
   rdsInstanceType: string;

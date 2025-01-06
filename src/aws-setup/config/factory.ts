@@ -1,15 +1,11 @@
 import { EnvConfig } from './types';
 
 export function getEnvConfig(env: string): EnvConfig {
-  if (!process.env.CDK_DEFAULT_ACCOUNT) {
-    throw new Error('CDK_DEFAULT_ACCOUNT is not set');
-  }
   const region = process.env.AWS_REGION || 'us-east-1';
   switch (env) {
     case 'production':
       return {
         environment: 'production',
-        account: process.env.CDK_DEFAULT_ACCOUNT,
         region,
         rdsInstanceType: 't3.medium',
         rdsAllocatedStorage: 20,
@@ -23,7 +19,6 @@ export function getEnvConfig(env: string): EnvConfig {
     case 'preview':
       return {
         environment: 'preview',
-        account: process.env.CDK_DEFAULT_ACCOUNT,
         region,
         rdsInstanceType: 't3.micro',
         rdsAllocatedStorage: 10,
@@ -37,7 +32,6 @@ export function getEnvConfig(env: string): EnvConfig {
     default:
       return {
         environment: 'development',
-        account: process.env.CDK_DEFAULT_ACCOUNT,
         region,
         rdsInstanceType: 't3.medium',
         rdsAllocatedStorage: 20,

@@ -24,7 +24,6 @@ The infrastructure is split into several independent stacks:
 Required environment variables:
 
 ```bash
-CDK_DEFAULT_ACCOUNT=your-aws-account-id
 AWS_REGION=us-east-1  # or your preferred region
 AWS_DEPLOYMENT_STACK_ENV=development  # or 'preview' or 'production'
 ```
