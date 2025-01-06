@@ -40,7 +40,7 @@ const schema = z.object({
  * @throws Will throw an error if the environment variables are invalid.
  */
 export const validateEnvironmentVariables = _.memoize(() => {
-  dotenv.config();
+  if (!process.env.CI) return;
   const result = schema.safeParse(process.env);
 
   if (!result.success) {
