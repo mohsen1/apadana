@@ -34,7 +34,7 @@ export const getUploadSignedUrl = actionClient
 
     // Initialize S3 client
     const s3Client = new S3Client({
-      region: process.env.NEXT_PUBLIC_S3_UPLOAD_REGION,
+      region: process.env.NEXT_PUBLIC_AWS_REGION,
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -45,10 +45,19 @@ export const getUploadSignedUrl = actionClient
         parsedInput.files.map(async (file) => {
           // Generate a unique key for each file
           const fileExtension = file.filename.split('.').pop() ?? '';
-          const key = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}/${crypto.randomUUID()}.${fileExtension}`;
+          const path = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}`.trim();
+          let filename = crypto.randomUUID();
+
+          // Mark files uploaded for e2e testing for easier identification.
+          // A clean up script can be run to delete these files after e2e tests are run.
+          if (process.env.NEXT_PUBLIC_TEST_ENV === 'e2e') {
+            filename = `e2e_test_upload_${filename}`;
+          }
+
+          const key = `${path}/${filename}${fileExtension ? `.${fileExtension}` : ''}`.trim();
 
           const command = new PutObjectCommand({
-            Bucket: process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET,
+            Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
             Key: key,
             ContentType: file.contentType,
           });

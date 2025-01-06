@@ -87,6 +87,7 @@ package-updates-summary.md
 !.vscode/
 !.husky/
 !.github
+!cdk.json
 
 # Serialized repo
 repo-serialized/
@@ -95,3 +96,7 @@ repo-serialized/
 *.fish
 *.sh
 *.bash
+
+# AWS CDK
+.aws-sam/
+cdk.out/

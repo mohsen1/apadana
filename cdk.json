@@ -1,0 +1,6 @@
+{
+  "app": "tsx src/aws-setup/cdk.ts",
+  "watch": {
+    "include": ["src/aws-setup/**/*.ts"]
+  }
+}

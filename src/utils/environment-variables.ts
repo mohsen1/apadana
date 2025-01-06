@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import _ from 'lodash';
 import { z } from 'zod';
 
@@ -20,8 +19,8 @@ const schema = z.object({
   VERCEL_URL: z.string(),
 
   // S3 Upload
-  NEXT_PUBLIC_S3_UPLOAD_BUCKET: z.string(),
-  NEXT_PUBLIC_S3_UPLOAD_REGION: z.string(),
+  NEXT_PUBLIC_AWS_S3_BUCKET_NAME: z.string(),
+  NEXT_PUBLIC_AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
 
@@ -44,7 +43,7 @@ const schema = z.object({
  * @throws Will throw an error if the environment variables are invalid.
  */
 export const validateEnvironmentVariables = _.memoize(() => {
-  dotenv.config();
+  if (!process.env.CI) return;
   const result = schema.safeParse(process.env);
 
   if (!result.success) {

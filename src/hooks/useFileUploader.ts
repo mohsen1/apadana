@@ -77,8 +77,8 @@ export function useFileUploader({
   const getUploadedUrl = (key?: string) => {
     if (!key) return undefined;
 
-    const UPLOAD_BUCKET = process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET;
-    const UPLOAD_REGION = process.env.NEXT_PUBLIC_S3_UPLOAD_REGION;
+    const UPLOAD_BUCKET = process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME;
+    const UPLOAD_REGION = process.env.NEXT_PUBLIC_AWS_REGION;
 
     if (shouldUseFakeUploads) {
       return `/images/e2e/uploads/${key}`;
