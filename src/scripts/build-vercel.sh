@@ -8,6 +8,10 @@ export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
 
 echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AWS_REGION region"
 
+# Bootstrap CDK
+echo "Bootstrapping CDK..."
+pnpm cdk:bootstrap
+
 # Deploy AWS resources
 echo "Deploying AWS infrastructure..."
 pnpm cdk:deploy --all --require-approval never --concurrency 10
