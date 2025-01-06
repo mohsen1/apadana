@@ -50,8 +50,6 @@
     "docker:prod": "DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml up app_prod",
     "test:storybook": "playwright test --config=config/playwright.storybook.config.ts",
     "test:storybook:update": "playwright test --config=config/playwright.storybook.config.ts --update-snapshots",
-    "cdk:bootstrap": "cdk bootstrap",
-    "cdk:deploy:bootstrap": "cdk deploy BootstrapStack",
     "cdk:deploy:resources": "cdk deploy --all",
     "cdk:deploy": "cdk deploy",
     "cdk:destroy": "cdk destroy --all",
@@ -60,6 +58,7 @@
     "cdk:preflight": "tsx src/aws-setup/scripts/preflight.ts",
     "cdk:deployer:create": "tsx src/aws-setup/scripts/create-deployer.ts",
     "cdk:wait": "tsx src/aws-setup/scripts/wait-for-ready.ts",
+    "cdk:cleanup": "tsx src/aws-setup/scripts/cleanup-untagged.ts",
     "cdk:print-values": "tsx src/aws-setup/scripts/print-deployment-values.ts"
   },
   "dependencies": {
