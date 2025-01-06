@@ -38,14 +38,20 @@ export class S3Stack extends cdk.Stack {
             s3.HttpMethods.HEAD,
           ],
           allowedOrigins: [
-            'http://localhost:3000',
             'https://*.apadana.local',
             'https://apadana.app',
             'https://*.apadana.app',
             'https://*.vercel.app',
-            'https://apadana-*.vercel.app',
           ],
-          allowedHeaders: ['*'],
+          allowedHeaders: [
+            '*',
+            'Authorization',
+            'Content-Type',
+            'x-amz-date',
+            'x-amz-content-sha256',
+            'x-amz-security-token',
+            'x-amz-user-agent',
+          ],
           exposedHeaders: [
             'ETag',
             'x-amz-server-side-encryption',
