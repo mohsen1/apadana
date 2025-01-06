@@ -1,4 +1,3 @@
-
 import { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -29,11 +28,10 @@ const nextConfig: NextConfig = {
         },
       },
     },
-    optimizeCss: true,
+    optimizeCss: false,
     scrollRestoration: true,
     typedRoutes: true,
   },
-
 };
 
 module.exports = nextConfig;
