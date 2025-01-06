@@ -11,7 +11,7 @@ logger.disable();
 (async () => {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
   const stackNames = [
-    `ap-memorydb-${env}`,
+    `ap-elasticache-${env}`,
     `ap-rds-${env}`,
     `ap-s3-${env}`,
     `ap-cloudfront-${env}`,
