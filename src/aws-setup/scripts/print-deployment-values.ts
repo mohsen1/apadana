@@ -71,4 +71,8 @@ const logger = createLogger(__filename);
   process.stdout.write(`REDIS_URL=${redisUrl}\n`);
   process.stdout.write(`DATABASE_URL=${dbUrl}\n`);
   process.stdout.write(`AWS_S3_BUCKET_NAME=${s3Bucket}\n`);
+
+  // Next.js public environment variables
+  process.stdout.write(`NEXT_PUBLIC_AWS_S3_BUCKET_NAME=${s3Bucket}\n`);
+  process.stdout.write(`NEXT_PUBLIC_AWS_REGION=${process.env.AWS_REGION}\n`);
 })();
