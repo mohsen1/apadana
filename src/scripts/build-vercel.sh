@@ -13,10 +13,6 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 echo "Deploying AWS infrastructure..."
 pnpm cdk:deploy --all --require-approval never --concurrency 10
 
-# Wait for resources to be ready
-echo "Waiting for AWS resources to be ready..."
-pnpm cdk:wait
-
 # Install Vercel CLI
 echo "Installing Vercel CLI..."
 npm install --global --silent vercel@latest
@@ -29,6 +25,10 @@ pnpm run --silent cdk:env | while IFS='=' read -r key value; do
   export $key=$value
   rm -f /tmp/$key.aws.env
 done
+
+# Wait for resources to be ready
+echo "Waiting for AWS resources to be ready..."
+pnpm cdk:wait
 
 # Deploy Prisma migrations
 echo "Deploying database migrations..."
