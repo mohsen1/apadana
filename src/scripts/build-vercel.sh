@@ -36,7 +36,7 @@ pnpm prisma:migrate
 
 # In preview run seed
 if [ "$VERCEL_ENV" == "preview" ]; then
-  pnpm prisma:seed
+  pnpm dev:prisma:seed
 fi
 
 # Build Next.js app
