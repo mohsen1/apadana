@@ -11,6 +11,7 @@ const logger = createLogger(__filename);
 interface RdsStackProps extends cdk.StackProps {
   environment: string;
   vpc: ec2.IVpc;
+  removalPolicy?: cdk.RemovalPolicy;
 }
 
 export class RdsStack extends cdk.Stack {

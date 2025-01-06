@@ -16,15 +16,22 @@ const logger = createLogger(__filename);
 const app = new cdk.App();
 
 const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
+const stacksToSkip = (process.env.AWS_SKIP_STACKS || '').split(',').map((s) => s.trim());
+const forceReplace = process.env.AWS_FORCE_REPLACE === 'true';
+
 logger.info(`Deploying CDK app for environment: ${environment}`);
+logger.info(`Skipping stacks: ${stacksToSkip.join(', ') || 'none'}`);
+logger.info(`Force replace: ${forceReplace}`);
 
 const sharedNetworkStack = new SharedNetworkStack(app, `ap-network-${environment}`, {
   environment,
+  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created shared network stack');
 
 const s3Stack = new S3Stack(app, `ap-s3-${environment}`, {
   environment,
+  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created S3 stack');
 
@@ -36,18 +43,21 @@ logger.debug('Created CloudFront stack');
 
 new IamStack(app, `ap-iam-${environment}`, {
   environment,
+  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created IAM stack');
 
 new RdsStack(app, `ap-rds-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
+  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created RDS stack');
 
 new ElastiCacheStack(app, `ap-elasticache-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
+  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created Elasticache stack');
 

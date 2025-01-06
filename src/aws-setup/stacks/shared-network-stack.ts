@@ -9,6 +9,7 @@ const logger = createLogger(__filename);
 
 interface SharedNetworkStackProps extends cdk.StackProps {
   environment: string;
+  removalPolicy?: cdk.RemovalPolicy;
 }
 
 export class SharedNetworkStack extends cdk.Stack {

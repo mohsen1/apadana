@@ -17,6 +17,7 @@ const logger = createLogger(__filename);
 interface ElastiCacheStackProps extends cdk.StackProps {
   environment: string;
   vpc: ec2.IVpc;
+  removalPolicy?: cdk.RemovalPolicy;
 }
 
 export class ElastiCacheStack extends cdk.Stack {
@@ -62,7 +63,8 @@ export class ElastiCacheStack extends cdk.Stack {
       transitEncryptionEnabled: true,
       atRestEncryptionEnabled: true,
       autoMinorVersionUpgrade: true,
-      multiAzEnabled: true,
+      multiAzEnabled: cfg.redisNumReplicas > 0,
+      automaticFailoverEnabled: cfg.redisNumReplicas > 0,
       port: 6379,
     });
     logger.debug('Created ElastiCache cluster');

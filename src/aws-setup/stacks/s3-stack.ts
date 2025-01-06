@@ -10,6 +10,7 @@ const logger = createLogger(__filename);
 
 interface S3StackProps extends cdk.StackProps {
   environment: string;
+  removalPolicy?: cdk.RemovalPolicy;
 }
 
 export class S3Stack extends cdk.Stack {

@@ -8,6 +8,7 @@ const logger = createLogger(__filename);
 
 interface IamStackProps extends cdk.StackProps {
   environment: string;
+  removalPolicy?: cdk.RemovalPolicy;
 }
 
 export class IamStack extends cdk.Stack {
