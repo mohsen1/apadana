@@ -12,17 +12,13 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 # Deploy AWS resources
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
-# Generate .env file with deployment values
-rm -f .env
-pnpm tsx src/aws-setup/scripts/print-deployment-values.ts >.env
+# Generate .env.aws file with deployment values
+touch .env.aws
+pnpm run --silent cdk:print-values >.env.aws
 
 # Enable exporting of all sourced variables
 set -o allexport
-if [ -f .env ]; then
-  source .env
-else
-  echo "Warning: .env file not found, using existing environment variables"
-fi
+source .env.aws
 set +o allexport
 
 # Generate Prisma client
