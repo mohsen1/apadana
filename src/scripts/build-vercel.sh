@@ -12,13 +12,13 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment with a
 # Deploy AWS resources
 pnpm cdk:deploy --all --require-approval never --concurrency 5
 
-# Generate .env.aws file with deployment values
-touch .env.aws
-pnpm run --silent cdk:print-values >.env.aws
+# Create minimal .env with required variables
+echo "NEXT_PUBLIC_AWS_REGION=$AWS_REGION" >.env
+echo "NEXT_PUBLIC_AWS_S3_BUCKET_NAME=ap-$AWS_DEPLOYMENT_STACK_ENV-$CDK_DEFAULT_ACCOUNT-$AWS_REGION" >>.env
 
 # Enable exporting of all sourced variables
 set -o allexport
-source .env.aws
+source .env
 set +o allexport
 
 # Generate Prisma client
