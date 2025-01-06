@@ -25,7 +25,13 @@ export class S3Stack extends cdk.Stack {
       bucketName: `ap-${cfg.environment}-${this.account}-${this.region}`,
       versioned: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      publicReadAccess: true,
+      blockPublicAccess: new s3.BlockPublicAccess({
+        blockPublicAcls: false,
+        blockPublicPolicy: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false
+      }),
       enforceSSL: true,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       cors: [
@@ -43,15 +49,7 @@ export class S3Stack extends cdk.Stack {
             'https://*.apadana.app',
             'https://*.vercel.app',
           ],
-          allowedHeaders: [
-            '*',
-            'Authorization',
-            'Content-Type',
-            'x-amz-date',
-            'x-amz-content-sha256',
-            'x-amz-security-token',
-            'x-amz-user-agent',
-          ],
+          allowedHeaders: ['*'],
           exposedHeaders: [
             'ETag',
             'x-amz-server-side-encryption',
