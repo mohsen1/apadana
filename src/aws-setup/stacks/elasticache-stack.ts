@@ -29,6 +29,12 @@ export class ElastiCacheStack extends cdk.Stack {
     const cfg = getEnvConfig(props.environment);
     logger.info(`Creating ElastiCache stack for environment: ${props.environment}`);
 
+    // Add standard tags to all resources in this stack
+    cdk.Tags.of(this).add('managed-by', 'apadana-aws-setup');
+    cdk.Tags.of(this).add('environment', props.environment);
+    cdk.Tags.of(this).add('service', 'redis');
+    cdk.Tags.of(this).add('created-at', new Date().toISOString());
+
     const subnetGroup = new elasticache.CfnSubnetGroup(this, 'ElastiCacheSubnetGroup', {
       cacheSubnetGroupName: `apadana-elasticache-subnet-group-${cfg.environment}`,
       subnetIds: props.vpc.privateSubnets.map((s) => s.subnetId),
@@ -60,6 +66,12 @@ export class ElastiCacheStack extends cdk.Stack {
       port: 6379,
     });
     logger.debug('Created ElastiCache cluster');
+
+    // Add removal policy for production
+    if (cfg.environment === 'production') {
+      redisCluster.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
+      logger.debug('Added retention policy to ElastiCache cluster');
+    }
 
     const nlb = new elbv2.NetworkLoadBalancer(this, 'ElastiCacheNLB', {
       vpc: props.vpc,
@@ -139,12 +151,28 @@ export class ElastiCacheStack extends cdk.Stack {
       vpc: props.vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
       securityGroups: [nlbSG],
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 128,
+      description: 'Registers ElastiCache endpoint with NLB target group',
     });
 
     registerTargetFunction.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['elasticloadbalancing:RegisterTargets', 'elasticloadbalancing:DeregisterTargets'],
         resources: [targetGroup.targetGroupArn],
+      }),
+    );
+
+    // Add CloudWatch logs permissions
+    registerTargetFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: [
+          'logs:CreateLogGroup',
+          'logs:CreateLogStream',
+          'logs:PutLogEvents',
+          'logs:DescribeLogStreams',
+        ],
+        resources: ['*'],
       }),
     );
 
