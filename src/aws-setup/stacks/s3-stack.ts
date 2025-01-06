@@ -42,7 +42,6 @@ export class S3Stack extends cdk.Stack {
             s3.HttpMethods.POST,
             s3.HttpMethods.DELETE,
             s3.HttpMethods.HEAD,
-            'OPTIONS' as s3.HttpMethods,
           ],
           allowedOrigins: [
             'https://*.apadana.local',
