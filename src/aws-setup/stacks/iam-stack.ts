@@ -29,7 +29,7 @@ export class IamStack extends cdk.Stack {
             'iam:*',
             'lambda:*',
             'ec2:*',
-            'memorydb:*',
+            'elasticache:*',
             'rds:*',
             'secretsmanager:GetSecretValue',
             'secretsmanager:DescribeSecret',

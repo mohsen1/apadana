@@ -5,8 +5,8 @@ import 'source-map-support/register';
 import { createLogger } from '@/utils/logger';
 
 import { CloudFrontStack } from './stacks/cloudfront-stack';
+import { ElastiCacheStack } from './stacks/elasticache-stack';
 import { IamStack } from './stacks/iam-stack';
-import { MemoryDbStack } from './stacks/memory-db-stack';
 import { RdsStack } from './stacks/rds-stack';
 import { S3Stack } from './stacks/s3-stack';
 import { SharedNetworkStack } from './stacks/shared-network-stack';
@@ -45,10 +45,10 @@ new RdsStack(app, `ap-rds-${environment}`, {
 });
 logger.debug('Created RDS stack');
 
-new MemoryDbStack(app, `ap-memorydb-${environment}`, {
+new ElastiCacheStack(app, `ap-elasticache-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
 });
-logger.debug('Created MemoryDB stack');
+logger.debug('Created Elasticache stack');
 
 app.synth();

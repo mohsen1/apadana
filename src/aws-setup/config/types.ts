@@ -6,9 +6,9 @@ export interface EnvConfig {
   rdsAllocatedStorage: number;
   rdsMaxAllocatedStorage: number;
 
-  memoryDbNodeType: string;
-  memoryDbNumReplicas: number;
-  memoryDbShardCount: number;
+  redisNodeType: string;
+  redisNumReplicas: number;
+  redisShardCount: number;
 
   backupRetentionDays: number;
 

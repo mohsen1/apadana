@@ -9,7 +9,7 @@ The infrastructure is split into several independent stacks:
 1. **BootstrapStack**: Initial CDK bootstrap resources (one-time setup)
 2. **IamStack**: IAM roles, users, and policies for deployment and operations
 3. **SharedNetworkStack**: VPC, subnets, and networking components
-4. **MemoryDbStack**: Redis cluster using AWS MemoryDB
+4. **ElastiCacheStack**: Redis cluster using AWS ElastiCache
 5. **RdsStack**: PostgreSQL database using AWS RDS
 6. **S3Stack**: S3 buckets for file storage
 
@@ -75,8 +75,8 @@ The infrastructure supports three environments with different resource configura
   - Instance: t3.medium
   - Storage: 20GB (max 50GB)
   - Public access: Enabled
-- **MemoryDB**:
-  - Node type: db.t4g.small
+- **ElastiCache**:
+  - Node type: cache.t4g.small
   - Single shard, no replicas
   - Backup retention: 1 day
 - **S3**:
@@ -91,8 +91,8 @@ The infrastructure supports three environments with different resource configura
   - Instance: t3.micro
   - Storage: 10GB (max 50GB)
   - Public access: Enabled
-- **MemoryDB**:
-  - Node type: db.t4g.small
+- **ElastiCache**:
+  - Node type: cache.t4g.small
   - Single shard, no replicas
   - Backup retention: 1 day
 - **S3**:
@@ -108,8 +108,8 @@ The infrastructure supports three environments with different resource configura
   - Storage: 20GB (max 100GB)
   - Public access: Enabled
   - Deletion protection: Enabled
-- **MemoryDB**:
-  - Node type: db.t4g.medium
+- **ElastiCache**:
+  - Node type: cache.t4g.medium
   - Single shard with replica
   - Backup retention: 7 days
 - **S3**:

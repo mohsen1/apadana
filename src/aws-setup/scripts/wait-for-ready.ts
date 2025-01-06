@@ -112,11 +112,11 @@ async function checkConnections(maxRetries = 10, retryDelay = 10000) {
 export async function waitForReady() {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
   const stackNames = [
-    `IamStack-${env}`,
-    `SharedNetworkStack-${env}`,
-    `MemoryDbStack-${env}`,
-    `RdsStack-${env}`,
-    `S3Stack-${env}`,
+    `ap-iam-${env}`,
+    `ap-network-${env}`,
+    `ap-elasticache-${env}`,
+    `ap-rds-${env}`,
+    `ap-s3-${env}`,
   ];
 
   const client = new CloudFormationClient({});
