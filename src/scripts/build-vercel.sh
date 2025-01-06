@@ -20,6 +20,7 @@ echo "Setting AWS environment variables in Vercel..."
 pnpm run --silent cdk:print-values | while IFS='=' read -r key value; do
   echo "$value" >/tmp/$key.aws.env
   cat /tmp/$key.aws.env | vercel env add "$key" "$VERCEL_ENV" --force --token "$VERCEL_TOKEN"
+  export $key=$value
 done
 
 # Generate Prisma client
