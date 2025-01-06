@@ -12,6 +12,23 @@ interface CloudFormationError {
   message: string;
 }
 
+type ConnectionCheck = {
+  name: string;
+  check: () => Promise<void>;
+};
+
+const connectionChecks: ConnectionCheck[] = [
+  {
+    name: 'RDS',
+    check: checkRdsConnection,
+  },
+  {
+    name: 'Redis',
+    check: checkRedisConnection,
+  },
+  // Add new checks here in the future
+];
+
 async function checkRedisConnection() {
   logger.info('Checking Redis connection...');
   const client = await getRedisClient();
@@ -38,6 +55,57 @@ async function checkRdsConnection() {
     throw error;
   } finally {
     await prisma.$disconnect();
+  }
+}
+
+async function checkConnections(maxRetries = 10, retryDelay = 10000) {
+  const connectionStatus = new Map<string, boolean>();
+  connectionChecks.forEach(({ name }) => connectionStatus.set(name, false));
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      logger.info(`Attempting database connections (attempt ${attempt}/${maxRetries})...`);
+
+      // Run checks for services that haven't connected yet
+      const pendingChecks = connectionChecks
+        .filter(({ name }) => !connectionStatus.get(name))
+        .map(async ({ name, check }) => {
+          try {
+            await check();
+            connectionStatus.set(name, true);
+            logger.info(`${name} connection established`);
+          } catch (error) {
+            logger.warn(`${name} connection failed:`, error);
+          }
+        });
+
+      await Promise.all(pendingChecks);
+
+      // Check if all services are connected
+      const allConnected = Array.from(connectionStatus.values()).every((status) => status);
+      if (allConnected) {
+        logger.info('All connections established successfully');
+        return;
+      }
+
+      // Log remaining services
+      const pendingServices = Array.from(connectionStatus.entries())
+        .filter(([, connected]) => !connected)
+        .map(([name]) => name);
+      logger.warn(`Still waiting for connections: ${pendingServices.join(', ')}`);
+
+      if (attempt === maxRetries) {
+        throw new Error(
+          `Failed to connect after ${maxRetries} retries. Outstanding services: ${pendingServices.join(', ')}`,
+        );
+      }
+
+      logger.info(`Waiting ${retryDelay / 1000}s before next attempt...`);
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
+    } catch (error) {
+      if (attempt === maxRetries) throw error;
+      logger.warn(`Attempt ${attempt} failed, retrying...`, error);
+    }
   }
 }
 
@@ -86,42 +154,12 @@ export async function waitForReady() {
     }
 
     logger.info(`Stack ${stackName} is ready`);
-
-    // After MemoryDB stack is ready, wait extra time for cluster to be fully available
-    if (stackName === `MemoryDbStack-${env}`) {
-      logger.info('Waiting for MemoryDB cluster to be fully available...');
-      await new Promise((resolve) => setTimeout(resolve, 60_000)); // Wait 60 seconds
-    }
   }
 
   logger.info('All stacks are ready. Checking database connections...');
 
   // Check database connections with retries
-  let retries = 10; // Increase retries
-  let rdsReady = false;
-  let redisReady = false;
-  while (retries > 0) {
-    try {
-      if (!rdsReady) {
-        void checkRdsConnection().then(() => {
-          rdsReady = true;
-        });
-      }
-      if (!redisReady) {
-        void checkRedisConnection().then(() => {
-          redisReady = true;
-        });
-      }
-      break;
-    } catch (error) {
-      logger.warn(`Database connection check failed. Retries left: ${retries - 1}`, error);
-      if (retries === 1) {
-        throw new Error('Failed to connect to databases after multiple retries');
-      }
-      retries--;
-      await new Promise((resolve) => setTimeout(resolve, 10000)); // Increase wait time between retries
-    }
-  }
+  await checkConnections();
 
   logger.info('All systems are ready.');
 }
