@@ -15,7 +15,7 @@ const logger = createLogger(__filename);
 
 const app = new cdk.App();
 
-const environment = process.env.ENVIRONMENT || 'development';
+const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
 logger.info(`Deploying CDK app for environment: ${environment}`);
 
 const sharedNetworkStack = new SharedNetworkStack(app, `ap-network-${environment}`, {
