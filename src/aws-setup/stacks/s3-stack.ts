@@ -23,47 +23,57 @@ export class S3Stack extends cdk.Stack {
     const cfg = getEnvConfig(props.environment);
     logger.info(`Creating S3 stack for environment: ${props.environment}`);
 
-    const bucket = new s3.Bucket(this, 'ApadanaBucket', {
-      bucketName: `ap-${cfg.environment}-${this.account}-${this.region}`,
-      versioned: true,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      publicReadAccess: false,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      enforceSSL: true,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      cors: [
-        {
-          allowedMethods: [
-            s3.HttpMethods.GET,
-            s3.HttpMethods.PUT,
-            s3.HttpMethods.POST,
-            s3.HttpMethods.DELETE,
-            s3.HttpMethods.HEAD,
-          ],
-          allowedOrigins: [
-            'https://*.apadana.local',
-            'https://apadana.app',
-            'https://*.apadana.app',
-            'https://*.vercel.app',
-          ],
-          allowedHeaders: ['*'],
-          exposedHeaders: [
-            'ETag',
-            'x-amz-server-side-encryption',
-            'x-amz-request-id',
-            'x-amz-id-2',
-          ],
-          maxAge: 3000,
-        },
-      ],
-    });
-    logger.debug('Created S3 bucket');
+    const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`;
+    let bucket: s3.IBucket;
 
-    bucket.addLifecycleRule({
-      abortIncompleteMultipartUploadAfter: cdk.Duration.days(7),
-      enabled: true,
-    });
-    logger.debug('Added lifecycle rule to S3 bucket');
+    try {
+      bucket = s3.Bucket.fromBucketName(this, 'ExistingBucket', bucketName);
+      logger.debug('Imported existing S3 bucket');
+    } catch (error) {
+      const newBucket = new s3.Bucket(this, 'ApadanaBucket', {
+        bucketName,
+        versioned: true,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        publicReadAccess: false,
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        removalPolicy: cdk.RemovalPolicy.RETAIN,
+        cors: [
+          {
+            allowedMethods: [
+              s3.HttpMethods.GET,
+              s3.HttpMethods.PUT,
+              s3.HttpMethods.POST,
+              s3.HttpMethods.DELETE,
+              s3.HttpMethods.HEAD,
+            ],
+            allowedOrigins: [
+              'https://*.apadana.local',
+              'https://apadana.app',
+              'https://*.apadana.app',
+              'https://*.vercel.app',
+            ],
+            allowedHeaders: ['*'],
+            exposedHeaders: [
+              'ETag',
+              'x-amz-server-side-encryption',
+              'x-amz-request-id',
+              'x-amz-id-2',
+            ],
+            maxAge: 3000,
+          },
+        ],
+      });
+      logger.debug('Created new S3 bucket');
+
+      newBucket.addLifecycleRule({
+        abortIncompleteMultipartUploadAfter: cdk.Duration.days(7),
+        enabled: true,
+      });
+      logger.debug('Added lifecycle rule to S3 bucket');
+
+      bucket = newBucket;
+    }
 
     this.bucket = bucket;
     this.bucketNameOutput = new cdk.CfnOutput(this, 'BucketName', {

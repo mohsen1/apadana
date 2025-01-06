@@ -58,12 +58,25 @@ export class IamStack extends cdk.Stack {
     });
     logger.debug('Created S3 upload policy');
 
-    // Create a group for deployers
-    new iam.Group(this, 'DeployerGroup', {
-      groupName: `ap-deployer-group-${props.environment}`,
-      managedPolicies: [devPolicy],
-    });
-    logger.debug('Created deployer group');
+    // Try to import existing group or create new one
+    const groupName = `ap-deployer-group-${props.environment}`;
+    let deployerGroup: iam.IGroup;
+
+    try {
+      deployerGroup = iam.Group.fromGroupName(this, 'ExistingDeployerGroup', groupName);
+      logger.debug('Imported existing deployer group');
+    } catch (error) {
+      deployerGroup = new iam.Group(this, 'DeployerGroup', {
+        groupName,
+        managedPolicies: [devPolicy],
+      });
+      logger.debug('Created new deployer group');
+    }
+
+    // Ensure the group has the required policies
+    if (deployerGroup instanceof iam.Group) {
+      deployerGroup.addManagedPolicy(devPolicy);
+    }
 
     // Create a role for Lambda functions that need to generate presigned URLs
     const uploadRole = new iam.Role(this, 'S3UploadRole', {
