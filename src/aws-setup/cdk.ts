@@ -16,11 +16,9 @@ const logger = createLogger(__filename);
 const app = new cdk.App();
 
 const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
-const stacksToSkip = (process.env.AWS_SKIP_STACKS || '').split(',').map((s) => s.trim());
 const forceReplace = process.env.AWS_FORCE_REPLACE === 'true';
 
 logger.info(`Deploying CDK app for environment: ${environment}`);
-logger.info(`Skipping stacks: ${stacksToSkip.join(', ') || 'none'}`);
 logger.info(`Force replace: ${forceReplace}`);
 
 const sharedNetworkStack = new SharedNetworkStack(app, `ap-network-${environment}`, {
