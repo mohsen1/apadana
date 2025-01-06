@@ -17,7 +17,7 @@ The infrastructure is split into several independent stacks:
 
 - AWS CLI installed and configured with appropriate credentials
 - Node.js 18+ and pnpm installed
-- AWS CDK CLI installed globally: `pnpm add -g aws-cdk`
+- AWS CDK CLI v2.x installed globally: `pnpm add -g aws-cdk`
 
 ## Environment Variables
 
@@ -80,6 +80,11 @@ The infrastructure supports three environments with different resource configura
   - Node type: db.t4g.small
   - Single shard, no replicas
   - Backup retention: 1 day
+- **S3**:
+  - Public read access enabled
+  - CORS configured for web access
+  - Server-side encryption
+  - Versioning enabled
 
 ### Preview Environment
 
@@ -91,6 +96,11 @@ The infrastructure supports three environments with different resource configura
   - Node type: db.t4g.small
   - Single shard, no replicas
   - Backup retention: 1 day
+- **S3**:
+  - Public read access enabled
+  - CORS configured for web access
+  - Server-side encryption
+  - Versioning enabled
 
 ### Production Environment
 
@@ -103,6 +113,11 @@ The infrastructure supports three environments with different resource configura
   - Node type: db.t4g.medium
   - Single shard with replica
   - Backup retention: 7 days
+- **S3**:
+  - Public read access enabled
+  - CORS configured for web access
+  - Server-side encryption
+  - Versioning enabled
 
 ## Security Features
 
@@ -146,6 +161,7 @@ The infrastructure is designed to work seamlessly with Vercel deployments:
 - Environment variables are automatically populated during build
 - Database credentials are securely retrieved from Secrets Manager
 - S3 bucket names are configured for file uploads
+- CORS configured for _.vercel.app, _.apadana.app, and local development
 - Public database access is enabled for Vercel's IP ranges
 
 ## Troubleshooting
