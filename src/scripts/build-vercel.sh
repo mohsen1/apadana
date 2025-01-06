@@ -15,7 +15,8 @@ pnpm cdk:deploy --all --require-approval never --concurrency 5
 echo "Setting AWS environment variables in Vercel..."
 pnpm add -g vercel@latest
 pnpm run --silent cdk:print-values | while IFS='=' read -r key value; do
-  echo "$value" | vercel env add "$key" "$VERCEL_ENV" --force
+  echo "$value" >/tmp/$key.aws.env
+  cat /tmp/$key.aws.env | vercel env add "$key" "$VERCEL_ENV" --force
 done
 
 # Generate Prisma client
