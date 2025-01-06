@@ -49,22 +49,7 @@
     "docker:dev": "DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml up app_dev",
     "docker:prod": "DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml up app_prod",
     "test:storybook": "playwright test --config=config/playwright.storybook.config.ts",
-    "test:storybook:update": "playwright test --config=config/playwright.storybook.config.ts --update-snapshots",
-    "cdk": "cdk --app 'tsx config/aws-setup/cdk.ts'",
-    "cdk:bootstrap": "cdk bootstrap --app 'tsx config/aws-setup/cdk.ts'",
-    "cdk:deploy": "cdk deploy --app 'tsx config/aws-setup/cdk.ts'",
-    "cdk:deploy:bootstrap": "AWS_DEPLOYMENT_STACK_TYPE=bootstrap cdk deploy ApadanaBootstrapStack --app 'tsx config/aws-setup/cdk.ts'",
-    "cdk:deploy:network": "AWS_DEPLOYMENT_STACK_TYPE=network cdk deploy --all --app 'tsx config/aws-setup/cdk.ts'",
-    "cdk:deploy:resources": "AWS_DEPLOYMENT_STACK_TYPE=resources cdk deploy --all --app 'tsx config/aws-setup/cdk.ts'",
-    "cdk:deploy:resources:ci": "AWS_DEPLOYMENT_STACK_TYPE=resources cdk deploy --all --require-approval never --app 'tsx config/aws-setup/cdk.ts'",
-    "cdk:deploy:shared": "AWS_DEPLOYMENT_STACK_TYPE=shared cdk deploy --all --app 'tsx config/aws-setup/cdk.ts'",
-    "cdk:destroy": "cdk destroy --app 'tsx config/aws-setup/cdk.ts'",
-    "cdk:diff": "cdk diff --app 'tsx config/aws-setup/cdk.ts'",
-    "cdk:synth": "cdk synth --app 'tsx config/aws-setup/cdk.ts'",
-    "aws:env": "tsx config/aws-setup/scripts/get-env.ts",
-    "aws:deployer:create": "tsx config/aws-setup/scripts/create-deployer.ts",
-    "aws:wait-resources": "tsx config/aws-setup/scripts/wait-resources.ts",
-    "aws:preflight": "tsx config/aws-setup/scripts/preflight.ts"
+    "test:storybook:update": "playwright test --config=config/playwright.storybook.config.ts --update-snapshots"
   },
   "dependencies": {
     "@adobe/react-spectrum": "^3.38.1",
