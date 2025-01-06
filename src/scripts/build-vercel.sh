@@ -19,7 +19,7 @@ pnpm cdk:wait
 
 # Install Vercel CLI
 echo "Installing Vercel CLI..."
-npm install -g vercel@latest
+npm install --global --silent vercel@latest
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
