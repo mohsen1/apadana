@@ -23,8 +23,26 @@ export async function getRedisClient(): Promise<RedisClient> {
     throw new Error('REDIS_URL environment variable is not set');
   }
 
+  // Ensure URL uses TLS for MemoryDB
+  const redisUrl = process.env.REDIS_URL?.replace(/^redis:\/\//, 'rediss://');
+
   redisClient = createClient({
-    url: process.env.REDIS_URL,
+    url: redisUrl,
+    socket: {
+      tls: true,
+      rejectUnauthorized: true, // Validate TLS certificates
+      connectTimeout: 30000, // 30 seconds for initial connection
+      keepAlive: 30000, // Send keepalive every 30 seconds
+      reconnectStrategy: (retries) => {
+        if (retries > 10) {
+          logger.error('Max Redis reconnection attempts reached');
+          return new Error('Max reconnection attempts reached');
+        }
+        const delay = Math.min(retries * 1000, 5000);
+        logger.debug(`Redis reconnecting in ${delay}ms (attempt ${retries})`);
+        return delay;
+      },
+    },
   });
 
   if (process.env.NODE_ENV !== 'test') {
@@ -47,8 +65,14 @@ export async function getRedisClient(): Promise<RedisClient> {
 
     try {
       await redisClient.connect();
+      // Test connection with ping
+      await redisClient.ping();
+      logger.info('Redis connection verified with ping');
     } catch (err) {
-      logger.error('Failed to connect to Redis', { error: err });
+      logger.error('Failed to connect to Redis', {
+        error: err,
+        url: redisUrl?.replace(/rediss:\/\/(.*?)@/, 'rediss://***@'),
+      });
       redisClient = null;
       throw err;
     }

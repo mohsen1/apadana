@@ -1,7 +1,7 @@
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
-import { createClient } from 'redis';
 
 import prisma from '@/lib/prisma';
+import { getRedisClient } from '@/lib/redis/client';
 
 import { createLogger } from '@/utils/logger';
 
@@ -14,41 +14,12 @@ interface CloudFormationError {
 
 async function checkRedisConnection() {
   logger.info('Checking Redis connection...');
-  const redisUrl = process.env.REDIS_URL;
-  if (!redisUrl) {
-    throw new Error('REDIS_URL is not defined');
-  }
-
-  logger.debug(
-    'Attempting to connect to Redis at:',
-    redisUrl.replace(/redis:\/\/(.*?)@/, 'redis://***@'),
-  );
-  const client = createClient({
-    url: redisUrl,
-    socket: {
-      connectTimeout: 5000, // 5 seconds timeout
-      reconnectStrategy: (retries) => {
-        logger.debug(`Redis reconnect attempt ${retries}`);
-        if (retries > 3) {
-          return new Error('Redis max retries reached');
-        }
-        return Math.min(retries * 1000, 3000);
-      },
-    },
-  });
-
-  client.on('error', (err) => {
-    logger.error('Redis client error:', err);
-  });
-
+  const client = await getRedisClient();
   try {
-    await client.connect();
-    logger.debug('Redis connection established, attempting ping...');
-    await client.ping();
+    // getRedisClient already handles connection and ping
     logger.info('Redis connection successful');
   } catch (error) {
     logger.error('Redis connection failed:', error);
-    logger.debug('Redis URL (sanitized):', redisUrl.replace(/redis:\/\/(.*?)@/, 'redis://***@'));
     throw error;
   } finally {
     await client.disconnect();
@@ -63,7 +34,7 @@ async function checkRdsConnection() {
     await prisma.$queryRaw`SELECT 1`;
     logger.info('RDS connection successful');
   } catch (error) {
-    logger.error('RDS connection failed, DATABASE_URL: ', process.env.DATABASE_URL);
+    logger.error('RDS connection failed:', error);
     throw error;
   } finally {
     await prisma.$disconnect();
@@ -82,6 +53,7 @@ export async function waitForReady() {
 
   const client = new CloudFormationClient({});
 
+  // First wait for all stacks to be ready
   for (const stackName of stackNames) {
     let isReady = false;
     logger.info(`Waiting for stack: ${stackName}`);
@@ -114,15 +86,24 @@ export async function waitForReady() {
     }
 
     logger.info(`Stack ${stackName} is ready`);
+
+    // After MemoryDB stack is ready, wait extra time for cluster to be fully available
+    if (stackName === `MemoryDbStack-${env}`) {
+      logger.info('Waiting for MemoryDB cluster to be fully available...');
+      await new Promise((resolve) => setTimeout(resolve, 60_000)); // Wait 60 seconds
+    }
   }
 
   logger.info('All stacks are ready. Checking database connections...');
 
   // Check database connections with retries
-  let retries = 5;
+  let retries = 10; // Increase retries
   while (retries > 0) {
     try {
-      await Promise.all([checkRedisConnection(), checkRdsConnection()]);
+      // Check RDS first as it's usually ready faster
+      await checkRdsConnection();
+      // Then check Redis
+      await checkRedisConnection();
       break;
     } catch (error) {
       logger.warn(`Database connection check failed. Retries left: ${retries - 1}`, error);
@@ -130,7 +111,7 @@ export async function waitForReady() {
         throw new Error('Failed to connect to databases after multiple retries');
       }
       retries--;
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 10000)); // Increase wait time between retries
     }
   }
 
