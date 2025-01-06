@@ -22,7 +22,7 @@ if [ $elapsed -ge 2400 ]; then
   echo "Warning: AWS deployment took more than 40 minutes. This is likely because a lot of resources are being deployed."
   echo "Vercel build times are capped at 45 minutes. For faster iterations, consider running locally with:"
   echo "AWS_DEPLOYMENT_STACK_ENV=$AWS_DEPLOYMENT_STACK_ENV pnpm cdk:deploy --all --concurrency 10"
-  exit 1
+  exit 124
 fi
 
 # Install Vercel CLI
