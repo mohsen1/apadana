@@ -15,10 +15,7 @@ pnpm cdk:deploy --all --require-approval never --concurrency 10
 
 # Wait for resources to be ready
 echo "Waiting for AWS resources to be ready..."
-pnpm run --silent aws:wait-for-ready || {
-  echo "AWS resources failed to become ready"
-  exit 1
-}
+pnpm cdk:wait
 
 # Install Vercel CLI
 echo "Installing Vercel CLI..."
@@ -27,18 +24,16 @@ npm install -g vercel@latest
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
 pnpm run --silent cdk:print-values | while IFS='=' read -r key value; do
-  vercel env add "$key" "$VERCEL_ENV" --value "$value" --force --token "$VERCEL_TOKEN"
+  echo "$value" >/tmp/$key.aws.env
+  cat /tmp/$key.aws.env | vercel env add "$key" "$VERCEL_ENV" --force --token "$VERCEL_TOKEN"
   export $key=$value
+  rm -f /tmp/$key.aws.env
 done
-
-# Generate Prisma client
-echo "Generating Prisma client..."
-pnpm prisma generate --no-hints --schema=src/prisma/schema.prisma
 
 # Deploy Prisma migrations
 echo "Deploying database migrations..."
-pnpm prisma migrate deploy --schema=src/prisma/schema.prisma
+pnpm prisma:migrate
 
 # Build Next.js app
 echo "Building Next.js application..."
-pnpm next build
+pnpm build
