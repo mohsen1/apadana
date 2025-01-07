@@ -1,4 +1,5 @@
 import { Booking, BookingRequest, BookingRequestStatus, Currency, Prisma } from '@prisma/client';
+import crypto from 'crypto';
 import { addDays } from 'date-fns';
 import _ from 'lodash';
 
@@ -80,12 +81,12 @@ export async function createTestListing(
         create: [
           {
             url: 'https://apadana.app/images/placeholder/listing1.jpg',
-            key: 'test-image-1',
+            key: `${crypto.randomUUID()}-test-image-1`,
             name: 'Test Image 1',
           },
           {
             url: 'https://apadana.app/images/placeholder/listing2.jpg',
-            key: 'test-image-2',
+            key: `${crypto.randomUUID()}-test-image-2`,
             name: 'Test Image 2',
           },
         ],
