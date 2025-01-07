@@ -2,6 +2,7 @@
 
 General Rules:
 
+- IMPORTANT: Try not to delete too much existing code. Ensure existing code is absolutely not needed first.
 - The website is hosted at `https://apadana.app`.
 - Emails are sent from `bookings@apadana.app`, `onboarding@apadana.app`, and `support@apadana.app`.
 - Use `logger` from `@/utils/logger` to log errors and messages. (default export)
@@ -14,8 +15,10 @@ General Rules:
 - Prisma schema and seed are in `src/prisma/schema` directory
 - AVOID CREATING NEW DIRECTORIES DIRECTLY IN ROOT
 - Component stories are sibling to the component. NOT IN **stories**
-
-Typescript Rules:
+- config files are in `config/`
+- docker config is in `src/docker/`
+- Locally, we route the app to https://dev.apadana.local and https://prod.apadana.local
+  Typescript Rules:
 
 - Use `assertError` to assert errors
 - Use modern syntax: ?. ?? #private AsyncIterators for..of and anything ES2022+
@@ -33,6 +36,7 @@ Next.js Rules:
 - Use theme-defined colors instead of hardcoded ones; available colors include Gray, Red, Yellow, Green, Blue, Indigo, Purple, and Pink.
 - Always handle dark mode in components.
 - for links use `Button` from ShadCDN UI
+- Always use `useAction` hook from `next-safe-action` to handle actions
 
 Backend Rules:
 
@@ -48,6 +52,8 @@ Backend Rules:
 - We are NOT USING NextAuth. In server user getUserInServer
 - We are NOT USING react-query. Query directly from Prisma Client in backend
 - Access env variables directly from process.env
+- To read headers import from 'next/headers' and await headers()
+- All schemas are in `src/lib/schema.ts` and PascalCase. Each schema exports its own type at the end of the file. e.g. `UserSchema` and infered type is `User`
 - Use this API signature for actions:
 
   ```typescript
@@ -58,4 +64,15 @@ Backend Rules:
 
   Testing Rules:
 
+- Unit tests run in the docker and involve the database
 - import playwright test and expect from 'base'
+
+Development Rules:
+
+- Everything beside e2e tests run in the docker. see package.json scripts
+- Run `pnpm typecheck` to check for type errors before finishing a task
+
+Deployment Rules:
+
+- Always commit changes before deploying to vercel, make sure all changes are committed
+- We use Fish shell.
