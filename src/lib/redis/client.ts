@@ -44,7 +44,7 @@ export async function getRedisClient(
       url: redisUrl,
       socket: {
         tls: true,
-        rejectUnauthorized: true, // Validate TLS certificates
+        rejectUnauthorized: false, // Accept self-signed certificates
         connectTimeout: 30000, // 30 seconds for initial connection
         keepAlive: 30000, // Send keepalive every 30 seconds
         reconnectStrategy: (retries: number) => {
