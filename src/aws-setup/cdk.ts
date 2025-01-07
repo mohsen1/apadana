@@ -65,6 +65,7 @@ new RedisProxyStack(app, `ap-redis-proxy-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
   redisEndpoint: elasticacheStack.redisHostOutput.value,
+  redisSecurityGroup: elasticacheStack.redisSecurityGroup,
   removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created Redis proxy stack');
