@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This is essentially a postinstall
+pnpm prisma:generate
+
 # Exit on error
 set -e
 
@@ -52,7 +55,6 @@ else
 
     # Wait for resources to be ready
     echo "Waiting for AWS resources to be ready..."
-    pnpm prisma:generate
     pnpm cdk:wait
 
     # Deploy Prisma migrations
