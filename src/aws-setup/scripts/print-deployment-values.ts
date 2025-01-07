@@ -1,8 +1,6 @@
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import fs from 'fs';
-import os from 'os';
-import path from 'path';
 
 import { createLogger } from '@/utils/logger';
 
@@ -98,7 +96,7 @@ const logger = createLogger(__filename, 'debug');
     `NEXT_PUBLIC_CLOUDFRONT_DOMAIN=${cloudfrontDomain}`,
   ];
 
-  const tempFilePath = path.join(os.tmpdir(), `deployment-values.env`);
+  const tempFilePath = `/tmp/deployment-values.env`;
   fs.writeFileSync(tempFilePath, fileContent.join('\n'));
 
   logger.info(`Deployment values written to ${tempFilePath}`);

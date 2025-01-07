@@ -12,8 +12,8 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AW
 start_time=$(date +%s)
 
 # Deploy AWS resources
-echo "Deploying AWS infrastructure..."
-pnpm cdk:deploy --all --require-approval never --concurrency 10
+echo "Deploying AWS infrastructure... (SKIP)"
+# pnpm cdk:deploy --all --require-approval never --concurrency 10
 
 # Check deployment time
 end_time=$(date +%s)
@@ -31,7 +31,9 @@ npm install --global --silent vercel@latest
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
-pnpm run --silent cdk:env | while IFS='=' read -r key value; do
+pnpm run --silent cdk:env
+
+cat /tmp/deployment-values.env | while IFS='=' read -r key value; do
   # Write the environment variable to a temporary file.
   # This is done because of how Vercel CLI handles environment variables.
   filename="/tmp/__TEMP_ENV_VAR__$key.env"
@@ -45,11 +47,6 @@ done
 # Wait for resources to be ready
 echo "Waiting for AWS resources to be ready..."
 pnpm prisma:generate
-
-# Wait a bit for Redis to be fully available
-echo "Waiting for Redis to be fully available..."
-sleep 30
-
 pnpm cdk:wait
 
 # Deploy Prisma migrations
