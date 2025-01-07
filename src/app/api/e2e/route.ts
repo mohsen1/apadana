@@ -215,6 +215,11 @@ export async function POST(request: Request) {
       }
 
       case 'deleteListing': {
+        if (!body.args.id) {
+          return new Response(JSON.stringify({ error: 'Listing ID is required' }), {
+            status: 400,
+          });
+        }
         await prisma.listing.delete({
           where: { id: body.args.id },
         });
