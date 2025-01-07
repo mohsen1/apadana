@@ -1,6 +1,8 @@
 import { CloudFormation } from '@aws-sdk/client-cloudformation';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger(import.meta.filename);
 
 const cloudformation = new CloudFormation({});
 
