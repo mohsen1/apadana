@@ -63,10 +63,10 @@ const elasticacheStack = new ElastiCacheStack(app, `ap-elasticache-${environment
 logger.debug('Created Elasticache stack');
 
 // Then create Redis proxy stack with direct reference to ElastiCache endpoint
-const redisProxyStack = new RedisProxyStack(app, `ap-redis-proxy-${environment}`, {
+new RedisProxyStack(app, `ap-redis-proxy-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
-  redisEndpoint: elasticacheStack.redisHostOutput.value,
+  redisEndpoint: elasticacheStack.redisHostOutput.value as string,
   removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created Redis proxy stack');
