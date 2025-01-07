@@ -1,12 +1,12 @@
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename, 'debug');
-
-// Disable logging for this script. Enable only for debugging purposes.
-logger.disable();
 
 (async () => {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
@@ -89,13 +89,17 @@ logger.disable();
     }
   }
 
-  // Use process.stdout.write to avoid any prepending
-  process.stdout.write(`REDIS_URL=${redisUrl}\n`);
-  process.stdout.write(`DATABASE_URL=${dbUrl}\n`);
-  process.stdout.write(`AWS_S3_BUCKET_NAME=${s3Bucket}\n`);
+  const fileContent = [
+    `REDIS_URL=${redisUrl}`,
+    `DATABASE_URL=${dbUrl}`,
+    `AWS_S3_BUCKET_NAME=${s3Bucket}`,
+    `NEXT_PUBLIC_AWS_S3_BUCKET_NAME=${s3Bucket}`,
+    `NEXT_PUBLIC_AWS_REGION=${process.env.AWS_REGION}`,
+    `NEXT_PUBLIC_CLOUDFRONT_DOMAIN=${cloudfrontDomain}`,
+  ];
 
-  // Next.js public environment variables
-  process.stdout.write(`NEXT_PUBLIC_AWS_S3_BUCKET_NAME=${s3Bucket}\n`);
-  process.stdout.write(`NEXT_PUBLIC_AWS_REGION=${process.env.AWS_REGION}\n`);
-  process.stdout.write(`NEXT_PUBLIC_CLOUDFRONT_DOMAIN=${cloudfrontDomain}\n`);
+  const tempFilePath = path.join(os.tmpdir(), `deployment-values.env`);
+  fs.writeFileSync(tempFilePath, fileContent.join('\n'));
+
+  logger.info(`Deployment values written to ${tempFilePath}`);
 })();
