@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   createClient,
   RedisClientOptions,
@@ -36,14 +37,14 @@ export async function getRedisClient(
   // Ensure URL uses TLS for MemoryDB
   const redisUrl = process.env.REDIS_URL?.replace(/^redis:\/\//, 'rediss://');
 
-  redisClient = createClient({
+  const mergedOptions = _.merge(optionsOverride, {
     url: redisUrl,
     socket: {
       tls: true,
       rejectUnauthorized: true, // Validate TLS certificates
       connectTimeout: 30000, // 30 seconds for initial connection
       keepAlive: 30000, // Send keepalive every 30 seconds
-      reconnectStrategy: (retries) => {
+      reconnectStrategy: (retries: number) => {
         if (retries > 10) {
           logger.error('Max Redis reconnection attempts reached');
           return new Error('Max reconnection attempts reached');
@@ -52,10 +53,10 @@ export async function getRedisClient(
         logger.debug(`Redis reconnecting in ${delay}ms (attempt ${retries})`);
         return delay;
       },
-      ...(optionsOverride.socket ?? {}),
     },
-    ...optionsOverride,
   });
+
+  redisClient = createClient(mergedOptions);
 
   if (process.env.NODE_ENV !== 'test') {
     redisClient.on('error', (err) => {
