@@ -15,10 +15,12 @@ test('Password Change Flow', async ({ page, data }) => {
   let resetPage: Page;
   await test.step('Open inbox and click on password change link', async () => {
     await page.goto('/local-inbox');
-    await page.waitForTimeout(1000);
-    const newPagePromise = page.waitForEvent('popup');
+    await expect(page.getByRole('link', { name: 'Reset Password' })).toBeVisible();
+
+    const newPagePromise = page.context().waitForEvent('page');
     await page.getByRole('link', { name: 'Reset Password' }).click();
     resetPage = await newPagePromise;
+
     await expect(resetPage.getByText(/Reset Your Password/i)).toBeVisible();
   });
   // new tab opens with Reset Your Password title
