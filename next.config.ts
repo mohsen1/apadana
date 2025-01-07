@@ -30,7 +30,6 @@ const nextConfig: NextConfig = {
     },
     optimizeCss: false,
     scrollRestoration: true,
-    typedRoutes: true,
   },
 };
 
