@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-/// <reference types="./core.d.ts" />
 import fs from 'fs';
 import path from 'path';
 
@@ -42,7 +41,7 @@ export async function findMissingFiles() {
     .map((file) => path.relative(path.join(baseDir, 'darwin'), file))
     .filter((relPath) => !fs.existsSync(path.join(baseDir, 'linux', relPath)));
 
-  // eslint-disable-next-line no-undef
+  // eslint-disable-next-line no-undef, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   core.setOutput('MISSING_SNAPSHOT_FILES', JSON.stringify(missingFiles));
   console.log('Missing files:', missingFiles);
 }
