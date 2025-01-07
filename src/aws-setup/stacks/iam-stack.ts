@@ -5,7 +5,7 @@ import { Construct } from 'constructs';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 interface IamStackProps extends cdk.StackProps {
   environment: string;

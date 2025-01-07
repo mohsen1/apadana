@@ -4,7 +4,7 @@ import fs from 'fs';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename, 'debug');
+const logger = createLogger(import.meta.filename, 'debug');
 
 (async () => {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';

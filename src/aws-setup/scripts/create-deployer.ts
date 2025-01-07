@@ -11,7 +11,7 @@ import {
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 logger.disable(); // Disable logging to have a clean output. For debugging, enable it.
 
 function printEnv(accessKeyId: string, secretAccessKey: string) {

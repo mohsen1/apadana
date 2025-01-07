@@ -5,7 +5,7 @@ import { getRedisClient } from '@/lib/redis/client';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 interface CloudFormationError {
   name: string;

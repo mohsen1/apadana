@@ -2,7 +2,7 @@ import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 (async () => {
   const stsClient = new STSClient({});

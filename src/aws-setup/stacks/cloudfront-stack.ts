@@ -8,7 +8,7 @@ import { createLogger } from '@/utils/logger';
 
 import { getEnvConfig } from '../config/factory';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 interface CloudFrontStackProps extends cdk.StackProps {
   environment: string;

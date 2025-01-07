@@ -12,7 +12,7 @@ import { RedisProxyStack } from './stacks/redis-proxy-stack';
 import { S3Stack } from './stacks/s3-stack';
 import { SharedNetworkStack } from './stacks/shared-network-stack';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 const app = new cdk.App();
 
