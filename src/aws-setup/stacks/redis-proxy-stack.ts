@@ -12,6 +12,7 @@ interface RedisProxyStackProps extends cdk.StackProps {
   environment: string;
   vpc: ec2.IVpc;
   redisEndpoint: string;
+  redisSecurityGroup: ec2.ISecurityGroup;
   removalPolicy?: cdk.RemovalPolicy;
 }
 
@@ -73,6 +74,14 @@ export class RedisProxyStack extends cdk.Stack {
       ec2.Port.tcp(6379),
       'Allow inbound Redis traffic from anywhere',
     );
+
+    // Allow the proxy service to access Redis
+    props.redisSecurityGroup.addIngressRule(
+      ec2.Peer.securityGroupId(serviceSG.securityGroupId),
+      ec2.Port.tcp(6379),
+      'Allow Redis traffic from proxy service',
+    );
+
     logger.debug('Created security group for proxy service');
 
     // Create the Fargate service

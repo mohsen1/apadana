@@ -17,6 +17,7 @@ interface ElastiCacheStackProps extends cdk.StackProps {
 export class ElastiCacheStack extends cdk.Stack {
   public readonly redisHostOutput: cdk.CfnOutput;
   public readonly redisSecurityGroup: ec2.SecurityGroup;
+  public readonly redisSecurityGroupOutput: cdk.CfnOutput;
 
   constructor(scope: Construct, id: string, props: ElastiCacheStackProps) {
     super(scope, id, props);
@@ -79,6 +80,12 @@ export class ElastiCacheStack extends cdk.Stack {
       exportName: `${this.stackName}-RedisEndpoint`,
       value: redisCluster.attrPrimaryEndPointAddress,
       description: 'ElastiCache cluster endpoint (accessible via proxy)',
+    });
+
+    this.redisSecurityGroupOutput = new cdk.CfnOutput(this, 'RedisSecurityGroupId', {
+      exportName: `${this.stackName}-RedisSecurityGroupId`,
+      value: this.redisSecurityGroup.securityGroupId,
+      description: 'ElastiCache security group ID',
     });
   }
 }
