@@ -14,22 +14,29 @@ jobs:
   e2e:
     name: Playwright
     runs-on: ubuntu-24.04
-    # Run when deployment is successful
     if: (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success')
     steps:
       - uses: actions/checkout@v4
-
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
 
       - name: Run E2E Tests
+        uses: actions/github-script@v7
         id: test-run
-        run: |
-          if [ "${ENVIRONMENT,,}" == "production" ]; then
-            pnpm run e2e:prod
-          else
-            pnpm run e2e:ci
-          fi
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const environment = process.env.ENVIRONMENT.toLowerCase();
+
+            try {
+              if (environment === 'production') {
+                execSync('pnpm run e2e:prod', { stdio: 'inherit' });
+              } else {
+                execSync('pnpm run e2e:ci', { stdio: 'inherit' });
+              }
+            } catch (error) {
+              core.setFailed(error.message);
+            }
         env:
           ENVIRONMENT: ${{ github.event.deployment_status.environment }}
           BASE_URL: ${{ github.event.deployment_status.target_url }}
@@ -50,22 +57,122 @@ jobs:
           source_dir: '.next/playwright-report'
           destination_dir: ${{ github.sha }}/playwright
           index_html_location_path: 'html/index.html'
+
   storybook:
     name: Storybook
-    runs-on: macos-14
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout ${{ github.head_ref }}
+
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
 
+      - name: Find missing screenshot files
+        uses: actions/github-script@v7
+        id: snapshot-diff
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            // Possible to add other paths here in future
+            const baseDir = 'src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts';
+
+            function findMissingFiles() {
+              if (!fs.existsSync(path.join(baseDir, 'linux')) || !fs.existsSync(path.join(baseDir, 'darwin'))) {
+                console.log(`Nothing in ${baseDir}`);
+                return '';
+              }
+              
+              const darwinFiles = getAllFiles(path.join(baseDir, 'darwin'));
+              const missingFiles = darwinFiles
+                .map(file => path.relative(path.join(baseDir, 'darwin'), file))
+                .filter(relPath => !fs.existsSync(path.join(baseDir, 'linux', relPath)));
+              
+              return missingFiles;
+            }
+
+            function getAllFiles(dir) {
+              const files = [];
+              const items = fs.readdirSync(dir, { withFileTypes: true });
+              
+              for (const item of items) {
+                const fullPath = path.join(dir, item.name);
+                if (item.isDirectory()) {
+                  files.push(...getAllFiles(fullPath));
+                } else {
+                  files.push(fullPath);
+                }
+              }
+              
+              return files;
+            }
+
+            const missingFiles = findMissingFiles();
+            core.setOutput('MISSING_SNAPSHOT_FILES', JSON.stringify(missingFiles));
+            console.log('Missing files:', missingFiles);
+
       - name: Test Storybook
         id: test-run
-        run: pnpm run test:storybook
+        run: |
+          if [ -n "$MISSING_SNAPSHOT_FILES" ] && [ "$MISSING_SNAPSHOT_FILES" != '[]' ]; then
+            echo "Missing snapshot files: $MISSING_SNAPSHOT_FILES"
+            pnpm run test:storybook:update
+          else
+            pnpm run test:storybook
+          fi
         env:
+          MISSING_SNAPSHOT_FILES: ${{ steps.snapshot-diff.outputs.MISSING_SNAPSHOT_FILES }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           E2E_TESTING_SECRET: ${{ secrets.E2E_TESTING_SECRET }}
           VERCEL_URL: ${{ github.event.deployment_status.target_url }}
+
+      - name: Ensure only missing snapshot files are updated
+        if: steps.snapshot-diff.outputs.MISSING_SNAPSHOT_FILES != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const missingFiles = JSON.parse(process.env.MISSING_SNAPSHOT_FILES).sort();
+
+            const changedFiles = execSync('git diff --name-only HEAD^ HEAD')
+              .toString()
+              .split('\n')
+              .filter(file => file.match(/src\/storybook-e2e\/__screenshots__\/storybook-screenshots\.spec\.ts\/linux\//))
+              .sort();
+
+            if (JSON.stringify(missingFiles) !== JSON.stringify(changedFiles)) {
+              console.log('Changed files:', changedFiles);
+              console.log('Missing files:', missingFiles);
+              core.setFailed('Changed files do not match exactly with missing files list');
+            }
+        env:
+          MISSING_SNAPSHOT_FILES: ${{ steps.snapshot-diff.outputs.MISSING_SNAPSHOT_FILES }}
+
+      - name: Commit snapshot changes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            try {
+              execSync('git add src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts');
+              execSync('git commit -m "Update missing snapshot files"');
+              execSync('git push');
+            } catch (error) {
+              core.setFailed(error.message);
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Report Storybook Results
         if: always() && hashFiles('storybook-e2e-html-report/**') != ''
