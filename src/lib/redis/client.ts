@@ -1,7 +1,15 @@
-import { createClient } from 'redis';
+import {
+  createClient,
+  RedisClientOptions,
+  RedisFunctions,
+  RedisModules,
+  RedisScripts,
+} from 'redis';
 
 import { assertError } from '@/utils';
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger('redis/client');
 
 export type RedisClient = ReturnType<typeof createClient>;
 
@@ -12,7 +20,9 @@ let redisClient: RedisClient | null = null;
  * In test environments, returns a mock Redis client
  * In production, returns a real Redis client
  */
-export async function getRedisClient(): Promise<RedisClient> {
+export async function getRedisClient(
+  optionsOverride: Partial<RedisClientOptions<RedisModules, RedisFunctions, RedisScripts>> = {},
+): Promise<RedisClient> {
   if (redisClient) {
     return redisClient;
   }
@@ -42,7 +52,9 @@ export async function getRedisClient(): Promise<RedisClient> {
         logger.debug(`Redis reconnecting in ${delay}ms (attempt ${retries})`);
         return delay;
       },
+      ...(optionsOverride.socket ?? {}),
     },
+    ...optionsOverride,
   });
 
   if (process.env.NODE_ENV !== 'test') {
