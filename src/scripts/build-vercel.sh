@@ -11,9 +11,17 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AW
 # Start timing AWS deployment
 start_time=$(date +%s)
 
-# Deploy AWS resources
-echo "Deploying AWS infrastructure..."
-pnpm cdk:deploy --all --require-approval never --concurrency 10
+# Show what will be deployed and capture the output
+echo "Checking infrastructure changes..."
+diff_output=$(pnpm cdk:diff --all --no-change-set)
+
+# Check if there are any differences
+if echo "$diff_output" | grep -q "There were no differences" && ! echo "$diff_output" | grep -q "Stack.*Resources"; then
+  echo "No infrastructure changes detected. Skipping deployment."
+else
+  echo "Changes detected. Proceeding with deployment..."
+  pnpm cdk:deploy --all --require-approval never --concurrency 10
+fi
 
 # Check deployment time
 end_time=$(date +%s)
