@@ -12,12 +12,13 @@ interface RedisProxyStackProps extends cdk.StackProps {
   environment: string;
   vpc: ec2.IVpc;
   redisEndpoint: string;
-  redisSecurityGroup: ec2.ISecurityGroup;
   removalPolicy?: cdk.RemovalPolicy;
 }
 
 export class RedisProxyStack extends cdk.Stack {
   public readonly proxyEndpointOutput: cdk.CfnOutput;
+  public readonly proxySecurityGroupOutput: cdk.CfnOutput;
+  public readonly proxySecurityGroup: ec2.SecurityGroup;
 
   constructor(scope: Construct, id: string, props: RedisProxyStackProps) {
     super(scope, id, props);
@@ -75,12 +76,12 @@ export class RedisProxyStack extends cdk.Stack {
       'Allow inbound Redis traffic from anywhere',
     );
 
-    // Allow the proxy service to access Redis
-    props.redisSecurityGroup.addIngressRule(
-      ec2.Peer.securityGroupId(serviceSG.securityGroupId),
-      ec2.Port.tcp(6379),
-      'Allow Redis traffic from proxy service',
-    );
+    this.proxySecurityGroup = serviceSG;
+    this.proxySecurityGroupOutput = new cdk.CfnOutput(this, 'ProxySecurityGroupId', {
+      exportName: `${this.stackName}-SecurityGroupId`,
+      value: serviceSG.securityGroupId,
+      description: 'Security group ID for Redis proxy service',
+    });
 
     logger.debug('Created security group for proxy service');
 

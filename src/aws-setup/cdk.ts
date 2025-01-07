@@ -53,21 +53,22 @@ new RdsStack(app, `ap-rds-${environment}`, {
 });
 logger.debug('Created RDS stack');
 
-const elasticacheStack = new ElastiCacheStack(app, `ap-elasticache-${environment}`, {
+// Create Redis proxy stack first
+const redisProxyStack = new RedisProxyStack(app, `ap-redis-proxy-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
-  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
-});
-logger.debug('Created Elasticache stack');
-
-// Create Redis proxy stack
-new RedisProxyStack(app, `ap-redis-proxy-${environment}`, {
-  environment,
-  vpc: sharedNetworkStack.vpc,
-  redisEndpoint: elasticacheStack.redisHostOutput.value,
-  redisSecurityGroup: elasticacheStack.redisSecurityGroup,
+  redisEndpoint: cdk.Fn.importValue(`ap-elasticache-${environment}-RedisEndpoint`),
   removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created Redis proxy stack');
+
+// Then create ElastiCache stack with proxy security group
+const elasticacheStack = new ElastiCacheStack(app, `ap-elasticache-${environment}`, {
+  environment,
+  vpc: sharedNetworkStack.vpc,
+  proxySecurityGroup: redisProxyStack.proxySecurityGroup,
+  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+});
+logger.debug('Created Elasticache stack');
 
 app.synth();
