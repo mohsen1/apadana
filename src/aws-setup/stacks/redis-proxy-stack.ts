@@ -1,12 +1,51 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecs as ecs, aws_elasticloadbalancingv2 as elb } from 'aws-cdk-lib';
+import { aws_secretsmanager as secretsmanager } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import * as crypto from 'crypto';
+import { pki } from 'node-forge';
 
 import { createLogger } from '@/utils/logger';
 
 import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(__filename);
+
+// Helper function to generate self-signed certificate
+function generateSelfSignedCertificate(domain: string) {
+  // Generate key pair
+  const keys = pki.rsa.generateKeyPair(2048);
+
+  // Create certificate
+  const cert = pki.createCertificate();
+  cert.publicKey = keys.publicKey;
+  cert.serialNumber = '01';
+  cert.validity.notBefore = new Date();
+  cert.validity.notAfter = new Date();
+  cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
+
+  const attrs = [
+    {
+      name: 'commonName',
+      value: domain,
+    },
+    {
+      name: 'organizationName',
+      value: 'Apadana',
+    },
+  ];
+
+  cert.setSubject(attrs);
+  cert.setIssuer(attrs);
+
+  // Sign certificate with private key
+  cert.sign(keys.privateKey);
+
+  return {
+    cert: pki.certificateToPem(cert),
+    key: pki.privateKeyToPem(keys.privateKey),
+  };
+}
 
 interface RedisProxyStackProps extends cdk.StackProps {
   environment: string;
@@ -47,14 +86,26 @@ export class RedisProxyStack extends cdk.Stack {
     });
     logger.debug('Created Fargate task definition');
 
-    // Add a container to forward traffic on port 6379
+    // Generate self-signed certificate
+    const domain = `redis-proxy.${cfg.environment}.internal`;
+    const { cert: certPem, key: keyPem } = generateSelfSignedCertificate(domain);
+
+    // Store certificate and key in Secrets Manager
+    const certSecret = new secretsmanager.Secret(this, 'RedisProxyCertSecret', {
+      secretName: `ap-redis-proxy-cert-${cfg.environment}`,
+      description: 'SSL certificate for Redis proxy',
+      secretStringValue: cdk.SecretValue.unsafePlainText(certPem),
+    });
+
+    const keySecret = new secretsmanager.Secret(this, 'RedisProxyKeySecret', {
+      secretName: `ap-redis-proxy-key-${cfg.environment}`,
+      description: 'SSL key for Redis proxy',
+      secretStringValue: cdk.SecretValue.unsafePlainText(keyPem),
+    });
+
+    // Add container to forward traffic on port 6379
     const container = taskDef.addContainer('ProxyContainer', {
       image: ecs.ContainerImage.fromRegistry('alpine/socat'),
-      command: [
-        'tcp-listen:6379,fork,reuseaddr',
-        // Use TLS for connecting to ElastiCache, but plain TCP for clients
-        `openssl-connect:${props.redisEndpoint}:6379,verify=0`,
-      ],
       logging: ecs.LogDrivers.awsLogs({
         streamPrefix: `ap-redis-proxy-${cfg.environment}`,
       }),
@@ -64,6 +115,20 @@ export class RedisProxyStack extends cdk.Stack {
         timeout: cdk.Duration.seconds(5),
         retries: 3,
       },
+      secrets: {
+        CERT: ecs.Secret.fromSecretsManager(certSecret),
+        KEY: ecs.Secret.fromSecretsManager(keySecret),
+      },
+      entryPoint: ['/bin/sh', '-c'],
+      command: [
+        'mkdir -p /etc/ssl/proxy && ' +
+          'echo "$CERT" > /etc/ssl/proxy/cert.pem && ' +
+          'echo "$KEY" > /etc/ssl/proxy/key.pem && ' +
+          'chmod 600 /etc/ssl/proxy/key.pem && ' +
+          'socat ' +
+          'openssl-listen:6379,cert=/etc/ssl/proxy/cert.pem,key=/etc/ssl/proxy/key.pem,verify=0,fork,reuseaddr ' +
+          `openssl-connect:${props.redisEndpoint}:6379,verify=0`,
+      ],
     });
     container.addPortMappings({ containerPort: 6379 });
     logger.debug('Added proxy container to task definition');
