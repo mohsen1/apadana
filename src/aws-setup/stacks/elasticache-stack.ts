@@ -11,7 +11,6 @@ const logger = createLogger(__filename);
 interface ElastiCacheStackProps extends cdk.StackProps {
   environment: string;
   vpc: ec2.IVpc;
-  proxySecurityGroup?: ec2.ISecurityGroup;
   removalPolicy?: cdk.RemovalPolicy;
 }
 
@@ -54,15 +53,6 @@ export class ElastiCacheStack extends cdk.Stack {
         `Allow Redis traffic from private subnet ${index + 1}`,
       );
     });
-
-    // Allow access from the proxy if security group is provided
-    if (props.proxySecurityGroup) {
-      this.redisSecurityGroup.addIngressRule(
-        ec2.Peer.securityGroupId(props.proxySecurityGroup.securityGroupId),
-        ec2.Port.tcp(6379),
-        'Allow Redis traffic from proxy service',
-      );
-    }
 
     const redisCluster = new elasticache.CfnReplicationGroup(this, 'ElastiCacheCluster', {
       replicationGroupId: `ap-redis-${cfg.environment}`,

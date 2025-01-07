@@ -37,24 +37,27 @@ export async function getRedisClient(
   // Ensure URL uses TLS for MemoryDB
   const redisUrl = process.env.REDIS_URL?.replace(/^redis:\/\//, 'rediss://');
 
-  const mergedOptions = _.merge(optionsOverride, {
-    url: redisUrl,
-    socket: {
-      tls: true,
-      rejectUnauthorized: true, // Validate TLS certificates
-      connectTimeout: 30000, // 30 seconds for initial connection
-      keepAlive: 30000, // Send keepalive every 30 seconds
-      reconnectStrategy: (retries: number) => {
-        if (retries > 10) {
-          logger.error('Max Redis reconnection attempts reached');
-          return new Error('Max reconnection attempts reached');
-        }
-        const delay = Math.min(retries * 1000, 5000);
-        logger.debug(`Redis reconnecting in ${delay}ms (attempt ${retries})`);
-        return delay;
+  const mergedOptions = _.merge(
+    {
+      url: redisUrl,
+      socket: {
+        tls: true,
+        rejectUnauthorized: true, // Validate TLS certificates
+        connectTimeout: 30000, // 30 seconds for initial connection
+        keepAlive: 30000, // Send keepalive every 30 seconds
+        reconnectStrategy: (retries: number) => {
+          if (retries > 10) {
+            logger.error('Max Redis reconnection attempts reached');
+            return new Error('Max reconnection attempts reached');
+          }
+          const delay = Math.min(retries * 1000, 5000);
+          logger.debug(`Redis reconnecting in ${delay}ms (attempt ${retries})`);
+          return delay;
+        },
       },
     },
-  });
+    optionsOverride,
+  );
 
   redisClient = createClient(mergedOptions);
 

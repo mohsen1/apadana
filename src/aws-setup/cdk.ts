@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import 'source-map-support/register';
 
 import { createLogger } from '@/utils/logger';
@@ -53,22 +54,31 @@ new RdsStack(app, `ap-rds-${environment}`, {
 });
 logger.debug('Created RDS stack');
 
-// Create Redis proxy stack first
+// Create ElastiCache stack first
+const elasticacheStack = new ElastiCacheStack(app, `ap-elasticache-${environment}`, {
+  environment,
+  vpc: sharedNetworkStack.vpc,
+  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+});
+logger.debug('Created Elasticache stack');
+
+// Then create Redis proxy stack with direct reference to ElastiCache endpoint
 const redisProxyStack = new RedisProxyStack(app, `ap-redis-proxy-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
-  redisEndpoint: cdk.Fn.importValue(`ap-elasticache-${environment}-RedisEndpoint`),
+  redisEndpoint: elasticacheStack.redisHostOutput.value,
   removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created Redis proxy stack');
 
-// Then create ElastiCache stack with proxy security group
-const elasticacheStack = new ElastiCacheStack(app, `ap-elasticache-${environment}`, {
-  environment,
-  vpc: sharedNetworkStack.vpc,
-  proxySecurityGroup: redisProxyStack.proxySecurityGroup,
-  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
-});
-logger.debug('Created Elasticache stack');
+// Add explicit dependency
+redisProxyStack.addDependency(elasticacheStack);
+
+// Update ElastiCache security group with proxy's security group
+elasticacheStack.redisSecurityGroup.addIngressRule(
+  ec2.Peer.securityGroupId(redisProxyStack.proxySecurityGroup.securityGroupId),
+  ec2.Port.tcp(6379),
+  'Allow Redis traffic from proxy service',
+);
 
 app.synth();
