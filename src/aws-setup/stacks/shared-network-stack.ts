@@ -53,6 +53,11 @@ export class SharedNetworkStack extends cdk.Stack {
           },
         ],
       });
+
+      cdk.Tags.of(this.vpc).add('managed-by', 'apadana-aws-setup');
+      cdk.Tags.of(this.vpc).add('environment', props.environment);
+      cdk.Tags.of(this.vpc).add('created-at', new Date().toISOString());
+
       logger.debug('Created new VPC');
     }
   }
