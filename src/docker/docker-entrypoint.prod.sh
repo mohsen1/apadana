@@ -1,25 +1,74 @@
-#!/usr/bin/env sh
+#!/bin/bash
 set -e
 
-# Forward SIGTERM to child processes
-trap 'kill -TERM $PID' TERM INT
+echo "[docker-entrypoint.prod.sh] Starting production entrypoint script..."
 
-echo "[docker-entrypoint.prod.sh] Starting placeholder server on port 3030..."
-node /app/src/docker/placeholder-server/server.js &
-PLACEHOLDER_PID=$!
+BUILD_IN_PROGRESS_FILE="/tmp/build_in_progress"
+ERROR_FILE="/tmp/build_error.txt"
+PLACEHOLDER_PID_FILE="/tmp/placeholder.pid"
 
-echo "[docker-entrypoint.prod.sh] Building production server..."
+# Cleanup function
+cleanup() {
+  echo "[docker-entrypoint.prod.sh] Running cleanup..."
+  if [ -f "$PLACEHOLDER_PID_FILE" ]; then
+    echo "[docker-entrypoint.prod.sh] Stopping placeholder server..."
+    kill $(cat "$PLACEHOLDER_PID_FILE") 2>/dev/null || true
+    rm -f "$PLACEHOLDER_PID_FILE"
+  fi
+  rm -f "$BUILD_IN_PROGRESS_FILE" "$ERROR_FILE"
+  echo "[docker-entrypoint.prod.sh] Cleanup complete"
+}
 
-pnpm exec next telemetry disable
+# watch and rebuild function
+function watch_and_rebuild() {
+  echo "[docker-entrypoint.prod.sh] Watching for rebuild trigger..."
+  touch /tmp/rebuild_trigger
+  while true; do
+    inotifywait -e modify -q /tmp/rebuild_trigger
+    echo "[docker-entrypoint.prod.sh] Rebuild triggered, rebuilding..."
+    rm -f "$ERROR_FILE" "$BUILD_IN_PROGRESS_FILE"
+    if build; then
+      echo "[docker-entrypoint.prod.sh] Build successful, starting main application..."
+      cleanup
+      return 0
+    fi
+  done
+}
 
-pnpm build &&
-  pnpm prisma:migrate &&
-  pnpm prisma db seed
+# Build function
+function build() {
+  rm -f "$BUILD_IN_PROGRESS_FILE" "$ERROR_FILE"
+  echo "[docker-entrypoint.prod.sh] Starting build sequence..."
 
-echo "[docker-entrypoint.prod.sh] Killing placeholder server..."
-kill $PLACEHOLDER_PID || true
+  # Execute commands separately to handle errors properly
+  if ! bash -c "pnpm build" >"$BUILD_IN_PROGRESS_FILE" 2>&1 ||
+    ! bash -c "pnpm prisma:migrate" >>"$BUILD_IN_PROGRESS_FILE" 2>&1 ||
+    ! bash -c "pnpm prisma db seed" >>"$BUILD_IN_PROGRESS_FILE" 2>&1; then
+    echo "[docker-entrypoint.prod.sh] Build failed..."
+    cat "$BUILD_IN_PROGRESS_FILE" >"$ERROR_FILE"
+    cat "$BUILD_IN_PROGRESS_FILE"
+    return 1
+  fi
+  return 0
+}
 
-echo "[docker-entrypoint.prod.sh] Setup complete, ready to start server..."
+# Start placeholder server
+echo "[docker-entrypoint.prod.sh] Starting placeholder server..."
+node src/docker/placeholder-server/server.mjs &
+echo $! >"$PLACEHOLDER_PID_FILE"
 
-# Execute the command passed to the container
-exec "$@"
+# Ensure cleanup on script exit
+trap cleanup EXIT
+
+# Entrypoint
+if build; then
+  cleanup
+  pnpm next:start
+else
+  # Start placeholder server first
+  echo "[docker-entrypoint.prod.sh] Starting placeholder server while watching for changes..."
+
+  # Then watch and rebuild
+  watch_and_rebuild
+  pnpm next:start
+fi

@@ -1,25 +1,71 @@
-#! /bin/bash
+#!/bin/bash
+
+# Exit on error
+set -e
 
 # Build for production. This script assumes all of the environment variables are set.
-# for build process to work, the following commands must be run
+export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
 
-# if The following environment variable is not set, exit
-variables=(
-  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-  RESEND_API_KEY
-  NEXT_PUBLIC_S3_UPLOAD_BUCKET
-  NEXT_PUBLIC_S3_UPLOAD_REGION
-  S3_UPLOAD_KEY
-  S3_UPLOAD_SECRET
-)
+echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AWS_REGION region"
 
-for variable in "${variables[@]}"; do
-  if [ -z "${!variable}" ]; then
-    echo "$variable is not set"
-    exit 1
+# Start timing AWS deployment
+start_time=$(date +%s)
+
+# Show what will be deployed and capture the output
+echo "Checking infrastructure changes..."
+diff_output=$(pnpm cdk:diff --all --no-change-set)
+
+# Check if there are any differences
+if echo "$diff_output" | grep -q "There were no differences" && ! echo "$diff_output" | grep -q "Stack.*Resources"; then
+  echo "No infrastructure changes detected. Skipping deployment."
+else
+  echo "Changes detected. Proceeding with deployment..."
+  pnpm cdk:deploy --all --require-approval never --concurrency 10
+
+  # Check deployment time
+  end_time=$(date +%s)
+  elapsed=$((end_time - start_time))
+  if [ $elapsed -ge 2400 ]; then
+    echo "Warning: AWS deployment took more than 40 minutes. This is likely because a lot of resources are being deployed."
+    echo "Vercel build times are capped at 45 minutes. For faster iterations, consider running locally with:"
+    echo "AWS_DEPLOYMENT_STACK_ENV=$AWS_DEPLOYMENT_STACK_ENV pnpm cdk:deploy --all --concurrency 10"
+    exit 124
   fi
-done
 
-pnpm prisma generate --no-hints --schema=src/prisma/schema.prisma
-pnpm prisma migrate deploy --schema=src/prisma/schema.prisma
-pnpm next build
+  # Install Vercel CLI
+  echo "Installing Vercel CLI..."
+  npm install --global --silent vercel@latest
+
+  # Get AWS environment variables and set them in Vercel
+  echo "Setting AWS environment variables in Vercel..."
+  pnpm -- aws:env >.env.production 2>&1 || exit 1
+
+  cat /tmp/deployment-values.env | while IFS='=' read -r key value; do
+    # Write the environment variable to a temporary file.
+    # This is done because of how Vercel CLI handles environment variables.
+    filename="/tmp/__TEMP_ENV_VAR__$key.env"
+    echo "$value" >$filename
+    cat $filename | vercel env add "$key" "$VERCEL_ENV" --force --token "$VERCEL_TOKEN"
+    rm -f $filename
+    # Export the environment variable to the current shell session for the build script to use.
+    export $key=$value
+
+    # Wait for resources to be ready
+    echo "Waiting for AWS resources to be ready..."
+    pnpm prisma:generate
+    pnpm cdk:wait
+
+    # Deploy Prisma migrations
+    echo "Deploying database migrations..."
+    pnpm prisma:migrate
+  done
+fi
+
+# In preview run seed
+if [ "$VERCEL_ENV" == "preview" ]; then
+  pnpm dev:prisma:seed
+fi
+
+# Build Next.js app
+echo "Building Next.js application..."
+pnpm build

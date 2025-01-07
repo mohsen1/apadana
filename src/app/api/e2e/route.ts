@@ -2,7 +2,11 @@ import { Prisma } from '@prisma/client';
 
 import { setServerSession } from '@/lib/auth';
 import { argon } from '@/lib/auth/argon';
-import { SESSION_COOKIE_NAME, SESSION_DURATION } from '@/lib/auth/constants';
+import {
+  E2E_TESTING_SECRET_HEADER,
+  SESSION_COOKIE_NAME,
+  SESSION_DURATION,
+} from '@/lib/auth/constants';
 import prisma from '@/lib/prisma/client';
 
 import { prodE2eTestHostUser } from '@/e2e/fixtures/data';
@@ -67,7 +71,7 @@ export async function POST(request: Request) {
 
   try {
     const headers = request.headers;
-    const secret = headers.get('x-e2e-testing-secret');
+    const secret = headers.get(E2E_TESTING_SECRET_HEADER);
 
     if (secret !== process.env.E2E_TESTING_SECRET) {
       return new Response('Not allowed', { status: 403 });
@@ -211,6 +215,11 @@ export async function POST(request: Request) {
       }
 
       case 'deleteListing': {
+        if (!body.args.id) {
+          return new Response(JSON.stringify({ error: 'Listing ID is required' }), {
+            status: 400,
+          });
+        }
         await prisma.listing.delete({
           where: { id: body.args.id },
         });

@@ -9,10 +9,19 @@ export const getListing = actionClient
     if (!userId) {
       throw new ClientVisibleError('User not found');
     }
-    const listing = await prisma.listing.findUnique({
+    const listing = await prisma.listing.findFirst({
       where: {
-        id: parsedInput.id,
-        ownerId: userId,
+        AND: [
+          { id: parsedInput.id },
+          {
+            OR: [
+              // Allow owners to view their own listings (published or unpublished)
+              { ownerId: userId },
+              // Allow any authenticated user to view published listings
+              { published: true },
+            ],
+          },
+        ],
       },
       include: {
         inventory: true,
