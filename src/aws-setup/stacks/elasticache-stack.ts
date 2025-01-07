@@ -16,6 +16,7 @@ interface ElastiCacheStackProps extends cdk.StackProps {
 
 export class ElastiCacheStack extends cdk.Stack {
   public readonly redisHostOutput: cdk.CfnOutput;
+  public readonly redisSecurityGroup: ec2.SecurityGroup;
 
   constructor(scope: Construct, id: string, props: ElastiCacheStackProps) {
     super(scope, id, props);
@@ -37,26 +38,20 @@ export class ElastiCacheStack extends cdk.Stack {
       description: 'Subnet group for ElastiCache Redis',
     });
 
-    const redisSG = new ec2.SecurityGroup(this, 'ElastiCacheSG', {
+    this.redisSecurityGroup = new ec2.SecurityGroup(this, 'ElastiCacheSG', {
       vpc: props.vpc,
       description: 'ElastiCache security group',
       allowAllOutbound: true,
     });
 
-    // Allow access from public subnets
-    redisSG.addIngressRule(
-      ec2.Peer.ipv4(props.vpc.publicSubnets[0].ipv4CidrBlock),
-      ec2.Port.tcp(6379),
-      'Allow Redis traffic from public subnet 1',
-    );
-
-    if (props.vpc.publicSubnets.length > 1) {
-      redisSG.addIngressRule(
-        ec2.Peer.ipv4(props.vpc.publicSubnets[1].ipv4CidrBlock),
+    // Allow access from private subnets (proxy will be here)
+    props.vpc.privateSubnets.forEach((subnet, index) => {
+      this.redisSecurityGroup.addIngressRule(
+        ec2.Peer.ipv4(subnet.ipv4CidrBlock),
         ec2.Port.tcp(6379),
-        'Allow Redis traffic from public subnet 2',
+        `Allow Redis traffic from private subnet ${index + 1}`,
       );
-    }
+    });
 
     const redisCluster = new elasticache.CfnReplicationGroup(this, 'ElastiCacheCluster', {
       replicationGroupId: `ap-redis-${cfg.environment}`,
@@ -67,9 +62,9 @@ export class ElastiCacheStack extends cdk.Stack {
       numNodeGroups: 1,
       replicasPerNodeGroup: 0,
       cacheSubnetGroupName: subnetGroup.ref,
-      securityGroupIds: [redisSG.securityGroupId],
-      transitEncryptionEnabled: false,
-      atRestEncryptionEnabled: false,
+      securityGroupIds: [this.redisSecurityGroup.securityGroupId],
+      transitEncryptionEnabled: true,
+      atRestEncryptionEnabled: true,
       autoMinorVersionUpgrade: true,
       multiAzEnabled: false,
       automaticFailoverEnabled: false,
@@ -83,7 +78,7 @@ export class ElastiCacheStack extends cdk.Stack {
     this.redisHostOutput = new cdk.CfnOutput(this, 'RedisEndpoint', {
       exportName: `${this.stackName}-RedisEndpoint`,
       value: redisCluster.attrPrimaryEndPointAddress,
-      description: 'ElastiCache cluster endpoint (accessible from public subnets)',
+      description: 'ElastiCache cluster endpoint (accessible via proxy)',
     });
   }
 }

@@ -8,6 +8,7 @@ import { CloudFrontStack } from './stacks/cloudfront-stack';
 import { ElastiCacheStack } from './stacks/elasticache-stack';
 import { IamStack } from './stacks/iam-stack';
 import { RdsStack } from './stacks/rds-stack';
+import { RedisProxyStack } from './stacks/redis-proxy-stack';
 import { S3Stack } from './stacks/s3-stack';
 import { SharedNetworkStack } from './stacks/shared-network-stack';
 
@@ -52,11 +53,20 @@ new RdsStack(app, `ap-rds-${environment}`, {
 });
 logger.debug('Created RDS stack');
 
-new ElastiCacheStack(app, `ap-elasticache-${environment}`, {
+const elasticacheStack = new ElastiCacheStack(app, `ap-elasticache-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
   removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created Elasticache stack');
+
+// Create Redis proxy stack
+new RedisProxyStack(app, `ap-redis-proxy-${environment}`, {
+  environment,
+  vpc: sharedNetworkStack.vpc,
+  redisEndpoint: elasticacheStack.redisHostOutput.value,
+  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+});
+logger.debug('Created Redis proxy stack');
 
 app.synth();
