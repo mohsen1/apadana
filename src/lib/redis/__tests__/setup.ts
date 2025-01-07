@@ -6,6 +6,7 @@ const mockRedisClient = {
   connect: vi.fn().mockResolvedValue(undefined),
   quit: vi.fn().mockResolvedValue(undefined),
   on: vi.fn(),
+  ping: vi.fn().mockResolvedValue('PONG'),
   set: vi.fn().mockImplementation(async (key: string, value: string) => {
     mockData.add(`${key}:${value}`);
     return 'OK';

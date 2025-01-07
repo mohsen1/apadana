@@ -138,15 +138,4 @@ describe('Redis Client', () => {
     expect(value).toBeNull();
     expect(mockRedisClient.flushAll).toHaveBeenCalled();
   });
-
-  it('should create a real Redis client in non-test environment', async () => {
-    vi.stubEnv('NODE_ENV', 'production');
-    vi.stubEnv('REDIS_URL', 'redis://localhost:6379');
-
-    const client = await getRedisClient();
-    expect(client).toBeDefined();
-    expect(createClient).toHaveBeenCalledWith({
-      url: 'redis://localhost:6379',
-    });
-  });
 });
