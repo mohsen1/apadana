@@ -88,6 +88,11 @@ interface RateLimiterOptions {
    * What to base the rate limit on
    */
   basedOn?: RateLimiterBasedOn[];
+
+  /**
+   * Whether to bypass the rate limiter
+   */
+  bypass?: boolean;
 }
 
 /**
@@ -99,6 +104,7 @@ export const createRateLimiter = (options: RateLimiterOptions = {}) => {
     windowMs = 60 * 1000,
     blockDurationMs = 60 * 60 * 1000,
     basedOn = [RATE_LIMIT_BASED_ON_IP],
+    bypass = process.env.NEXT_PUBLIC_TEST_ENV === 'e2e',
   } = options;
 
   const middleware: MiddlewareFn<
@@ -113,6 +119,10 @@ export const createRateLimiter = (options: RateLimiterOptions = {}) => {
     ctx: SafeActionContext;
     next: () => Promise<MiddlewareResult<{ error: string }, SafeActionContext>>;
   }) => {
+    if (bypass) {
+      return next();
+    }
+
     const headersList = await headers();
     const ip = headersList.get('x-forwarded-for')?.split(',')[0] || headersList.get('x-real-ip');
 

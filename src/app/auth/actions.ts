@@ -34,7 +34,7 @@ export const login = actionClient
   .schema(LoginSchema)
   .outputSchema(SuccessfulLoginSchema)
   .action(async ({ parsedInput }) => {
-    const user = await prisma.user.findFirstOrThrow({
+    const user = await prisma.user.findFirst({
       where: {
         emailAddresses: {
           some: {
@@ -48,6 +48,11 @@ export const login = actionClient
         permissions: true,
       },
     });
+
+    // Check if user exists
+    if (!user) {
+      throw new ClientVisibleError('Invalid email or password');
+    }
 
     // Check if user exists and has password
     if (!user.password) {
