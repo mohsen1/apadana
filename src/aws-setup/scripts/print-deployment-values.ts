@@ -38,7 +38,7 @@ const logger = createLogger(__filename, 'debug');
 
         // Check for Redis Proxy
         if (key === 'RedisProxyEndpoint' && val) {
-          redisUrl = `rediss://${val}:6379`;
+          redisUrl = `redis://${val}:6379`;
           logger.debug('Found Redis proxy endpoint');
         }
 

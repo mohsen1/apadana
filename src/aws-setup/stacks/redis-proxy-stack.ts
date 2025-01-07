@@ -52,7 +52,7 @@ export class RedisProxyStack extends cdk.Stack {
       image: ecs.ContainerImage.fromRegistry('alpine/socat'),
       command: [
         'tcp-listen:6379,fork,reuseaddr',
-        // Use TLS for connecting to ElastiCache
+        // Use TLS for connecting to ElastiCache, but plain TCP for clients
         `openssl-connect:${props.redisEndpoint}:6379,verify=0`,
       ],
       logging: ecs.LogDrivers.awsLogs({
