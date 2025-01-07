@@ -15,6 +15,7 @@ logger.disable();
     `ap-rds-${env}`,
     `ap-s3-${env}`,
     `ap-cloudfront-${env}`,
+    `ap-redis-proxy-${env}`,
   ];
 
   logger.info(`Fetching outputs for environment: ${env}`);
@@ -37,8 +38,14 @@ logger.disable();
         const key = out.OutputKey;
         const val = out.OutputValue;
 
-        // Check for Redis
-        if (key === 'RedisEndpoint' && val) {
+        // Check for Redis Proxy
+        if (key === 'RedisProxyEndpoint' && val) {
+          redisUrl = `rediss://${val}:6379`;
+          logger.debug('Found Redis proxy endpoint');
+        }
+
+        // Check for Redis (fallback to direct endpoint if proxy not available)
+        if (key === 'RedisEndpoint' && val && !redisUrl) {
           redisUrl = `rediss://${val}:6379`;
           logger.debug('Found Redis endpoint');
         }
