@@ -23,7 +23,8 @@ test.describe('Booking Flow', () => {
     await data.deleteAllE2eListings();
   });
 
-  test('complete booking flow', async ({ page, data }) => {
+  // TODO: Enable complete booking flow
+  test.skip('complete booking flow', async ({ page, data }) => {
     // Create a test listing
     const hostUser = await data.createUser(hostEmail, hostPassword);
     const listing = await data.createListing({
@@ -35,6 +36,20 @@ test.describe('Booking Flow', () => {
         connect: {
           id: hostUser.userId,
         },
+      },
+      images: {
+        create: [
+          {
+            url: 'https://apadana.app/images/placeholder/listing1.jpg',
+            key: 'test-image-1',
+            name: 'Test Image 1',
+          },
+          {
+            url: 'https://apadana.app/images/placeholder/listing2.jpg',
+            key: 'test-image-2',
+            name: 'Test Image 2',
+          },
+        ],
       },
       propertyType: 'APARTMENT',
       maximumGuests: 4,

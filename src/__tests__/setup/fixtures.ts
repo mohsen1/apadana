@@ -76,6 +76,20 @@ export async function createTestListing(
           id: createListingData.ownerId,
         },
       },
+      images: {
+        create: [
+          {
+            url: 'https://apadana.app/images/placeholder/listing1.jpg',
+            key: 'test-image-1',
+            name: 'Test Image 1',
+          },
+          {
+            url: 'https://apadana.app/images/placeholder/listing2.jpg',
+            key: 'test-image-2',
+            name: 'Test Image 2',
+          },
+        ],
+      },
     },
   });
 }

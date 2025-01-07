@@ -23,7 +23,9 @@ test.describe.serial('Delete the listing', async () => {
 
     await page.getByRole('button', { name: 'Delete' }).click();
 
+    await page.waitForSelector('text=No listings were found');
     await expect(page.getByText('No listings were found')).toBeVisible();
+
     await page.goto(`/listing/${currentListingId}/delete`);
     await expect(page.getByText('Listing Not Found')).toBeVisible();
   });
