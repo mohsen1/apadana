@@ -10,13 +10,27 @@ import { RESET_TOKEN_DURATION, SESSION_COOKIE_NAME, SESSION_DURATION } from '@/l
 import { sanitizeUserForClient } from '@/lib/auth/utils';
 import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
-import { actionClient, ClientVisibleError } from '@/lib/safe-action';
-import { ClientUserSchema, LoginSchema, SignUpSchema, SuccessfulLoginSchema } from '@/lib/schema';
+import {
+  actionClient,
+  ClientVisibleError,
+  createRateLimiter,
+  RATE_LIMIT_BASED_ON_IP,
+  RATE_LIMIT_BASED_ON_USER_ID,
+} from '@/lib/safe-action';
+import {
+  ClientUserSchema,
+  LoginSchema,
+  RequestPasswordResetSchema,
+  ResetPasswordSchema,
+  SignUpSchema,
+  SuccessfulLoginSchema,
+} from '@/lib/schema';
 
 import logger from '@/utils/logger';
 import { createPasswordResetUrl, createVerificationUrl } from '@/utils/url';
 
 export const login = actionClient
+  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_USER_ID, RATE_LIMIT_BASED_ON_IP] }))
   .schema(LoginSchema)
   .outputSchema(SuccessfulLoginSchema)
   .action(async ({ parsedInput }) => {
@@ -35,13 +49,14 @@ export const login = actionClient
       },
     });
 
+    // Check if user exists
     if (!user) {
       throw new ClientVisibleError('Invalid email or password');
     }
 
     // Check if user exists and has password
     if (!user.password) {
-      throw new ClientVisibleError('Invalid email or password');
+      throw new ClientVisibleError('User does not have a password');
     }
 
     // Verify password
@@ -78,6 +93,7 @@ export const login = actionClient
   });
 
 export const signUp = actionClient
+  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_IP] }))
   .schema(SignUpSchema)
   .outputSchema(
     z.object({
@@ -92,7 +108,9 @@ export const signUp = actionClient
       },
     });
     if (existingUser) {
-      throw new Error('There is already an account with this email. Please login with that email.');
+      throw new ClientVisibleError(
+        'There is already an account with this email. Please login with that email.',
+      );
     }
 
     const hashedPassword = await argon.hash(parsedInput.password);
@@ -182,20 +200,9 @@ export const logOut = actionClient
     return { user: null };
   });
 
-const requestPasswordResetSchema = z.object({
-  email: z.string().email('Invalid email address'),
-});
-
-const resetPasswordSchema = z.object({
-  token: z.string().min(1, 'Reset token is required'),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .max(100, 'Password must be less than 100 characters'),
-});
-
 export const requestPasswordReset = actionClient
-  .schema(requestPasswordResetSchema)
+  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_USER_ID] }))
+  .schema(RequestPasswordResetSchema)
   .action(async ({ parsedInput }) => {
     try {
       // Find user by email
@@ -253,7 +260,8 @@ export const requestPasswordReset = actionClient
   });
 
 export const resetPassword = actionClient
-  .schema(resetPasswordSchema)
+  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_USER_ID], maxAttempts: 5 }))
+  .schema(ResetPasswordSchema)
   .action(async ({ parsedInput }) => {
     try {
       // Find valid reset token

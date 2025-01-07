@@ -3,35 +3,22 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import crypto from 'crypto';
-import { z } from 'zod';
 
-import { actionClient } from '@/lib/safe-action';
+import { actionClient, createRateLimiter, RATE_LIMIT_BASED_ON_IP } from '@/lib/safe-action';
+import { FileUploadInputSchema, FileUploadOutputSchema } from '@/lib/schema';
 
 import { shouldUseFakeUploads } from '@/app/upload/constants';
 import logger from '@/utils/logger';
 
-const inputSchema = z.object({
-  files: z.array(
-    z.object({
-      filename: z.string(),
-      contentType: z.string(),
-    }),
-  ),
-});
+export const getUploadSignedUrl = actionClient
+  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_IP] }))
+  .schema(FileUploadInputSchema)
+  .outputSchema(FileUploadOutputSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    if (!ctx.userId) {
+      throw new Error('User ID is required');
+    }
 
-const outputSchema = z.object({
-  urls: z.array(
-    z.object({
-      url: z.string(),
-      key: z.string(),
-    }),
-  ),
-});
-
-const getUploadSignedUrl = actionClient
-  .schema(inputSchema)
-  .outputSchema(outputSchema)
-  .action(async ({ parsedInput }) => {
     if (shouldUseFakeUploads) {
       // Return fake signed URLs for e2e testing
       const urls = parsedInput.files.map((file) => {
@@ -47,10 +34,10 @@ const getUploadSignedUrl = actionClient
 
     // Initialize S3 client
     const s3Client = new S3Client({
-      region: process.env.NEXT_PUBLIC_S3_UPLOAD_REGION,
+      region: process.env.NEXT_PUBLIC_AWS_REGION,
       credentials: {
-        accessKeyId: process.env.S3_UPLOAD_KEY,
-        secretAccessKey: process.env.S3_UPLOAD_SECRET,
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
       },
     });
     try {
@@ -58,10 +45,19 @@ const getUploadSignedUrl = actionClient
         parsedInput.files.map(async (file) => {
           // Generate a unique key for each file
           const fileExtension = file.filename.split('.').pop() ?? '';
-          const key = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}/${crypto.randomUUID()}.${fileExtension}`;
+          const path = `uploads/${new Date().getFullYear()}/${new Date().getMonth()}`.trim();
+          let filename = crypto.randomUUID();
+
+          // Mark files uploaded for e2e testing for easier identification.
+          // A clean up script can be run to delete these files after e2e tests are run.
+          if (process.env.NEXT_PUBLIC_TEST_ENV === 'e2e') {
+            filename = `e2e_test_upload_${filename}`;
+          }
+
+          const key = `${path}/${filename}${fileExtension ? `.${fileExtension}` : ''}`.trim();
 
           const command = new PutObjectCommand({
-            Bucket: process.env.NEXT_PUBLIC_S3_UPLOAD_BUCKET,
+            Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
             Key: key,
             ContentType: file.contentType,
           });
@@ -80,5 +76,3 @@ const getUploadSignedUrl = actionClient
       throw new Error('Failed to generate upload URLs');
     }
   });
-
-export { getUploadSignedUrl };

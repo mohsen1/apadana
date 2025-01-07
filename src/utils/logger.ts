@@ -27,9 +27,6 @@ export class Logger {
   }
 
   get isEnabled(): boolean {
-    if (process.env.NEXT_PUBLIC_SHOW_LOGS === 'unit') {
-      return true;
-    }
     return this.#isEnabled;
   }
 

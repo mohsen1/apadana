@@ -30,21 +30,20 @@ test.describe('Signup Page', () => {
   });
 
   test('successfully creates account with valid information', async ({ page, data }) => {
-    await data.deleteUser('john.doe@apadana.app');
+    const email = `e2e_testing_${crypto.randomUUID().slice(0, 8)}@example.com`;
+    const password = 'password';
     await page.goto('/signup');
     await page.getByPlaceholder('John', { exact: true }).fill('John');
     await page.getByPlaceholder('Doe', { exact: true }).fill('Doe');
-    await page
-      .getByPlaceholder('john.doe@example.com', { exact: true })
-      .fill('john.doe@apadana.app');
-    await page.locator('input[name="password"]').fill('password123');
-    await page.locator('input[name="confirmPassword"]').fill('password123');
+    await page.getByPlaceholder('john.doe@example.com', { exact: true }).fill(email);
+    await page.locator('input[name="password"]').fill(password);
+    await page.locator('input[name="confirmPassword"]').fill(password);
     await page.getByRole('button', { name: 'Sign Up', exact: true }).click();
 
     // Verify successful signup and redirect
     await expect(page).toHaveURL('/user/profile');
     await expect(page.getByTestId('nav-user-name')).toBeVisible();
-    await data.deleteUser('john.doe@apadana.app');
+    await data.deleteUser(email);
   });
 
   test('navigates to login page', async ({ page }) => {

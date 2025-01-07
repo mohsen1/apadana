@@ -233,7 +233,12 @@ async function writeChunk(
   const size = countSize(chunk, { countTokens: options.countTokens, model: options.model });
 
   if (options.stream) {
-    process.stdout.write(chunk);
+    await new Promise<void>((resolve, reject) => {
+      process.stdout.write(chunk, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
   } else {
     const outputPath = path.join(outputDir, `chunk-${index}.txt`);
     await fs.writeFile(outputPath, chunk, 'utf-8');
@@ -614,11 +619,10 @@ async function main() {
         logger.info(path.join(outputDir!, 'chunk-0.txt'));
       }
     }
-    process.exit(0);
   } catch (error) {
     assertError(error);
     logger.error('Failed to serialize repository:', error.message);
-    process.exit(1);
+    process.exitCode = 1;
   }
 }
 
