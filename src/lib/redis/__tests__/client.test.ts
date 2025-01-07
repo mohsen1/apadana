@@ -1,74 +1,15 @@
-import { createClient, type RedisClientType } from 'redis';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createClient } from 'redis';
+import { afterEach, beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 
 import { closeRedisClient, getRedisClient } from '@/lib/redis/client';
 
-type MockRedisClient = {
-  connect: ReturnType<typeof vi.fn>;
-  quit: ReturnType<typeof vi.fn>;
-  on: ReturnType<typeof vi.fn>;
-  set: ReturnType<typeof vi.fn>;
-  get: ReturnType<typeof vi.fn>;
-  del: ReturnType<typeof vi.fn>;
-  flushAll: ReturnType<typeof vi.fn>;
-  isOpen: boolean;
-  isReady: boolean;
-  commandOptions: ReturnType<typeof vi.fn>;
-  options: Record<string, unknown>;
-  duplicate: ReturnType<typeof vi.fn>;
-  multi: ReturnType<typeof vi.fn>;
-  disconnect: ReturnType<typeof vi.fn>;
-  unref: ReturnType<typeof vi.fn>;
-  ref: ReturnType<typeof vi.fn>;
-};
-
-vi.mock('redis', () => ({
-  createClient: vi.fn(() => ({
-    connect: vi.fn(),
-    quit: vi.fn(),
-    on: vi.fn(),
-    set: vi.fn(),
-    get: vi.fn(),
-    del: vi.fn(),
-    flushAll: vi.fn(),
-    isOpen: false,
-    isReady: false,
-    commandOptions: vi.fn(),
-    options: {},
-    duplicate: vi.fn(),
-    multi: vi.fn(),
-    disconnect: vi.fn(),
-    unref: vi.fn(),
-    ref: vi.fn(),
-  })),
-}));
-
 describe('Redis Client', () => {
-  const mockRedisClient: MockRedisClient = {
-    connect: vi.fn(),
-    quit: vi.fn(),
-    on: vi.fn(),
-    set: vi.fn(),
-    get: vi.fn(),
-    del: vi.fn(),
-    flushAll: vi.fn(),
-    isOpen: false,
-    isReady: false,
-    commandOptions: vi.fn(),
-    options: {},
-    duplicate: vi.fn(),
-    multi: vi.fn(),
-    disconnect: vi.fn(),
-    unref: vi.fn(),
-    ref: vi.fn(),
-  };
-
-  beforeEach(() => {
-    vi.stubEnv('NODE_ENV', 'test');
-    vi.mocked(createClient).mockReturnValue(mockRedisClient as unknown as RedisClientType);
+  // Redis is mocked in vitest.setup.ts
+  const mockRedisClient = createClient() as unknown as Mocked<ReturnType<typeof createClient>>;
+  beforeEach(async () => {
+    await mockRedisClient.flushAll();
     vi.clearAllMocks();
   });
-
   afterEach(async () => {
     await closeRedisClient();
     vi.unstubAllEnvs();
