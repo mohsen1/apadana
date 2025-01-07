@@ -71,14 +71,4 @@ const redisProxyStack = new RedisProxyStack(app, `ap-redis-proxy-${environment}`
 });
 logger.debug('Created Redis proxy stack');
 
-// Add explicit dependency
-redisProxyStack.addDependency(elasticacheStack);
-
-// Update ElastiCache security group with proxy's security group
-elasticacheStack.redisSecurityGroup.addIngressRule(
-  ec2.Peer.securityGroupId(redisProxyStack.proxySecurityGroup.securityGroupId),
-  ec2.Port.tcp(6379),
-  'Allow Redis traffic from proxy service',
-);
-
 app.synth();

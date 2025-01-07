@@ -50,7 +50,11 @@ export class RedisProxyStack extends cdk.Stack {
     // Add a container to forward traffic on port 6379
     const container = taskDef.addContainer('ProxyContainer', {
       image: ecs.ContainerImage.fromRegistry('alpine/socat'),
-      command: ['tcp-listen:6379,fork,reuseaddr', `tcp-connect:${props.redisEndpoint}:6379`],
+      command: [
+        'tcp-listen:6379,fork,reuseaddr',
+        // Use TLS for connecting to ElastiCache
+        `openssl-connect:${props.redisEndpoint}:6379,verify=0`,
+      ],
       logging: ecs.LogDrivers.awsLogs({
         streamPrefix: `ap-redis-proxy-${cfg.environment}`,
       }),
@@ -82,6 +86,22 @@ export class RedisProxyStack extends cdk.Stack {
       value: serviceSG.securityGroupId,
       description: 'Security group ID for Redis proxy service',
     });
+
+    // Add ingress rule to ElastiCache security group
+    const elasticacheSGId = cdk.Fn.importValue(
+      `ap-elasticache-${props.environment}-RedisSecurityGroupId`,
+    );
+    const elasticacheSG = ec2.SecurityGroup.fromSecurityGroupId(
+      this,
+      'ImportedElastiCacheSG',
+      elasticacheSGId,
+      { allowAllOutbound: true, mutable: true },
+    );
+    elasticacheSG.addIngressRule(
+      ec2.Peer.securityGroupId(serviceSG.securityGroupId),
+      ec2.Port.tcp(6379),
+      'Allow Redis traffic from proxy service',
+    );
 
     logger.debug('Created security group for proxy service');
 

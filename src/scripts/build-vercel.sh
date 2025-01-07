@@ -12,8 +12,8 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AW
 start_time=$(date +%s)
 
 # Deploy AWS resources
-echo "Deploying AWS infrastructure... (SKIP)"
-# pnpm cdk:deploy --all --require-approval never --concurrency 10
+echo "Deploying AWS infrastructure..."
+pnpm cdk:deploy --all --require-approval never --concurrency 10
 
 # Check deployment time
 end_time=$(date +%s)

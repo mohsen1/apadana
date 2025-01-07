@@ -34,8 +34,10 @@ export async function getRedisClient(
     throw new Error('REDIS_URL environment variable is not set');
   }
 
-  // Ensure URL uses TLS for MemoryDB
-  const redisUrl = process.env.REDIS_URL?.replace(/^redis:\/\//, 'rediss://');
+  // Ensure URL uses TLS for ElastiCache
+  // The URL should be in format: rediss://PRIMARY-ENDPOINT:6379
+  // where PRIMARY-ENDPOINT matches the certificate's domain (*.ap-redis-{env}.xxxxx.region.cache.amazonaws.com)
+  const redisUrl = process.env.REDIS_URL;
 
   const mergedOptions = _.merge(
     {
