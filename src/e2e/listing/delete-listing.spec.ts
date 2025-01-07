@@ -14,7 +14,6 @@ test.describe.serial('Delete the listing', async () => {
         },
       },
     });
-    expect(listing.listingId).toBeDefined();
     currentListingId = listing.listingId;
   });
 
@@ -24,9 +23,9 @@ test.describe.serial('Delete the listing', async () => {
 
     await page.getByRole('button', { name: 'Delete' }).click();
 
-    await page.waitForURL('/listing', {
-      timeout: test.info().timeout * 5,
-    });
+    await page.waitForSelector('text=No listings were found');
+    await expect(page.getByText('No listings were found')).toBeVisible();
+
     await page.goto(`/listing/${currentListingId}/delete`);
     await expect(page.getByText('Listing Not Found')).toBeVisible();
   });

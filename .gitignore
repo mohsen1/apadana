@@ -37,6 +37,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# AWS
+cdk.out/
+
 # next-sitemap
 robots.txt
 sitemap.xml
@@ -81,6 +84,7 @@ package-updates-summary.md
 !.vscode/
 !.husky/
 !.github
+!cdk.json
 
 # Serialized repo
 repo-serialized/
@@ -89,3 +93,7 @@ repo-serialized/
 *.fish
 *.sh
 *.bash
+
+# AWS CDK
+.aws-sam/
+cdk.out/

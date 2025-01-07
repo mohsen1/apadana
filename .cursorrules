@@ -1,75 +1,66 @@
 General
-• Production URL: https://apadana.app
-• Use logger (default export from @/utils/logger) for logging
-• Utilities in src/utils
-• Non-route handlers in src/lib
+• Production URL: https://www.apadana.app
+• Local Development URLs: https://dev.apadana.local and https://prod.apadana.local
 • Package manager: pnpm
-• Unit testing: Vitest
-• Date operations: date-fns
+• Use single quotes for strings whenever possible
+• IMPORTANT: Try not to delete existing code unless absolutely certain it's not needed
+
+Directory Structure
+• src/app - App Router and API routes
+• src/components - Shared components
+• src/components/ui - ShadCDN UI components
+• src/components/emails - Email templates
+• src/hooks - Custom hooks
+• src/lib - Non-route handlers
+• src/utils - Utility functions
+• src/prisma/schema - Prisma schema and seed
+• config/ - Configuration files
+• src/docker/ - Docker configuration
+• AVOID creating new root directories
+
+TypeScript Guidelines
+• Use modern syntax: optional chaining, nullish coalescing, # for private fields, async iterators
+• Use assertError for error assertions in catch blocks
+• Prefer # private fields over private keyword
+• Run pnpm typecheck before completing tasks
+
+JavaScript Guidelines
 • Prefer import \_ from 'lodash' over destructuring
-• Prisma schema/seed in src/prisma/schema
-• Don’t create new root directories
-• Component stories go next to components, never in a global stories folder
 
-• Use argon2 for hashing
-
-• Check package.json for available pnpm commands
-• Minimize global variables.
-• Keep files short.
-• Avoid inline styling, prefer tailwind classes
-• Validate every user input with Zod.
-• Cache frequently accessed data.
-• Group related utilities under src/utils.
-• Store secrets only in .env
-• Use logger in place of console logs. use createLogger from @/utils/logger
-• Write e2e tests for critical paths.
-• Commit often with short, meaningful messages.
-• Avoid mixing data fetching and rendering in the same file.
-
-Email
-• Send emails via sendEmail function in send-email.ts
-• Sender Emails defined in send-email.ts
-• All emails must use EmailLayout component
-• Create a story for every email and visual component
-• **ALWAYS** use @react-email/components in emails
-
-TypeScript
-• Use assertError for error assertions. Do this in all `catch` blocks.
-• Modern syntax: optional chaining, nullish coalescing, # for private fields, async iterators, etc.
-• In catch blocks, call assertError
-• Avoid private in favor of #
-
-Next.js
-• Use the latest stable versions of Next.js, TypeScript, React, Node.js, ShadCDN UI, Tailwind CSS, Prisma, and Lucide icons
-• Rely on tailwind.config.ts for theme colors
-• Use the App Router from src
-• Don’t create new folders under src/app unless it’s a route
-• Shared components in src/components; ShadCDN UI components in src/components/ui
-• Hooks in src/hooks; emails in src/components/emails
-• Theme-defined colors: Gray, Red, Yellow, Green, Blue, Indigo, Purple, Pink
+Frontend Guidelines
+• Use latest stable versions of Next.js, React, Node.js, ShadCDN UI, Tailwind CSS, Prisma, Lucide icons
+• Use tailwind.config.ts for theme colors (Gray, Red, Yellow, Green, Blue, Indigo, Purple, Pink)
 • Always handle dark mode in components
-• Use ShadCDN UI’s Button for links
+• Use ShadCDN UI's Button component for links
+• Component stories go next to components (not in global stories folder)
+• Use date-fns for date operations
 
-Backend
-• All backend code lives in src/app/api
-• Use SafeAction from @/lib/safe-action
-• Validate input/output with Zod
-• Use Prisma (import prisma from '@/lib/prisma/client')
-• For forms, use React-Hook-Form with next-safe-action
-• Resend + React-Email + Tailwind CSS + clsx for emails
-• Refer to src/prisma/schema.prisma for DB structure
+Backend Guidelines
+• Backend code lives in src/app/api
+• Use SafeAction from @/lib/safe-action with next-safe-action
+• Use Zod for input/output validation
+• Use Prisma Client: import prisma from '@/lib/prisma/client'
+• Use React-Hook-Form for forms
+• Use Resend + React-Email + Tailwind CSS + clsx for emails
 • Import model schemas from src/prisma/schema.ts or src/prisma/zod/index.ts
-• No NextAuth; retrieve server user via getUserInServer
-• No react-query; query data from Prisma in backend
+• Use argon2 for hashing
 • Access env vars directly from process.env
+• Email addresses: bookings@apadana.app, onboarding@apadana.app, support@apadana.app
+• Use logger from @/utils/logger for logging (default export)
 
 Action Signature
-• We use [Next Safe Action](https://next-safe-action.dev/docs/getting-started)
-
+• Use next-safe-action:
 actionClient.schema(input).action(async ({ parsedInput, ctx }) => {
+// ...
+});
 
-E2E Testing
-• Use Playwright with import { test, expect } from 'base'
+Testing Guidelines
+• Unit tests: Use Vitest, run in docker with database
+• E2E tests: Use Playwright
+• Import { test, expect } from 'base'
 • Create test data with TestData class
-• Destructure test data in tests: test('sample test', async ({ page, data }) => {
-• never use await page.waitForTimeout(1000);
+• Avoid page.waitForTimeout(1000)
+
+Development & Deployment
+• Run everything except e2e tests in docker
+• Commit all changes before deploying to Vercel
