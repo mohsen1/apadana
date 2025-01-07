@@ -1,7 +1,12 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_elasticache as elasticache } from 'aws-cdk-lib';
+import {
+  aws_ec2 as ec2,
+  aws_elasticache as elasticache,
+  aws_elasticloadbalancingv2 as elbv2,
+} from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 import { getEnvConfig } from '../config/factory';
@@ -16,6 +21,7 @@ interface ElastiCacheStackProps extends cdk.StackProps {
 
 export class ElastiCacheStack extends cdk.Stack {
   public readonly redisHostOutput: cdk.CfnOutput;
+  public readonly redisPublicHostOutput: cdk.CfnOutput;
 
   constructor(scope: Construct, id: string, props: ElastiCacheStackProps) {
     super(scope, id, props);
@@ -31,8 +37,7 @@ export class ElastiCacheStack extends cdk.Stack {
     const subnetGroup = new elasticache.CfnSubnetGroup(this, 'ElastiCacheSubnetGroup', {
       cacheSubnetGroupName: `apadana-elasticache-subnet-group-${cfg.environment}`,
       subnetIds: props.vpc.selectSubnets({
-        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        onePerAz: true,
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
       }).subnetIds,
       description: 'Subnet group for ElastiCache Redis',
     });
@@ -43,10 +48,25 @@ export class ElastiCacheStack extends cdk.Stack {
       allowAllOutbound: true,
     });
 
-    redisSG.addIngressRule(
-      redisSG,
+    // NLB security group
+    const nlbSG = new ec2.SecurityGroup(this, 'NlbSG', {
+      vpc: props.vpc,
+      description: 'Security group for Redis NLB',
+      allowAllOutbound: true,
+    });
+
+    // Allow inbound traffic from anywhere to NLB
+    nlbSG.addIngressRule(
+      ec2.Peer.anyIpv4(),
       ec2.Port.tcp(6379),
-      'Allow Redis traffic within the security group',
+      'Allow Redis traffic from anywhere',
+    );
+
+    // Allow inbound traffic from NLB to Redis
+    redisSG.addIngressRule(
+      ec2.Peer.securityGroupId(nlbSG.securityGroupId),
+      ec2.Port.tcp(6379),
+      'Allow Redis traffic from NLB',
     );
 
     const redisCluster = new elasticache.CfnReplicationGroup(this, 'ElastiCacheCluster', {
@@ -71,10 +91,45 @@ export class ElastiCacheStack extends cdk.Stack {
       redisCluster.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
     }
 
+    // Create NLB in public subnets
+    const nlb = new elbv2.NetworkLoadBalancer(this, 'RedisNLB', {
+      vpc: props.vpc,
+      internetFacing: true,
+      crossZoneEnabled: true,
+    });
+
+    const listener = nlb.addListener('RedisListener', {
+      port: 6379,
+      protocol: elbv2.Protocol.TCP,
+    });
+
+    const targetGroup = new elbv2.NetworkTargetGroup(this, 'RedisTargets', {
+      vpc: props.vpc,
+      port: 6379,
+      protocol: elbv2.Protocol.TCP,
+      targetType: elbv2.TargetType.IP,
+      healthCheck: {
+        enabled: true,
+        protocol: elbv2.Protocol.TCP,
+        port: '6379',
+        healthyThresholdCount: 2,
+        unhealthyThresholdCount: 2,
+        interval: cdk.Duration.seconds(10),
+      },
+    });
+
+    listener.addTargetGroups('RedisForward', targetGroup);
+
     this.redisHostOutput = new cdk.CfnOutput(this, 'RedisEndpoint', {
       exportName: `${this.stackName}-RedisEndpoint`,
       value: redisCluster.attrPrimaryEndPointAddress,
-      description: 'ElastiCache cluster endpoint',
+      description: 'ElastiCache cluster private endpoint',
+    });
+
+    this.redisPublicHostOutput = new cdk.CfnOutput(this, 'RedisPublicEndpoint', {
+      exportName: `${this.stackName}-RedisPublicEndpoint`,
+      value: nlb.loadBalancerDnsName,
+      description: 'ElastiCache public endpoint (via NLB)',
     });
   }
 }
