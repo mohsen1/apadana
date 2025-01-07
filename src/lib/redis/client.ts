@@ -39,11 +39,13 @@ export async function getRedisClient(
   // where PRIMARY-ENDPOINT matches the certificate's domain (*.ap-redis-{env}.xxxxx.region.cache.amazonaws.com)
   const redisUrl = process.env.REDIS_URL;
 
+  const shouldUseTls = redisUrl?.startsWith('rediss://');
+
   const mergedOptions = _.merge(
     {
       url: redisUrl,
       socket: {
-        tls: true,
+        tls: shouldUseTls,
         // TODO: Use AWS Private Certificate Authority (AWS Private CA) to issue certificates for Redis Proxy.
         // You’ll still have to ensure the client trusts your CA’s root certificate. Steps:
         //  Use AWS Private Certificate Authority (AWS Private CA) to issue certificates for internal services.
