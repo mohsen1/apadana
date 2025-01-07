@@ -37,7 +37,8 @@ export class ElastiCacheStack extends cdk.Stack {
     const subnetGroup = new elasticache.CfnSubnetGroup(this, 'ElastiCacheSubnetGroup', {
       cacheSubnetGroupName: `apadana-elasticache-subnet-group-${cfg.environment}`,
       subnetIds: props.vpc.selectSubnets({
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        onePerAz: true,
       }).subnetIds,
       description: 'Subnet group for ElastiCache Redis',
     });
