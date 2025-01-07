@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_iam as iam } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename);
@@ -66,6 +67,7 @@ export class IamStack extends cdk.Stack {
       deployerGroup = iam.Group.fromGroupName(this, 'ExistingDeployerGroup', groupName);
       logger.debug('Imported existing deployer group');
     } catch (error) {
+      assertError(error);
       deployerGroup = new iam.Group(this, 'DeployerGroup', {
         groupName,
         managedPolicies: [devPolicy],

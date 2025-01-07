@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_s3 as s3 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 import { getEnvConfig } from '../config/factory';
@@ -30,6 +31,7 @@ export class S3Stack extends cdk.Stack {
       bucket = s3.Bucket.fromBucketName(this, 'ExistingBucket', bucketName);
       logger.debug('Imported existing S3 bucket');
     } catch (error) {
+      assertError(error);
       const newBucket = new s3.Bucket(this, 'ApadanaBucket', {
         bucketName,
         versioned: true,
