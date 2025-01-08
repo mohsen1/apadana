@@ -81,6 +81,8 @@ jobs:
       - name: Find missing screenshot files
         uses: actions/github-script@v7
         id: snapshot-diff
+        env:
+          WORKSPACE_ROOT: ${{ github.workspace }}
         with:
           script: |
             const { findMissingFiles } = await import('${{ github.workspace }}/.github/scripts/find-missing-snapshots.mjs');

@@ -2,8 +2,12 @@
 import fs from 'fs';
 import path from 'path';
 
-// Possible to add other paths here in future
-const baseDir = 'src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts';
+const workspaceRoot = process.env.WORKSPACE_ROOT ? process.env.WORKSPACE_ROOT : process.cwd();
+const baseDir = path.join(
+  workspaceRoot,
+  // Possible to add other paths here in future
+  'src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts',
+);
 
 /**
  * Get all files in a directory
