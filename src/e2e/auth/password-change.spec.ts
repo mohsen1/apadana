@@ -10,8 +10,7 @@ test('Password Change Flow', async ({ page, data }) => {
   });
 
   await test.step('Sends password change email', async () => {
-    await page.goto('/forgot-password');
-    await page.getByPlaceholder('Enter your email').fill(USER_EMAIL);
+    await page.goto(`/forgot-password?email=${USER_EMAIL}`);
     await page.getByRole('button', { name: 'Send Reset Link' }).click();
     await page.waitForSelector('text=check your email');
     await expect(page.getByText(/check your email/i)).toBeVisible();
