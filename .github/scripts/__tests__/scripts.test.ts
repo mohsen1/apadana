@@ -1,4 +1,3 @@
-import core from '@actions/core';
 import { execSync } from 'child_process';
 import fs, { Dirent } from 'fs';
 import path from 'path';
@@ -13,12 +12,6 @@ vi.mock('child_process', () => ({
 }));
 vi.mock('path');
 vi.spyOn(console, 'log');
-vi.mock('@actions/core', () => ({
-  default: {
-    setOutput: vi.fn(),
-    setFailed: vi.fn(),
-  },
-}));
 
 describe('findMissingFiles', () => {
   beforeEach(() => {
@@ -32,13 +25,11 @@ describe('findMissingFiles', () => {
 
     vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
     vi.mocked(path.relative).mockReturnValue('test1.png');
+    vi.mocked(fs.existsSync).mockReturnValue(false);
 
     await findMissingFiles();
 
-    expect(core.setOutput).toHaveBeenCalledWith(
-      'MISSING_SNAPSHOT_FILES',
-      JSON.stringify(['test1.png']),
-    );
+    expect(console.log).toHaveBeenCalledWith(JSON.stringify(['test1.png']));
   });
 });
 
