@@ -6,6 +6,7 @@ import { isUsingLocalResend } from '@/lib/email/resend';
 import Loading from '@/components/ui/loading';
 
 import { getEmails, getUniqueEmails } from '@/app/local-inbox/action';
+import logger from '@/utils/logger';
 
 import EmailsList from './EmailsList';
 
@@ -13,11 +14,13 @@ export const metadata = {
   title: 'Local Inbox',
 };
 
-export default async function EmailsPage({ searchParams }: { searchParams: { to?: string } }) {
-  if (!isUsingLocalResend) {
+export default async function EmailsPage(params: { searchParams: Promise<{ to?: string }> }) {
+  if (!isUsingLocalResend()) {
+    logger.info('Not using local resend, redirecting to home');
     redirect('/');
   }
 
+  const searchParams = await params.searchParams;
   const toEmail = searchParams.to;
   const [emailsResult, uniqueEmailsResult] = await Promise.all([
     getEmails(toEmail),

@@ -404,6 +404,7 @@ model PasswordReset {
   token     String   @unique
   expiresAt DateTime
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  used      Boolean  @default(false)
 }
 
 /// This is for local development only. Emails are not sent through Resend.

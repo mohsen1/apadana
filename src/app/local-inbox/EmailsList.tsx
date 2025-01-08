@@ -108,7 +108,7 @@ export default function EmailsList({ emails, currentEmail, uniqueEmails }: Email
         <div className='flex flex-col overflow-hidden md:col-span-2'>
           <AnimatePresence mode='wait'>
             <motion.div
-              data-testid='email-content'
+              id='local-inbox-email-content'
               key={selectedEmail?.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

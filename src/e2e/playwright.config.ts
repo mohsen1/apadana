@@ -92,6 +92,11 @@ export default defineConfig({
 
       return headers;
     },
+    // Trust our specific CA certificate instead of ignoring all cert errors
+    ignoreHTTPSErrors: true,
+    launchOptions: {
+      args: [`--accept-insecure-certs`, '--ignore-certificate-errors'],
+    },
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: {
       mode: 'retain-on-failure',
@@ -100,10 +105,6 @@ export default defineConfig({
       sources: true,
     },
     video: process.env.CI ? 'retain-on-failure' : 'on',
-    ignoreHTTPSErrors: true,
-    launchOptions: {
-      args: ['--ignore-certificate-errors'],
-    },
   },
 
   /* Configure projects for major browsers */

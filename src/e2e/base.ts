@@ -7,6 +7,11 @@ interface TestExtensions {
    * The test data object that is extended with the createListing method
    */
   data: TestData;
+
+  /**
+   * Opens the local inbox and waits for the email content to be visible
+   */
+  openLocalInbox: () => Promise<void>;
 }
 
 export const test = baseTest.extend<TestExtensions>({
@@ -20,6 +25,21 @@ export const test = baseTest.extend<TestExtensions>({
     const data = new TestData(apiContext, baseURL);
     await use(data);
     await data.dispose();
+  },
+
+  openLocalInbox: async ({ page, baseURL }, use) => {
+    await use(async () => {
+      if (!baseURL || baseURL.includes('apadana.app')) {
+        throw new Error(`Can not use Local Inbox in ${baseURL}`);
+      }
+      await page.goto('/local-inbox');
+      await page.waitForFunction(() => {
+        const emailContent = document.getElementById('local-inbox-email-content');
+        if (!emailContent) return false;
+        const computedStyle = window.getComputedStyle(emailContent);
+        return computedStyle?.opacity === '1';
+      });
+    });
   },
 });
 

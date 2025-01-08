@@ -3,7 +3,7 @@ import crypto from 'crypto';
 
 import { expect, test } from '@/e2e/base';
 
-test('Password Change Flow', async ({ page, data }) => {
+test('Password Change Flow', async ({ page, data, openLocalInbox }) => {
   const USER_EMAIL = 'test-password-change@example.com';
   await test.step('Sends password change email', async () => {
     await data.createUser(USER_EMAIL, crypto.randomBytes(16).toString('hex'));
@@ -14,13 +14,10 @@ test('Password Change Flow', async ({ page, data }) => {
   });
   let resetPage: Page;
   await test.step('Open inbox and click on password change link', async () => {
-    await page.goto('/local-inbox');
-    await expect(page.getByRole('link', { name: 'Reset Password' })).toBeVisible();
-
-    const newPagePromise = page.context().waitForEvent('page');
+    await openLocalInbox();
+    const newPagePromise = page.waitForEvent('popup');
     await page.getByRole('link', { name: 'Reset Password' }).click();
     resetPage = await newPagePromise;
-
     await expect(resetPage.getByText(/Reset Your Password/i)).toBeVisible();
   });
   // new tab opens with Reset Your Password title

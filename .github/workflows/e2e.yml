@@ -83,7 +83,7 @@ jobs:
         id: snapshot-diff
         with:
           script: |
-            const { findMissingFiles } = await import('./.github/scripts/find-missing-snapshots.mjs');
+            const { findMissingFiles } = await import('${{ github.workspace }}/.github/scripts/find-missing-snapshots.mjs');
             await findMissingFiles();
 
       - name: Test Storybook
@@ -108,7 +108,7 @@ jobs:
         with:
           script: |
             try {
-              const { validateSnapshotChanges } = await import('./.github/scripts/validate-snapshot-changes.mjs');
+              const { validateSnapshotChanges } = await import('${{ github.workspace }}/.github/scripts/validate-snapshot-changes.mjs');
               await validateSnapshotChanges();
             } catch (error) {
               core.setFailed(`Failed to validate snapshot changes: ${error.message}`);

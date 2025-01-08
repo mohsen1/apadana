@@ -1,4 +1,4 @@
-import resend from '@/lib/email/resend';
+import { getResend, isUsingLocalResend } from '@/lib/email/resend';
 
 import { BookingAlterationEmail } from '@/components/emails/BookingAlterationEmail';
 import { BookingRequestEmail } from '@/components/emails/BookingRequestEmail';
@@ -30,9 +30,15 @@ function sendEmail({
   from: string;
   react: React.ReactNode;
 }) {
-  if (email.includes('@e2e-testing.apadana.app') || email.includes('@example.com')) {
+  if (
+    !isUsingLocalResend() &&
+    (email.includes('@e2e-testing.apadana.app') || email.includes('@example.com'))
+  ) {
+    logger.info('Skipping email send for test email', { email });
     return;
   }
+
+  const resend = getResend();
 
   return resend.emails.send({
     from,
@@ -211,4 +217,37 @@ export async function sendPasswordChangeEmail({ email, name }: SendPasswordChang
     });
     throw error;
   }
+}
+
+export async function sendBookingCancellationEmail(
+  email: string,
+  {
+    checkIn,
+    checkOut,
+    user,
+    listing,
+  }: {
+    checkIn: Date;
+    checkOut: Date;
+    user: {
+      firstName: string;
+      lastName: string;
+    };
+    listing: {
+      title: string;
+    };
+  },
+) {
+  return sendEmail({
+    email,
+    from: BOOKING_EMAIL,
+    subject: `Booking Cancelled - ${listing.title}`,
+    react: BookingAlterationEmail({
+      listingTitle: listing.title,
+      startDate: checkIn,
+      endDate: checkOut,
+      guestName: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+      alterationType: 'cancelled',
+    }),
+  });
 }
