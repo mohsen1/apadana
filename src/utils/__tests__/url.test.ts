@@ -32,14 +32,16 @@ describe('getBaseUrl', () => {
 
   it('should return production URL when VERCEL_ENV is production', () => {
     // Remove window to simulate server environment
-    global.window = undefined as any;
+    // @ts-expect-error window is not defined in the global scope
+    global.window = undefined as unknown as Window;
     process.env = { ...originalEnv, VERCEL_ENV: 'production' };
 
     expect(getBaseUrl()).toBe('https://apadana.app');
   });
 
   it('should return Vercel preview URL when VERCEL_URL is set', () => {
-    global.window = undefined as any;
+    // @ts-expect-error window is not defined in the global scope
+    global.window = undefined as unknown as Window;
     process.env = {
       ...originalEnv,
       VERCEL_ENV: 'preview',
@@ -50,10 +52,12 @@ describe('getBaseUrl', () => {
   });
 
   it('should return dev URL as fallback', () => {
-    global.window = undefined as any;
+    // @ts-expect-error window is not defined in the global scope
+    global.window = undefined as unknown as Window;
     process.env = { ...originalEnv };
-    delete (process.env as any).VERCEL_ENV;
-    delete (process.env as any).VERCEL_URL;
+    delete process.env.VERCEL_ENV;
+    // @ts-expect-error VERCEL_URL is not defined in the global scope
+    delete process.env.VERCEL_URL;
 
     expect(getBaseUrl()).toBe('https://dev.apadana.local');
   });
