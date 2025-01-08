@@ -262,6 +262,45 @@ services:
       - 8.8.4.4
     command: pnpm playwright test --config=src/e2e/playwright.config.ts
 
+  storybook-test:
+    container_name: storybook_test
+    build:
+      context: ../..
+      dockerfile: src/docker/Dockerfile.playwright
+      args:
+        NODE_ENV: test
+        HUSKY: 0
+    environment:
+      - NODE_ENV=test
+      - STORYBOOK_URL=https://storybook.apadana.local
+    volumes:
+      - ../../src:/app/src
+      - ../../public:/app/public
+      - ../../config:/app/config
+      - ../../package.json:/app/package.json
+      - ../../pnpm-lock.yaml:/app/pnpm-lock.yaml
+      - ../../.next/storybook-report:/app/.next/storybook-report
+      - storybook_test_node_modules:/app/node_modules
+      - storybook_test_results:/app/test-results
+    networks:
+      - apadana_network
+    depends_on:
+      app_dev:
+        condition: service_healthy
+      nginx:
+        condition: service_started
+    extra_hosts:
+      - 'storybook.apadana.local:172.17.0.1'
+    command: >
+      sh -c "
+        STORYBOOK_URL=https://storybook.apadana.local
+        if [ -n \"$UPDATE_SNAPSHOTS\" ]; then
+          pnpm test:storybook:update
+        else
+          pnpm test:storybook
+        fi
+      "
+
 networks:
   apadana_network:
     driver: bridge
@@ -279,3 +318,5 @@ volumes:
   prod_next_cache:
   playwright_node_modules:
   playwright_results:
+  storybook_test_node_modules:
+  storybook_test_results:

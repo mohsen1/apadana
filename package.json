@@ -239,6 +239,8 @@
     "test:watch": "vitest --config=config/vitest.config.ts",
     "typecheck": "pnpm prisma:generate && tsc --noEmit --incremental false",
     "update-packages": "tsx src/scripts/update-packages.ts",
-    "test:e2e:docker": "docker compose -f src/docker/docker-compose.yml up playwright && pnpm playwright show-report .next/playwright-report/html"
+    "test:e2e:docker": "docker compose -f src/docker/docker-compose.yml up playwright && pnpm playwright show-report .next/playwright-report/html",
+    "test:storybook:docker": "docker compose -f src/docker/docker-compose.yml up storybook-test && pnpm playwright show-report .next/storybook-report/html",
+    "test:storybook:docker:update": "UPDATE_SNAPSHOTS=true docker compose -f src/docker/docker-compose.yml up storybook-test"
   }
 }

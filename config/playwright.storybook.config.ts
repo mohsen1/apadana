@@ -16,7 +16,7 @@ export default defineConfig({
   snapshotPathTemplate:
     '{testDir}/__screenshots__/{projectName}/{testFilePath}/{platform}/{arg}{ext}',
   use: {
-    baseURL: 'http://localhost:6006',
+    baseURL: process.env.STORYBOOK_URL || 'http://localhost:6006',
     get extraHTTPHeaders(): Record<string, string> {
       const headers: Record<string, string> = {};
       // Learn more about this here:
@@ -26,6 +26,11 @@ export default defineConfig({
       }
 
       return headers;
+    },
+    // Trust self-signed certificates
+    ignoreHTTPSErrors: true,
+    launchOptions: {
+      args: ['--accept-insecure-certs', '--ignore-certificate-errors'],
     },
     trace: 'on-first-retry',
     screenshot: {
@@ -40,10 +45,17 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: 'pnpm storybook',
-    url: 'http://localhost:6006',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
+  get webServer() {
+    // if STORYBOOK_URL is set, we don't need to start the web server
+    if (process.env.STORYBOOK_URL) {
+      return undefined;
+    }
+
+    return {
+      command: 'pnpm storybook',
+      url: 'http://localhost:6006',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120000,
+    };
   },
 });
