@@ -59,7 +59,7 @@ describe('validateSnapshotChanges', () => {
     );
 
     await expect(validateSnapshotChanges()).rejects.toThrow(
-      'Changed files do not match exactly with missing files list',
+      'Changed files do not match missing files list',
     );
   });
 });
