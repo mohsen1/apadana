@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/await-thenable */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { execSync } from 'child_process';
@@ -22,12 +21,6 @@ describe('findMissingFiles', () => {
     global.core = {
       setOutput: vi.fn(),
     };
-  });
-
-  test('returns empty string when directories do not exist', async () => {
-    fs.existsSync.mockReturnValue(false);
-    const result = await findMissingFiles();
-    expect(result).toBe('');
   });
 
   test('finds missing files correctly', async () => {

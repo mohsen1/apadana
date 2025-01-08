@@ -6,6 +6,7 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import _ from 'lodash';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
 
@@ -111,7 +112,14 @@ export default defineConfig({
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
-      name: 'chromium',
+      get name() {
+        // Use Chrome on macOS because it's faster to resolve
+        // self-signed certificate
+        if (os.platform() === 'darwin') {
+          return 'chrome';
+        }
+        return 'chromium';
+      },
       use: {
         ...devices['Desktop Chrome'],
         storageState,
