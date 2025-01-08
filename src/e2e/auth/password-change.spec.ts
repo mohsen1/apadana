@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 import { expect, test } from '@/e2e/base';
 
-test('Password Change Flow', async ({ page, data }) => {
+test('Password Change Flow', async ({ page, data, localInbox }) => {
   const USER_EMAIL = 'test-password-change@example.com';
 
   await test.step('Create user', async () => {
@@ -17,14 +17,8 @@ test('Password Change Flow', async ({ page, data }) => {
   });
 
   await test.step('Open inbox and click on password change link', async () => {
-    await page.goto('/local-inbox');
-    await page.waitForFunction(() => {
-      const emailContent = document.getElementById('local-inbox-email-content');
-      if (!emailContent) return false;
-      const computedStyle = window.getComputedStyle(emailContent);
-      return computedStyle?.opacity === '1';
-    });
-    // TODO: opening links that open in new tab are not working in CI
+    await localInbox.openEmail('Reset Your Password', USER_EMAIL);
+
     const resetHref = await page.getByRole('link', { name: 'Reset Password' }).getAttribute('href');
     if (!resetHref) {
       throw new Error('Reset password link not found');
