@@ -29,6 +29,7 @@ describe('findMissingFiles', () => {
 
     await findMissingFiles();
 
+    // eslint-disable-next-line no-console
     expect(console.log).toHaveBeenCalledWith(JSON.stringify(['test1.png']));
   });
 });
