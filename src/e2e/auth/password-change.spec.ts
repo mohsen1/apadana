@@ -1,4 +1,3 @@
-import { Page } from '@playwright/test';
 import crypto from 'crypto';
 
 import { expect, test } from '@/e2e/base';
