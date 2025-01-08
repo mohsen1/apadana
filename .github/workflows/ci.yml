@@ -32,54 +32,37 @@ jobs:
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-
-
-      - name: Lint
-        id: lint
-        continue-on-error: true
+      - name: Run checks
         run: |
-          if pnpm run lint:strict; then
-            echo "::set-output name=status::success"
-            echo "### Lint: passed" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "::set-output name=status::failure"
-            echo "### Lint: failed" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          fi
+          # Run all checks in parallel and capture their exit codes
+          echo "Running lint..."
+          pnpm run lint:strict > lint.log 2>&1 & lint_pid=$!
+          echo "Running typecheck..."
+          pnpm run typecheck > typecheck.log 2>&1 & typecheck_pid=$!
+          echo "Running format check..."
+          pnpm run format:check > format.log 2>&1 & format_pid=$!
 
-      - name: Type check
-        id: typecheck
-        continue-on-error: true
-        run: |
-          if pnpm run typecheck; then
-            echo "::set-output name=status::success"
-            echo "### Type check: passed" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "::set-output name=status::failure"
-            echo "### Type check: failed" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          fi
+          # Wait for all processes and capture their exit codes
+          wait $lint_pid && lint_status=$? || lint_status=$?
+          wait $typecheck_pid && typecheck_status=$? || typecheck_status=$?
+          wait $format_pid && format_status=$? || format_status=$?
 
-      - name: Format check
-        id: format
-        continue-on-error: true
-        run: |
-          if pnpm run format:check; then
-            echo "::set-output name=status::success"
-            echo "### Format check: passed" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "::set-output name=status::failure"
-            echo "### Format check: failed" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          fi
+          # Create summary table header
+          echo "### Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | $([ $lint_status -eq 0 ] && echo "PASSED" || echo "FAILED") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Type Check | $([ $typecheck_status -eq 0 ] && echo "PASSED" || echo "FAILED") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Format | $([ $format_status -eq 0 ] && echo "PASSED" || echo "FAILED") |" >> $GITHUB_STEP_SUMMARY
 
-      - name: Check all results
-        if: always()
-        run: |
-          if [[ "${{ steps.lint.outputs.status }}" == "failure" ]] || \
-             [[ "${{ steps.typecheck.outputs.status }}" == "failure" ]] || \
-             [[ "${{ steps.format.outputs.status }}" == "failure" ]]; then
-            exit 1
-          fi
+          # Show errors in console if any check failed
+          [ $lint_status -eq 0 ] || cat lint.log
+          [ $typecheck_status -eq 0 ] || cat typecheck.log
+          [ $format_status -eq 0 ] || cat format.log
+
+          # Exit with failure if any check failed
+          [ $lint_status -eq 0 ] && [ $typecheck_status -eq 0 ] && [ $format_status -eq 0 ]
 
   test:
     if: github.event_name != 'deployment_status'
@@ -124,7 +107,7 @@ jobs:
     name: Fix and commit code style
     needs: [validate]
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && needs.validate.result == 'failure'
+    if: github.event_name == 'pull_request' && (failure() || success())
     steps:
       - uses: actions/checkout@v4
         with:
