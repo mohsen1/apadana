@@ -34,7 +34,7 @@ export const BookingRequestScalarFieldEnumSchema = z.enum(['id','createdAt','upd
 
 export const SessionScalarFieldEnumSchema = z.enum(['id','userId','expiresAt','createdAt','lastActive']);
 
-export const PasswordResetScalarFieldEnumSchema = z.enum(['id','userId','token','expiresAt']);
+export const PasswordResetScalarFieldEnumSchema = z.enum(['id','userId','token','expiresAt','used']);
 
 export const LocalEmailScalarFieldEnumSchema = z.enum(['id','to','from','subject','html','createdAt']);
 
@@ -323,6 +323,7 @@ export const PasswordResetSchema = z.object({
   userId: z.string(),
   token: z.string(),
   expiresAt: z.coerce.date(),
+  used: z.boolean(),
 })
 
 export type PasswordReset = z.infer<typeof PasswordResetSchema>
@@ -727,6 +728,7 @@ export const PasswordResetSelectSchema: z.ZodType<Prisma.PasswordResetSelect> = 
   userId: z.boolean().optional(),
   token: z.boolean().optional(),
   expiresAt: z.boolean().optional(),
+  used: z.boolean().optional(),
   user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
 }).strict()
 
@@ -1681,6 +1683,7 @@ export const PasswordResetWhereInputSchema: z.ZodType<Prisma.PasswordResetWhereI
   userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   token: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   expiresAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  used: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
 }).strict();
 
@@ -1689,6 +1692,7 @@ export const PasswordResetOrderByWithRelationInputSchema: z.ZodType<Prisma.Passw
   userId: z.lazy(() => SortOrderSchema).optional(),
   token: z.lazy(() => SortOrderSchema).optional(),
   expiresAt: z.lazy(() => SortOrderSchema).optional(),
+  used: z.lazy(() => SortOrderSchema).optional(),
   user: z.lazy(() => UserOrderByWithRelationInputSchema).optional()
 }).strict();
 
@@ -1712,6 +1716,7 @@ export const PasswordResetWhereUniqueInputSchema: z.ZodType<Prisma.PasswordReset
   NOT: z.union([ z.lazy(() => PasswordResetWhereInputSchema),z.lazy(() => PasswordResetWhereInputSchema).array() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   expiresAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  used: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
 }).strict());
 
@@ -1720,6 +1725,7 @@ export const PasswordResetOrderByWithAggregationInputSchema: z.ZodType<Prisma.Pa
   userId: z.lazy(() => SortOrderSchema).optional(),
   token: z.lazy(() => SortOrderSchema).optional(),
   expiresAt: z.lazy(() => SortOrderSchema).optional(),
+  used: z.lazy(() => SortOrderSchema).optional(),
   _count: z.lazy(() => PasswordResetCountOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => PasswordResetMaxOrderByAggregateInputSchema).optional(),
   _min: z.lazy(() => PasswordResetMinOrderByAggregateInputSchema).optional()
@@ -1733,6 +1739,7 @@ export const PasswordResetScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma
   userId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
   token: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
   expiresAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  used: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema),z.boolean() ]).optional(),
 }).strict();
 
 export const LocalEmailWhereInputSchema: z.ZodType<Prisma.LocalEmailWhereInput> = z.object({
@@ -2723,6 +2730,7 @@ export const PasswordResetCreateInputSchema: z.ZodType<Prisma.PasswordResetCreat
   id: z.string().cuid().optional(),
   token: z.string(),
   expiresAt: z.coerce.date(),
+  used: z.boolean().optional(),
   user: z.lazy(() => UserCreateNestedOneWithoutPasswordResetInputSchema)
 }).strict();
 
@@ -2730,13 +2738,15 @@ export const PasswordResetUncheckedCreateInputSchema: z.ZodType<Prisma.PasswordR
   id: z.string().cuid().optional(),
   userId: z.string(),
   token: z.string(),
-  expiresAt: z.coerce.date()
+  expiresAt: z.coerce.date(),
+  used: z.boolean().optional()
 }).strict();
 
 export const PasswordResetUpdateInputSchema: z.ZodType<Prisma.PasswordResetUpdateInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutPasswordResetNestedInputSchema).optional()
 }).strict();
 
@@ -2745,19 +2755,22 @@ export const PasswordResetUncheckedUpdateInputSchema: z.ZodType<Prisma.PasswordR
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const PasswordResetCreateManyInputSchema: z.ZodType<Prisma.PasswordResetCreateManyInput> = z.object({
   id: z.string().cuid().optional(),
   userId: z.string(),
   token: z.string(),
-  expiresAt: z.coerce.date()
+  expiresAt: z.coerce.date(),
+  used: z.boolean().optional()
 }).strict();
 
 export const PasswordResetUpdateManyMutationInputSchema: z.ZodType<Prisma.PasswordResetUpdateManyMutationInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const PasswordResetUncheckedUpdateManyInputSchema: z.ZodType<Prisma.PasswordResetUncheckedUpdateManyInput> = z.object({
@@ -2765,6 +2778,7 @@ export const PasswordResetUncheckedUpdateManyInputSchema: z.ZodType<Prisma.Passw
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const LocalEmailCreateInputSchema: z.ZodType<Prisma.LocalEmailCreateInput> = z.object({
@@ -3731,21 +3745,24 @@ export const PasswordResetCountOrderByAggregateInputSchema: z.ZodType<Prisma.Pas
   id: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
   token: z.lazy(() => SortOrderSchema).optional(),
-  expiresAt: z.lazy(() => SortOrderSchema).optional()
+  expiresAt: z.lazy(() => SortOrderSchema).optional(),
+  used: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const PasswordResetMaxOrderByAggregateInputSchema: z.ZodType<Prisma.PasswordResetMaxOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
   token: z.lazy(() => SortOrderSchema).optional(),
-  expiresAt: z.lazy(() => SortOrderSchema).optional()
+  expiresAt: z.lazy(() => SortOrderSchema).optional(),
+  used: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const PasswordResetMinOrderByAggregateInputSchema: z.ZodType<Prisma.PasswordResetMinOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
   token: z.lazy(() => SortOrderSchema).optional(),
-  expiresAt: z.lazy(() => SortOrderSchema).optional()
+  expiresAt: z.lazy(() => SortOrderSchema).optional(),
+  used: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const LocalEmailCountOrderByAggregateInputSchema: z.ZodType<Prisma.LocalEmailCountOrderByAggregateInput> = z.object({
@@ -5424,13 +5441,15 @@ export const SessionCreateManyUserInputEnvelopeSchema: z.ZodType<Prisma.SessionC
 export const PasswordResetCreateWithoutUserInputSchema: z.ZodType<Prisma.PasswordResetCreateWithoutUserInput> = z.object({
   id: z.string().cuid().optional(),
   token: z.string(),
-  expiresAt: z.coerce.date()
+  expiresAt: z.coerce.date(),
+  used: z.boolean().optional()
 }).strict();
 
 export const PasswordResetUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.PasswordResetUncheckedCreateWithoutUserInput> = z.object({
   id: z.string().cuid().optional(),
   token: z.string(),
-  expiresAt: z.coerce.date()
+  expiresAt: z.coerce.date(),
+  used: z.boolean().optional()
 }).strict();
 
 export const PasswordResetCreateOrConnectWithoutUserInputSchema: z.ZodType<Prisma.PasswordResetCreateOrConnectWithoutUserInput> = z.object({
@@ -5711,6 +5730,7 @@ export const PasswordResetScalarWhereInputSchema: z.ZodType<Prisma.PasswordReset
   userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   token: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   expiresAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  used: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
 }).strict();
 
 export const UserCreateWithoutEmailAddressesInputSchema: z.ZodType<Prisma.UserCreateWithoutEmailAddressesInput> = z.object({
@@ -7371,7 +7391,8 @@ export const SessionCreateManyUserInputSchema: z.ZodType<Prisma.SessionCreateMan
 export const PasswordResetCreateManyUserInputSchema: z.ZodType<Prisma.PasswordResetCreateManyUserInput> = z.object({
   id: z.string().cuid().optional(),
   token: z.string(),
-  expiresAt: z.coerce.date()
+  expiresAt: z.coerce.date(),
+  used: z.boolean().optional()
 }).strict();
 
 export const EmailAddressUpdateWithoutUserInputSchema: z.ZodType<Prisma.EmailAddressUpdateWithoutUserInput> = z.object({
@@ -7640,18 +7661,21 @@ export const PasswordResetUpdateWithoutUserInputSchema: z.ZodType<Prisma.Passwor
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const PasswordResetUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.PasswordResetUncheckedUpdateWithoutUserInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const PasswordResetUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.PasswordResetUncheckedUpdateManyWithoutUserInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UploadedPhotoCreateManyListingInputSchema: z.ZodType<Prisma.UploadedPhotoCreateManyListingInput> = z.object({

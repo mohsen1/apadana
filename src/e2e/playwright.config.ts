@@ -6,6 +6,7 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import _ from 'lodash';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
 
@@ -59,14 +60,19 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Always run tests in parallel */
+  workers: undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     [
       'html',
       {
-        open: process.env.CI ? 'never' : 'on-failure',
+        get open() {
+          if (process.env.DOCKER_CONTAINER || process.env.CI) {
+            return 'never';
+          }
+          return 'on-failure';
+        },
         outputFolder: htmlReportFolder,
       },
     ],
@@ -89,8 +95,15 @@ export default defineConfig({
       if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET) {
         headers['x-vercel-protection-bypass'] = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
       }
+      // Docs: https://vercel.com/docs/workflow-collaboration/vercel-toolbar/managing-toolbar#disable-toolbar-for-automation
+      headers['x-vercel-skip-toolbar'] = '1';
 
       return headers;
+    },
+    // Trust our specific CA certificate instead of ignoring all cert errors
+    ignoreHTTPSErrors: true,
+    launchOptions: {
+      args: [`--accept-insecure-certs`, '--ignore-certificate-errors'],
     },
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: {
@@ -100,17 +113,23 @@ export default defineConfig({
       sources: true,
     },
     video: process.env.CI ? 'retain-on-failure' : 'on',
-    ignoreHTTPSErrors: true,
-    launchOptions: {
-      args: ['--ignore-certificate-errors'],
-    },
+    screenshot: 'only-on-failure',
+    // Ensure screenshots work in Linux container
+    viewport: { width: 1280, height: 720 },
   },
 
   /* Configure projects for major browsers */
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
-      name: 'chromium',
+      get name() {
+        // Use Chrome on macOS because it's faster to resolve
+        // self-signed certificate
+        if (os.platform() === 'darwin') {
+          return 'chrome';
+        }
+        return 'chromium';
+      },
       use: {
         ...devices['Desktop Chrome'],
         storageState,

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This is essentially a postinstall
+pnpm prisma:generate
+
 # Exit on error
 set -e
 
@@ -52,14 +55,13 @@ else
 
     # Wait for resources to be ready
     echo "Waiting for AWS resources to be ready..."
-    pnpm prisma:generate
     pnpm cdk:wait
-
-    # Deploy Prisma migrations
-    echo "Deploying database migrations..."
-    pnpm prisma:migrate
   done
 fi
+
+# Deploy Prisma migrations
+echo "Deploying database migrations..."
+pnpm prisma:migrate
 
 # In preview run seed
 if [ "$VERCEL_ENV" == "preview" ]; then

@@ -98,4 +98,8 @@ export class TestData {
   deleteAllE2eListings() {
     return this.#runCommand('deleteAllE2eListings');
   }
+
+  deleteAllE2eEmails() {
+    return this.#runCommand('deleteAllE2eEmails');
+  }
 }

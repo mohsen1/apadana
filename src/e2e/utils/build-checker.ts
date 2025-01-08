@@ -114,6 +114,12 @@ export class BuildChecker {
   }
 
   async checkAndRebuildIfNeeded(): Promise<void> {
+    // Skip build process if running in Docker
+    if (process.env.DOCKER_CONTAINER) {
+      logger.info('Running in Docker container, skipping build check');
+      return;
+    }
+
     try {
       logger.debug('Starting build check process');
       const currentChecksum = this.#calculateSrcChecksum();
@@ -149,7 +155,7 @@ export class BuildChecker {
         logger.debug('Executing docker redeploy command');
         await execAsync('pnpm docker:prod:redeploy');
 
-        logger.info('Redeploying docker app. Now waiting for build to complete...');
+        logger.info('Redeployed docker app. Now waiting for build to complete...');
         const buildSuccess = await this.#waitForBuild();
 
         if (buildSuccess) {

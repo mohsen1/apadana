@@ -11,20 +11,6 @@ export const prodE2eTestHostUser = {
   password: 'nslr83ub9v8',
 };
 
-export const prodE2eTestGuestUser = {
-  firstName: 'E2E Test',
-  lastName: 'Guest',
-  email: 'test-guest@e2e-testing.apadana.app',
-  password: 'nslr83ub9v8',
-};
-
-export const seedUser = {
-  firstName: 'E2E Test',
-  lastName: 'User',
-  email: 'test@example.com',
-  password: 'password123',
-};
-
 // listing fixtures
 export const prodE2eTestListing_usa_1: Omit<Prisma.ListingCreateInput, 'owner'> = {
   title: 'My new test listing',

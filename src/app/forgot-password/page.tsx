@@ -16,6 +16,9 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { requestPasswordReset } from '@/app/auth/actions';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger('forgot-password');
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -46,6 +49,9 @@ function ForgotPasswordForm() {
     onSuccess() {
       setSubmittedEmail(getValues('email'));
       setIsSubmitted(true);
+    },
+    onError(error) {
+      logger.error('Error requesting password reset', { error });
     },
   });
 
@@ -81,6 +87,9 @@ function ForgotPasswordForm() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
+            logger.info('Password reset link generated', {
+              email: getValues('email'),
+            });
             return handleSubmit(requestPasswordResetAction)(e);
           }}
           className='space-y-4'

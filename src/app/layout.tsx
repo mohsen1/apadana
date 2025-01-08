@@ -64,11 +64,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   const primaryEmail = user?.emailAddresses.find((email) => email.isPrimary);
   const needsVerification = primaryEmail && !primaryEmail.verified;
+  const analyticsEnabled = process.env.VERCEL_URL.includes('apadana.app');
 
   return (
     <AuthProvider initialUser={user}>
       <html lang='en' suppressHydrationWarning>
-        {process.env.NODE_ENV === 'production' && (
+        {analyticsEnabled && (
           <>
             <SpeedInsights />
             <Analytics />
