@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-import core from '@actions/core';
 import fs from 'fs';
 import path from 'path';
 
@@ -22,7 +20,7 @@ export async function findMissingFiles() {
     )
     .filter((relPath) => !fs.existsSync(path.join(baseDir, 'linux', relPath)));
 
-  core.setOutput('MISSING_SNAPSHOT_FILES', JSON.stringify(missingFiles));
+  // eslint-disable-next-line no-console
   console.log(JSON.stringify(missingFiles));
 }
 
