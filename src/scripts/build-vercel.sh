@@ -18,11 +18,11 @@ start_time=$(date +%s)
 echo "Checking infrastructure changes..."
 diff_output=$(pnpm cdk:diff --all --no-change-set)
 
-# Check if there are any differences
-if echo "$diff_output" | grep -q "There were no differences" && ! echo "$diff_output" | grep -q "Stack.*Resources"; then
+# Check if there are any differences or if it's production environment
+if [ "$VERCEL_ENV" != "production" ] && echo "$diff_output" | grep -q "There were no differences" && ! echo "$diff_output" | grep -q "Stack.*Resources"; then
   echo "No infrastructure changes detected. Skipping deployment."
 else
-  echo "Changes detected. Proceeding with deployment..."
+  echo "Changes detected or in production environment. Proceeding with deployment..."
   pnpm cdk:deploy --all --require-approval never --concurrency 10
 
   # Check deployment time
