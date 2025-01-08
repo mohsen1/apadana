@@ -90,6 +90,8 @@ export default defineConfig({
       if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET) {
         headers['x-vercel-protection-bypass'] = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
       }
+      // Docs: https://vercel.com/docs/workflow-collaboration/vercel-toolbar/managing-toolbar#disable-toolbar-for-automation
+      headers['x-vercel-skip-toolbar'] = '1';
 
       return headers;
     },
