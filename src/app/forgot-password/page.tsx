@@ -16,7 +16,9 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { requestPasswordReset } from '@/app/auth/actions';
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger('forgot-password');
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email'),
