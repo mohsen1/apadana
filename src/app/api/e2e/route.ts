@@ -54,6 +54,12 @@ export type RequestBody =
       command: 'deleteListing';
       args: { id: string };
       response: { message: string };
+    }
+  | {
+      command: 'deleteAllE2eEmails';
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+      args: {};
+      response: { message: string };
     };
 
 export type Command = RequestBody['command'];
@@ -224,6 +230,13 @@ export async function POST(request: Request) {
           where: { id: body.args.id },
         });
         return new Response(JSON.stringify({ message: 'Listing deleted' }), {
+          status: 200,
+        });
+      }
+
+      case 'deleteAllE2eEmails': {
+        await prisma.localEmail.deleteMany({});
+        return new Response(JSON.stringify({ message: 'All E2E emails deleted' }), {
           status: 200,
         });
       }

@@ -1,6 +1,20 @@
-const BASE_URL = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : 'https://apadana.app';
+export function getBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    return `${window.location.protocol}//${window.location.host}`;
+  }
+
+  if (process.env.VERCEL_ENV === 'production') {
+    return 'https://apadana.app';
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return 'https://dev.apadana.local';
+}
+
+const BASE_URL = getBaseUrl();
 
 export function createUrl(path: string): string {
   return `${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;

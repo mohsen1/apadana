@@ -1,9 +1,10 @@
-import resend from '@/lib/email/resend';
+import { getResend, isUsingLocalResend } from '@/lib/email/resend';
 
 import { BookingAlterationEmail } from '@/components/emails/BookingAlterationEmail';
 import { BookingRequestEmail } from '@/components/emails/BookingRequestEmail';
 import { EarlyAccessEmail } from '@/components/emails/EarlyAccessEmail';
 import EmailVerification from '@/components/emails/EmailVerification';
+import { PasswordChangeEmail } from '@/components/emails/PasswordChangeEmail';
 import { PasswordResetEmail } from '@/components/emails/PasswordResetEmail';
 import { WelcomeEmail } from '@/components/emails/WelcomeEmail';
 
@@ -29,9 +30,15 @@ function sendEmail({
   from: string;
   react: React.ReactNode;
 }) {
-  if (email.includes('@e2e-testing.apadana.app')) {
+  if (
+    !isUsingLocalResend() &&
+    (email.includes('@e2e-testing.apadana.app') || email.includes('@example.com'))
+  ) {
+    logger.info('Skipping email send for test email', { email });
     return;
   }
+
+  const resend = getResend();
 
   return resend.emails.send({
     from,
@@ -188,4 +195,59 @@ export async function sendEmailVerificationEmail(params: { to: string; verificat
     logger.error('Failed to send verification email', { error, to: params.to });
     throw error;
   }
+}
+
+interface SendPasswordChangeEmailParams {
+  name: string;
+  email: string;
+}
+
+export async function sendPasswordChangeEmail({ email, name }: SendPasswordChangeEmailParams) {
+  try {
+    return await sendEmail({
+      email,
+      from: SECURITY_EMAIL,
+      subject: 'Your password has been changed',
+      react: PasswordChangeEmail({ name }),
+    });
+  } catch (error) {
+    logger.error('Failed to send password change confirmation email', {
+      error,
+      email,
+    });
+    throw error;
+  }
+}
+
+export async function sendBookingCancellationEmail(
+  email: string,
+  {
+    checkIn,
+    checkOut,
+    user,
+    listing,
+  }: {
+    checkIn: Date;
+    checkOut: Date;
+    user: {
+      firstName: string;
+      lastName: string;
+    };
+    listing: {
+      title: string;
+    };
+  },
+) {
+  return sendEmail({
+    email,
+    from: BOOKING_EMAIL,
+    subject: `Booking Cancelled - ${listing.title}`,
+    react: BookingAlterationEmail({
+      listingTitle: listing.title,
+      startDate: checkIn,
+      endDate: checkOut,
+      guestName: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+      alterationType: 'cancelled',
+    }),
+  });
 }

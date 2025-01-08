@@ -2,15 +2,13 @@
 
 import { z } from 'zod';
 
-import resend from '@/lib/email/resend';
+import { sendEarlyAccessEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient } from '@/lib/safe-action';
 
-import { EarlyAccessEmail } from '@/components/emails/EarlyAccessEmail';
-
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger();
+const logger = createLogger('early-access-signup');
 
 // Schema for input validation
 const InputSchema = z.object({
@@ -37,12 +35,7 @@ async function handler(data: Input) {
     });
 
     // Send confirmation email
-    await resend.emails.send({
-      from: 'Apadana <onboarding@apadana.app>',
-      to: email,
-      subject: 'Welcome to Apadana Early Access',
-      react: EarlyAccessEmail({ email }),
-    });
+    await sendEarlyAccessEmail(email);
 
     return { message: 'Successfully signed up for early access' };
   } catch (error) {

@@ -11,6 +11,7 @@ export function EmailListItem({ email, isSelected, onClick }: EmailListItemProps
   return (
     <li
       data-testid='email-list-item'
+      title={email.subject}
       className={`border-border hover:bg-accent/50 cursor-pointer border-b p-4 transition-colors ${
         isSelected ? 'border-l-primary border-l-4 bg-zinc-200' : ''
       }`}

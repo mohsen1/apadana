@@ -11,7 +11,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['dotenv/config', './src/__tests__/setup/vitest.setup.ts'],
     globalSetup: ['./src/__tests__/setup/vitest.global.setup.ts'],
-    include: ['**/*.test.ts', '**/*.test.tsx'],
+    include: ['**/*.test.ts', '**/*.test.tsx', '.github/scripts/*.test.mjs'],
     exclude: ['**/node_modules/**', '**/dist/**'],
     coverage: {
       reporter: ['text', 'json', 'html'],

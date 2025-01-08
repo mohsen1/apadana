@@ -203,7 +203,7 @@ export const logOut = actionClient
   });
 
 export const requestPasswordReset = actionClient
-  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_USER_ID] }))
+  .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_IP] }))
   .schema(RequestPasswordResetSchema)
   .action(async ({ parsedInput }) => {
     try {
@@ -246,6 +246,12 @@ export const requestPasswordReset = actionClient
       // Generate reset link
       const resetLink = createPasswordResetUrl(resetToken.token, parsedInput.email);
 
+      logger.info('Password reset link generated', {
+        userId: user.id,
+        email: parsedInput.email,
+        resetLink,
+      });
+
       // Send reset email
       await sendPasswordResetEmail(parsedInput.email, resetLink);
 
@@ -266,41 +272,45 @@ export const resetPassword = actionClient
   .schema(ResetPasswordSchema)
   .action(async ({ parsedInput }) => {
     try {
-      // Find valid reset token
-      const resetToken = await prisma.passwordReset.findUnique({
-        where: { token: parsedInput.token },
+      // Find valid reset token and ensure it hasn't been used
+      const resetToken = await prisma.passwordReset.findFirst({
+        where: {
+          token: parsedInput.token,
+          used: false,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
         include: { user: true },
       });
 
       if (!resetToken) {
-        throw new ClientVisibleError('Invalid or expired reset token');
-      }
-
-      if (resetToken.expiresAt < new Date()) {
-        // Clean up expired token
-        await prisma.passwordReset.delete({
-          where: { id: resetToken.id },
-        });
-        throw new ClientVisibleError('Reset token has expired');
+        throw new ClientVisibleError(
+          'This password reset link is invalid or has expired. Please request a new one.',
+        );
       }
 
       // Hash new password
       const hashedPassword = await argon.hash(parsedInput.password);
 
-      // Update user password
-      await prisma.user.update({
-        where: { id: resetToken.userId },
-        data: { password: hashedPassword },
-      });
+      // Use transaction to ensure atomicity
+      await prisma.$transaction(async (tx) => {
+        // Update user password
+        await tx.user.update({
+          where: { id: resetToken.userId },
+          data: { password: hashedPassword },
+        });
 
-      // Delete used reset token
-      await prisma.passwordReset.delete({
-        where: { id: resetToken.id },
-      });
+        // Mark token as used
+        await tx.passwordReset.update({
+          where: { id: resetToken.id },
+          data: { used: true },
+        });
 
-      // Delete all existing sessions for this user for security
-      await prisma.session.deleteMany({
-        where: { userId: resetToken.userId },
+        // Delete all existing sessions
+        await tx.session.deleteMany({
+          where: { userId: resetToken.userId },
+        });
       });
 
       logger.info('Password reset successful', {

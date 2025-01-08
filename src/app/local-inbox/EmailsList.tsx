@@ -3,6 +3,7 @@
 import { LocalEmail } from '@prisma/client';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Trash2 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
@@ -25,13 +26,16 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { deleteAllEmails } from './action';
 import { EmailContent } from './EmailContent';
+import EmailFilter from './EmailFilter';
 import { EmailListItem } from './EmailListItem';
 
 interface EmailsListProps {
   emails: LocalEmail[];
+  currentEmail?: string;
+  uniqueEmails: string[];
 }
 
-export default function EmailsList({ emails }: EmailsListProps) {
+export default function EmailsList({ emails, currentEmail, uniqueEmails }: EmailsListProps) {
   const [selectedEmail, setSelectedEmail] = useState<LocalEmail | null>(emails[0] ?? null);
   const router = useRouter();
   const { toast } = useToast();
@@ -57,7 +61,12 @@ export default function EmailsList({ emails }: EmailsListProps) {
   return (
     <div className='flex h-full min-h-screen flex-1 flex-col'>
       <header className='border-border flex items-center justify-between border-b p-4'>
-        <h1 className='text-2xl font-semibold'>Local Email Inbox</h1>
+        <div className='flex items-center gap-8'>
+          <Link href='/local-inbox'>
+            <h1 className='text-2xl font-semibold'>Local Email Inbox</h1>
+          </Link>
+          <EmailFilter currentEmail={currentEmail} uniqueEmails={uniqueEmails} />
+        </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant='destructive' size='sm' disabled={status === 'executing'}>
@@ -86,7 +95,6 @@ export default function EmailsList({ emails }: EmailsListProps) {
           <ul>
             {emails.map((email) => (
               <EmailListItem
-                data-testid='email-list-item'
                 key={email.id}
                 email={email}
                 isSelected={selectedEmail?.id === email.id}
@@ -99,6 +107,7 @@ export default function EmailsList({ emails }: EmailsListProps) {
         <div className='flex flex-col overflow-hidden md:col-span-2'>
           <AnimatePresence mode='wait'>
             <motion.div
+              id='local-inbox-email-content'
               key={selectedEmail?.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

@@ -4,10 +4,10 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.NEXT_PUBLIC_TEST_ENV === 'e2e',
   reactStrictMode: true,
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: Boolean(process.env.VERCEL),
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: Boolean(process.env.VERCEL),
   },
 
   images: {

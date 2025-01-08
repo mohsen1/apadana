@@ -1,78 +1,66 @@
-## You are an expert AI programming assistant that focuses on producing clear, readable React and TypeScript code in a Next.js App.
+General
+• Production URL: https://www.apadana.app
+• Local Development URLs: https://dev.apadana.local and https://prod.apadana.local
+• Package manager: pnpm
+• Use single quotes for strings whenever possible
+• IMPORTANT: Try not to delete existing code unless absolutely certain it's not needed
 
-General Rules:
+Directory Structure
+• src/app - App Router and API routes
+• src/components - Shared components
+• src/components/ui - ShadCDN UI components
+• src/components/emails - Email templates
+• src/hooks - Custom hooks
+• src/lib - Non-route handlers
+• src/utils - Utility functions
+• src/prisma/schema - Prisma schema and seed
+• config/ - Configuration files
+• src/docker/ - Docker configuration
+• AVOID creating new root directories
 
-- IMPORTANT: Try not to delete too much existing code. Ensure existing code is absolutely not needed first.
-- The website is hosted at `https://apadana.app`.
-- Emails are sent from `bookings@apadana.app`, `onboarding@apadana.app`, and `support@apadana.app`.
-- Use `logger` from `@/utils/logger` to log errors and messages. (default export)
-- Utility functions are in `src/utils`.
-- Non-route handler code is in `src/lib`.
-- Use `pnpm` as the package manager.
-- We use Vitest for unit testing.
-- Use data-fns for date operations.
-- prefer `import _ from 'lodash'` over destructuring
-- Prisma schema and seed are in `src/prisma/schema` directory
-- AVOID CREATING NEW DIRECTORIES DIRECTLY IN ROOT
-- Component stories are sibling to the component. NOT IN **stories**
-- config files are in `config/`
-- docker config is in `src/docker/`
-- Locally, we route the app to https://dev.apadana.local and https://prod.apadana.local
-  Typescript Rules:
+TypeScript Guidelines
+• Use modern syntax: optional chaining, nullish coalescing, # for private fields, async iterators
+• Use assertError for error assertions in catch blocks
+• Prefer # private fields over private keyword
+• Run pnpm typecheck before completing tasks
 
-- Use `assertError` to assert errors
-- Use modern syntax: ?. ?? #private AsyncIterators for..of and anything ES2022+
-- in catch blocks, use `assertError` to assert errors
-- Instead of `private` use `#`
+JavaScript Guidelines
+• Prefer import \_ from 'lodash' over destructuring
 
-Next.js Rules:
+Frontend Guidelines
+• Use latest stable versions of Next.js, React, Node.js, ShadCDN UI, Tailwind CSS, Prisma, Lucide icons
+• Use tailwind.config.ts for theme colors (Gray, Red, Yellow, Green, Blue, Indigo, Purple, Pink)
+• Always handle dark mode in components
+• Use ShadCDN UI's Button component for links
+• Component stories go next to components (not in global stories folder)
+• Use date-fns for date operations
 
-- Use the latest stable versions of Next.js, TypeScript, React, Node.js, ShadCDN UI, Tailwind CSS, Prisma, and Lucide icons.
-- Look into `tailwind.config.ts` to understand the theme and use only colors defined in the theme.
-- Use the App Router with source code in the `src` directory.
-- Do not add new directories directly under `src/app` unless it's for a route.
-- Non-page common components are in `src/components`; ShadCDN UI components are in `src/components/ui`.
-- Hooks are in `src/hooks`; emails are in `src/components/emails`.
-- Use theme-defined colors instead of hardcoded ones; available colors include Gray, Red, Yellow, Green, Blue, Indigo, Purple, and Pink.
-- Always handle dark mode in components.
-- for links use `Button` from ShadCDN UI
-- Always use `useAction` hook from `next-safe-action` to handle actions
+Backend Guidelines
+• Backend code lives in src/app/api
+• Use SafeAction from @/lib/safe-action with next-safe-action
+• Use Zod for input/output validation
+• Use Prisma Client: import prisma from '@/lib/prisma/client'
+• Use React-Hook-Form for forms
+• Use Resend + React-Email + Tailwind CSS + clsx for emails
+• Import model schemas from src/prisma/schema.ts or src/prisma/zod/index.ts
+• Use argon2 for hashing
+• Access env vars directly from process.env
+• Email addresses: bookings@apadana.app, onboarding@apadana.app, support@apadana.app
+• Use logger from @/utils/logger for logging (default export)
 
-Backend Rules:
+Action Signature
+• Use next-safe-action:
+actionClient.schema(input).action(async ({ parsedInput, ctx }) => {
+// ...
+});
 
-- Backend code is in `src/app/api`.
-- Use SafeAction for backend actions: `import { actionClient } from '@/lib/safe-action'`.
-- Define input and output schemas using Zod.
-- Use Prisma ORM for database interactions: `import prisma from '@/lib/prisma/client'`.
-- Use React-Hook-Form and `next-safe-action` for form handling.
-- Use Resend for sending emails, React-Email for templates, and Tailwind CSS with `clsx` for styling.
-- Pay attention to src/prisma/schema.prisma to understand the database schema.
-- Always try to import model schemas from `src/prisma/schema.ts` or `src/prisma/zod/index.ts`
-- Avoid defining duplicate schemas and interfaces that can be imported from above file
-- We are NOT USING NextAuth. In server user getUserInServer
-- We are NOT USING react-query. Query directly from Prisma Client in backend
-- Access env variables directly from process.env
-- To read headers import from 'next/headers' and await headers()
-- All schemas are in `src/lib/schema.ts` and PascalCase. Each schema exports its own type at the end of the file. e.g. `UserSchema` and infered type is `User`
-- Use this API signature for actions:
+Testing Guidelines
+• Unit tests: Use Vitest, run in docker with database
+• E2E tests: Use Playwright
+• Import { test, expect } from 'base'
+• Create test data with TestData class
+• Avoid page.waitForTimeout(1000)
 
-  ```typescript
-  actionClient.schema(input).action(async ({ parsedInput, ctx }) => {
-    // ...
-  });
-  ```
-
-  Testing Rules:
-
-- Unit tests run in the docker and involve the database
-- import playwright test and expect from 'base'
-
-Development Rules:
-
-- Everything beside e2e tests run in the docker. see package.json scripts
-- Run `pnpm typecheck` to check for type errors before finishing a task
-
-Deployment Rules:
-
-- Always commit changes before deploying to vercel, make sure all changes are committed
-- We use Fish shell.
+Development & Deployment
+• Run everything except e2e tests in docker
+• Commit all changes before deploying to Vercel

@@ -15,8 +15,11 @@
 import { BookingStatus } from '@prisma/client';
 import { addDays, eachDayOfInterval } from 'date-fns';
 
-import resend from '@/lib/email/resend';
-import { sendBookingAlterationEmail, sendBookingRequestEmail } from '@/lib/email/send-email';
+import {
+  sendBookingAlterationEmail,
+  sendBookingCancellationEmail,
+  sendBookingRequestEmail,
+} from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { getUserEmail } from '@/lib/prisma/utils';
 import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-action';
@@ -29,11 +32,9 @@ import {
   UpdateBookingSchema,
 } from '@/lib/schema';
 
-import { BookingAlterationEmail } from '@/components/emails/BookingAlterationEmail';
-
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger();
+const logger = createLogger('booking-request');
 
 export const getBookingRequest = actionClient
   .schema(GetBookingRequestSchema)
@@ -408,17 +409,14 @@ export const cancelBooking = actionClient
       try {
         const userEmail = getUserEmail(booking.user);
         if (userEmail) {
-          await resend.emails.send({
-            from: 'bookings@apadana.app',
-            to: userEmail,
-            subject: `Booking Cancelled - ${booking.listingInventory[0].listing.title}`,
-            react: BookingAlterationEmail({
-              listingTitle: booking.listingInventory[0].listing.title,
-              startDate: booking.checkIn,
-              endDate: booking.checkOut,
-              guestName: `${booking.user.firstName ?? ''} ${booking.user.lastName ?? ''}`.trim(),
-              alterationType: 'cancelled',
-            }),
+          await sendBookingCancellationEmail(userEmail, {
+            checkIn: booking.checkIn,
+            checkOut: booking.checkOut,
+            user: {
+              firstName: booking.user.firstName ?? '',
+              lastName: booking.user.lastName ?? '',
+            },
+            listing: booking.listingInventory[0].listing,
           });
         }
       } catch (error) {

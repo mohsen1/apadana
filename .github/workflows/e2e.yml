@@ -14,21 +14,25 @@ jobs:
   e2e:
     name: Playwright
     runs-on: ubuntu-24.04
-    # Run when deployment is successful
+    container:
+      image: mcr.microsoft.com/playwright:v1.42.1-jammy
     if: (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success')
     steps:
       - uses: actions/checkout@v4
-
+      - name: Install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
 
       - name: Run E2E Tests
         id: test-run
         run: |
-          if [ "${ENVIRONMENT,,}" == "production" ]; then
-            pnpm run e2e:prod
+          if [ "$ENVIRONMENT" = "production" ]; then
+            pnpm run test:e2e:prod
           else
-            pnpm run e2e:ci
+            pnpm run test:e2e:ci
           fi
         env:
           ENVIRONMENT: ${{ github.event.deployment_status.environment }}
@@ -50,12 +54,19 @@ jobs:
           source_dir: '.next/playwright-report'
           destination_dir: ${{ github.sha }}/playwright
           index_html_location_path: 'html/index.html'
+
   storybook:
     name: Storybook
-    runs-on: macos-14
+    runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.42.1-jammy
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
 
