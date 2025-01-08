@@ -225,6 +225,7 @@ services:
       retries: 5
 
   playwright:
+    profiles: ['e2e']
     container_name: playwright
     build:
       context: ../..
@@ -263,6 +264,7 @@ services:
     command: pnpm playwright test --config=src/e2e/playwright.config.ts
 
   storybook-test:
+    profiles: ['e2e']
     container_name: storybook_test
     build:
       context: ../..
