@@ -244,6 +244,12 @@ export const requestPasswordReset = actionClient
       // Generate reset link
       const resetLink = createPasswordResetUrl(resetToken.token, parsedInput.email);
 
+      logger.info('Password reset link generated', {
+        userId: user.id,
+        email: parsedInput.email,
+        resetLink,
+      });
+
       // Send reset email
       await sendPasswordResetEmail(parsedInput.email, resetLink);
 
