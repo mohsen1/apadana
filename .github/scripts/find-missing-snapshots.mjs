@@ -16,7 +16,9 @@ const baseDir = path.join(
 export async function findMissingFiles() {
   const darwinFiles = fs.readdirSync(path.join(baseDir, 'darwin'), { withFileTypes: true });
   const missingFiles = darwinFiles
-    .map((file) => path.relative(path.join(baseDir, 'darwin'), file))
+    .map((file) =>
+      path.relative(path.join(baseDir, 'darwin'), path.join(baseDir, 'darwin', file.name)),
+    )
     .filter((relPath) => !fs.existsSync(path.join(baseDir, 'linux', relPath)));
 
   // eslint-disable-next-line no-undef, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
