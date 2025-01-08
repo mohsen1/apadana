@@ -210,10 +210,10 @@
     "docker:prod:redeploy": "pnpm docker:prod:rebuild && pnpm docker:prod:restart",
     "docker:prod:restart": "docker-compose -f src/docker/docker-compose.yml up -d --no-deps app_prod",
     "docker:prune": "docker system prune -af --volumes",
-    "e2e": "BASE_URL=https://prod.apadana.local E2E_TESTING_SECRET=e2e_testing_secret_for_prod playwright test --config=src/e2e/playwright.config.ts",
-    "e2e:ci": "playwright test --config=src/e2e/playwright.config.ts",
-    "e2e:dev": "BASE_URL=https://dev.apadana.local E2E_TESTING_SECRET=e2e_testing_secret_for_dev playwright test --config=src/e2e/playwright.config.ts",
-    "e2e:prod": "BASE_URL=https://www.apadana.app playwright test --config=src/e2e/playwright.config.ts",
+    "test:e2e": "BASE_URL=https://prod.apadana.local E2E_TESTING_SECRET=e2e_testing_secret_for_prod playwright test --config=src/e2e/playwright.config.ts",
+    "test:e2e:ci": "playwright test --config=src/e2e/playwright.config.ts",
+    "test:e2e:dev": "BASE_URL=https://dev.apadana.local E2E_TESTING_SECRET=e2e_testing_secret_for_dev playwright test --config=src/e2e/playwright.config.ts",
+    "test:e2e:prod": "BASE_URL=https://www.apadana.app playwright test --config=src/e2e/playwright.config.ts",
     "fix": "concurrently --color --prefix-colors \"blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold\" 'pnpm lint --fix' 'pnpm format'",
     "format": "prettier -w **/*.{json,css,md,webmanifest,yml,yaml}",
     "format:check": "prettier -c **/*.{json,css,md,webmanifest,yml,yaml}",
@@ -238,6 +238,7 @@
     "test:ui": "vitest --ui --config=config/vitest.config.ts",
     "test:watch": "vitest --config=config/vitest.config.ts",
     "typecheck": "pnpm prisma:generate && tsc --noEmit --incremental false",
-    "update-packages": "tsx src/scripts/update-packages.ts"
+    "update-packages": "tsx src/scripts/update-packages.ts",
+    "test:e2e:docker": "docker compose -f src/docker/docker-compose.yml up playwright && pnpm playwright show-report .next/playwright-report/html"
   }
 }

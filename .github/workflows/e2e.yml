@@ -21,22 +21,13 @@ jobs:
       - uses: ./.github/actions/playwright
 
       - name: Run E2E Tests
-        uses: actions/github-script@v7
         id: test-run
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            const environment = process.env.ENVIRONMENT.toLowerCase();
-
-            try {
-              if (environment === 'production') {
-                execSync('pnpm run e2e:prod', { stdio: 'inherit' });
-              } else {
-                execSync('pnpm run e2e:ci', { stdio: 'inherit' });
-              }
-            } catch (error) {
-              core.setFailed(error.message);
-            }
+        run: |
+          if [ "$ENVIRONMENT" = "production" ]; then
+            pnpm run test:e2e:prod
+          else
+            pnpm run test:e2e:ci
+          fi
         env:
           ENVIRONMENT: ${{ github.event.deployment_status.environment }}
           BASE_URL: ${{ github.event.deployment_status.target_url }}

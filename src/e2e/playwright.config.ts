@@ -67,7 +67,7 @@ export default defineConfig({
     [
       'html',
       {
-        open: process.env.CI ? 'never' : 'on-failure',
+        open: process.env.DOCKER_CONTAINER ? 'never' : process.env.CI ? 'never' : 'on-failure',
         outputFolder: htmlReportFolder,
       },
     ],
@@ -108,6 +108,9 @@ export default defineConfig({
       sources: true,
     },
     video: process.env.CI ? 'retain-on-failure' : 'on',
+    screenshot: 'only-on-failure',
+    // Ensure screenshots work in Linux container
+    viewport: { width: 1280, height: 720 },
   },
 
   /* Configure projects for major browsers */

@@ -114,6 +114,12 @@ export class BuildChecker {
   }
 
   async checkAndRebuildIfNeeded(): Promise<void> {
+    // Skip build process if running in Docker
+    if (process.env.DOCKER_CONTAINER) {
+      logger.info('Running in Docker container, skipping build check');
+      return;
+    }
+
     try {
       logger.debug('Starting build check process');
       const currentChecksum = this.#calculateSrcChecksum();

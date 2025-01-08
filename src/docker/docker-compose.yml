@@ -224,6 +224,44 @@ services:
       timeout: 3s
       retries: 5
 
+  playwright:
+    container_name: playwright
+    build:
+      context: ../..
+      dockerfile: src/docker/Dockerfile.playwright
+      args:
+        NODE_ENV: test
+        HUSKY: 0
+    environment:
+      - NODE_ENV=test
+      - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
+      - BASE_URL=https://prod.apadana.local
+      - DOCKER_CONTAINER=true
+    volumes:
+      - ../../src:/app/src
+      - ../../public:/app/public
+      - ../../prisma:/app/prisma
+      - ../../config:/app/config
+      - ../../package.json:/app/package.json
+      - ../../pnpm-lock.yaml:/app/pnpm-lock.yaml
+      - ../../src/storybook-e2e:/app/src/storybook-e2e
+      - ../../.next/playwright-report:/app/.next/playwright-report
+      - playwright_node_modules:/app/node_modules
+      - playwright_results:/app/test-results
+    depends_on:
+      app_prod:
+        condition: service_healthy
+      nginx:
+        condition: service_started
+    networks:
+      - apadana_network
+    extra_hosts:
+      - 'prod.apadana.local:172.17.0.1'
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    command: pnpm playwright test --config=src/e2e/playwright.config.ts
+
 networks:
   apadana_network:
     driver: bridge
@@ -239,3 +277,5 @@ volumes:
   prod_node_modules:
   prod_pnpm_store:
   prod_next_cache:
+  playwright_node_modules:
+  playwright_results:

@@ -4,6 +4,7 @@ import { storageState } from '@/e2e/playwright.config';
 import { expect, test as setup } from './base';
 
 setup.beforeAll(async ({ data }) => {
+  await data.deleteAllE2eEmails();
   await data.deleteAllE2eListings();
   await data.deleteUser(prodE2eTestHostUser.email);
   await data.createUser(prodE2eTestHostUser.email, prodE2eTestHostUser.password);

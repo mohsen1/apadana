@@ -95,7 +95,6 @@ export default function EmailsList({ emails, currentEmail, uniqueEmails }: Email
           <ul>
             {emails.map((email) => (
               <EmailListItem
-                data-testid='email-list-item'
                 key={email.id}
                 email={email}
                 isSelected={selectedEmail?.id === email.id}
