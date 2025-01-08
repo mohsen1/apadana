@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { core } from '@actions/core';
 import { execSync } from 'child_process';
 
 export async function validateSnapshotChanges() {
@@ -18,7 +19,6 @@ export async function validateSnapshotChanges() {
     console.log('Changed files:', changedFiles);
     console.log('Missing files:', missingFiles);
 
-    // eslint-disable-next-line no-undef, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     core.setFailed('Changed files do not match exactly with missing files list');
   }
 }

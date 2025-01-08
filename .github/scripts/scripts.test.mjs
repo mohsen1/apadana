@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
+import { core } from '@actions/core';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -14,13 +15,16 @@ vi.mock('child_process', () => ({
 }));
 vi.mock('path');
 vi.spyOn(console, 'log');
+vi.mock('@actions/core', () => ({
+  core: {
+    setOutput: vi.fn(),
+    setFailed: vi.fn(),
+  },
+}));
 
 describe('findMissingFiles', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    global.core = {
-      setOutput: vi.fn(),
-    };
   });
 
   test('finds missing files correctly', async () => {
@@ -31,7 +35,7 @@ describe('findMissingFiles', () => {
 
     findMissingFiles();
 
-    expect(global.core.setOutput).toHaveBeenCalledWith(
+    expect(core.setOutput).toHaveBeenCalledWith(
       'MISSING_SNAPSHOT_FILES',
       JSON.stringify(['test1.png']),
     );
@@ -41,9 +45,6 @@ describe('findMissingFiles', () => {
 describe('validateSnapshotChanges', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    global.core = {
-      setFailed: vi.fn(),
-    };
   });
 
   test('validates matching snapshot changes', async () => {
@@ -55,7 +56,7 @@ describe('validateSnapshotChanges', () => {
     execSync.mockReturnValue(missingFiles.join('\n'));
 
     await validateSnapshotChanges();
-    expect(global.core.setFailed).not.toHaveBeenCalled();
+    expect(core.setFailed).not.toHaveBeenCalled();
   });
 
   test('fails on mismatched snapshot changes', async () => {
@@ -67,7 +68,7 @@ describe('validateSnapshotChanges', () => {
     );
 
     await validateSnapshotChanges();
-    expect(global.core.setFailed).toHaveBeenCalledWith(
+    expect(core.setFailed).toHaveBeenCalledWith(
       'Changed files do not match exactly with missing files list',
     );
   });
