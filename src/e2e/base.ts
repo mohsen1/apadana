@@ -10,7 +10,7 @@ interface TestExtensions {
   data: TestData;
 
   /**
-   * Opens the local inbox and waits for the email content to be visible
+   * The local inbox object. Offers methods to open the local inbox and interact with emails
    */
   localInbox: LocalInbox;
 }
