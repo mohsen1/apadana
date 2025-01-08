@@ -69,44 +69,13 @@ jobs:
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
 
-      - name: Find missing screenshot files
-        id: snapshot-diff
-        run: |
-          MISSING_SNAPSHOT_FILES=$(pnpm tsx ${{ github.workspace }}/.github/scripts/find-missing-snapshots.ts)
-          echo "MISSING_SNAPSHOT_FILES=${MISSING_SNAPSHOT_FILES}" >> $GITHUB_OUTPUT
-
       - name: Test Storybook
         id: test-run
-        run: |
-          if [ "$MISSING_SNAPSHOT_FILES" != '[]' ]; then
-            echo "Missing snapshot files: $MISSING_SNAPSHOT_FILES"
-            pnpm run test:storybook:update
-          else
-            pnpm run test:storybook
-          fi
+        run: pnpm run test:storybook
         env:
-          MISSING_SNAPSHOT_FILES: ${{ steps.snapshot-diff.outputs.MISSING_SNAPSHOT_FILES }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           E2E_TESTING_SECRET: ${{ secrets.E2E_TESTING_SECRET }}
           VERCEL_URL: ${{ github.event.deployment_status.target_url }}
-
-      - name: Validate snapshot changes
-        if: steps.snapshot-diff.outputs.MISSING_SNAPSHOT_FILES != '[]'
-        id: validate-snapshots
-        run: pnpm tsx ${{ github.workspace }}/.github/scripts/validate-snapshot-changes.ts
-
-        env:
-          MISSING_SNAPSHOT_FILES: ${{ steps.snapshot-diff.outputs.MISSING_SNAPSHOT_FILES }}
-
-      - name: Commit snapshot changes
-        if: steps.validate-snapshots.outcome == 'success'
-        run: |
-          git add src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts
-          git commit -m "Update missing snapshot files"
-          git push
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Report Storybook Results
         if: always() && hashFiles('storybook-e2e-html-report/**') != ''
