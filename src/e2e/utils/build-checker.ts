@@ -155,7 +155,7 @@ export class BuildChecker {
         logger.debug('Executing docker redeploy command');
         await execAsync('pnpm docker:prod:redeploy');
 
-        logger.info('Redeploying docker app. Now waiting for build to complete...');
+        logger.info('Redeployed docker app. Now waiting for build to complete...');
         const buildSuccess = await this.#waitForBuild();
 
         if (buildSuccess) {

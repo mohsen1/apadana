@@ -67,7 +67,12 @@ export default defineConfig({
     [
       'html',
       {
-        open: process.env.DOCKER_CONTAINER ? 'never' : process.env.CI ? 'never' : 'on-failure',
+        get open() {
+          if (process.env.DOCKER_CONTAINER || process.env.CI) {
+            return 'never';
+          }
+          return 'on-failure';
+        },
         outputFolder: htmlReportFolder,
       },
     ],
