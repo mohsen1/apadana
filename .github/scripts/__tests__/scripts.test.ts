@@ -4,8 +4,8 @@ import fs, { Dirent } from 'fs';
 import path from 'path';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { findMissingFiles } from './find-missing-snapshots.js';
-import { validateSnapshotChanges } from './validate-snapshot-changes.js';
+import { findMissingFiles } from '../find-missing-snapshots.js';
+import { validateSnapshotChanges } from '../validate-snapshot-changes.js';
 
 vi.mock('fs');
 vi.mock('child_process', () => ({
@@ -56,7 +56,6 @@ describe('validateSnapshotChanges', () => {
     vi.mocked(execSync).mockReturnValue(missingFiles.join('\n'));
 
     await validateSnapshotChanges();
-    expect(core.setFailed).not.toHaveBeenCalled();
   });
 
   test('fails on mismatched snapshot changes', async () => {
@@ -67,8 +66,7 @@ describe('validateSnapshotChanges', () => {
       'src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts/linux/file2.png',
     );
 
-    await validateSnapshotChanges();
-    expect(core.setFailed).toHaveBeenCalledWith(
+    await expect(validateSnapshotChanges()).rejects.toThrow(
       'Changed files do not match exactly with missing files list',
     );
   });

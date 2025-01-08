@@ -81,7 +81,8 @@ jobs:
       - name: Find missing screenshot files
         id: snapshot-diff
         run: |
-          pnpm tsx ${{ github.workspace }}/.github/scripts/find-missing-snapshots.ts
+          MISSING_SNAPSHOT_FILES=$(pnpm tsx ${{ github.workspace }}/.github/scripts/find-missing-snapshots.ts)
+          echo "MISSING_SNAPSHOT_FILES=${MISSING_SNAPSHOT_FILES}" >> $GITHUB_OUTPUT
 
       - name: Test Storybook
         id: test-run

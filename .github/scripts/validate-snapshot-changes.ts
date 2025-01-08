@@ -1,11 +1,8 @@
 /* eslint-disable no-console */
-import core from '@actions/core';
 import { execSync } from 'child_process';
 
 export async function validateSnapshotChanges() {
-  /** @type {string[]} */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-  const missingFiles = JSON.parse(process.env.MISSING_SNAPSHOT_FILES || '[]').sort();
+  const missingFiles = (JSON.parse(process.env.MISSING_SNAPSHOT_FILES || '[]') as string[]).sort();
 
   const changedFiles = execSync('git diff --name-only HEAD^ HEAD')
     .toString()
@@ -16,17 +13,17 @@ export async function validateSnapshotChanges() {
     .sort();
 
   if (JSON.stringify(missingFiles) !== JSON.stringify(changedFiles)) {
-    console.log('Changed files:', changedFiles);
-    console.log('Missing files:', missingFiles);
-
-    core.setFailed('Changed files do not match exactly with missing files list');
+    throw new Error(
+      `Changed files do not match exactly with missing files list:\nchangedFiles: ${changedFiles.join(
+        '\n',
+      )}\nmissingFiles: ${missingFiles.join('\n')}`,
+    );
   }
 }
 
 if (require.main === module) {
   validateSnapshotChanges().catch((error) => {
     console.error('Error validating snapshot changes:', error);
-    core.setFailed(`Failed to validate snapshot changes: ${error}`);
-    process.exit(1);
+    throw new Error(`Failed to validate snapshot changes: ${error}`);
   });
 }

@@ -23,13 +23,11 @@ export async function findMissingFiles() {
     .filter((relPath) => !fs.existsSync(path.join(baseDir, 'linux', relPath)));
 
   core.setOutput('MISSING_SNAPSHOT_FILES', JSON.stringify(missingFiles));
-  console.log('Missing files:', missingFiles);
+  console.log(JSON.stringify(missingFiles));
 }
 
 if (require.main === module) {
   findMissingFiles().catch((error) => {
-    console.error('Error finding missing files:', error);
-    core.setFailed(`Failed to find missing files: ${error}`);
-    process.exit(1);
+    throw new Error(`Failed to find missing files: ${error}`);
   });
 }
