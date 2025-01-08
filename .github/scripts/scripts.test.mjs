@@ -24,11 +24,6 @@ describe('findMissingFiles', () => {
   });
 
   test('finds missing files correctly', async () => {
-    fs.existsSync
-      .mockReturnValueOnce(true) // linux dir exists
-      .mockReturnValueOnce(true) // darwin dir exists
-      .mockReturnValueOnce(false); // missing file in linux
-
     fs.readdirSync.mockReturnValue([{ name: 'test1.png', isDirectory: () => false }]);
 
     path.join.mockImplementation((...args) => args.join('/'));

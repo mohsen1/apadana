@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 import { expect, test } from '@/e2e/base';
 
-test('Password Change Flow', async ({ page, data, openLocalInbox }) => {
+test('Password Change Flow', async ({ page, data }) => {
   const USER_EMAIL = 'test-password-change@example.com';
   await test.step('Sends password change email', async () => {
     await data.createUser(USER_EMAIL, crypto.randomBytes(16).toString('hex'));
@@ -12,7 +12,13 @@ test('Password Change Flow', async ({ page, data, openLocalInbox }) => {
     await expect(page.getByText(/check your email/i)).toBeVisible();
   });
   await test.step('Open inbox and click on password change link', async () => {
-    await openLocalInbox();
+    await page.goto('/local-inbox');
+    await page.waitForFunction(() => {
+      const emailContent = document.getElementById('local-inbox-email-content');
+      if (!emailContent) return false;
+      const computedStyle = window.getComputedStyle(emailContent);
+      return computedStyle?.opacity === '1';
+    });
     // TODO: opening links that open in new tab are not working in CI
     const resetHref = await page.getByRole('link', { name: 'Reset Password' }).getAttribute('href');
     if (!resetHref) {
