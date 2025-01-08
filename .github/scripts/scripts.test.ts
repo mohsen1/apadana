@@ -1,13 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { core } from '@actions/core';
+import core from '@actions/core';
 import { execSync } from 'child_process';
-import fs from 'fs';
+import fs, { Dirent } from 'fs';
 import path from 'path';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { findMissingFiles } from './find-missing-snapshots.mjs';
-import { validateSnapshotChanges } from './validate-snapshot-changes.mjs';
+import { findMissingFiles } from './find-missing-snapshots.js';
+import { validateSnapshotChanges } from './validate-snapshot-changes.js';
 
 vi.mock('fs');
 vi.mock('child_process', () => ({
@@ -16,7 +14,7 @@ vi.mock('child_process', () => ({
 vi.mock('path');
 vi.spyOn(console, 'log');
 vi.mock('@actions/core', () => ({
-  core: {
+  default: {
     setOutput: vi.fn(),
     setFailed: vi.fn(),
   },
@@ -28,12 +26,14 @@ describe('findMissingFiles', () => {
   });
 
   test('finds missing files correctly', async () => {
-    fs.readdirSync.mockReturnValue([{ name: 'test1.png', isDirectory: () => false }]);
+    vi.mocked(fs.readdirSync).mockReturnValue([
+      { name: 'test1.png', isDirectory: () => false } as unknown as Dirent,
+    ]);
 
-    path.join.mockImplementation((...args) => args.join('/'));
-    path.relative.mockReturnValue('test1.png');
+    vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
+    vi.mocked(path.relative).mockReturnValue('test1.png');
 
-    findMissingFiles();
+    await findMissingFiles();
 
     expect(core.setOutput).toHaveBeenCalledWith(
       'MISSING_SNAPSHOT_FILES',
@@ -53,7 +53,7 @@ describe('validateSnapshotChanges', () => {
       'src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts/linux/file2.png',
     ];
     process.env.MISSING_SNAPSHOT_FILES = JSON.stringify(missingFiles);
-    execSync.mockReturnValue(missingFiles.join('\n'));
+    vi.mocked(execSync).mockReturnValue(missingFiles.join('\n'));
 
     await validateSnapshotChanges();
     expect(core.setFailed).not.toHaveBeenCalled();
@@ -63,7 +63,7 @@ describe('validateSnapshotChanges', () => {
     process.env.MISSING_SNAPSHOT_FILES = JSON.stringify([
       'src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts/linux/file1.png',
     ]);
-    execSync.mockReturnValue(
+    vi.mocked(execSync).mockReturnValue(
       'src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts/linux/file2.png',
     );
 

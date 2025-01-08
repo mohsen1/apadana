@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { core } from '@actions/core';
+import core from '@actions/core';
 import fs from 'fs';
 import path from 'path';
 
@@ -24,4 +24,12 @@ export async function findMissingFiles() {
 
   core.setOutput('MISSING_SNAPSHOT_FILES', JSON.stringify(missingFiles));
   console.log('Missing files:', missingFiles);
+}
+
+if (require.main === module) {
+  findMissingFiles().catch((error) => {
+    console.error('Error finding missing files:', error);
+    core.setFailed(`Failed to find missing files: ${error}`);
+    process.exit(1);
+  });
 }

@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
-import { core } from '@actions/core';
+import core from '@actions/core';
 import { execSync } from 'child_process';
 
 export async function validateSnapshotChanges() {
   /** @type {string[]} */
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-  const missingFiles = JSON.parse(process.env.MISSING_SNAPSHOT_FILES).sort();
+  const missingFiles = JSON.parse(process.env.MISSING_SNAPSHOT_FILES || '[]').sort();
 
   const changedFiles = execSync('git diff --name-only HEAD^ HEAD')
     .toString()
@@ -21,4 +21,12 @@ export async function validateSnapshotChanges() {
 
     core.setFailed('Changed files do not match exactly with missing files list');
   }
+}
+
+if (require.main === module) {
+  validateSnapshotChanges().catch((error) => {
+    console.error('Error validating snapshot changes:', error);
+    core.setFailed(`Failed to validate snapshot changes: ${error}`);
+    process.exit(1);
+  });
 }

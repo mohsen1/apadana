@@ -79,19 +79,14 @@ jobs:
       - uses: ./.github/actions/playwright
 
       - name: Find missing screenshot files
-        uses: actions/github-script@v7
         id: snapshot-diff
-        env:
-          WORKSPACE_ROOT: ${{ github.workspace }}
-        with:
-          script: |
-            const { findMissingFiles } = await import('${{ github.workspace }}/.github/scripts/find-missing-snapshots.mjs');
-            await findMissingFiles();
+        run: |
+          pnpm tsx ${{ github.workspace }}/.github/scripts/find-missing-snapshots.ts
 
       - name: Test Storybook
         id: test-run
         run: |
-          if [ -n "$MISSING_SNAPSHOT_FILES" ] && [ "$MISSING_SNAPSHOT_FILES" != '[]' ]; then
+          if [ "$MISSING_SNAPSHOT_FILES" != '[]' ]; then
             echo "Missing snapshot files: $MISSING_SNAPSHOT_FILES"
             pnpm run test:storybook:update
           else
@@ -105,33 +100,19 @@ jobs:
 
       - name: Validate snapshot changes
         if: steps.snapshot-diff.outputs.MISSING_SNAPSHOT_FILES != '[]'
-        uses: actions/github-script@v7
         id: validate-snapshots
-        with:
-          script: |
-            try {
-              const { validateSnapshotChanges } = await import('${{ github.workspace }}/.github/scripts/validate-snapshot-changes.mjs');
-              await validateSnapshotChanges();
-            } catch (error) {
-              core.setFailed(`Failed to validate snapshot changes: ${error.message}`);
-              throw error;
-            }
+        run: pnpm tsx ${{ github.workspace }}/.github/scripts/validate-snapshot-changes.ts
+
         env:
           MISSING_SNAPSHOT_FILES: ${{ steps.snapshot-diff.outputs.MISSING_SNAPSHOT_FILES }}
 
       - name: Commit snapshot changes
         if: steps.validate-snapshots.outcome == 'success'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            try {
-              execSync('git add src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts');
-              execSync('git commit -m "Update missing snapshot files"');
-              execSync('git push');
-            } catch (error) {
-              core.setFailed(error.message);
-            }
+        run: |
+          git add src/storybook-e2e/__screenshots__/storybook-screenshots.spec.ts
+          git commit -m "Update missing snapshot files"
+          git push
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
