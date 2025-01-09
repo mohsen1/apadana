@@ -37,7 +37,7 @@ npm install --global --silent vercel@39.2.6
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
-pnpm --silent aws:env
+pnpm --silent cdk:env
 
 echo "Deployment values:"
 cat /tmp/deployment-values.env
