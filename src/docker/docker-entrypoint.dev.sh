@@ -34,9 +34,8 @@ install_deps() {
         echo "[docker-entrypoint.dev.sh] ❌ Fatal: package.json is invalid and no backup exists"
         return 1
     fi
-    # Remove --force flag and keep --prefer-offline for better caching
-    pnpm install --prefer-offline --reporter=append-only
-    pnpm prisma generate --schema=src/prisma/schema.prisma
+    task install
+    task prisma:generate
     touch node_modules/.install-stamp
 }
 
@@ -48,7 +47,7 @@ fi
 # Function to handle Prisma schema changes
 handle_prisma_change() {
     echo "[docker-entrypoint.dev.sh] 🔄 Prisma schema changed, regenerating to migrate..."
-    pnpm prisma generate --schema=src/prisma/schema.prisma
+    task prisma:generate
     # Kill the dev server to trigger restart
     kill $PID 2>/dev/null
     # Start the application again
