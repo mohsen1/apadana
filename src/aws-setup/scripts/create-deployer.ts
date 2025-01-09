@@ -1,5 +1,4 @@
 import {
-  AttachUserPolicyCommand,
   CreateAccessKeyCommand,
   CreateUserCommand,
   DeleteAccessKeyCommand,
@@ -7,12 +6,14 @@ import {
   IAMClient,
   ListAccessKeysCommand,
 } from '@aws-sdk/client-iam';
+import { spawn } from 'child_process';
+import { join } from 'path';
 
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(__filename);
-logger.disable(); // Disable logging to have a clean output. For debugging, enable it.
+// logger.disable(); // Enable logging for debugging
 
 function printEnv(accessKeyId: string, secretAccessKey: string) {
   const region = process.env.AWS_REGION || 'us-east-1';
@@ -42,6 +43,28 @@ async function deleteExistingAccessKeys(iamClient: IAMClient, userName: string) 
   }
 }
 
+async function setupDeployerGroup() {
+  return new Promise<void>((resolve, reject) => {
+    const scriptPath = join(__dirname, 'setup-deployer-group.ts');
+    logger.info(`Running setup-deployer-group.ts at ${scriptPath}`);
+    const child = spawn('tsx', [scriptPath], {
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: '1',
+      },
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`setup-deployer-group.ts exited with code ${code}`));
+      }
+    });
+  });
+}
+
 async function getOrCreateUser(iamClient: IAMClient, userName: string) {
   try {
     // Try to get existing user first
@@ -57,16 +80,6 @@ async function getOrCreateUser(iamClient: IAMClient, userName: string) {
       throw err;
     }
   }
-
-  // Ensure policy is attached
-  const policyArn = 'arn:aws:iam::aws:policy/AdministratorAccess';
-  await iamClient.send(
-    new AttachUserPolicyCommand({
-      PolicyArn: policyArn,
-      UserName: userName,
-    }),
-  );
-  logger.info(`Attached policy ${policyArn} to ${userName}`);
 
   // Delete existing access keys
   await deleteExistingAccessKeys(iamClient, userName);
@@ -85,10 +98,16 @@ async function getOrCreateUser(iamClient: IAMClient, userName: string) {
     const iamClient = new IAMClient({});
     const userName = process.env.AWS_DEPLOYER_USER || 'ap-deployer';
 
+    logger.info('Starting deployer setup...');
     const accessKey = await getOrCreateUser(iamClient, userName);
     if (!accessKey.AccessKeyId || !accessKey.SecretAccessKey) {
       throw new Error('Failed to get access key details');
     }
+
+    // Set up the deployer group after creating the user
+    logger.info('Setting up deployer group...');
+    await setupDeployerGroup();
+
     printEnv(accessKey.AccessKeyId, accessKey.SecretAccessKey);
   } catch (error) {
     assertError(error);
