@@ -3,14 +3,14 @@ import { aws_ec2 as ec2, aws_ecs as ecs, aws_elasticloadbalancingv2 as elb } fro
 import { aws_secretsmanager as secretsmanager } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const forge = require('node-forge');
 import seedrandom from 'seedrandom';
 
 import { createLogger } from '@/utils/logger';
 
 import { BaseStack, BaseStackProps } from './base-stack';
 import { getEnvConfig } from '../config/factory';
+const require = createRequire(import.meta.url);
+const forge = require('node-forge') as typeof import('node-forge');
 
 const logger = createLogger(import.meta.filename);
 
