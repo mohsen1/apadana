@@ -6,6 +6,7 @@ vars:
   PROD_DEV_DOMAIN: https://prod.apadana.local
   PRISMA_SCHEMA: src/prisma/schema.prisma
   DOCKER_COMPOSE: src/docker/docker-compose.yml
+  VITEST_CONFIG: config/vitest.config.ts
   STORYBOOK_CONFIG: config/playwright.storybook.config.ts
   E2E_CONFIG: src/e2e/playwright.config.ts
   E2E_TESTING_SECRET_DEV: e2e_testing_secret_for_dev
@@ -155,7 +156,7 @@ tasks:
   test:unit:
     desc: Run unit tests
     cmds:
-      - pnpm vitest run --config=config/vitest.config.ts
+      - pnpm vitest run --config={{.VITEST_CONFIG}}
 
   test:e2e:
     desc: Run E2E tests against prod environment
@@ -165,7 +166,7 @@ tasks:
   test:e2e:ci:
     desc: Run E2E tests in CI
     cmds:
-      - pnpm playwright test --config=src/e2e/playwright.config.ts
+      - pnpm playwright test --config={{.E2E_CONFIG}}
 
   test:e2e:dev:
     desc: Run E2E tests against dev environment
