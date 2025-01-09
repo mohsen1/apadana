@@ -39,9 +39,6 @@ npm install --global --silent vercel@39.2.6
 echo "Setting AWS environment variables in Vercel..."
 pnpm --silent cdk:env
 
-echo "Deployment values:"
-cat /tmp/deployment-values.env
-
 cat /tmp/deployment-values.env | while IFS='=' read -r key value; do
   # Trim the value to remove any whitespace or newlines
   value=$(echo "$value" | tr -d '\n' | xargs)
