@@ -176,6 +176,7 @@ tasks:
 
   test:e2e:
     desc: Run E2E tests against prod environment
+    deps: [nextjs:check:health:prod]
     cmds:
       - BASE_URL={{.PROD_DEV_DOMAIN}} E2E_TESTING_SECRET={{.E2E_TESTING_SECRET_PROD}} pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
@@ -381,3 +382,14 @@ tasks:
     desc: Validate CDK deployer configuration
     cmds:
       - pnpm tsx {{.CDK_SCRIPTS}}/validate-deployer.ts
+
+  nextjs:check:health:prod:
+    desc: Check if Dockerized production environment is healthy
+    silent: true
+    cmds:
+      - |
+        if curl -s {{.PROD_DEV_DOMAIN}}/api/health | grep -q "healthy"; then
+          exit 0
+        fi
+        echo "Production environment is not healthy"
+        exit 1
