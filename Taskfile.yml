@@ -283,7 +283,7 @@ tasks:
 
   start:
     desc: Start the application
-    deps: [setup:local]
+    deps: [vercel:env:pull, setup:local]
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} up --build
 
@@ -315,3 +315,23 @@ tasks:
     desc: Update npm packages
     cmds:
       - pnpm tsx {{.SCRIPTS}}/update-packages.ts 
+  
+  vercel:deploy:
+    desc: Deploy to Vercel
+    cmds:
+      - pnpm vercel deploy
+
+  vercel:deploy:prod:
+    desc: Deploy to Vercel production
+    cmds:
+      - pnpm vercel deploy --target production --logs
+
+  vercel:deploy:preview:
+    desc: Deploy to Vercel preview
+    cmds:
+      - pnpm vercel deploy --target preview --logs
+  
+  vercel:env:pull:
+    desc: Pull Vercel environment variables
+    cmds:
+      - pnpm vercel env pull
