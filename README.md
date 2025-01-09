@@ -4,6 +4,24 @@
 
 > Make your own short term rental website in minutes!
 
+## Design Principles
+
+- **Minimalism**:
+  - We believe in simplicity and focus on the core functionality of the website.
+  - Single `package.json` file for the entire project.
+- **Technology choice**:
+  - We use more common technologies and libraries.
+  - This is not a place for experimental technologies.
+- **Easy deployment**:
+  - Development works offline. No internet connection is required
+  - Sending emails and uploading files are handled by mock services in development.
+- **Solid infrastructure**:
+  - We use AWS to build a solid infrastructure that is easy to manage and scale.
+  - AWS infrastructure is deployed using AWS CDK.
+- **Testing**:
+  - We use E2E testing to ensure the website works as expected.
+  - Instead of unit testing React components, we use visual testing to ensure the UI works as expected and e2e testing to ensure the components work together as expected.
+
 ## Development
 
 ### 1. Get access
