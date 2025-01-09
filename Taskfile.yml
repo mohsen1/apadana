@@ -11,7 +11,7 @@ vars:
   E2E_TESTING_SECRET_DEV: e2e_testing_secret_for_dev
   E2E_TESTING_SECRET_PROD: e2e_testing_secret_for_prod
   NON_ESLINT_FILES: "**/*.{json,css,md,webmanifest,yml,yaml}"
-  ESLINT_FILES: "**/*.{js,jsx,ts,tsx}"
+  ESLINT_FILES: "**/*.{js,jsx,ts,tsx,mjs}"
   ESLINT_CONFIG: config/eslint.config.mjs
   CDK_SCRIPTS: src/aws-setup/scripts
   SCRIPTS: src/scripts
@@ -41,6 +41,11 @@ tasks:
     deps: [prisma:generate]
     cmds:
       - pnpm next build
+
+  next:start:
+    desc: Start Next.js production server
+    cmds:
+      - pnpm next start
 
   dev:
     desc: Start development environment

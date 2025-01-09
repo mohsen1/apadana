@@ -97,6 +97,8 @@ const server = http.createServer((req, res) => {
             overflow-y: auto;
             white-space: pre-wrap;
             text-align: left;
+            display: flex;
+            flex-direction: column-reverse;
           }
           .error {
             background: #fee2e2;

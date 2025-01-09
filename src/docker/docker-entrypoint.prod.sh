@@ -70,5 +70,5 @@ else
 
   # Then watch and rebuild
   watch_and_rebuild
-  task start
+  task next:start
 fi
