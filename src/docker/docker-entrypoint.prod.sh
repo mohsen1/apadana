@@ -63,7 +63,7 @@ trap cleanup EXIT
 # Entrypoint
 if build; then
   cleanup
-  task start
+  task next:start
 else
   # Start placeholder server first
   echo "[docker-entrypoint.prod.sh] Starting placeholder server while watching for changes..."
