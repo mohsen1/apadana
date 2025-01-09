@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma/client';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger();
+const logger = createLogger('health-api');
 
 export async function GET() {
   try {

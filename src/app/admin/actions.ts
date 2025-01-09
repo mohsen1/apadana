@@ -10,7 +10,7 @@ import { PaginationSchema } from '@/lib/schema';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger();
+const logger = createLogger('admin-actions');
 
 export const updateUserRole = actionClient
   .schema(

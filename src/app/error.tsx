@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger();
+const logger = createLogger('error-page');
 
 export default function Error({
   error,

@@ -11,7 +11,7 @@ import { ClientUserSchema, UpdateUserSchema } from '@/lib/schema';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger();
+const logger = createLogger('user-actions');
 
 export const updateUser = actionClient
   .schema(UpdateUserSchema)

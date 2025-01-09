@@ -36,7 +36,7 @@ import { LocationDetailsStep } from './LocationDetailsStep';
 import { PhotosStep } from './PhotosStep';
 import { PricingStep } from './PricingStep';
 
-const logger = createLogger();
+const logger = createLogger('listing-create-form');
 const defaultValues: Omit<CreateListingWithCoercion, 'latitude' | 'longitude' | 'address'> = {
   amenities: ['Wi-Fi'],
   title: 'My listing',

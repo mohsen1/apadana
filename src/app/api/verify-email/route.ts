@@ -6,7 +6,7 @@ import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 import { createProfileUrl } from '@/utils/url';
 
-const logger = createLogger();
+const logger = createLogger('verify-email-api');
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

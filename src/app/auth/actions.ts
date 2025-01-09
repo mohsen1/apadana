@@ -29,7 +29,7 @@ import {
 import { createLogger } from '@/utils/logger';
 import { createPasswordResetUrl, createVerificationUrl } from '@/utils/url';
 
-const logger = createLogger();
+const logger = createLogger('auth-actions');
 
 export const login = actionClient
   .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_USER_ID, RATE_LIMIT_BASED_ON_IP] }))

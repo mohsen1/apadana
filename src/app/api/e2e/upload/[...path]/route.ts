@@ -5,7 +5,7 @@ import path from 'path';
 import { shouldUseFakeUploads } from '@/app/upload/constants';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger();
+const logger = createLogger('e2e-upload-route');
 
 export const runtime = 'nodejs';
 

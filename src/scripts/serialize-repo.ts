@@ -17,7 +17,7 @@ import { hideBin } from 'yargs/helpers';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger();
+const logger = createLogger('serialize-repo');
 
 type ModelType =
   | 'chatgpt-4o-latest'

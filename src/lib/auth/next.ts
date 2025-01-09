@@ -5,7 +5,7 @@ import { getUserInServer } from '@/lib/auth';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger();
+const logger = createLogger('auth-next');
 
 export interface AuthProtection {
   /**

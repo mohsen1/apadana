@@ -28,7 +28,7 @@ import { createLogger } from '@/utils/logger';
 import { deleteAccount } from './actions';
 import { requestPasswordReset } from '../auth/actions';
 
-const logger = createLogger();
+const logger = createLogger('account-security');
 
 export function AccountSecurity() {
   const router = useRouter();

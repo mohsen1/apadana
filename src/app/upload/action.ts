@@ -10,7 +10,7 @@ import { FileUploadInputSchema, FileUploadOutputSchema } from '@/lib/schema';
 import { shouldUseFakeUploads } from '@/app/upload/constants';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger();
+const logger = createLogger('upload-action');
 
 export const getUploadSignedUrl = actionClient
   .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_IP] }))
