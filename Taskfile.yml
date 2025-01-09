@@ -16,11 +16,18 @@ vars:
   ESLINT_CONFIG: config/eslint.config.mjs
   CDK_SCRIPTS: src/aws-setup/scripts
   SCRIPTS: src/scripts
+  # Standardized environment names
+  ENV:
+    sh: echo "${VERCEL_ENV:-${AWS_DEPLOYMENT_STACK_ENV:-development}}"
 
 env:
   DOCKER_BUILDKIT: "1"
   COMPOSE_DOCKER_CLI_BUILD: "1"
+  AVOID_UPDATE_NOTIFIER: "1"
   NODE_OPTIONS: --no-warnings
+  # Export standardized environment
+  AWS_DEPLOYMENT_STACK_ENV:
+    sh: echo ${ENV}
 
 tasks:
   i:
@@ -35,7 +42,16 @@ tasks:
   fetch:
     desc: Fetch dependencies
     cmds:
-      - pnpm fetch
+      - |
+        if [ ! -f pnpm-lock.yaml ]; then
+          echo "Error: pnpm-lock.yaml not found"
+          exit 1
+        fi
+        if ! pnpm -v &>/dev/null; then
+          echo "Error: pnpm not installed"
+          exit 1
+        fi
+        pnpm fetch
 
   build:
     desc: Build the application
