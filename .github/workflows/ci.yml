@@ -112,3 +112,25 @@ jobs:
           git add -A
           git commit -m "style: automatically fix code style issues"
           git push
+
+  verify-taskfile:
+    name: Verify Taskfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Task
+        run: |
+          sudo sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+          task --version
+
+      - name: Verify Taskfile
+        run: task --dry-run --list
+
+      - name: Check task descriptions
+        run: |
+          missing_desc=$(grep -l "^[[:space:]]*[a-zA-Z].*:$" Taskfile.yml | grep -v "desc:")
+          if [ ! -z "$missing_desc" ]; then
+            echo "Error: Found tasks without descriptions"
+            exit 1
+          fi
