@@ -5,19 +5,14 @@ import { Construct } from 'constructs';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-import { BaseStack } from './base-stack';
+import { BaseStack, BaseStackProps } from './base-stack';
 
 const logger = createLogger(__filename);
-
-interface SharedNetworkStackProps extends cdk.StackProps {
-  environment: string;
-  removalPolicy?: cdk.RemovalPolicy;
-}
 
 export class SharedNetworkStack extends BaseStack {
   public readonly vpc: ec2.IVpc;
 
-  constructor(scope: Construct, id: string, props: SharedNetworkStackProps) {
+  constructor(scope: Construct, id: string, props: BaseStackProps) {
     super(scope, id, props);
 
     logger.info(`Creating/importing network stack for environment: ${props.environment}`);

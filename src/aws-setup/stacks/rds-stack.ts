@@ -1,18 +1,16 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_rds as rds, aws_secretsmanager as secretsmanager } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_rds as rds } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { createLogger } from '@/utils/logger';
 
-import { BaseStack } from './base-stack';
+import { BaseStack, BaseStackProps } from './base-stack';
 import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(__filename);
 
-interface RdsStackProps extends cdk.StackProps {
-  environment: string;
+interface RdsStackProps extends BaseStackProps {
   vpc: ec2.IVpc;
-  removalPolicy?: cdk.RemovalPolicy;
 }
 
 export class RdsStack extends BaseStack {

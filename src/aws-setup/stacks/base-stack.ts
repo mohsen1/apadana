@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-interface BaseStackProps extends cdk.StackProps {
+export interface BaseStackProps extends cdk.StackProps {
   environment: string;
   removalPolicy?: cdk.RemovalPolicy;
 }

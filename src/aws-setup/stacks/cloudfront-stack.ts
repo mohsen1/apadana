@@ -5,13 +5,12 @@ import { Construct } from 'constructs';
 
 import { createLogger } from '@/utils/logger';
 
-import { BaseStack } from './base-stack';
+import { BaseStack, BaseStackProps } from './base-stack';
 import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(__filename);
 
-interface CloudFrontStackProps extends cdk.StackProps {
-  environment: string;
+interface CloudFrontStackProps extends BaseStackProps {
   bucket: s3.IBucket;
 }
 

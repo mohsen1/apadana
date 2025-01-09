@@ -5,21 +5,14 @@ import { Construct } from 'constructs';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-import { BaseStack } from './base-stack';
-import { getEnvConfig } from '../config/factory';
+import { BaseStack, BaseStackProps } from './base-stack';
 
 const logger = createLogger(__filename);
 
-interface IamStackProps extends cdk.StackProps {
-  environment: string;
-  removalPolicy?: cdk.RemovalPolicy;
-}
-
 export class IamStack extends BaseStack {
-  constructor(scope: Construct, id: string, props: IamStackProps) {
+  constructor(scope: Construct, id: string, props: BaseStackProps) {
     super(scope, id, props);
 
-    const cfg = getEnvConfig(props.environment);
     logger.info(`Creating IAM stack for environment: ${props.environment}`);
 
     // Add service-specific tag

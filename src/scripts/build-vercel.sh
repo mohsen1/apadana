@@ -14,7 +14,7 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AW
 # Start timing AWS deployment
 start_time=$(date +%s)
 
-pnpm cdk:deploy --all --require-approval never --concurrency 30
+pnpm cdk:deploy --all --require-approval never --concurrency 10
 
 # Check deployment time
 end_time=$(date +%s)
@@ -22,7 +22,7 @@ elapsed=$((end_time - start_time))
 if [ $elapsed -ge 2400 ]; then
   echo "Warning: AWS deployment took more than 40 minutes. This is likely because a lot of resources are being deployed."
   echo "Vercel build times are capped at 45 minutes. For faster iterations, consider running locally with:"
-  echo "AWS_DEPLOYMENT_STACK_ENV=$AWS_DEPLOYMENT_STACK_ENV pnpm cdk:deploy --all --concurrency 10"
+  echo "AWS_DEPLOYMENT_STACK_ENV=$AWS_DEPLOYMENT_STACK_ENV pnpm cdk:deploy --all"
   exit 124
 fi
 
@@ -33,7 +33,7 @@ npm install --global --silent vercel@39.2.6
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
-pnpm -- aws:env >.env.production 2>&1 || exit 1
+pnpm --silent aws:env >.env.production || exit 1
 
 cat /tmp/deployment-values.env | while IFS='=' read -r key value; do
   # Write the environment variable to a temporary file.
