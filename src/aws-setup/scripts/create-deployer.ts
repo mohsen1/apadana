@@ -1,12 +1,13 @@
 import {
-  AttachUserPolicyCommand,
   CreateAccessKeyCommand,
   CreateUserCommand,
   DeleteAccessKeyCommand,
-  GetUserCommand,
   IAMClient,
   ListAccessKeysCommand,
 } from '@aws-sdk/client-iam';
+import { spawn } from 'child_process';
+import { unlink, writeFile } from 'fs/promises';
+import { join } from 'path';
 
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
@@ -14,25 +15,105 @@ import { createLogger } from '@/utils/logger';
 const logger = createLogger(import.meta.filename);
 logger.disable(); // Disable logging to have a clean output. For debugging, enable it.
 
-function printEnv(accessKeyId: string, secretAccessKey: string) {
-  const region = process.env.AWS_REGION || 'us-east-1';
+async function setupDeployerGroup(environment: string) {
+  const scriptPath = join(__dirname, 'setup-deployer-group.ts');
+  return new Promise<void>((resolve, reject) => {
+    const child = spawn('tsx', [scriptPath], {
+      env: { ...process.env, AWS_DEPLOYMENT_STACK_ENV: environment },
+      stdio: 'inherit',
+    });
 
-  const envContent = [
-    `AWS_ACCESS_KEY_ID=${accessKeyId}`,
-    `AWS_SECRET_ACCESS_KEY=${secretAccessKey}`,
-    `AWS_REGION=${region}`,
-  ].join('\n');
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`setup-deployer-group.ts exited with code ${code}`));
+      }
+    });
+  });
+}
 
-  process.stdout.write(envContent);
+async function addToVercel(accessKeyId: string, secretAccessKey: string, environment: string) {
+  const tempKeyFile = join(__dirname, '.temp-key.txt');
+  const tempSecretFile = join(__dirname, '.temp-secret.txt');
+
+  try {
+    // Create temp files with credentials
+    await writeFile(tempKeyFile, accessKeyId);
+    await writeFile(tempSecretFile, secretAccessKey);
+
+    // Remove existing env vars if they exist
+    logger.info('Removing existing AWS credentials from Vercel...');
+    await new Promise<void>((resolve) => {
+      const rm1 = spawn('vercel', ['env', 'rm', 'AWS_ACCESS_KEY_ID', environment, '--yes'], {
+        stdio: 'inherit',
+      });
+      rm1.on('close', () => {
+        const rm2 = spawn('vercel', ['env', 'rm', 'AWS_SECRET_ACCESS_KEY', environment, '--yes'], {
+          stdio: 'inherit',
+        });
+        rm2.on('close', resolve);
+      });
+    });
+
+    // Add new env vars using file redirection
+    logger.info('Adding AWS credentials to Vercel...');
+    await new Promise<void>((resolve, reject) => {
+      const add1 = spawn(
+        'sh',
+        ['-c', `vercel env add AWS_ACCESS_KEY_ID ${environment} < ${tempKeyFile}`],
+        {
+          stdio: 'inherit',
+        },
+      );
+
+      add1.on('close', (code1) => {
+        if (code1 !== 0) {
+          reject(new Error('Failed to add AWS_ACCESS_KEY_ID'));
+          return;
+        }
+
+        const add2 = spawn(
+          'sh',
+          ['-c', `vercel env add AWS_SECRET_ACCESS_KEY ${environment} < ${tempSecretFile}`],
+          {
+            stdio: 'inherit',
+          },
+        );
+
+        add2.on('close', (code2) => {
+          if (code2 !== 0) {
+            reject(new Error('Failed to add AWS_SECRET_ACCESS_KEY'));
+            return;
+          }
+          resolve();
+        });
+      });
+    });
+  } finally {
+    // Clean up temp files
+    await Promise.all([
+      unlink(tempKeyFile).catch(() => {}),
+      unlink(tempSecretFile).catch(() => {}),
+    ]);
+  }
 }
 
 async function deleteExistingAccessKeys(iamClient: IAMClient, userName: string) {
-  const existingKeys = await iamClient.send(new ListAccessKeysCommand({ UserName: userName }));
+  logger.info('Checking for existing access keys...');
+  const { AccessKeyMetadata } = await iamClient.send(
+    new ListAccessKeysCommand({ UserName: userName }),
+  );
 
-  for (const key of existingKeys.AccessKeyMetadata || []) {
+  if (!AccessKeyMetadata?.length) {
+    logger.info('No existing access keys found');
+    return;
+  }
+
+  logger.info(`Found ${AccessKeyMetadata.length} existing access keys, deleting...`);
+  for (const key of AccessKeyMetadata) {
     if (!key.AccessKeyId) continue;
-
-    logger.info(`Deleting existing access key: ${key.AccessKeyId}`);
+    logger.info(`Deleting access key: ${key.AccessKeyId}`);
     await iamClient.send(
       new DeleteAccessKeyCommand({
         UserName: userName,
@@ -40,59 +121,64 @@ async function deleteExistingAccessKeys(iamClient: IAMClient, userName: string) 
       }),
     );
   }
+  logger.info('Successfully deleted all existing access keys');
 }
 
-async function getOrCreateUser(iamClient: IAMClient, userName: string) {
+async function createDeployer(environment: string, addToVercelEnv = false) {
+  const iamClient = new IAMClient({});
+  const userName = process.env.AWS_DEPLOYER_USER || 'ap-deployer';
+
+  logger.info(`Creating deployer user ${userName}...`);
+
   try {
-    // Try to get existing user first
-    await iamClient.send(new GetUserCommand({ UserName: userName }));
-    logger.info(`User ${userName} already exists, continuing...`);
-  } catch (err) {
-    assertError(err);
-    if (err.name === 'NoSuchEntity') {
-      // User doesn't exist, create it
+    // Create user if it doesn't exist
+    try {
       await iamClient.send(new CreateUserCommand({ UserName: userName }));
       logger.info(`Created user: ${userName}`);
-    } else {
-      throw err;
+    } catch (err) {
+      assertError(err);
+      if (err.name === 'EntityAlreadyExistsException') {
+        logger.info(`User ${userName} already exists`);
+      } else {
+        throw err;
+      }
     }
-  }
 
-  // Ensure policy is attached
-  const policyArn = 'arn:aws:iam::aws:policy/AdministratorAccess';
-  await iamClient.send(
-    new AttachUserPolicyCommand({
-      PolicyArn: policyArn,
-      UserName: userName,
-    }),
-  );
-  logger.info(`Attached policy ${policyArn} to ${userName}`);
+    // Set up group and attach policies
+    await setupDeployerGroup(environment);
 
-  // Delete existing access keys
-  await deleteExistingAccessKeys(iamClient, userName);
+    // Delete existing access keys
+    await deleteExistingAccessKeys(iamClient, userName);
 
-  // Create new access key
-  const accessKey = await iamClient.send(new CreateAccessKeyCommand({ UserName: userName }));
-  if (!accessKey.AccessKey?.AccessKeyId || !accessKey.AccessKey?.SecretAccessKey) {
-    throw new Error('Failed to create access key');
-  }
+    // Create new access key
+    const { AccessKey } = await iamClient.send(new CreateAccessKeyCommand({ UserName: userName }));
 
-  return accessKey.AccessKey;
-}
-
-(async () => {
-  try {
-    const iamClient = new IAMClient({});
-    const userName = process.env.AWS_DEPLOYER_USER || 'ap-deployer';
-
-    const accessKey = await getOrCreateUser(iamClient, userName);
-    if (!accessKey.AccessKeyId || !accessKey.SecretAccessKey) {
-      throw new Error('Failed to get access key details');
+    if (!AccessKey?.AccessKeyId || !AccessKey?.SecretAccessKey) {
+      throw new Error('Failed to create access key');
     }
-    printEnv(accessKey.AccessKeyId, accessKey.SecretAccessKey);
+
+    logger.info('Created access key:');
+    logger.info(`Access Key ID: ${AccessKey.AccessKeyId}`);
+    logger.info(`Secret Access Key: ${AccessKey.SecretAccessKey}`);
+
+    if (addToVercelEnv) {
+      await addToVercel(AccessKey.AccessKeyId, AccessKey.SecretAccessKey, environment);
+      logger.info('✓ Successfully added AWS credentials to Vercel environment');
+    }
+
+    logger.info('✓ Successfully created deployer');
+    process.exit(0);
   } catch (error) {
     assertError(error);
-    logger.error('Failed to create/get deployer:', error);
+    logger.error('Failed to create deployer:', error);
     process.exit(1);
   }
-})();
+}
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+const addToVercelFlag = args.includes('--add-to-vercel');
+const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || process.env.VERCEL_ENV || 'development';
+
+logger.info(`Starting setup for environment: ${environment}`);
+void createDeployer(environment, addToVercelFlag);

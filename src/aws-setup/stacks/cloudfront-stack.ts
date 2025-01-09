@@ -1,21 +1,20 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_cloudfront as cloudfront } from 'aws-cdk-lib';
-import { aws_cloudfront_origins as origins } from 'aws-cdk-lib';
-import { aws_s3 as s3 } from 'aws-cdk-lib';
+import { aws_cloudfront as cloudfront, aws_s3 as s3 } from 'aws-cdk-lib';
+import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Construct } from 'constructs';
 
 import { createLogger } from '@/utils/logger';
 
+import { BaseStack, BaseStackProps } from './base-stack';
 import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(import.meta.filename);
 
-interface CloudFrontStackProps extends cdk.StackProps {
-  environment: string;
+interface CloudFrontStackProps extends BaseStackProps {
   bucket: s3.IBucket;
 }
 
-export class CloudFrontStack extends cdk.Stack {
+export class CloudFrontStack extends BaseStack {
   public readonly distributionDomainOutput: cdk.CfnOutput;
 
   constructor(scope: Construct, id: string, props: CloudFrontStackProps) {
@@ -24,9 +23,12 @@ export class CloudFrontStack extends cdk.Stack {
     const cfg = getEnvConfig(props.environment);
     logger.info(`Creating CloudFront stack for environment: ${props.environment}`);
 
+    // Add service-specific tag
+    cdk.Tags.of(this).add('service', 'cloudfront');
+
     const distribution = new cloudfront.Distribution(this, 'ApadanaDistribution', {
       defaultBehavior: {
-        origin: new origins.S3Origin(props.bucket),
+        origin: new S3Origin(props.bucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,

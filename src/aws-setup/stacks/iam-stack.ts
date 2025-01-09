@@ -6,17 +6,16 @@ import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(import.meta.filename);
+import { BaseStack, BaseStackProps } from './base-stack';
 
-interface IamStackProps extends cdk.StackProps {
-  environment: string;
-  removalPolicy?: cdk.RemovalPolicy;
-}
-
-export class IamStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: IamStackProps) {
+export class IamStack extends BaseStack {
+  constructor(scope: Construct, id: string, props: BaseStackProps) {
     super(scope, id, props);
 
     logger.info(`Creating IAM stack for environment: ${props.environment}`);
+
+    // Add service-specific tag
+    cdk.Tags.of(this).add('service', 'iam');
 
     // Create policy for deployment and operations
     const devPolicy = new iam.ManagedPolicy(this, 'DevDeploymentPolicy', {

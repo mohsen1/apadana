@@ -4,17 +4,16 @@ import { Construct } from 'constructs';
 
 import { createLogger } from '@/utils/logger';
 
+import { BaseStack, BaseStackProps } from './base-stack';
 import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(import.meta.filename);
 
-interface ElastiCacheStackProps extends cdk.StackProps {
-  environment: string;
+interface ElastiCacheStackProps extends BaseStackProps {
   vpc: ec2.IVpc;
-  removalPolicy?: cdk.RemovalPolicy;
 }
 
-export class ElastiCacheStack extends cdk.Stack {
+export class ElastiCacheStack extends BaseStack {
   public readonly redisHostOutput: cdk.CfnOutput;
   public readonly redisSecurityGroup: ec2.SecurityGroup;
   public readonly redisSecurityGroupOutput: cdk.CfnOutput;
@@ -25,10 +24,8 @@ export class ElastiCacheStack extends cdk.Stack {
     const cfg = getEnvConfig(props.environment);
     logger.info(`Creating ElastiCache stack for environment: ${props.environment}`);
 
-    cdk.Tags.of(this).add('managed-by', 'apadana-aws-setup');
-    cdk.Tags.of(this).add('environment', props.environment);
+    // Add service-specific tag
     cdk.Tags.of(this).add('service', 'redis');
-    cdk.Tags.of(this).add('created-at', new Date().toISOString());
 
     const subnetGroup = new elasticache.CfnSubnetGroup(this, 'ElastiCacheSubnetGroup', {
       cacheSubnetGroupName: `apadana-elasticache-subnet-group-${cfg.environment}`,

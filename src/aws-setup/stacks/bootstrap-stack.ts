@@ -4,12 +4,10 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-interface BootstrapStackProps extends cdk.StackProps {
-  environment: string;
-}
+import { BaseStack, BaseStackProps } from './base-stack';
 
-export class BootstrapStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: BootstrapStackProps) {
+export class BootstrapStack extends BaseStack {
+  constructor(scope: Construct, id: string, props: BaseStackProps) {
     super(scope, id, props);
 
     // Create the CDK toolkit bucket with standard name

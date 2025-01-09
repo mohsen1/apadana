@@ -3,25 +3,47 @@ import { aws_ec2 as ec2, aws_ecs as ecs, aws_elasticloadbalancingv2 as elb } fro
 import { aws_secretsmanager as secretsmanager } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { pki } from 'node-forge';
+import seedrandom from 'seedrandom';
 
 import { createLogger } from '@/utils/logger';
 
+import { BaseStack, BaseStackProps } from './base-stack';
 import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(import.meta.filename);
 
 // Helper function to generate self-signed certificate
-function generateSelfSignedCertificate(domain: string) {
-  // Generate key pair
-  const keys = pki.rsa.generateKeyPair(2048);
+function generateSelfSignedCertificate(domain: string, environment: string) {
+  // Use a deterministic seed based on domain and environment
+  const seed = `${domain}-${environment}-fixed-seed-v1`;
+  const random = seedrandom(seed);
 
-  // Create certificate
+  // Generate deterministic key pair using seeded random
+  const keys = pki.rsa.generateKeyPair({
+    bits: 2048,
+    e: 0x10001, // 65537
+    prng: {
+      // Implement deterministic random number generator
+      getBytesSync: (count: number) => {
+        const bytes = new Uint8Array(count);
+        for (let i = 0; i < count; i++) {
+          bytes[i] = Math.floor(random() * 256);
+        }
+        return String.fromCharCode.apply(null, Array.from(bytes));
+      },
+    },
+  });
+
+  // Create certificate with fixed dates
   const cert = pki.createCertificate();
   cert.publicKey = keys.publicKey;
   cert.serialNumber = '01';
-  cert.validity.notBefore = new Date();
-  cert.validity.notAfter = new Date();
-  cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
+
+  // Use fixed dates for certificate validity
+  const baseDate = new Date('2025-01-01T00:00:00Z');
+  cert.validity.notBefore = baseDate;
+  cert.validity.notAfter = new Date(baseDate);
+  cert.validity.notAfter.setFullYear(baseDate.getFullYear() + 10); // 10 year validity
 
   const attrs = [
     {
@@ -46,14 +68,14 @@ function generateSelfSignedCertificate(domain: string) {
   };
 }
 
-interface RedisProxyStackProps extends cdk.StackProps {
+interface RedisProxyStackProps extends BaseStackProps {
   environment: string;
   vpc: ec2.IVpc;
   redisEndpoint: string;
   removalPolicy?: cdk.RemovalPolicy;
 }
 
-export class RedisProxyStack extends cdk.Stack {
+export class RedisProxyStack extends BaseStack {
   public readonly proxyEndpointOutput: cdk.CfnOutput;
   public readonly proxySecurityGroupOutput: cdk.CfnOutput;
   public readonly proxySecurityGroup: ec2.SecurityGroup;
@@ -64,10 +86,8 @@ export class RedisProxyStack extends cdk.Stack {
     const cfg = getEnvConfig(props.environment);
     logger.info(`Creating Redis Proxy stack for environment: ${props.environment}`);
 
-    cdk.Tags.of(this).add('managed-by', 'apadana-aws-setup');
-    cdk.Tags.of(this).add('environment', props.environment);
+    // Add service-specific tag
     cdk.Tags.of(this).add('service', 'redis-proxy');
-    cdk.Tags.of(this).add('created-at', new Date().toISOString());
 
     // Create an ECS cluster
     const cluster = new ecs.Cluster(this, 'RedisProxyCluster', {
@@ -87,7 +107,7 @@ export class RedisProxyStack extends cdk.Stack {
 
     // Generate self-signed certificate
     const domain = `redis-proxy.${cfg.environment}.internal`;
-    const { cert: certPem, key: keyPem } = generateSelfSignedCertificate(domain);
+    const { cert: certPem, key: keyPem } = generateSelfSignedCertificate(domain, props.environment);
 
     // Store certificate and key in Secrets Manager
     const certSecret = new secretsmanager.Secret(this, 'RedisProxyCertSecret', {
