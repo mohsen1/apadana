@@ -85,8 +85,8 @@ export function useFileUploader({
       return `/images/e2e/uploads/${key}`;
     }
 
-    if (!CLOUDFRONT_DOMAIN) {
-      throw new Error('CLOUDFRONT_DOMAIN is not set');
+    if (CLOUDFRONT_DOMAIN) {
+      return `https://${CLOUDFRONT_DOMAIN}/${key}`;
     }
 
     return `https://${UPLOAD_BUCKET}.s3.${UPLOAD_REGION}.amazonaws.com/${key}`;
