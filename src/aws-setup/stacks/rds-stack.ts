@@ -1,9 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_rds as rds } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_rds as rds, aws_secretsmanager as secretsmanager } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { createLogger } from '@/utils/logger';
 
+import { BaseStack } from './base-stack';
 import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(__filename);
@@ -14,7 +15,7 @@ interface RdsStackProps extends cdk.StackProps {
   removalPolicy?: cdk.RemovalPolicy;
 }
 
-export class RdsStack extends cdk.Stack {
+export class RdsStack extends BaseStack {
   public readonly rdsHostOutput: cdk.CfnOutput;
   public readonly rdsSecretNameOutput: cdk.CfnOutput;
 
@@ -23,6 +24,9 @@ export class RdsStack extends cdk.Stack {
 
     const cfg = getEnvConfig(props.environment);
     logger.info(`Creating RDS stack for environment: ${props.environment}`);
+
+    // Add service-specific tag
+    cdk.Tags.of(this).add('service', 'rds');
 
     const dbSG = new ec2.SecurityGroup(this, 'RdsSecurityGroup', {
       vpc: props.vpc,

@@ -5,6 +5,9 @@ import { Construct } from 'constructs';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
+import { BaseStack } from './base-stack';
+import { getEnvConfig } from '../config/factory';
+
 const logger = createLogger(__filename);
 
 interface IamStackProps extends cdk.StackProps {
@@ -12,11 +15,15 @@ interface IamStackProps extends cdk.StackProps {
   removalPolicy?: cdk.RemovalPolicy;
 }
 
-export class IamStack extends cdk.Stack {
+export class IamStack extends BaseStack {
   constructor(scope: Construct, id: string, props: IamStackProps) {
     super(scope, id, props);
 
+    const cfg = getEnvConfig(props.environment);
     logger.info(`Creating IAM stack for environment: ${props.environment}`);
+
+    // Add service-specific tag
+    cdk.Tags.of(this).add('service', 'iam');
 
     // Create policy for deployment and operations
     const devPolicy = new iam.ManagedPolicy(this, 'DevDeploymentPolicy', {

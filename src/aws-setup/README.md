@@ -227,4 +227,3 @@ AWS_FORCE_REPLACE=true pnpm cdk deploy StackName-environment
   - managed-by: apadana-aws-setup
   - environment: [development/preview/production]
   - service: [redis/rds/etc]
-  - created-at: [timestamp]

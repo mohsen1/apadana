@@ -5,6 +5,8 @@ import { Construct } from 'constructs';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
+import { BaseStack } from './base-stack';
+
 const logger = createLogger(__filename);
 
 interface SharedNetworkStackProps extends cdk.StackProps {
@@ -12,13 +14,16 @@ interface SharedNetworkStackProps extends cdk.StackProps {
   removalPolicy?: cdk.RemovalPolicy;
 }
 
-export class SharedNetworkStack extends cdk.Stack {
+export class SharedNetworkStack extends BaseStack {
   public readonly vpc: ec2.IVpc;
 
   constructor(scope: Construct, id: string, props: SharedNetworkStackProps) {
     super(scope, id, props);
 
     logger.info(`Creating/importing network stack for environment: ${props.environment}`);
+
+    // Add service-specific tag
+    cdk.Tags.of(this).add('service', 'network');
 
     // Try to look up existing VPC first
     try {
@@ -56,7 +61,6 @@ export class SharedNetworkStack extends cdk.Stack {
 
       cdk.Tags.of(this.vpc).add('managed-by', 'apadana-aws-setup');
       cdk.Tags.of(this.vpc).add('environment', props.environment);
-      cdk.Tags.of(this.vpc).add('created-at', new Date().toISOString());
 
       logger.debug('Created new VPC');
     }

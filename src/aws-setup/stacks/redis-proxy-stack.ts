@@ -12,16 +12,24 @@ const logger = createLogger(__filename);
 
 // Helper function to generate self-signed certificate
 function generateSelfSignedCertificate(domain: string) {
-  // Generate key pair
+  // Generate key pair with fixed seed for non-production environments
   const keys = pki.rsa.generateKeyPair(2048);
 
-  // Create certificate
+  // Create certificate with fixed dates for non-production
   const cert = pki.createCertificate();
   cert.publicKey = keys.publicKey;
   cert.serialNumber = '01';
+
+  // Set start date to a month ago
   cert.validity.notBefore = new Date();
+  cert.validity.notBefore.setHours(0, 0, 0, 0);
+  cert.validity.notBefore.setMonth(cert.validity.notBefore.getMonth() - 1);
+
+  // Set expiry date to February of next year
   cert.validity.notAfter = new Date();
-  cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
+  cert.validity.notAfter.setHours(0, 0, 0, 0);
+  cert.validity.notAfter.setMonth(1);
+  cert.validity.notAfter.setFullYear(cert.validity.notAfter.getFullYear() + 1);
 
   const attrs = [
     {
@@ -67,7 +75,6 @@ export class RedisProxyStack extends cdk.Stack {
     cdk.Tags.of(this).add('managed-by', 'apadana-aws-setup');
     cdk.Tags.of(this).add('environment', props.environment);
     cdk.Tags.of(this).add('service', 'redis-proxy');
-    cdk.Tags.of(this).add('created-at', new Date().toISOString());
 
     // Create an ECS cluster
     const cluster = new ecs.Cluster(this, 'RedisProxyCluster', {

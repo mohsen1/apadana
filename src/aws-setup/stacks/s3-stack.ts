@@ -5,6 +5,7 @@ import { Construct } from 'constructs';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
+import { BaseStack } from './base-stack';
 import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(__filename);
@@ -14,15 +15,18 @@ interface S3StackProps extends cdk.StackProps {
   removalPolicy?: cdk.RemovalPolicy;
 }
 
-export class S3Stack extends cdk.Stack {
-  public readonly bucketNameOutput: cdk.CfnOutput;
+export class S3Stack extends BaseStack {
   public readonly bucket: s3.IBucket;
+  public readonly bucketNameOutput: cdk.CfnOutput;
 
   constructor(scope: Construct, id: string, props: S3StackProps) {
     super(scope, id, props);
 
     const cfg = getEnvConfig(props.environment);
     logger.info(`Creating S3 stack for environment: ${props.environment}`);
+
+    // Add service-specific tag
+    cdk.Tags.of(this).add('service', 's3');
 
     const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`;
     let bucket: s3.IBucket;
