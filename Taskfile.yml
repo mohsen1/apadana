@@ -253,7 +253,7 @@ tasks:
       - task: cdk:deploy
 
   cdk:deploy:
-    desc: Deploy CDK stack
+    desc: Deploy a specific stack to AWS
     cmds:
       - pnpm cdk deploy {{.CLI_ARGS}}
   
@@ -262,11 +262,20 @@ tasks:
     cmds:
       - pnpm cdk deploy --all --require-approval never --concurrency 10 {{.CLI_ARGS}}
 
-  cdk:deploy:resources:
-    desc: Deploy all CDK resources
-    deps: [cdk:validate-deployer]
+  cdk:deploy:prod:
+    desc: Deploy CDK stack in production
     cmds:
-      - pnpm cdk deploy --all {{.CLI_ARGS}}
+      - AWS_DEPLOYMENT_STACK_ENV=production pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}}
+
+  cdk:deploy:preview:
+    desc: Deploy CDK stack in preview
+    cmds:
+      - AWS_DEPLOYMENT_STACK_ENV=preview pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}}
+
+  cdk:deploy:dev:
+    desc: Deploy CDK stack in development
+    cmds:
+      - AWS_DEPLOYMENT_STACK_ENV=development pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}}
 
   cdk:deployer:create:
     desc: Create CDK deployer
