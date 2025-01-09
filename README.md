@@ -52,11 +52,15 @@ You will need access to the following services to run the development environmen
    volta install node
    volta install pnpm
    ```
-3. Install [Vercel CLI](https://vercel.com/docs/cli) (v3.1.0 or higher)
+3. Install [Task](https://taskfile.dev/)
+   ```bash
+   brew install go-task/tap/go-task
+   ```
+4. Install [Vercel CLI](https://vercel.com/docs/cli) (v3.1.0 or higher)
    ```bash
    pnpm install -g vercel
    ```
-4. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+5. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
    ```bash
    brew install --cask docker
    ```
@@ -68,7 +72,7 @@ You will need access to the following services to run the development environmen
    ```bash
    docker compose version
    ```
-5. Install [Git](https://git-scm.com/downloads)
+6. Install [Git](https://git-scm.com/downloads)
    ```bash
    brew install git
    ```
@@ -76,7 +80,7 @@ You will need access to the following services to run the development environmen
 </details>
 
 <details>
-<summary><b style="cursor: pointer;"   >on Linux</b></summary>
+<summary><b style="cursor: pointer;">on Linux</b></summary>
 
 1. Install [Node.js](https://nodejs.org/en) (v20.12.2 or higher)
    ```bash
@@ -88,11 +92,15 @@ You will need access to the following services to run the development environmen
    ```bash
    curl -fsSL https://get.pnpm.io/install.sh | bash
    ```
-3. Install [Docker](https://www.docker.com/get-started)
+3. Install [Task](https://taskfile.dev/)
+   ```bash
+   sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
+   ```
+4. Install [Docker](https://www.docker.com/get-started)
    ```bash
    sudo apt-get install -y docker
    ```
-4. Install [Git](https://git-scm.com/downloads)
+5. Install [Git](https://git-scm.com/downloads)
    ```bash
    sudo apt-get install -y git
    ```
@@ -103,6 +111,19 @@ You will need access to the following services to run the development environmen
 <summary><b style="cursor: pointer;">on Windows</b></summary>
 
 We recommend using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) to run the development environment on Windows. With WSL, you can install Ubuntu and use the same commands as the Linux section.
+
+Alternatively, if you want to use Windows natively:
+
+1. Install [Task](https://taskfile.dev/) using [Scoop](https://scoop.sh/):
+   ```powershell
+   scoop install task
+   ```
+   Or using [Chocolatey](https://chocolatey.org/):
+   ```powershell
+   choco install go-task
+   ```
+
+Then follow the Linux installation steps for other dependencies within WSL.
 
 </details>
 
@@ -137,7 +158,7 @@ This will start all services (Next.js, PostgreSQL, Storybook, Prisma Studio) in 
 > **Note**: The first time you run this command, it will ask for sudo permission to modify your `/etc/hosts` file to add local domain entries.
 
 ```bash
-pnpm start
+task start
 ```
 
 The development environment includes default values for all required environment variables, so you can start developing right away.
@@ -149,32 +170,53 @@ Navigate to [http://dev.apadana.local](http://dev.apadana.local) to see the deve
 To stop the services:
 
 ```bash
-pnpm docker:down
+task docker:down
 ```
 
 To clean up everything including volumes:
 
 ```bash
-pnpm docker:clean
+task docker:clean
 ```
 
-## `package.json` scripts
+## Available Tasks
 
-All commands can be run using `pnpm run <command>` or just `pnpm <command>` for most commands.
+We use [Task](https://taskfile.dev) for running commands. Run `task --list` to see all available tasks. The `task` command is automatically added to your PATH during installation.
 
-Here are a few important commands:
+Here are the most commonly used tasks:
 
-### Main Commands
+### Development
 
-- `start` - Sets up local environment and starts all services using Docker Compose
-- `build` - Generates Prisma client and builds Next.js application
-- `fix` - Runs ESLint with auto-fix and formats code using Prettier
+- `task dev` - Start development environment (Next.js, Prisma, Storybook)
+- `task build` - Build the application
+- `task typecheck` - Run TypeScript type checking
+- `task fix:all` - Fix all code issues (linting and formatting)
 
-### Docker Commands
+### Testing
 
-- `docker:prune` - Removes all unused Docker resources (containers, networks, volumes)
-- `docker:clean` - Stops containers and removes all volumes
-- `docker:down` - Stops all Docker containers
+- `task test:all` - Run all tests in parallel
+- `task test:e2e` - Run E2E tests
+- `task test:unit` - Run unit tests
+- `task test:storybook` - Run Storybook tests
+
+### Docker
+
+- `task docker:dev` - Start development Docker environment
+- `task docker:prod` - Start production Docker environment
+- `task docker:clean` - Clean Docker volumes
+- `task docker:prune` - Remove all unused Docker resources
+
+### Database
+
+- `task prisma:generate` - Generate Prisma client
+- `task prisma:migrate` - Run database migrations
+- `task prisma:seed` - Seed the database
+
+### AWS CDK
+
+- `task cdk:deploy` - Deploy CDK stack
+- `task cdk:destroy` - Destroy CDK stack
+- `task cdk:diff` - Show CDK changes
 
 ## Technology Stack Overview
 

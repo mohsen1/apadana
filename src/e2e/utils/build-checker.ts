@@ -153,7 +153,7 @@ export class BuildChecker {
         logger.info('Source code changes detected, rebuilding...');
 
         logger.debug('Executing docker redeploy command');
-        await execAsync('pnpm docker:prod:redeploy');
+        await execAsync('task docker:prod:redeploy');
 
         logger.info('Redeployed docker app. Now waiting for build to complete...');
         const buildSuccess = await this.#waitForBuild();

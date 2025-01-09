@@ -1,7 +1,16 @@
 #!/bin/bash
 
+# Install task
+./src/scripts/install-task.sh
+
+# Ensure task is in PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+# Create alias for task
+alias tssk="task"
+
 # This is essentially a postinstall
-pnpm prisma:generate
+task prisma:generate
 
 # Exit on error
 set -e
@@ -16,9 +25,9 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AW
 
 # Run preflight checks
 echo "Running preflight checks..."
-pnpm cdk:preflight || exit 1
+task cdk:preflight || exit 1
 
-pnpm cdk:deploy --all --require-approval never --concurrency 10
+task cdk:deploy-ci
 
 # Check deployment time
 end_time=$(date +%s)
@@ -26,7 +35,7 @@ elapsed=$((end_time - start_time))
 if [ $elapsed -ge 2400 ]; then
   echo "Warning: AWS deployment took more than 40 minutes. This is likely because a lot of resources are being deployed."
   echo "Vercel build times are capped at 45 minutes. For faster iterations, consider running locally with:"
-  echo "AWS_DEPLOYMENT_STACK_ENV=$AWS_DEPLOYMENT_STACK_ENV pnpm cdk:deploy --all"
+  echo "AWS_DEPLOYMENT_STACK_ENV=$AWS_DEPLOYMENT_STACK_ENV task cdk:deploy --all"
   exit 124
 fi
 
@@ -37,7 +46,7 @@ npm install --global --silent vercel@39.2.6
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
-pnpm --silent cdk:env
+task cdk:env
 
 cat /tmp/deployment-values.env | while IFS='=' read -r key value; do
   # Trim the value to remove any whitespace or newlines
@@ -55,17 +64,17 @@ done
 
 # Wait for resources to be ready
 echo "Waiting for AWS resources to be ready..."
-pnpm cdk:wait
+task cdk:wait
 
 # Deploy Prisma migrations
 echo "Deploying database migrations..."
-pnpm prisma:migrate
+task prisma:migrate
 
 # In preview run seed
 if [ "$VERCEL_ENV" == "preview" ]; then
-  pnpm dev:prisma:seed
+  task dev:prisma:seed
 fi
 
 # Build Next.js app
 echo "Building Next.js application..."
-pnpm build
+task build

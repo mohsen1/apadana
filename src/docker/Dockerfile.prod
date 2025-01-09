@@ -7,7 +7,7 @@ WORKDIR /app
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
   apt-get update && \
-  apt-get install -y python3 make g++ wget grep inotify-tools && \
+  apt-get install -y python3 make g++ wget grep inotify-tools curl && \
   rm -rf /var/lib/apt/lists/*
 
 # Setup pnpm
@@ -16,21 +16,20 @@ RUN pnpm config set store-dir /home/node/.pnpm-store \
   && pnpm config set update-notifier false \
   && pnpm config set node-deprecation-warnings false
 
+# Install Task
+RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
-
-# Install http-server globally
-RUN mkdir -p /usr/local/share/pnpm && \
-  pnpm config set global-bin-dir /usr/local/share/pnpm
-
+# Copy task configuration first
+COPY Taskfile.yml ./
 
 # Install dependencies with cache
 COPY pnpm-lock.yaml ./
 RUN --mount=type=cache,target=/home/node/.pnpm-store \
-  pnpm fetch
+  task fetch
 
 COPY package.json ./
 RUN --mount=type=cache,target=/home/node/.pnpm-store \
-  pnpm install --frozen-lockfile --offline
+  task install
 
 # Copy application files
 COPY . .

@@ -41,9 +41,9 @@ function build() {
   echo "[docker-entrypoint.prod.sh] Starting build sequence..."
 
   # Execute commands separately to handle errors properly
-  if ! bash -c "pnpm build" >"$BUILD_IN_PROGRESS_FILE" 2>&1 ||
-    ! bash -c "pnpm prisma:migrate" >>"$BUILD_IN_PROGRESS_FILE" 2>&1 ||
-    ! bash -c "pnpm prisma db seed" >>"$BUILD_IN_PROGRESS_FILE" 2>&1; then
+  if ! bash -c "task build" >"$BUILD_IN_PROGRESS_FILE" 2>&1 ||
+    ! bash -c "task prisma:migrate" >>"$BUILD_IN_PROGRESS_FILE" 2>&1 ||
+    ! bash -c "task dev:prisma:seed" >>"$BUILD_IN_PROGRESS_FILE" 2>&1; then
     echo "[docker-entrypoint.prod.sh] Build failed..."
     cat "$BUILD_IN_PROGRESS_FILE" >"$ERROR_FILE"
     cat "$BUILD_IN_PROGRESS_FILE"
@@ -63,12 +63,12 @@ trap cleanup EXIT
 # Entrypoint
 if build; then
   cleanup
-  pnpm next:start
+  task next:start
 else
   # Start placeholder server first
   echo "[docker-entrypoint.prod.sh] Starting placeholder server while watching for changes..."
 
   # Then watch and rebuild
   watch_and_rebuild
-  pnpm next:start
+  task next:start
 fi

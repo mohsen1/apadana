@@ -63,7 +63,7 @@ jobs:
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Run update script
-        run: pnpm tsx src/scripts/update-packages.ts --limit ${{ github.event.inputs.package-limit }}
+        run: task update-packages --limit ${{ github.event.inputs.package-limit }}
 
       - name: Check for changes
         id: git-check
