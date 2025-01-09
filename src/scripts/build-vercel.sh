@@ -37,8 +37,10 @@ npm install --global --silent vercel@39.2.6
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
-# [print-deployment-values.ts] Deployment values written to /tmp/deployment-values.env
 pnpm --silent aws:env
+
+echo "Deployment values:"
+cat /tmp/deployment-values.env
 
 cat /tmp/deployment-values.env | while IFS='=' read -r key value; do
   # Write the environment variable to a temporary file.
