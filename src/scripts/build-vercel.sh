@@ -43,14 +43,16 @@ echo "Deployment values:"
 cat /tmp/deployment-values.env
 
 cat /tmp/deployment-values.env | while IFS='=' read -r key value; do
+  # Trim the value to remove any whitespace or newlines
+  value=$(echo "$value" | tr -d '\n' | xargs)
   # Write the environment variable to a temporary file.
   # This is done because of how Vercel CLI handles environment variables.
   filename="/tmp/__TEMP_ENV_VAR__$key.env"
-  echo "$value" >$filename
+  echo -n "$value" >$filename
   cat $filename | vercel env add "$key" "$VERCEL_ENV" --force --token "$VERCEL_TOKEN"
   rm -f $filename
   # Export the environment variable to the current shell session for the build script to use.
-  export $key=$value
+  export $key="$value"
 
   # Wait for resources to be ready
   echo "Waiting for AWS resources to be ready..."
