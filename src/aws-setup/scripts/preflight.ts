@@ -24,7 +24,35 @@ const REQUIRED_PERMISSIONS = [
   'secretsmanager:GetSecretValue',
   'secretsmanager:DescribeSecret',
   'secretsmanager:ListSecrets',
-];
+] as const;
+
+interface PolicyStatement {
+  Effect: 'Allow' | 'Deny';
+  Action: string | string[];
+  Resource?: string | string[];
+  Condition?: Record<string, Record<string, string | string[]>>;
+}
+
+interface PolicyDocument {
+  Version: string;
+  Statement: PolicyStatement[];
+}
+
+function decodePolicy(policyDocument: string): PolicyDocument {
+  try {
+    // First try parsing as is
+    return JSON.parse(policyDocument) as PolicyDocument;
+  } catch (err) {
+    assertError(err);
+    try {
+      // If that fails, try URL decoding first
+      return JSON.parse(decodeURIComponent(policyDocument)) as PolicyDocument;
+    } catch (decodeErr) {
+      logger.error('Failed to decode policy document:', policyDocument);
+      throw decodeErr;
+    }
+  }
+}
 
 async function validateDeployer(environment: string) {
   const iam = new IAMClient({});
@@ -57,7 +85,7 @@ async function validateDeployer(environment: string) {
     }
 
     // Check each policy's permissions
-    let foundPermissions = new Set<string>();
+    const foundPermissions = new Set<string>();
 
     for (const policy of AttachedPolicies) {
       if (!policy.PolicyArn) continue;
@@ -76,14 +104,14 @@ async function validateDeployer(environment: string) {
 
       const document =
         typeof PolicyVersion.Document === 'string'
-          ? JSON.parse(PolicyVersion.Document)
-          : PolicyVersion.Document;
+          ? decodePolicy(PolicyVersion.Document)
+          : (PolicyVersion.Document as PolicyDocument);
 
       // Extract permissions from policy
-      document.Statement.forEach((statement: any) => {
+      document.Statement.forEach((statement) => {
         if (statement.Effect === 'Allow') {
           const actions = Array.isArray(statement.Action) ? statement.Action : [statement.Action];
-          actions.forEach((action: string) => foundPermissions.add(action));
+          actions.forEach((action) => foundPermissions.add(action));
         }
       });
     }
