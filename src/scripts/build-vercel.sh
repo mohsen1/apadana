@@ -48,16 +48,17 @@ cat /tmp/deployment-values.env | while IFS='=' read -r key value; do
   # Write the environment variable to a temporary file.
   # This is done because of how Vercel CLI handles environment variables.
   filename="/tmp/__TEMP_ENV_VAR__$key.env"
+  # Only write the value part, not the key=value format
   echo -n "$value" >$filename
   cat $filename | vercel env add "$key" "$VERCEL_ENV" --force --token "$VERCEL_TOKEN"
   rm -f $filename
   # Export the environment variable to the current shell session for the build script to use.
   export $key="$value"
-
-  # Wait for resources to be ready
-  echo "Waiting for AWS resources to be ready..."
-  pnpm cdk:wait
 done
+
+# Wait for resources to be ready
+echo "Waiting for AWS resources to be ready..."
+pnpm cdk:wait
 
 # Deploy Prisma migrations
 echo "Deploying database migrations..."
