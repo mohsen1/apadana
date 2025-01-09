@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install development dependencies
 RUN apt-get update && \
-  apt-get install -y python3 make g++ inotify-tools wget grep && \
+  apt-get install -y python3 make g++ inotify-tools wget grep curl && \
   rm -rf /var/lib/apt/lists/*
 
 # Setup pnpm
@@ -14,15 +14,18 @@ RUN pnpm config set store-dir /home/node/.pnpm-store \
   && pnpm config set update-notifier false \
   && pnpm config set node-deprecation-warnings false
 
+# Install Task
+RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
 # Fetch dependencies first
 COPY pnpm-lock.yaml ./
 RUN --mount=type=cache,target=/home/node/.pnpm-store,id=pnpm-store \
-  pnpm fetch
+  task fetch
 
 # Install dependencies from store
 COPY package.json ./
 RUN --mount=type=cache,target=/home/node/.pnpm-store,id=pnpm-store \
-  pnpm install --offline --frozen-lockfile
+  task install
 
 ENV NODE_ENV=development \
   NODE_OPTIONS='--max-old-space-size=4096 --no-warnings'

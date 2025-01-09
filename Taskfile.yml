@@ -1,0 +1,238 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Build the application
+    cmds:
+      - pnpm prisma generate --schema=src/prisma/schema.prisma --no-hints
+      - NEXT_CONFIG_FILE=config/next.config.ts pnpm next build
+
+  dev:
+    desc: Start development environment
+    cmds:
+      - pnpm concurrently --color --prefix-colors "blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold" npm:dev:*
+
+  dev:next:
+    desc: Start Next.js development server
+    cmds:
+      - pnpm next dev --turbo
+
+  dev:prisma:
+    desc: Watch Prisma schema changes
+    cmds:
+      - pnpm prisma generate --schema=src/prisma/schema.prisma --no-hints --watch
+
+  dev:prisma:migrate:
+    desc: Run Prisma migrations
+    cmds:
+      - pnpm prisma migrate dev --schema=src/prisma/schema.prisma --name $(date +%Y%m%d%H%M%S)
+
+  dev:prisma:seed:
+    desc: Seed the database
+    cmds:
+      - pnpm prisma db seed
+
+  dev:prisma:studio:
+    desc: Start Prisma Studio
+    cmds:
+      - pnpm nodemon --watch prisma/schema.prisma --exec 'prisma studio --schema=src/prisma/schema.prisma --browser none'
+
+  dev:storybook:
+    desc: Start Storybook development server
+    cmds:
+      - pnpm storybook dev --quiet --port=6006 --no-open | grep -v -iE 'info|warn' | grep -v '^$'
+
+  docker:
+    desc: Docker related tasks
+    cmds:
+      - task: docker:build
+
+  docker:build:
+    desc: Build Docker images
+    cmds:
+      - DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml build --parallel
+
+  docker:clean:
+    desc: Clean Docker volumes
+    cmds:
+      - docker-compose -f src/docker/docker-compose.yml down -v
+
+  docker:dev:
+    desc: Start development Docker environment
+    cmds:
+      - DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml up app_dev
+
+  docker:down:
+    desc: Stop Docker containers
+    cmds:
+      - docker-compose -f src/docker/docker-compose.yml down
+
+  docker:prod:
+    desc: Start production Docker environment
+    cmds:
+      - DOCKER_BUILDKIT=1 docker-compose -f src/docker/docker-compose.yml up app_prod
+
+  docker:prod:rebuild:
+    desc: Rebuild production Docker image
+    cmds:
+      - docker-compose -f src/docker/docker-compose.yml build app_prod --parallel
+
+  docker:prod:redeploy:
+    desc: Rebuild and restart production container
+    cmds:
+      - task: docker:prod:rebuild
+      - task: docker:prod:restart
+
+  docker:prod:restart:
+    desc: Restart production container
+    cmds:
+      - docker-compose -f src/docker/docker-compose.yml up -d --no-deps app_prod
+
+  docker:prune:
+    desc: Prune Docker system
+    cmds:
+      - docker system prune -af --volumes
+
+  test:
+    desc: Run all tests
+    cmds:
+      - pnpm vitest run --config=config/vitest.config.ts
+
+  test:e2e:
+    desc: Run E2E tests against prod environment
+    cmds:
+      - BASE_URL=https://prod.apadana.local E2E_TESTING_SECRET=e2e_testing_secret_for_prod pnpm playwright test --config=src/e2e/playwright.config.ts
+
+  test:e2e:ci:
+    desc: Run E2E tests in CI
+    cmds:
+      - pnpm playwright test --config=src/e2e/playwright.config.ts
+
+  test:e2e:dev:
+    desc: Run E2E tests against dev environment
+    cmds:
+      - BASE_URL=https://dev.apadana.local E2E_TESTING_SECRET=e2e_testing_secret_for_dev pnpm playwright test --config=src/e2e/playwright.config.ts
+
+  test:e2e:prod:
+    desc: Run E2E tests against production
+    cmds:
+      - BASE_URL=https://www.apadana.app pnpm playwright test --config=src/e2e/playwright.config.ts
+
+  test:e2e:docker:
+    desc: Run E2E tests in Docker
+    cmds:
+      - docker compose -f src/docker/docker-compose.yml up playwright
+      - pnpm playwright show-report .next/playwright-report/html
+
+  fix:
+    desc: Fix linting and formatting issues
+    cmds:
+      - pnpm concurrently --color --prefix-colors "blue.bold,magenta.bold,green.bold,yellow.bold,cyan.bold" 'pnpm lint --fix' 'pnpm format'
+
+  format:
+    desc: Format code
+    cmds:
+      - pnpm prettier -w **/*.{json,css,md,webmanifest,yml,yaml}
+
+  format:check:
+    desc: Check code formatting
+    cmds:
+      - pnpm prettier -c **/*.{json,css,md,webmanifest,yml,yaml}
+
+  lint:
+    desc: Lint code
+    cmds:
+      - pnpm eslint --config=config/eslint.config.mjs
+
+  lint:strict:
+    desc: Lint code with strict rules
+    cmds:
+      - pnpm eslint --max-warnings=0 --config=config/eslint.config.mjs
+
+  cdk:
+    desc: AWS CDK related tasks
+    cmds:
+      - task: cdk:deploy
+
+  cdk:deploy:
+    desc: Deploy CDK stack
+    cmds:
+      - pnpm cdk deploy
+
+  cdk:deploy:resources:
+    desc: Deploy all CDK resources
+    cmds:
+      - pnpm cdk:validate-deployer
+      - pnpm cdk deploy --all
+
+  cdk:deployer:create:
+    desc: Create CDK deployer
+    cmds:
+      - pnpm tsx src/aws-setup/scripts/create-deployer.ts
+
+  cdk:destroy:
+    desc: Destroy CDK stack
+    cmds:
+      - pnpm cdk destroy --all
+
+  cdk:diff:
+    desc: Show CDK diff
+    cmds:
+      - pnpm cdk diff
+
+  cdk:preflight:
+    desc: Run CDK preflight checks
+    cmds:
+      - pnpm tsx src/aws-setup/scripts/preflight.ts
+
+  cdk:env:
+    desc: Print CDK deployment values
+    cmds:
+      - pnpm tsx src/aws-setup/scripts/print-deployment-values.ts
+
+  cdk:synth:
+    desc: Synthesize CDK app
+    cmds:
+      - pnpm cdk synth
+
+  cdk:wait:
+    desc: Wait for CDK resources
+    cmds:
+      - pnpm tsx src/aws-setup/scripts/wait-for-ready.ts
+
+  setup:local:
+    desc: Setup local development environment
+    cmds:
+      - pnpm tsx src/scripts/setup-local-dev.ts
+
+  start:
+    desc: Start the application
+    cmds:
+      - task: setup:local
+      - DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f src/docker/docker-compose.yml up --build
+
+  typecheck:
+    desc: Run TypeScript type checking
+    cmds:
+      - task: prisma:generate
+      - pnpm tsc --noEmit --incremental false
+
+  prisma:generate:
+    desc: Generate Prisma client
+    cmds:
+      - pnpm prisma generate --schema=src/prisma/schema.prisma --no-hints
+
+  prisma:migrate:
+    desc: Run Prisma migrations
+    cmds:
+      - pnpm prisma migrate deploy --schema=src/prisma/schema.prisma
+
+  prisma:watch:
+    desc: Watch Prisma schema changes
+    cmds:
+      - pnpm prisma generate --schema=src/prisma/schema.prisma --watch
+
+  update-packages:
+    desc: Update npm packages
+    cmds:
+      - pnpm tsx src/scripts/update-packages.ts 
