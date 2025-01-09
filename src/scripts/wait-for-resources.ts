@@ -45,7 +45,7 @@ async function waitForResources(env: string, maxAttempts = 30): Promise<boolean>
 }
 
 // Allow running directly from command line
-if (require.main === module) {
+if (import.meta.url === new URL(import.meta.url).href) {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || process.argv[2];
   if (!env) {
     logger.error('Environment not specified');

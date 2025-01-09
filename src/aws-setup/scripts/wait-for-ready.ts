@@ -180,6 +180,6 @@ export async function main() {
   }
 }
 
-if (require.main === module) {
+if (import.meta.url === new URL(import.meta.url).href) {
   void main();
 }
