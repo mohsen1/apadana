@@ -2,6 +2,7 @@
 import * as cdk from 'aws-cdk-lib';
 import 'source-map-support/register';
 
+import { NextJsStack } from '@/aws-setup/stacks/nextjs-stack';
 import { createLogger } from '@/utils/logger';
 
 import { CloudFrontStack } from './stacks/cloudfront-stack';
@@ -69,5 +70,11 @@ new RedisProxyStack(app, `ap-redis-proxy-${environment}`, {
   removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
 });
 logger.debug('Created Redis proxy stack');
+
+new NextJsStack(app, `ap-nextjs-${environment}`, {
+  environment,
+  vpc: sharedNetworkStack.vpc,
+});
+logger.debug('Created NextJS stack');
 
 app.synth();

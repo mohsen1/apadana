@@ -164,6 +164,9 @@ importers:
       axios:
         specifier: ^1.7.9
         version: 1.7.9
+      cdk-nextjs:
+        specifier: ^0.0.12
+        version: 0.0.12(aws-cdk-lib@2.174.0(constructs@10.4.2))(constructs@10.4.2)
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -5864,6 +5867,13 @@ packages:
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
+
+  cdk-nextjs@0.0.12:
+    resolution: {integrity: sha512-IjYb27xzzHEV30YBgR42bWxm+mkyGBJyzirTf76ptIIrlSlEx2NKzOtdtsgl70TBCy8IaQWdFIDAnAHPzlEz2A==}
+    engines: {node: '>= 20.0.0'}
+    peerDependencies:
+      aws-cdk-lib: ^2.172.0
+      constructs: ^10.0.5
 
   chai@5.1.2:
     resolution: {integrity: sha512-aGtmf24DW6MLHHG5gCx4zaI3uBq3KRtxeVs0DjFH6Z0rDNbsvTxFASFvdj79pxjxZ8/5u3PIiN3IwEIQkiiuPw==}
@@ -18298,6 +18308,11 @@ snapshots:
   case-sensitive-paths-webpack-plugin@2.4.0: {}
 
   ccount@2.0.1: {}
+
+  cdk-nextjs@0.0.12(aws-cdk-lib@2.174.0(constructs@10.4.2))(constructs@10.4.2):
+    dependencies:
+      aws-cdk-lib: 2.174.0(constructs@10.4.2)
+      constructs: 10.4.2
 
   chai@5.1.2:
     dependencies:
