@@ -87,7 +87,7 @@ export default defineConfig({
     }
 
     return {
-      command: 'pnpm storybook',
+      command: 'task dev:storybook',
       url: 'http://localhost:6006',
       reuseExistingServer: !process.env.CI,
       timeout: 120000,
