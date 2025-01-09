@@ -27,11 +27,11 @@ const logger = createLogger(import.meta.filename, 'debug');
   let cloudfrontDomain = '';
   const awsRegion = process.env.AWS_REGION?.trim() || '';
 
-  logger.info(`Using AWS region: ${awsRegion}`);
+  logger.debug(`Using AWS region: "${awsRegion}"`);
 
   for (const stackName of stackNames) {
     try {
-      logger.info(`Processing stack: ${stackName}`);
+      logger.debug(`Describing stack: ${stackName}`);
       const res = await cfClient.send(new DescribeStacksCommand({ StackName: stackName }));
       const outputs = res.Stacks?.[0]?.Outputs || [];
 
@@ -42,13 +42,13 @@ const logger = createLogger(import.meta.filename, 'debug');
         // Check for Redis Proxy
         if (key === 'RedisProxyEndpoint' && val) {
           redisUrl = `rediss://${val}:6379`;
-          logger.info('Found Redis proxy endpoint');
+          logger.debug('Found Redis proxy endpoint');
         }
 
         // Check for Redis (fallback to direct endpoint if proxy not available)
         if (key === 'RedisEndpoint' && val && !redisUrl) {
           redisUrl = `rediss://${val}:6379`;
-          logger.info('Found Redis endpoint');
+          logger.debug('Found Redis endpoint');
         }
 
         // Check for RDS
@@ -56,7 +56,7 @@ const logger = createLogger(import.meta.filename, 'debug');
           const host = val;
           const secretKey = outputs.find((o) => o.OutputKey === 'RdsSecretName')?.OutputValue || '';
           if (secretKey) {
-            logger.info('Found RDS secret, fetching credentials');
+            logger.debug('Found RDS secret, fetching credentials');
             const secretRes = await secretsClient.send(
               new GetSecretValueCommand({ SecretId: secretKey }),
             );
@@ -68,7 +68,7 @@ const logger = createLogger(import.meta.filename, 'debug');
               const username = secretJson.username;
               const password = secretJson.password;
               dbUrl = `postgresql://${username}:${password}@${host}:5432/ap_db`;
-              logger.info('Built RDS connection string');
+              logger.debug('Built RDS connection string');
             }
           }
         }
@@ -76,17 +76,17 @@ const logger = createLogger(import.meta.filename, 'debug');
         // Check for S3
         if (key === 'BucketName' && val) {
           s3Bucket = val;
-          logger.info('Found S3 bucket name');
+          logger.debug('Found S3 bucket name');
         }
 
         // Check for CloudFront
         if (key === 'DistributionDomain' && val) {
           cloudfrontDomain = val;
-          logger.info('Found CloudFront distribution domain');
+          logger.debug('Found CloudFront distribution domain');
         }
       }
     } catch (err) {
-      logger.error(`Error processing stack ${stackName}`);
+      logger.error(`Error describing stack ${stackName}:`, err);
     }
   }
 
@@ -99,7 +99,7 @@ const logger = createLogger(import.meta.filename, 'debug');
     `NEXT_PUBLIC_CLOUDFRONT_DOMAIN=${cloudfrontDomain.trim()}`,
   ];
 
-  logger.info('Generated environment variables');
+  logger.debug(`Final S3 bucket value: "${s3Bucket.trim()}"`);
 
   const tempFilePath = `/tmp/deployment-values.env`;
   fs.writeFileSync(tempFilePath, fileContent.join('\n'));
