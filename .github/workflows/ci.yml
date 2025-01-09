@@ -102,7 +102,7 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git checkout ${{ github.head_ref }}
-      - run: task fix:all
+      - run: task fix
       - name: Check for changes
         id: git-check
         run: |

@@ -65,3 +65,4 @@ Development & Deployment
 • Run everything except e2e tests in docker
 • Commit all changes before deploying to Vercel
 • Use git commit -m msg1 -m msg2 for multiple messages
+• Use Taskfile to run commands
