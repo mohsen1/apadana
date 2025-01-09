@@ -48,7 +48,7 @@ export class RdsStack extends BaseStack {
       engine: rds.DatabaseInstanceEngine.postgres({
         version: rds.PostgresEngineVersion.VER_15,
       }),
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
       vpc: props.vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
       securityGroups: [dbSG],
@@ -56,7 +56,7 @@ export class RdsStack extends BaseStack {
       allocatedStorage: cfg.rdsAllocatedStorage,
       maxAllocatedStorage: cfg.rdsMaxAllocatedStorage,
       backupRetention: cdk.Duration.days(cfg.backupRetentionDays),
-      deletionProtection: cfg.environment === 'production',
+      deletionProtection: false,
       publiclyAccessible: cfg.publicDbAccess,
       databaseName: 'ap_db',
       instanceIdentifier: `ap-rds-${cfg.environment}`,

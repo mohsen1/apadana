@@ -64,7 +64,7 @@ export class CloudFrontStack extends BaseStack {
       enabled: true,
       comment: `Apadana CDN for ${cfg.environment}`,
       defaultRootObject: 'index.html',
-      enableLogging: true,
+      enableLogging: false,
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
     });
 
