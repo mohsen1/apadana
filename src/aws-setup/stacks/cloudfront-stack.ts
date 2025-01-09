@@ -26,14 +26,39 @@ export class CloudFrontStack extends BaseStack {
     // Add service-specific tag
     cdk.Tags.of(this).add('service', 'cloudfront');
 
+    // Create a response headers policy for CORS
+    const corsHeadersPolicy = new cloudfront.ResponseHeadersPolicy(this, 'CorsHeadersPolicy', {
+      responseHeadersPolicyName: `ap-cors-headers-${cfg.environment}`,
+      corsBehavior: {
+        accessControlAllowCredentials: false,
+        accessControlAllowHeaders: ['*'],
+        accessControlAllowMethods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE'],
+        accessControlAllowOrigins: [
+          'https://*.apadana.local',
+          'https://apadana.app',
+          'https://*.apadana.app',
+          'https://*.vercel.app',
+        ],
+        accessControlExposeHeaders: [
+          'ETag',
+          'x-amz-server-side-encryption',
+          'x-amz-request-id',
+          'x-amz-id-2',
+        ],
+        accessControlMaxAge: cdk.Duration.seconds(3000),
+        originOverride: true,
+      },
+    });
+
     const distribution = new cloudfront.Distribution(this, 'ApadanaDistribution', {
       defaultBehavior: {
         origin: new S3Origin(props.bucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
         cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
         originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
+        responseHeadersPolicy: corsHeadersPolicy,
       },
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
       enabled: true,
