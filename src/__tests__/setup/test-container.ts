@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename, 'warn');
+const logger = createLogger('test-container', 'warn');
 
 const composeFile = 'src/docker/docker-compose.yml';
 

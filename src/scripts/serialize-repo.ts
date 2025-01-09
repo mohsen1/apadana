@@ -15,7 +15,9 @@ import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 type ModelType =
   | 'chatgpt-4o-latest'

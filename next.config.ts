@@ -1,13 +1,15 @@
 import { NextConfig } from 'next';
 
+const shouldCheck = ['production', 'preview'].includes(process.env.VERCEL_ENV || '');
+
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.NEXT_PUBLIC_TEST_ENV === 'e2e',
   reactStrictMode: true,
   typescript: {
-    ignoreBuildErrors: Boolean(process.env.VERCEL),
+    ignoreBuildErrors: !shouldCheck,
   },
   eslint: {
-    ignoreDuringBuilds: Boolean(process.env.VERCEL),
+    ignoreDuringBuilds: !shouldCheck,
   },
 
   images: {

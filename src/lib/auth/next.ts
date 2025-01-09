@@ -3,7 +3,9 @@ import _ from 'lodash';
 
 import { getUserInServer } from '@/lib/auth';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 export interface AuthProtection {
   /**

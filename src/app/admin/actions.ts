@@ -8,7 +8,9 @@ import prisma from '@/lib/prisma/client';
 import { actionClient, UnauthorizedError } from '@/lib/safe-action';
 import { PaginationSchema } from '@/lib/schema';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 export const updateUserRole = actionClient
   .schema(

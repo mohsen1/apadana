@@ -6,17 +6,17 @@ import {
   ListAccessKeysCommand,
 } from '@aws-sdk/client-iam';
 import { spawn } from 'child_process';
-import { createReadStream } from 'fs';
 import { unlink, writeFile } from 'fs/promises';
 import { join } from 'path';
 
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
+// logger.disable(); // Disable logging to have a clean output. For debugging, enable it.
 
 async function setupDeployerGroup(environment: string) {
-  const scriptPath = join(__dirname, 'setup-deployer-group.ts');
+  const scriptPath = join(import.meta.dirname, 'setup-deployer-group.ts');
   return new Promise<void>((resolve, reject) => {
     const child = spawn('tsx', [scriptPath], {
       env: { ...process.env, AWS_DEPLOYMENT_STACK_ENV: environment },
@@ -34,8 +34,8 @@ async function setupDeployerGroup(environment: string) {
 }
 
 async function addToVercel(accessKeyId: string, secretAccessKey: string, environment: string) {
-  const tempKeyFile = join(__dirname, '.temp-key.txt');
-  const tempSecretFile = join(__dirname, '.temp-secret.txt');
+  const tempKeyFile = join(import.meta.dirname, '.temp-key.txt');
+  const tempSecretFile = join(import.meta.dirname, '.temp-secret.txt');
 
   try {
     // Create temp files with credentials

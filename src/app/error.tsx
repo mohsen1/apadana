@@ -7,7 +7,9 @@ import { RiAlarmWarningFill } from 'react-icons/ri';
 
 import { Button } from '@/components/ui/button';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 export default function Error({
   error,

@@ -1,15 +1,6 @@
 import { Resend } from 'resend';
 
-/**
- * Here we use a dynamic import to avoid importing the local-resend module in the main entry file
- * when building for production.
- */
-function getLocalResend() {
-  type ResendModule = typeof import('@/lib/email/local-resend');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { LocalResend } = require('@/lib/email/local-resend') as ResendModule;
-  return new LocalResend();
-}
+import { LocalResend } from './local-resend';
 
 export function isUsingLocalResend() {
   return (
@@ -20,7 +11,7 @@ export function isUsingLocalResend() {
 
 export function getResend() {
   if (isUsingLocalResend()) {
-    return getLocalResend();
+    return new LocalResend();
   }
   return new Resend(process.env.RESEND_API_KEY);
 }

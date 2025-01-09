@@ -1,4 +1,6 @@
 import type { StorybookConfig } from '@storybook/nextjs';
+import autoprefixer from 'autoprefixer';
+import tailwindCss from 'tailwindcss';
 
 import taildwindConfig from '../config/tailwind.config';
 
@@ -37,15 +39,13 @@ const config: StorybookConfig = {
               postcssOptions: {
                 plugins: [
                   [
-                    // eslint-disable-next-line @typescript-eslint/no-require-imports
-                    require('tailwindcss'),
+                    tailwindCss,
                     {
                       config: taildwindConfig,
                     },
                   ],
 
-                  // eslint-disable-next-line @typescript-eslint/no-require-imports
-                  require('autoprefixer'),
+                  autoprefixer,
                 ],
               },
             },

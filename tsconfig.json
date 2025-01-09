@@ -29,13 +29,11 @@
   },
   "include": [
     "next-env.d.ts",
+    ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.js",
     "**/*.mjs",
-    ".storybook/preview.tsx",
-    ".next/types/**/*.ts",
-    "src/prisma/**/*.ts",
     ".storybook/**/*",
     ".github/**/*"
   ],

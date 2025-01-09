@@ -3,8 +3,10 @@ import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma/client';
 
 import { assertError } from '@/utils';
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
 import { createProfileUrl } from '@/utils/url';
+
+const logger = createLogger();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

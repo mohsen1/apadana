@@ -2,6 +2,7 @@
 
 import fs from 'fs';
 import http from 'http';
+import stripAnsi from 'strip-ansi';
 
 // Add error handling for file operations
 /**
@@ -40,9 +41,9 @@ const server = http.createServer((req, res) => {
 
   let buildMessage = '';
   if (isError) {
-    buildMessage = safeReadFile(ERROR_FILE);
+    buildMessage = stripAnsi(safeReadFile(ERROR_FILE));
   } else if (isBuildInProgress) {
-    buildMessage = safeReadFile(BUILD_IN_PROGRESS_FILE);
+    buildMessage = stripAnsi(safeReadFile(BUILD_IN_PROGRESS_FILE));
   }
 
   buildMessage = buildMessage.replace(/\n/g, '<br>');

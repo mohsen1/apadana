@@ -6,7 +6,9 @@ import { sendEarlyAccessEmail } from '@/lib/email/send-email';
 import prisma from '@/lib/prisma/client';
 import { actionClient } from '@/lib/safe-action';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger('early-access-signup');
 
 // Schema for input validation
 const InputSchema = z.object({

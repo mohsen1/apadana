@@ -7,7 +7,7 @@ import { createLogger } from '@/utils/logger';
 import { BaseStack, BaseStackProps } from './base-stack';
 import { getEnvConfig } from '../config/factory';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 interface RdsStackProps extends BaseStackProps {
   vpc: ec2.IVpc;

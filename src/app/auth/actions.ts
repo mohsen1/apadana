@@ -26,8 +26,10 @@ import {
   SuccessfulLoginSchema,
 } from '@/lib/schema';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
 import { createPasswordResetUrl, createVerificationUrl } from '@/utils/url';
+
+const logger = createLogger();
 
 export const login = actionClient
   .use(createRateLimiter({ basedOn: [RATE_LIMIT_BASED_ON_USER_ID, RATE_LIMIT_BASED_ON_IP] }))

@@ -10,7 +10,7 @@ import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 const REQUIRED_PERMISSIONS = [
   'cloudformation:*',

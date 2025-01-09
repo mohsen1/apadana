@@ -3,7 +3,9 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma/client';
 
 import { assertError } from '@/utils';
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 export async function GET() {
   try {

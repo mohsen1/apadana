@@ -32,7 +32,9 @@ import {
   UpdateBookingSchema,
 } from '@/lib/schema';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger('booking-request');
 
 export const getBookingRequest = actionClient
   .schema(GetBookingRequestSchema)

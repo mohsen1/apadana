@@ -2,15 +2,17 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecs as ecs, aws_elasticloadbalancingv2 as elb } from 'aws-cdk-lib';
 import { aws_secretsmanager as secretsmanager } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { pki } from 'node-forge';
+import { createRequire } from 'module';
 import seedrandom from 'seedrandom';
 
 import { createLogger } from '@/utils/logger';
 
 import { BaseStack, BaseStackProps } from './base-stack';
 import { getEnvConfig } from '../config/factory';
+const require = createRequire(import.meta.url);
+const forge = require('node-forge') as typeof import('node-forge');
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 // Helper function to generate self-signed certificate
 function generateSelfSignedCertificate(domain: string, environment: string) {
@@ -19,23 +21,23 @@ function generateSelfSignedCertificate(domain: string, environment: string) {
   const random = seedrandom(seed);
 
   // Generate deterministic key pair using seeded random
-  const keys = pki.rsa.generateKeyPair({
+  const keys = forge.pki.rsa.generateKeyPair({
     bits: 2048,
     e: 0x10001, // 65537
     prng: {
       // Implement deterministic random number generator
       getBytesSync: (count: number) => {
-        const bytes = new Uint8Array(count);
+        const buffer = new forge.util.ByteStringBuffer();
         for (let i = 0; i < count; i++) {
-          bytes[i] = Math.floor(random() * 256);
+          buffer.putByte(Math.floor(random() * 256));
         }
-        return String.fromCharCode.apply(null, Array.from(bytes));
+        return buffer.getBytes();
       },
     },
   });
 
   // Create certificate with fixed dates
-  const cert = pki.createCertificate();
+  const cert = forge.pki.createCertificate();
   cert.publicKey = keys.publicKey;
   cert.serialNumber = '01';
 
@@ -63,8 +65,8 @@ function generateSelfSignedCertificate(domain: string, environment: string) {
   cert.sign(keys.privateKey);
 
   return {
-    cert: pki.certificateToPem(cert),
-    key: pki.privateKeyToPem(keys.privateKey),
+    cert: forge.pki.certificateToPem(cert),
+    key: forge.pki.privateKeyToPem(keys.privateKey),
   };
 }
 

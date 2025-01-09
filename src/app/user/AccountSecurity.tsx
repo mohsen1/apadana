@@ -23,10 +23,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
 
 import { deleteAccount } from './actions';
 import { requestPasswordReset } from '../auth/actions';
+
+const logger = createLogger();
 
 export function AccountSecurity() {
   const router = useRouter();

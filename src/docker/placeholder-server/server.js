@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import http from 'http';
+import path from 'path';
 
 const server = http.createServer((req, res) => {
   if (req.url === '/api/health') {
@@ -11,7 +10,7 @@ const server = http.createServer((req, res) => {
   }
 
   // Serve static files from the current directory
-  const filePath = path.join(__dirname, 'index.html');
+  const filePath = path.join(import.meta.dirname, 'index.html');
   fs.readFile(filePath, (err, data) => {
     if (err) {
       res.writeHead(404);

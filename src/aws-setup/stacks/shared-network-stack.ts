@@ -5,9 +5,8 @@ import { Construct } from 'constructs';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
+const logger = createLogger(import.meta.filename);
 import { BaseStack, BaseStackProps } from './base-stack';
-
-const logger = createLogger(__filename);
 
 export class SharedNetworkStack extends BaseStack {
   public readonly vpc: ec2.IVpc;

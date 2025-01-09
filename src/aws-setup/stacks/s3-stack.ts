@@ -8,7 +8,7 @@ import { createLogger } from '@/utils/logger';
 import { BaseStack, BaseStackProps } from './base-stack';
 import { getEnvConfig } from '../config/factory';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 export class S3Stack extends BaseStack {
   public readonly bucket: s3.IBucket;
@@ -23,7 +23,7 @@ export class S3Stack extends BaseStack {
     // Add service-specific tag
     cdk.Tags.of(this).add('service', 's3');
 
-    const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`;
+    const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`.trim();
     let bucket: s3.IBucket;
 
     try {

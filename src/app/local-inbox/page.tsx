@@ -6,7 +6,9 @@ import { isUsingLocalResend } from '@/lib/email/resend';
 import Loading from '@/components/ui/loading';
 
 import { getEmails, getUniqueEmails } from '@/app/local-inbox/action';
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger('local-inbox');
 
 import EmailsList from './EmailsList';
 

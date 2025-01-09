@@ -4,7 +4,7 @@ import fs from 'fs';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename, 'debug');
+const logger = createLogger(import.meta.filename, 'debug');
 
 (async () => {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
@@ -25,6 +25,9 @@ const logger = createLogger(__filename, 'debug');
   let dbUrl = '';
   let s3Bucket = '';
   let cloudfrontDomain = '';
+  const awsRegion = process.env.AWS_REGION?.trim() || '';
+
+  logger.debug(`Using AWS region: "${awsRegion}"`);
 
   for (const stackName of stackNames) {
     try {
@@ -88,13 +91,15 @@ const logger = createLogger(__filename, 'debug');
   }
 
   const fileContent = [
-    `REDIS_URL=${redisUrl}`,
-    `DATABASE_URL=${dbUrl}`,
-    `AWS_S3_BUCKET_NAME=${s3Bucket}`,
-    `NEXT_PUBLIC_AWS_S3_BUCKET_NAME=${s3Bucket}`,
-    `NEXT_PUBLIC_AWS_REGION=${process.env.AWS_REGION}`,
-    `NEXT_PUBLIC_CLOUDFRONT_DOMAIN=${cloudfrontDomain}`,
+    `REDIS_URL=${redisUrl.trim()}`,
+    `DATABASE_URL=${dbUrl.trim()}`,
+    `AWS_S3_BUCKET_NAME=${s3Bucket.trim()}`,
+    `NEXT_PUBLIC_AWS_S3_BUCKET_NAME=${s3Bucket.trim()}`,
+    `NEXT_PUBLIC_AWS_REGION=${awsRegion}`,
+    `NEXT_PUBLIC_CLOUDFRONT_DOMAIN=${cloudfrontDomain.trim()}`,
   ];
+
+  logger.debug(`Final S3 bucket value: "${s3Bucket.trim()}"`);
 
   const tempFilePath = `/tmp/deployment-values.env`;
   fs.writeFileSync(tempFilePath, fileContent.join('\n'));

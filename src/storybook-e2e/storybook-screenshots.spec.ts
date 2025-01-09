@@ -1,6 +1,9 @@
 import { expect, Page, test } from '@playwright/test';
 import glob from 'fast-glob';
+import { createRequire } from 'module';
 import path from 'path';
+
+const require = createRequire(import.meta.url);
 
 interface StoryModule {
   default: {
@@ -90,7 +93,6 @@ for (const storyFile of storyFiles) {
   const relativePath = path.relative(process.cwd(), storyFile);
 
   test.describe(componentName, () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const storyModule = require(`../../${relativePath}`) as StoryModule;
     const storyId = storyModule.default.title?.toLowerCase().replace(/\s+/g, '-');
 

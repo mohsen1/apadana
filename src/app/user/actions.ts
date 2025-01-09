@@ -9,7 +9,9 @@ import { actionClient, ClientVisibleError, UnauthorizedError } from '@/lib/safe-
 import { ClientUserSchema, UpdateUserSchema } from '@/lib/schema';
 
 import { assertError } from '@/utils';
-import logger from '@/utils/logger';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 export const updateUser = actionClient
   .schema(UpdateUserSchema)

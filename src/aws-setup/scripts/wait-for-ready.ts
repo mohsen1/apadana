@@ -5,7 +5,7 @@ import { getRedisClient } from '@/lib/redis/client';
 
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 interface CloudFormationError {
   name: string;
@@ -180,6 +180,6 @@ export async function main() {
   }
 }
 
-if (require.main === module) {
+if (import.meta.url === new URL(import.meta.url).href) {
   void main();
 }

@@ -9,7 +9,7 @@ import {
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(__filename);
+const logger = createLogger(import.meta.filename);
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
