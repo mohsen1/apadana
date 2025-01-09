@@ -100,7 +100,7 @@ tasks:
     desc: Start Prisma Studio
     watch: true
     sources:
-      - {{.PRISMA_SCHEMA}}
+      - "{{.PRISMA_SCHEMA}}"
     cmds:
       - pnpm prisma studio --schema={{.PRISMA_SCHEMA}} --browser none
 
