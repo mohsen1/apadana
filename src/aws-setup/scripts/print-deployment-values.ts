@@ -25,6 +25,9 @@ const logger = createLogger(import.meta.filename, 'debug');
   let dbUrl = '';
   let s3Bucket = '';
   let cloudfrontDomain = '';
+  const awsRegion = process.env.AWS_REGION?.trim() || '';
+
+  logger.debug(`Using AWS region: "${awsRegion}"`);
 
   for (const stackName of stackNames) {
     try {
@@ -92,7 +95,7 @@ const logger = createLogger(import.meta.filename, 'debug');
     `DATABASE_URL=${dbUrl.trim()}`,
     `AWS_S3_BUCKET_NAME=${s3Bucket.trim()}`,
     `NEXT_PUBLIC_AWS_S3_BUCKET_NAME=${s3Bucket.trim()}`,
-    `NEXT_PUBLIC_AWS_REGION=${process.env.AWS_REGION?.trim()}`,
+    `NEXT_PUBLIC_AWS_REGION=${awsRegion}`,
     `NEXT_PUBLIC_CLOUDFRONT_DOMAIN=${cloudfrontDomain.trim()}`,
   ];
 
