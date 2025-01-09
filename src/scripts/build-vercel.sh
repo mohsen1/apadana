@@ -27,7 +27,7 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AW
 echo "Running preflight checks..."
 task cdk:preflight || exit 1
 
-task cdk:deploy --all --require-approval never --concurrency 10
+task cdk:deploy-ci
 
 # Check deployment time
 end_time=$(date +%s)
@@ -46,7 +46,7 @@ npm install --global --silent vercel@39.2.6
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
-task --silent cdk:env
+task cdk:env
 
 cat /tmp/deployment-values.env | while IFS='=' read -r key value; do
   # Trim the value to remove any whitespace or newlines

@@ -256,6 +256,11 @@ tasks:
     desc: Deploy CDK stack
     cmds:
       - pnpm cdk deploy {{.CLI_ARGS}}
+  
+  cdk:deploy-ci:
+    desc: Deploy CDK stack in CI. This will not ask for approval and will deploy all resources.
+    cmds:
+      - pnpm cdk deploy --all --require-approval never --concurrency 10 {{.CLI_ARGS}}
 
   cdk:deploy:resources:
     desc: Deploy all CDK resources
