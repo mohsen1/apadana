@@ -13,6 +13,18 @@ const logger = createLogger(__filename);
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const REQUIRED_POLICIES = [
+  'arn:aws:iam::aws:policy/AWSCloudFormationFullAccess',
+  'arn:aws:iam::aws:policy/AmazonSSMFullAccess',
+  'arn:aws:iam::aws:policy/AmazonS3FullAccess',
+  'arn:aws:iam::aws:policy/IAMFullAccess',
+  'arn:aws:iam::aws:policy/AWSLambda_FullAccess',
+  'arn:aws:iam::aws:policy/AmazonEC2FullAccess',
+  'arn:aws:iam::aws:policy/AmazonElastiCacheFullAccess',
+  'arn:aws:iam::aws:policy/AmazonRDSFullAccess',
+  'arn:aws:iam::aws:policy/SecretsManagerReadWrite',
+];
+
 async function waitForGroup(iamClient: IAMClient, groupName: string, maxAttempts = 10) {
   for (let i = 0; i < maxAttempts; i++) {
     try {
@@ -49,10 +61,11 @@ async function setupDeployerGroup(environment: string) {
       logger.info(`Created group: ${groupName}`);
     } catch (err) {
       assertError(err);
-      if (err.name !== 'EntityAlreadyExists') {
+      if (err.name === 'EntityAlreadyExistsException') {
+        logger.info(`Group ${groupName} already exists`);
+      } else {
         throw err;
       }
-      logger.info(`Group ${groupName} already exists`);
     }
 
     // Wait for group to be available
@@ -63,25 +76,44 @@ async function setupDeployerGroup(environment: string) {
     }
 
     // Attach required policies
-    const policyArn = 'arn:aws:iam::aws:policy/AdministratorAccess';
-    logger.info(`Attaching policy ${policyArn} to group ${groupName}...`);
-    await iamClient.send(
-      new AttachGroupPolicyCommand({
-        GroupName: groupName,
-        PolicyArn: policyArn,
-      }),
-    );
-    logger.info(`Attached policy ${policyArn} to ${groupName}`);
+    for (const policyArn of REQUIRED_POLICIES) {
+      logger.info(`Attaching policy ${policyArn} to group ${groupName}...`);
+      try {
+        await iamClient.send(
+          new AttachGroupPolicyCommand({
+            GroupName: groupName,
+            PolicyArn: policyArn,
+          }),
+        );
+        logger.info(`Attached policy ${policyArn} to ${groupName}`);
+      } catch (err) {
+        assertError(err);
+        if (err.name === 'EntityAlreadyExistsException' || err.name === 'LimitExceededException') {
+          logger.info(`Policy ${policyArn} already attached to ${groupName}`);
+        } else {
+          throw err;
+        }
+      }
+    }
 
     // Add user to group
     logger.info(`Adding user ${userName} to group ${groupName}...`);
-    await iamClient.send(
-      new AddUserToGroupCommand({
-        GroupName: groupName,
-        UserName: userName,
-      }),
-    );
-    logger.info(`Added user ${userName} to group ${groupName}`);
+    try {
+      await iamClient.send(
+        new AddUserToGroupCommand({
+          GroupName: groupName,
+          UserName: userName,
+        }),
+      );
+      logger.info(`Added user ${userName} to group ${groupName}`);
+    } catch (err) {
+      assertError(err);
+      if (err.name === 'EntityAlreadyExistsException') {
+        logger.info(`User ${userName} already in group ${groupName}`);
+      } else {
+        throw err;
+      }
+    }
 
     logger.info('✓ Successfully set up deployer group');
     process.exit(0);
