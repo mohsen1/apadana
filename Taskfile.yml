@@ -200,7 +200,7 @@ tasks:
       - docker compose -f {{.DOCKER_COMPOSE}} up storybook-test
       - pnpm playwright show-report .next/storybook-report/html
 
-  fix:all:
+  fix:
     desc: Fix all code issues in parallel
     cmds:
       - task -p lint:fix format
