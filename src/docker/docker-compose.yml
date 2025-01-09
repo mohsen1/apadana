@@ -76,7 +76,7 @@ services:
         condition: service_healthy
     command: >
       sh -c "
-        pnpm dev
+        task dev:next
       "
     networks:
       - apadana_network
