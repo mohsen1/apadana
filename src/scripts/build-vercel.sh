@@ -6,13 +6,17 @@ pnpm prisma:generate
 # Exit on error
 set -e
 
+# Start timing AWS deployment
+start_time=$(date +%s)
+
 # Build for production. This script assumes all of the environment variables are set.
 export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
 
 echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AWS_REGION region"
 
-# Start timing AWS deployment
-start_time=$(date +%s)
+# Run preflight checks
+echo "Running preflight checks..."
+pnpm cdk:preflight || exit 1
 
 pnpm cdk:deploy --all --require-approval never --concurrency 10
 
