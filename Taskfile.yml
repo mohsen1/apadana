@@ -162,8 +162,8 @@ tasks:
     cmds:
       - task -p test:unit test:e2e test:storybook
 
-  test:parallel:
-    internal: true
+  test:sequential:
+    desc: Run all tests sequentially
     cmds:
       - task: test:unit
       - task: test:e2e
@@ -357,3 +357,8 @@ tasks:
     desc: Pull Vercel environment variables
     cmds:
       - pnpm vercel env pull
+
+  cdk:validate-deployer:
+    desc: Validate CDK deployer configuration
+    cmds:
+      - pnpm tsx {{.CDK_SCRIPTS}}/validate-deployer.ts
