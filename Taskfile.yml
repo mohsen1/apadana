@@ -57,12 +57,12 @@ tasks:
     desc: Build the application
     deps: [prisma:generate]
     cmds:
-      - pnpm next build
+      - pnpm next build {{.CLI_ARGS}}
 
   next:start:
     desc: Start Next.js production server
     cmds:
-      - pnpm next start
+      - pnpm next start {{.CLI_ARGS}}
 
   dev:
     desc: Start development environment
@@ -78,7 +78,7 @@ tasks:
   dev:next:
     desc: Start Next.js development server
     cmds:
-      - pnpm next dev --turbo
+      - pnpm next dev --turbo {{.CLI_ARGS}}
 
   dev:prisma:
     desc: Watch Prisma schema changes
@@ -88,7 +88,7 @@ tasks:
   dev:prisma:migrate:
     desc: Run Prisma migrations
     cmds:
-      - pnpm prisma migrate dev --schema={{.PRISMA_SCHEMA}} --name $(date +%Y%m%d%H%M%S)
+      - pnpm prisma migrate dev --schema={{.PRISMA_SCHEMA}} --name $(date +%Y%m%d%H%M%S) {{.CLI_ARGS}}
 
   dev:prisma:seed:
     desc: Seed the database
@@ -102,17 +102,17 @@ tasks:
     sources:
       - "{{.PRISMA_SCHEMA}}"
     cmds:
-      - pnpm prisma studio --schema={{.PRISMA_SCHEMA}} --browser none
+      - pnpm prisma studio --schema={{.PRISMA_SCHEMA}} --browser none {{.CLI_ARGS}}
 
   dev:storybook:
     desc: Start Storybook development server
     cmds:
-      - pnpm storybook dev --quiet --port=6006 --no-open | grep -v -iE 'info|warn' | grep -v '^$'
+      - pnpm storybook dev --quiet --port=6006 --no-open {{.CLI_ARGS}} | grep -v -iE 'info|warn' | grep -v '^$'
 
   docker:build:
     desc: Build Docker images
     cmds:
-      - docker-compose -f {{.DOCKER_COMPOSE}} build --parallel
+      - docker-compose -f {{.DOCKER_COMPOSE}} build --parallel {{.CLI_ARGS}}
 
   docker:clean:
     desc: Clean Docker volumes
@@ -172,27 +172,27 @@ tasks:
   test:unit:
     desc: Run unit tests
     cmds:
-      - pnpm vitest run --config={{.VITEST_CONFIG}}
+      - pnpm vitest run --config={{.VITEST_CONFIG}} {{.CLI_ARGS}}
 
   test:e2e:
     desc: Run E2E tests against prod environment
     cmds:
-      - BASE_URL={{.PROD_DEV_DOMAIN}} E2E_TESTING_SECRET={{.E2E_TESTING_SECRET_PROD}} pnpm playwright test --config={{.E2E_CONFIG}}
+      - BASE_URL={{.PROD_DEV_DOMAIN}} E2E_TESTING_SECRET={{.E2E_TESTING_SECRET_PROD}} pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
   test:e2e:ci:
     desc: Run E2E tests in CI
     cmds:
-      - pnpm playwright test --config={{.E2E_CONFIG}}
+      - pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
   test:e2e:dev:
     desc: Run E2E tests against dev environment
     cmds:
-      - BASE_URL={{.DEVELOPMENT_DOMAIN}} E2E_TESTING_SECRET={{.E2E_TESTING_SECRET_DEV}} pnpm playwright test --config={{.E2E_CONFIG}}
+      - BASE_URL={{.DEVELOPMENT_DOMAIN}} E2E_TESTING_SECRET={{.E2E_TESTING_SECRET_DEV}} pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
   test:e2e:prod:
     desc: Run E2E tests against production
     cmds:
-      - BASE_URL={{.PRODUCTION_DOMAIN}} pnpm playwright test --config={{.E2E_CONFIG}}
+      - BASE_URL={{.PRODUCTION_DOMAIN}} pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
   test:e2e:docker:
     desc: Run E2E tests in Docker
@@ -203,7 +203,7 @@ tasks:
   test:storybook:
     desc: Run Storybook tests
     cmds:
-      - pnpm playwright test --config={{.STORYBOOK_CONFIG}}
+      - pnpm playwright test --config={{.STORYBOOK_CONFIG}} {{.CLI_ARGS}}
 
   test:storybook:update:
     desc: Update Storybook test snapshots
@@ -234,17 +234,17 @@ tasks:
   lint:
     desc: Lint code
     cmds:
-      - pnpm eslint --config={{.ESLINT_CONFIG}}
+      - pnpm eslint --config={{.ESLINT_CONFIG}} {{.CLI_ARGS}}
 
   lint:fix:
     desc: Fix linting issues
     cmds:
-      - pnpm eslint --config={{.ESLINT_CONFIG}} --fix
+      - pnpm eslint --config={{.ESLINT_CONFIG}} --fix {{.CLI_ARGS}}
 
   lint:strict:
     desc: Lint code with strict rules
     cmds:
-      - pnpm eslint --max-warnings=0 --config={{.ESLINT_CONFIG}}
+      - pnpm eslint --max-warnings=0 --config={{.ESLINT_CONFIG}} {{.CLI_ARGS}}
 
   cdk:
     desc: AWS CDK related tasks
@@ -255,28 +255,33 @@ tasks:
   cdk:deploy:
     desc: Deploy CDK stack
     cmds:
-      - pnpm cdk deploy
+      - pnpm cdk deploy {{.CLI_ARGS}}
 
   cdk:deploy:resources:
     desc: Deploy all CDK resources
     deps: [cdk:validate-deployer]
     cmds:
-      - pnpm cdk deploy --all
+      - pnpm cdk deploy --all {{.CLI_ARGS}}
 
   cdk:deployer:create:
     desc: Create CDK deployer
     cmds:
       - pnpm tsx {{.CDK_SCRIPTS}}/create-deployer.ts
 
+  cdk:deployer:create:add-to-vercel:
+    desc: Add CDK deployer to Vercel
+    cmds:
+      - pnpm tsx {{.CDK_SCRIPTS}}/create-deployer.ts --add-to-vercel
+
   cdk:destroy:
     desc: Destroy CDK stack
     cmds:
-      - pnpm cdk destroy --all
+      - pnpm cdk destroy --all {{.CLI_ARGS}}
 
   cdk:diff:
     desc: Show CDK diff
     cmds:
-      - pnpm cdk diff
+      - pnpm cdk diff {{.CLI_ARGS}}
 
   cdk:preflight:
     desc: Run CDK preflight checks
@@ -313,17 +318,17 @@ tasks:
     desc: Run TypeScript type checking
     deps: [prisma:generate]
     cmds:
-      - pnpm tsc --noEmit --incremental false
+      - pnpm tsc --noEmit --incremental false {{.CLI_ARGS}}
 
   prisma:generate:
     desc: Generate Prisma client
     cmds:
-      - pnpm prisma generate --schema={{.PRISMA_SCHEMA}} --no-hints
+      - pnpm prisma generate --schema={{.PRISMA_SCHEMA}} --no-hints {{.CLI_ARGS}}
 
   prisma:migrate:
     desc: Run Prisma migrations
     cmds:
-      - pnpm prisma migrate deploy --schema={{.PRISMA_SCHEMA}}
+      - pnpm prisma migrate deploy --schema={{.PRISMA_SCHEMA}} {{.CLI_ARGS}}
 
   prisma:watch:
     desc: Watch Prisma schema changes
@@ -341,17 +346,17 @@ tasks:
   vercel:deploy:
     desc: Deploy to Vercel
     cmds:
-      - pnpm vercel deploy
+      - pnpm vercel deploy {{.CLI_ARGS}}
 
   vercel:deploy:prod:
     desc: Deploy to Vercel production
     cmds:
-      - pnpm vercel deploy --target production --logs
+      - pnpm vercel deploy --target production --logs {{.CLI_ARGS}}
 
   vercel:deploy:preview:
     desc: Deploy to Vercel preview
     cmds:
-      - pnpm vercel deploy --target preview --logs
+      - pnpm vercel deploy --target preview --logs {{.CLI_ARGS}}
   
   vercel:env:pull:
     desc: Pull Vercel environment variables
