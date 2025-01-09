@@ -88,6 +88,7 @@ export default defineConfig({
 
     return {
       command: 'task dev:storybook',
+      cwd: process.cwd(),
       url: 'http://localhost:6006',
       reuseExistingServer: !process.env.CI,
       timeout: 120000,
