@@ -19,6 +19,7 @@ RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/loc
 
 # Copy task configuration first
 COPY Taskfile.yml ./
+COPY src/scripts/install-task.sh src/scripts/install-task.sh
 
 # Fetch dependencies first
 COPY pnpm-lock.yaml ./
