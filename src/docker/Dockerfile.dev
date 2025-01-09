@@ -17,6 +17,9 @@ RUN pnpm config set store-dir /home/node/.pnpm-store \
 # Install Task
 RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
+# Copy task configuration first
+COPY Taskfile.yml ./
+
 # Fetch dependencies first
 COPY pnpm-lock.yaml ./
 RUN --mount=type=cache,target=/home/node/.pnpm-store,id=pnpm-store \
