@@ -23,7 +23,7 @@ export class S3Stack extends BaseStack {
     // Add service-specific tag
     cdk.Tags.of(this).add('service', 's3');
 
-    const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`;
+    const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`.trim();
     let bucket: s3.IBucket;
 
     try {
