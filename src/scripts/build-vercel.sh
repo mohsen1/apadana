@@ -14,9 +14,7 @@ echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AW
 # Start timing AWS deployment
 start_time=$(date +%s)
 
-# Show what will be deployed and capture the output
-echo "Checking infrastructure changes..."
-diff_output=$(pnpm cdk:diff --all --no-change-set)
+pnpm cdk:deploy --all --require-approval never --concurrency 30
 
 # Check deployment time
 end_time=$(date +%s)
@@ -30,7 +28,8 @@ fi
 
 # Install Vercel CLI
 echo "Installing Vercel CLI..."
-npm install --global --silent vercel@latest
+export AVOID_UPDATE_NOTIFIER="1"
+npm install --global --silent vercel@39.2.6
 
 # Get AWS environment variables and set them in Vercel
 echo "Setting AWS environment variables in Vercel..."
