@@ -6,6 +6,11 @@ import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(import.meta.filename, 'debug');
 
+function buildDatabaseUrl(host: string, username: string, password: string): string {
+  const encodedPassword = encodeURIComponent(password);
+  return `postgresql://${username}:${encodedPassword}@${host}:5432/ap_db`;
+}
+
 (async () => {
   const env = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
   const stackNames = [
@@ -67,7 +72,7 @@ const logger = createLogger(import.meta.filename, 'debug');
               };
               const username = secretJson.username;
               const password = secretJson.password;
-              dbUrl = `postgresql://${username}:${password}@${host}:5432/ap_db`;
+              dbUrl = buildDatabaseUrl(host, username, password);
               logger.debug('Built RDS connection string');
             }
           }
