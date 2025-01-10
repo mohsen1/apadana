@@ -10,9 +10,114 @@ import { getEnvConfig } from '../config/factory';
 
 const logger = createLogger(import.meta.filename);
 
+interface BucketConfig {
+  cors: {
+    allowedHeaders: string[];
+    allowedMethods: string[];
+    allowedOrigins: string[];
+    exposedHeaders: string[];
+    maxAge: number;
+  }[];
+  versioned: boolean;
+  encryption: s3.BucketEncryption;
+  publicReadAccess: boolean;
+  blockPublicAccess: s3.BlockPublicAccess;
+  enforceSSL: boolean;
+  lifecycleRules: {
+    abortIncompleteMultipartUploadAfter: cdk.Duration;
+    enabled: boolean;
+  }[];
+}
+
 export class S3Stack extends BaseStack {
   public readonly bucket: s3.IBucket;
   public readonly bucketNameOutput: cdk.CfnOutput;
+
+  private getBucketConfig(): BucketConfig {
+    return {
+      cors: [
+        {
+          allowedHeaders: ['*'],
+          allowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
+          allowedOrigins: [
+            'https://*.apadana.local',
+            'https://apadana.app',
+            'https://www.apadana.app',
+            'https://*.apadana.app',
+            'https://*.vercel.app',
+          ],
+          exposedHeaders: [
+            'ETag',
+            'x-amz-server-side-encryption',
+            'x-amz-request-id',
+            'x-amz-id-2',
+            'Content-Length',
+            'Content-Type',
+            'Access-Control-Allow-Origin',
+            'Access-Control-Allow-Methods',
+            'Access-Control-Allow-Headers',
+          ],
+          maxAge: 3000,
+        },
+      ],
+      versioned: true,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      publicReadAccess: false,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      enforceSSL: true,
+      lifecycleRules: [
+        {
+          abortIncompleteMultipartUploadAfter: cdk.Duration.days(7),
+          enabled: true,
+        },
+      ],
+    };
+  }
+
+  private createNewBucket(bucketName: string): s3.IBucket {
+    const config = this.getBucketConfig();
+    const bucket = new s3.Bucket(this, 'ApadanaBucket', {
+      bucketName,
+      versioned: config.versioned,
+      encryption: config.encryption,
+      publicReadAccess: config.publicReadAccess,
+      blockPublicAccess: config.blockPublicAccess,
+      enforceSSL: config.enforceSSL,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      cors: config.cors.map((rule) => ({
+        ...rule,
+        allowedMethods: rule.allowedMethods.map((method) => method as s3.HttpMethods),
+      })),
+    });
+
+    config.lifecycleRules.forEach((rule) => {
+      bucket.addLifecycleRule(rule);
+    });
+
+    logger.debug('Created new S3 bucket');
+    return bucket;
+  }
+
+  private updateExistingBucket(bucketName: string): void {
+    const config = this.getBucketConfig();
+    const cfnBucket = new s3.CfnBucket(this, 'UpdateExistingBucket', {
+      bucketName,
+      corsConfiguration: {
+        corsRules: config.cors,
+      },
+      versioningConfiguration: {
+        status: config.versioned ? 'Enabled' : 'Suspended',
+      },
+      publicAccessBlockConfiguration: {
+        blockPublicAcls: true,
+        blockPublicPolicy: true,
+        ignorePublicAcls: true,
+        restrictPublicBuckets: true,
+      },
+    });
+    cfnBucket.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
+    logger.debug('Updated existing S3 bucket configuration');
+  }
 
   constructor(scope: Construct, id: string, props: BaseStackProps) {
     super(scope, id, props);
@@ -29,90 +134,10 @@ export class S3Stack extends BaseStack {
     try {
       bucket = s3.Bucket.fromBucketName(this, 'ExistingBucket', bucketName);
       logger.debug('Imported existing S3 bucket');
-
-      // Force update CORS on existing bucket
-      const cfnBucket = new s3.CfnBucket(this, 'UpdateExistingBucket', {
-        bucketName,
-        corsConfiguration: {
-          corsRules: [
-            {
-              allowedHeaders: ['*'],
-              allowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
-              allowedOrigins: [
-                'https://*.apadana.local',
-                'https://apadana.app',
-                'https://www.apadana.app',
-                'https://*.apadana.app',
-                'https://*.vercel.app',
-              ],
-              exposedHeaders: [
-                'ETag',
-                'x-amz-server-side-encryption',
-                'x-amz-request-id',
-                'x-amz-id-2',
-                'Content-Length',
-                'Content-Type',
-                'Access-Control-Allow-Origin',
-                'Access-Control-Allow-Methods',
-                'Access-Control-Allow-Headers',
-              ],
-              maxAge: 3000,
-            },
-          ],
-        },
-      });
-      cfnBucket.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
+      this.updateExistingBucket(bucketName);
     } catch (error) {
       assertError(error);
-      const newBucket = new s3.Bucket(this, 'ApadanaBucket', {
-        bucketName,
-        versioned: true,
-        encryption: s3.BucketEncryption.S3_MANAGED,
-        publicReadAccess: false,
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        enforceSSL: true,
-        removalPolicy: cdk.RemovalPolicy.RETAIN,
-        cors: [
-          {
-            allowedMethods: [
-              s3.HttpMethods.GET,
-              s3.HttpMethods.PUT,
-              s3.HttpMethods.POST,
-              s3.HttpMethods.DELETE,
-              s3.HttpMethods.HEAD,
-            ],
-            allowedOrigins: [
-              'https://*.apadana.local',
-              'https://apadana.app',
-              'https://www.apadana.app',
-              'https://*.apadana.app',
-              'https://*.vercel.app',
-            ],
-            allowedHeaders: ['*'],
-            exposedHeaders: [
-              'ETag',
-              'x-amz-server-side-encryption',
-              'x-amz-request-id',
-              'x-amz-id-2',
-              'Content-Length',
-              'Content-Type',
-              'Access-Control-Allow-Origin',
-              'Access-Control-Allow-Methods',
-              'Access-Control-Allow-Headers',
-            ],
-            maxAge: 3000,
-          },
-        ],
-      });
-      logger.debug('Created new S3 bucket');
-
-      newBucket.addLifecycleRule({
-        abortIncompleteMultipartUploadAfter: cdk.Duration.days(7),
-        enabled: true,
-      });
-      logger.debug('Added lifecycle rule to S3 bucket');
-
-      bucket = newBucket;
+      bucket = this.createNewBucket(bucketName);
     }
 
     this.bucket = bucket;
