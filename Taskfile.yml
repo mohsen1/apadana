@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 vars:
   PRODUCTION_DOMAIN: https://www.apadana.app
@@ -42,16 +42,7 @@ tasks:
   fetch:
     desc: Fetch dependencies
     cmds:
-      - |
-        if [ ! -f pnpm-lock.yaml ]; then
-          echo "Error: pnpm-lock.yaml not found"
-          exit 1
-        fi
-        if ! pnpm -v &>/dev/null; then
-          echo "Error: pnpm not installed"
-          exit 1
-        fi
-        pnpm fetch
+      - pnpm fetch
 
   build:
     desc: Build the application
@@ -177,8 +168,11 @@ tasks:
   test:e2e:
     desc: Run E2E tests against prod environment
     deps: [nextjs:check:health:prod]
+    env:
+      E2E_TESTING_SECRET: "{{.E2E_TESTING_SECRET_PROD}}"
+      BASE_URL: "{{.PROD_DEV_DOMAIN}}"
     cmds:
-      - BASE_URL={{.PROD_DEV_DOMAIN}} E2E_TESTING_SECRET={{.E2E_TESTING_SECRET_PROD}} pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
+      - pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
   test:e2e:ci:
     desc: Run E2E tests in CI
@@ -187,13 +181,18 @@ tasks:
 
   test:e2e:dev:
     desc: Run E2E tests against dev environment
+    env:
+      E2E_TESTING_SECRET: "{{.E2E_TESTING_SECRET_DEV}}"
+      BASE_URL: "{{.DEVELOPMENT_DOMAIN}}"
     cmds:
-      - BASE_URL={{.DEVELOPMENT_DOMAIN}} E2E_TESTING_SECRET={{.E2E_TESTING_SECRET_DEV}} pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
+      - pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
   test:e2e:prod:
     desc: Run E2E tests against production
+    env:
+      BASE_URL: "{{.PRODUCTION_DOMAIN}}"
     cmds:
-      - BASE_URL={{.PRODUCTION_DOMAIN}} pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
+      - pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
   test:e2e:docker:run:internal:
     internal: true
@@ -227,8 +226,10 @@ tasks:
 
   test:storybook:docker:update:
     desc: Run Storybook tests in Docker and update snapshots
+    env:
+      UPDATE_SNAPSHOTS: true
     cmds:
-      - UPDATE_SNAPSHOTS=true docker compose -f {{.DOCKER_COMPOSE}} up storybook-test
+      - docker compose -f {{.DOCKER_COMPOSE}} up storybook-test
       - pnpm playwright show-report .next/storybook-report/html
 
   fix:
@@ -271,7 +272,7 @@ tasks:
     desc: Deploy a specific stack to AWS
     cmds:
       - pnpm cdk deploy {{.CLI_ARGS}}
-  
+
   cdk:deploy-ci:
     desc: Deploy CDK stack in CI. This will not ask for approval and will deploy all resources.
     cmds:
@@ -279,18 +280,27 @@ tasks:
 
   cdk:deploy:prod:
     desc: Deploy CDK stack in production
+    env:
+      AWS_DEPLOYMENT_STACK_ENV: production
+      AWS_PROFILE: ap-deployer-production
     cmds:
-      - AWS_DEPLOYMENT_STACK_ENV=production pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}}
+      - pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}} --require-approval never
 
   cdk:deploy:preview:
     desc: Deploy CDK stack in preview
+    env:
+      AWS_DEPLOYMENT_STACK_ENV: preview
+      AWS_PROFILE: ap-deployer-preview
     cmds:
-      - AWS_DEPLOYMENT_STACK_ENV=preview pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}}
+      - pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}} --require-approval never
 
   cdk:deploy:dev:
     desc: Deploy CDK stack in development
+    env:
+      AWS_DEPLOYMENT_STACK_ENV: development
+      AWS_PROFILE: ap-deployer-development
     cmds:
-      - AWS_DEPLOYMENT_STACK_ENV=development pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}}
+      - pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}} --require-approval never
 
   cdk:deployer:create:
     desc: Create CDK deployer
@@ -370,8 +380,8 @@ tasks:
   update-packages:
     desc: Update npm packages
     cmds:
-      - pnpm tsx {{.SCRIPTS}}/update-packages.ts 
-  
+      - pnpm tsx {{.SCRIPTS}}/update-packages.ts
+
   vercel:deploy:
     desc: Deploy to Vercel
     cmds:
@@ -386,7 +396,7 @@ tasks:
     desc: Deploy to Vercel preview
     cmds:
       - pnpm vercel deploy --target preview --logs {{.CLI_ARGS}}
-  
+
   vercel:env:pull:
     desc: Pull Vercel environment variables
     cmds:

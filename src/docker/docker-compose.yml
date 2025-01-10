@@ -261,7 +261,7 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
-    command: pnpm playwright test --config=src/e2e/playwright.config.ts
+    command: task playwright:test
 
   storybook-test:
     profiles: ['e2e']
@@ -298,9 +298,9 @@ services:
       sh -c "
         STORYBOOK_URL=https://storybook.apadana.local
         if [ \"$UPDATE_SNAPSHOTS\" = true ]; then
-          pnpm test:storybook:update
+          task test:storybook:update
         else
-          pnpm test:storybook
+          task test:storybook
         fi
       "
 

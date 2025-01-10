@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_iam as iam } from 'aws-cdk-lib';
+import { aws_iam as iam, custom_resources as cr } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { createLogger } from '@/utils/logger';
@@ -9,7 +9,7 @@ import { BaseStack, BaseStackProps } from './base-stack';
 const logger = createLogger(import.meta.filename);
 
 export class IamStack extends BaseStack {
-  public readonly deployerGroup: iam.Group;
+  public readonly deployerGroup: iam.IGroup;
   public readonly uploadRole: iam.Role;
   public readonly devPolicy: iam.ManagedPolicy;
   public readonly uploadPolicy: iam.ManagedPolicy;
@@ -63,11 +63,67 @@ export class IamStack extends BaseStack {
     });
     logger.debug('Created S3 upload policy');
 
-    // Create or update the deployer group
-    this.deployerGroup = new iam.Group(this, 'DeployerGroup', {
-      groupName: `ap-deployer-group-${props.environment}`,
-      managedPolicies: [this.devPolicy],
+    // Create a custom resource to handle the deployer group
+    const groupName = `ap-deployer-group-${props.environment}`;
+    const provider = new cr.Provider(this, 'DeployerGroupProvider', {
+      onEventHandler: new cdk.aws_lambda.Function(this, 'DeployerGroupHandler', {
+        runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
+        handler: 'index.handler',
+        code: cdk.aws_lambda.Code.fromInline(`
+          exports.handler = async (event) => {
+            const AWS = require('aws-sdk');
+            const iam = new AWS.IAM();
+            const groupName = event.ResourceProperties.groupName;
+            const policyArn = event.ResourceProperties.policyArn;
+            
+            try {
+              if (event.RequestType === 'Create' || event.RequestType === 'Update') {
+                try {
+                  await iam.getGroup({ GroupName: groupName }).promise();
+                } catch (err) {
+                  if (err.code === 'NoSuchEntity') {
+                    await iam.createGroup({ GroupName: groupName }).promise();
+                  }
+                }
+                
+                try {
+                  await iam.attachGroupPolicy({
+                    GroupName: groupName,
+                    PolicyArn: policyArn
+                  }).promise();
+                } catch (err) {
+                  if (err.code !== 'EntityAlreadyExists') throw err;
+                }
+                
+                return { PhysicalResourceId: groupName };
+              }
+              
+              // Do not delete the group on stack deletion
+              return { PhysicalResourceId: groupName };
+            } catch (error) {
+              console.error('Error:', error);
+              throw error;
+            }
+          }
+        `),
+      }),
     });
+
+    // Create the deployer group using the custom resource
+    const deployerGroupResource = new cdk.CustomResource(this, 'DeployerGroupResource', {
+      serviceToken: provider.serviceToken,
+      properties: {
+        groupName,
+        policyArn: this.devPolicy.managedPolicyArn,
+      },
+    });
+
+    // Import the group after creation
+    this.deployerGroup = iam.Group.fromGroupName(
+      this,
+      'DeployerGroup',
+      deployerGroupResource.getAttString('PhysicalResourceId'),
+    );
     logger.debug('Created/updated deployer group');
 
     // Create a role for Lambda functions that need to generate presigned URLs

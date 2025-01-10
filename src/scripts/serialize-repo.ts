@@ -559,11 +559,11 @@ const argv = yargs(hideBin(process.argv))
     description: 'Stream output to stdout instead of writing to files',
     default: false,
   })
-  .example('pnpm serialize-repo', 'Serialize entire repository into a single file')
-  .example('pnpm serialize-repo -t 128000', 'Split repository into chunks of max 128KB')
-  .example('pnpm serialize-repo -t 128000 -c', 'Split into chunks of max 128K tokens (slower)')
-  .example('pnpm serialize-repo -p src/app', 'Serialize only the src/app directory')
-  .example('pnpm serialize-repo -s | pbcopy', 'Stream output to clipboard on macOS')
+  .example('task serialize-repo', 'Serialize entire repository into a single file')
+  .example('task serialize-repo -t 128000', 'Split repository into chunks of max 128KB')
+  .example('task serialize-repo -t 128000 -c', 'Split into chunks of max 128K tokens (slower)')
+  .example('task serialize-repo -p src/app', 'Serialize only the src/app directory')
+  .example('task serialize-repo -s | pbcopy', 'Stream output to clipboard on macOS')
   .check(async (argv) => {
     if (isNaN(argv.tokens) || argv.tokens <= 0) {
       throw new Error('Please provide a valid token limit');

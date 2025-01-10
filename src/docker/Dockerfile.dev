@@ -38,9 +38,6 @@ EXPOSE 3000 6006 5555
 # Copy source code
 COPY . .
 
-# Run task installation
-RUN chmod +x src/scripts/install-task.sh && ./src/scripts/install-task.sh
-
 # Setup entrypoint
 COPY src/docker/docker-entrypoint.dev.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.dev.sh

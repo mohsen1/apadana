@@ -130,7 +130,7 @@ export async function setupTestContainer() {
       await cleanDatabaseSchema();
 
       logger.info('Running database migrations on existing container');
-      exec('pnpm prisma migrate deploy --schema=src/prisma/schema.prisma', {
+      exec('task prisma:migrate', {
         env: process.env,
         cwd: process.cwd(),
       });
@@ -147,7 +147,7 @@ export async function setupTestContainer() {
       await waitForContainerHealthy(composeFile, 'db_test', 10, 1000);
 
       logger.info('Running database migrations');
-      exec('pnpm prisma migrate deploy --schema=src/prisma/schema.prisma', {
+      exec('task prisma:migrate', {
         env: process.env,
         cwd: process.cwd(),
       });
