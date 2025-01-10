@@ -64,14 +64,14 @@ public/images/e2e/uploads/
 
 # Do not allow new files in root
 package-updates-summary.md
-*.json
-*.md
-*.fish
-*.sh
-*.log
-*.txt
-*.yaml
-*.yml
+/*.json
+/*.md
+/*.fish
+/*.sh
+/*.log
+/*.txt
+/*.yaml
+/*.yml
 
 # Files that *are* allowed in root
 !README.md
@@ -90,9 +90,9 @@ package-updates-summary.md
 repo-serialized/
 
 # Temporary scripts
-*.fish
-*.sh
-*.bash
+/*.fish
+/*.sh
+/*.bash
 
 # AWS CDK
 .aws-sam/
