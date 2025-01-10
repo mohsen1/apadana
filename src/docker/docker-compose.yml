@@ -3,7 +3,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-apadana}_nginx
     image: nginx:alpine
     ports:
-      - '443:443'
+      - ${COMPOSE_PROJECT_NAME:-apadana}_nginx:/443:443
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -20,11 +20,11 @@ services:
         echo '' && 
         echo '' && 
         echo '' && 
-        echo '┌──────────────────────────────────────────────┐' && 
-        echo '│            Now you can access                │' && 
-        echo '│            https://dev.apadana.local         │' && 
-        echo '│            https://prod.apadana.local        │' && 
-        echo '└──────────────────────────────────────────────┘' && 
+        echo '┌──────────────────────────────────────────┐' && 
+        echo '│        Now you can access                │' && 
+        echo '│        https://dev.apadana.local         │' && 
+        echo '│        https://prod.apadana.local        │' && 
+        echo '└──────────────────────────────────────────┘' && 
         echo '' && 
         echo '' && 
         echo '' && 

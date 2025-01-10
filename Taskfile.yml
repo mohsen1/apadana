@@ -179,6 +179,8 @@ tasks:
       This is useful for running tests before pushing to remote.
       While this is running you can switch to another branch start new work
     silent: true
+    env:
+      COMPOSE_PROJECT_NAME: ci
     cmds:
       - "{{.SCRIPTS}}/push.sh"
 

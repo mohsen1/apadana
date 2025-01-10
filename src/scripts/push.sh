@@ -22,10 +22,11 @@ current_dir=$(basename "$(pwd)")
 parent_dir=$(dirname "$(pwd)")
 ci_dir="${parent_dir}/${current_dir}-ci"
 
+# Create a unique log file
+log_file="/tmp/push-${current_branch}-$(date +%s).log"
+
 # Cleanup function
 cleanup() {
-  echo "Cleaning up..."
-  rm -f "$temp_output"
   cd "$parent_dir/$current_dir" || exit 1
 }
 
@@ -41,31 +42,31 @@ rsync -a --exclude='node_modules' . "${ci_dir}/"
 # Switch to CI directory
 cd "${ci_dir}" || exit 1
 
-# Run tests
-temp_output=$(mktemp)
-echo "Running tests and pushing changes..."
+mkdir -p "$(dirname "$log_file")"
+touch "$log_file"
+echo "Starting background process..."
+echo "Log file: $log_file"
 
-# Install dependencies only if node_modules doesn't exist
-if [ ! -d "node_modules" ]; then
-  echo "Installing dependencies..."
-  if ! pnpm install >"$temp_output" 2>&1; then
-    cat "$temp_output"
-    echo "Failed to install dependencies"
+# Run the long operations in background
+{
+  # Install dependencies
+  if ! pnpm install >"$log_file" 2>&1; then
+    cat "$log_file"
+    echo "Failed to install dependencies. for branch: $current_branch"
     exit 1
   fi
-fi
 
-if ! task local-ci:run >"$temp_output" 2>&1; then
-  cat "$temp_output"
-  echo "Tests failed"
-  exit 1
-fi
+  if ! task local-ci:run >>"$log_file" 2>&1; then
+    cat "$log_file"
+    echo "Tests failed. for branch: $current_branch"
+    exit 1
+  fi
 
-if ! git push origin "${current_branch}" >>"$temp_output" 2>&1; then
-  cat "$temp_output"
-  echo "Failed to push changes"
-  exit 1
-fi
+  if ! git push origin "${current_branch}" >>"$log_file" 2>&1; then
+    cat "$log_file"
+    echo "Failed to push changes. for branch: $current_branch"
+    exit 1
+  fi
 
-echo "Tests passed and changes pushed successfully."
-exit 0
+  echo "Tests passed and changes pushed successfully. for branch: $current_branch"
+} &
