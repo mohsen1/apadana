@@ -189,6 +189,8 @@ tasks:
     silent: true
     env:
       COMPOSE_PROJECT_NAME: ci
+      # Avoid collision with main 433 port on host
+      NGINX_PORT: 443:444
     cmds:
       - task typecheck && task fix && task test:unit && task test:e2e:docker:run && task test:storybook:docker
 
