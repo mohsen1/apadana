@@ -262,7 +262,11 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
-    command: task playwright:test
+    command: |
+      sh -c "
+        pnpm postinstall
+        task test:e2e:ci
+      "
 
   storybook-test:
     profiles: ['e2e']
