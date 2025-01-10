@@ -1,13 +1,18 @@
 #!/bin/bash
 
+set -e
+
 # if git status is not clean, exit
 if ! git diff --quiet; then
   echo "Git status is not clean. Please commit your changes before running this script."
   exit 1
 fi
 
+# Get current branch name
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
 # if in main branch, exit
-if git rev-parse --abbrev-ref HEAD | grep -q 'main'; then
+if [ "$current_branch" = "main" ]; then
   echo "You are in the main branch. Please switch to another branch before running this script."
   exit 1
 fi
@@ -17,47 +22,48 @@ current_dir=$(basename "$(pwd)")
 parent_dir=$(dirname "$(pwd)")
 ci_dir="${parent_dir}/${current_dir}-ci"
 
+# Cleanup function
+cleanup() {
+  echo "Cleaning up..."
+  rm -f "$temp_output"
+  cd "$parent_dir/$current_dir" || exit 1
+}
+
+# Set up trap for cleanup
+trap cleanup EXIT INT TERM
+
 # Create CI directory if it doesn't exist
 mkdir -p "${ci_dir}"
 
-# Sync files to CI directory
-rsync -av --exclude-from=.gitignore . "${ci_dir}/"
+# Sync changes to CI directory
+rsync -a --exclude='node_modules' . "${ci_dir}/"
 
-# Copy dotfiles (.git, .env, etc)
-for dotfile in .[!.]* ..?*; do
-  if [ -e "$dotfile" ]; then
-    cp -r "$dotfile" "${ci_dir}/" 2>/dev/null || true
-  fi
-done
-
-# Change to CI directory
+# Switch to CI directory
 cd "${ci_dir}" || exit 1
 
-# Configure git to push to origin
-git config --global push.autoSetupRemote true
+# Run tests
+temp_output=$(mktemp)
+echo "Running tests and pushing changes..."
 
-# Get current branch name
-current_branch=$(git rev-parse --abbrev-ref HEAD)
+# Install dependencies only if node_modules doesn't exist
+if [ ! -d "node_modules" ]; then
+  echo "Installing dependencies..."
+  if ! pnpm install >"$temp_output" 2>&1; then
+    cat "$temp_output"
+    echo "Failed to install dependencies"
+    exit 1
+  fi
+fi
 
-# Run tests in background and save PID
-(task local-ci:run && git push origin "${current_branch}") &
-test_pid=$!
+if ! task local-ci:run >"$temp_output" 2>&1; then
+  cat "$temp_output"
+  echo "Tests failed"
+  exit 1
+fi
 
-# Switch to main branch
-git checkout main
-
-echo "Tests running in background. You can switch to another branch and start new work."
-
-# Change back to parent directory
-cd "${parent_dir}" || exit 1
-
-# Wait for tests to complete
-wait $test_pid
-test_status=$?
-
-# Check test exit status
-if [ $test_status -ne 0 ]; then
-  echo "Tests failed. Please fix the issues and try again."
+if ! git push origin "${current_branch}" >>"$temp_output" 2>&1; then
+  cat "$temp_output"
+  echo "Failed to push changes"
   exit 1
 fi
 
