@@ -2,17 +2,29 @@ FROM mcr.microsoft.com/playwright:v1.42.1-jammy
 
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Install system dependencies
+RUN apt-get update && apt-get install -y python3 make g++ inotify-tools wget grep && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
+# Setup pnpm
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
+RUN pnpm config set store-dir /home/node/.pnpm-store \
+  && pnpm config set update-notifier false \
+  && pnpm config set node-deprecation-warnings false
+ENV NODE_OPTIONS=--no-warnings
+
+# Fetch dependencies first (caching based solely on pnpm-lock.yaml)
 COPY pnpm-lock.yaml ./
-RUN pnpm fetch
-COPY package.json ./
-RUN pnpm install --frozen-lockfile --prefer-offline
+RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm fetch
 
-COPY . .
+# Now copy package.json and install
+COPY package.json ./
+RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm install --frozen-lockfile --offline
 
 # Install Playwright browsers
 RUN pnpm exec playwright install --with-deps chromium
+
+# Copy the rest of your app source code
+COPY . .
+
+
 
