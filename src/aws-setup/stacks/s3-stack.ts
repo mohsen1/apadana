@@ -29,6 +29,39 @@ export class S3Stack extends BaseStack {
     try {
       bucket = s3.Bucket.fromBucketName(this, 'ExistingBucket', bucketName);
       logger.debug('Imported existing S3 bucket');
+
+      // Force update CORS on existing bucket
+      const cfnBucket = new s3.CfnBucket(this, 'UpdateExistingBucket', {
+        bucketName,
+        corsConfiguration: {
+          corsRules: [
+            {
+              allowedHeaders: ['*'],
+              allowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
+              allowedOrigins: [
+                'https://*.apadana.local',
+                'https://apadana.app',
+                'https://www.apadana.app',
+                'https://*.apadana.app',
+                'https://*.vercel.app',
+              ],
+              exposedHeaders: [
+                'ETag',
+                'x-amz-server-side-encryption',
+                'x-amz-request-id',
+                'x-amz-id-2',
+                'Content-Length',
+                'Content-Type',
+                'Access-Control-Allow-Origin',
+                'Access-Control-Allow-Methods',
+                'Access-Control-Allow-Headers',
+              ],
+              maxAge: 3000,
+            },
+          ],
+        },
+      });
+      cfnBucket.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
     } catch (error) {
       assertError(error);
       const newBucket = new s3.Bucket(this, 'ApadanaBucket', {
