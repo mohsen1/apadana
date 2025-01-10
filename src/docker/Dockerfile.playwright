@@ -10,11 +10,7 @@ RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 RUN pnpm config set store-dir /home/node/.pnpm-store \
   && pnpm config set update-notifier false \
   && pnpm config set node-deprecation-warnings false
-
-# Setup environment variables
-ENV DOCKER_CONTAINER=1
 ENV NODE_OPTIONS=--no-warnings
-ENV PATH="/root/.local/bin:${PATH}"
 
 # Fetch dependencies first (caching based solely on pnpm-lock.yaml)
 COPY pnpm-lock.yaml ./
