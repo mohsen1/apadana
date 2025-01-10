@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -27,18 +27,25 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 function SignInPage() {
-  const { fetchUser } = useAuth();
+  const { fetchUser, user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
   const initialEmail = searchParams.get('email') || '';
   const [failedAttempts, setFailedAttempts] = useState(0);
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.replace(redirect || '/');
+    }
+  }, [user, router, searchParams]);
+
   const { execute, status, hasErrored, result, isPending } = useAction(login, {
     onSuccess: ({ data }) => {
       if (data?.user) {
         fetchUser();
-        router.push(redirect || '/');
+        router.replace(redirect || '/');
       }
     },
     onError: () => {

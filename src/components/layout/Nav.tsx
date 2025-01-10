@@ -1,7 +1,7 @@
 'use client';
 
 import { Lock, LogOut, User } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { useAuth } from '@/hooks/useAuth';
 
@@ -70,6 +70,7 @@ const UserButton = ({ user }: { user: ClientUser }) => {
 
 export function Nav() {
   const { user } = useAuth();
+  const pathname = usePathname();
   const isProd =
     process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e';
 
@@ -79,7 +80,7 @@ export function Nav() {
         <UserButton user={user} data-testid='user-button' />
       ) : !isProd ? (
         <Button variant='default' size='sm' asChild data-testid='sign-in-button'>
-          <a href='/signin'>Sign In</a>
+          <a href={`/signin?redirect=${encodeURIComponent(pathname)}`}>Sign In</a>
         </Button>
       ) : null}
     </nav>
