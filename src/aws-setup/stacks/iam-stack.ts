@@ -70,29 +70,38 @@ export class IamStack extends BaseStack {
         runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
         handler: 'index.handler',
         code: cdk.aws_lambda.Code.fromInline(`
+          const { IAMClient, GetGroupCommand, CreateGroupCommand, AttachGroupPolicyCommand, ListAttachedGroupPoliciesCommand } 
+            = require('@aws-sdk/client-iam');
+          
           exports.handler = async (event) => {
-            const AWS = require('aws-sdk');
-            const iam = new AWS.IAM();
+            const client = new IAMClient();
             const groupName = event.ResourceProperties.groupName;
             const policyArn = event.ResourceProperties.policyArn;
             
             try {
               if (event.RequestType === 'Create' || event.RequestType === 'Update') {
+                let groupExists = false;
                 try {
-                  await iam.getGroup({ GroupName: groupName }).promise();
+                  await client.send(new GetGroupCommand({ GroupName: groupName }));
+                  groupExists = true;
                 } catch (err) {
-                  if (err.code === 'NoSuchEntity') {
-                    await iam.createGroup({ GroupName: groupName }).promise();
+                  if (err.name === 'NoSuchEntityException') {
+                    await client.send(new CreateGroupCommand({ GroupName: groupName }));
+                  } else {
+                    throw err;
                   }
                 }
                 
-                try {
-                  await iam.attachGroupPolicy({
-                    GroupName: groupName,
-                    PolicyArn: policyArn
-                  }).promise();
-                } catch (err) {
-                  if (err.code !== 'EntityAlreadyExists') throw err;
+                // Only try to attach policy if group was just created
+                if (!groupExists) {
+                  try {
+                    await client.send(new AttachGroupPolicyCommand({
+                      GroupName: groupName,
+                      PolicyArn: policyArn
+                    }));
+                  } catch (err) {
+                    if (err.name !== 'EntityAlreadyExists' && err.name !== 'LimitExceeded') throw err;
+                  }
                 }
                 
                 return { PhysicalResourceId: groupName };
@@ -106,6 +115,19 @@ export class IamStack extends BaseStack {
             }
           }
         `),
+        initialPolicy: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: [
+              'iam:GetGroup',
+              'iam:CreateGroup',
+              'iam:AttachGroupPolicy',
+              'iam:DetachGroupPolicy',
+              'iam:ListAttachedGroupPolicies',
+            ],
+            resources: ['*'],
+          }),
+        ],
       }),
     });
 

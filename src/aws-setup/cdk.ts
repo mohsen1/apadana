@@ -19,6 +19,7 @@ const app = new cdk.App();
 const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
 const forceReplace = process.env.AWS_FORCE_REPLACE === 'true';
 
+logger.info(`Using AWS profile: ${process.env.AWS_PROFILE}`);
 logger.info(`Deploying CDK app for environment: ${environment}`);
 logger.info(`Force replace: ${forceReplace}`);
 

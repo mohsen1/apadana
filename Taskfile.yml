@@ -16,6 +16,7 @@ vars:
   ESLINT_CONFIG: config/eslint.config.mjs
   CDK_SCRIPTS: src/aws-setup/scripts
   SCRIPTS: src/scripts
+  AWS_DEPLOYMENT_CONCURRENCY: 30
   # Standardized environment names
   ENV:
     sh: echo "${VERCEL_ENV:-${AWS_DEPLOYMENT_STACK_ENV:-development}}"
@@ -32,64 +33,76 @@ env:
 tasks:
   i:
     desc: Alias for install
+    silent: true
     cmds:
       - task: install
   install:
     desc: Install dependencies
+    silent: true
     cmds:
       - pnpm install --prefer-offline
 
   fetch:
     desc: Fetch dependencies
+    silent: true
     cmds:
       - pnpm fetch
 
   build:
     desc: Build the application
     deps: [prisma:generate]
+    silent: true
     cmds:
       - pnpm next build {{.CLI_ARGS}}
 
   next:start:
     desc: Start Next.js production server
+    silent: true
     cmds:
       - pnpm next start {{.CLI_ARGS}}
 
   dev:
     desc: Start development environment
     deps: [prisma:generate, prisma:migrate]
+    silent: true
     cmds:
       - task: dev:all:parallel
 
   dev:all:parallel:
     internal: true
+    silent: true
     cmds:
       - pnpm concurrently "task dev:next" "task dev:prisma" "task dev:storybook"
 
   dev:next:
     desc: Start Next.js development server
+    silent: true
     cmds:
       - pnpm next dev --turbo {{.CLI_ARGS}}
 
   dev:prisma:
     desc: Watch Prisma schema changes
+    silent: true
     cmds:
       - pnpm prisma generate --schema={{.PRISMA_SCHEMA}} --no-hints --watch
 
   dev:prisma:migrate:
     desc: Run Prisma migrations
+    silent: true
     cmds:
       - pnpm prisma migrate dev --schema={{.PRISMA_SCHEMA}} --name $(date +%Y%m%d%H%M%S) {{.CLI_ARGS}}
 
   dev:prisma:seed:
     desc: Seed the database
     deps: [prisma:generate]
+    silent: true
     cmds:
       - pnpm prisma db seed
 
   dev:prisma:studio:
     desc: Start Prisma Studio
     watch: true
+    silent: true
     sources:
       - "{{.PRISMA_SCHEMA}}"
     cmds:
@@ -97,64 +110,76 @@ tasks:
 
   dev:storybook:
     desc: Start Storybook development server
+    silent: true
     cmds:
       - pnpm storybook dev --quiet --port=6006 --no-open {{.CLI_ARGS}} | grep -v -iE 'info|warn' | grep -v '^$'
 
   docker:build:
     desc: Build Docker images
+    silent: true
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} build --parallel {{.CLI_ARGS}}
 
   docker:clean:
     desc: Clean Docker volumes
+    silent: true
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} down -v
 
   docker:dev:
     desc: Start development Docker environment
     deps: [docker:build]
+    silent: true
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} up app_dev
 
   docker:down:
     desc: Stop Docker containers
+    silent: true
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} down
 
   docker:prod:
     desc: Start production Docker environment
     deps: [docker:build]
+    silent: true
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} up app_prod
 
   docker:prod:rebuild:
     desc: Rebuild production Docker image
+    silent: true
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} build app_prod --parallel
 
   docker:prod:redeploy:
     desc: Rebuild and restart production container
     deps: [docker:prod:rebuild]
+    silent: true
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} up -d --no-deps app_prod
 
   docker:prune:
     desc: Prune Docker system
+    silent: true
     cmds:
       - docker system prune -af --volumes
 
   t:
     desc: Alias for test
+    silent: true
     cmds:
       - task: test:all
 
   test:all:
     desc: Run all tests in parallel
+    silent: true
     cmds:
       - task -p test:unit test:e2e test:storybook
 
   test:sequential:
     desc: Run all tests sequentially
+    silent: true
     cmds:
       - task: test:unit
       - task: test:e2e
@@ -162,12 +187,14 @@ tasks:
 
   test:unit:
     desc: Run unit tests
+    silent: true
     cmds:
       - pnpm vitest run --config={{.VITEST_CONFIG}} {{.CLI_ARGS}}
 
   test:e2e:
     desc: Run E2E tests against prod environment
     deps: [nextjs:check:health:prod]
+    silent: true
     env:
       E2E_TESTING_SECRET: "{{.E2E_TESTING_SECRET_PROD}}"
       BASE_URL: "{{.PROD_DEV_DOMAIN}}"
@@ -176,11 +203,13 @@ tasks:
 
   test:e2e:ci:
     desc: Run E2E tests in CI
+    silent: true
     cmds:
       - pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
   test:e2e:dev:
     desc: Run E2E tests against dev environment
+    silent: true
     env:
       E2E_TESTING_SECRET: "{{.E2E_TESTING_SECRET_DEV}}"
       BASE_URL: "{{.DEVELOPMENT_DOMAIN}}"
@@ -189,6 +218,7 @@ tasks:
 
   test:e2e:prod:
     desc: Run E2E tests against production
+    silent: true
     env:
       BASE_URL: "{{.PRODUCTION_DOMAIN}}"
     cmds:
@@ -197,6 +227,7 @@ tasks:
   test:e2e:docker:run:internal:
     internal: true
     desc: Run E2E tests in Docker
+    silent: true
     cmds:
       - docker compose -f {{.DOCKER_COMPOSE}} up playwright {{.CLI_ARGS}}
 
@@ -205,21 +236,25 @@ tasks:
     deps:
       - task: test:e2e:docker:run:internal
     prompt: Do you want to open the HTML report?
+    silent: true
     cmds:
       - pnpm playwright show-report .next/playwright-report/html
 
   test:storybook:
     desc: Run Storybook tests
+    silent: true
     cmds:
       - pnpm playwright test --config={{.STORYBOOK_CONFIG}} {{.CLI_ARGS}}
 
   test:storybook:update:
     desc: Update Storybook test snapshots
+    silent: true
     cmds:
       - pnpm playwright test --config={{.STORYBOOK_CONFIG}} --update-snapshots
 
   test:storybook:docker:
     desc: Run Storybook tests in Docker
+    silent: true
     cmds:
       - docker compose -f {{.DOCKER_COMPOSE}} up storybook-test
       - pnpm playwright show-report .next/storybook-report/html
@@ -228,150 +263,177 @@ tasks:
     desc: Run Storybook tests in Docker and update snapshots
     env:
       UPDATE_SNAPSHOTS: true
+    silent: true
     cmds:
       - docker compose -f {{.DOCKER_COMPOSE}} up storybook-test
       - pnpm playwright show-report .next/storybook-report/html
 
   fix:
     desc: Fix all code issues in parallel
+    silent: true
     cmds:
       - task -p lint:fix format
 
   format:
     desc: Format code
+    silent: true
     cmds:
       - pnpm prettier -w {{.NON_ESLINT_FILES}}
 
   format:check:
     desc: Check code formatting
+    silent: true
     cmds:
       - pnpm prettier -c {{.NON_ESLINT_FILES}}
 
   lint:
     desc: Lint code
+    silent: true
     cmds:
       - pnpm eslint --config={{.ESLINT_CONFIG}} {{.CLI_ARGS}}
 
   lint:fix:
     desc: Fix linting issues
+    silent: true
     cmds:
       - pnpm eslint --config={{.ESLINT_CONFIG}} --fix {{.CLI_ARGS}}
 
   lint:strict:
     desc: Lint code with strict rules
+    silent: true
     cmds:
       - pnpm eslint --max-warnings=0 --config={{.ESLINT_CONFIG}} {{.CLI_ARGS}}
 
   cdk:
     desc: AWS CDK related tasks
     deps: [cdk:preflight]
+    silent: true
     cmds:
       - task: cdk:deploy
 
   cdk:deploy:
     desc: Deploy a specific stack to AWS
+    silent: true
     cmds:
       - pnpm cdk deploy {{.CLI_ARGS}}
 
   cdk:deploy-ci:
     desc: Deploy CDK stack in CI. This will not ask for approval and will deploy all resources.
+    silent: true
     cmds:
-      - pnpm cdk deploy --all --require-approval never --concurrency 10 {{.CLI_ARGS}}
+      - pnpm cdk deploy --all --require-approval never --concurrency {{.AWS_DEPLOYMENT_CONCURRENCY}} {{.CLI_ARGS}}
 
   cdk:deploy:prod:
     desc: Deploy CDK stack in production
     env:
       AWS_DEPLOYMENT_STACK_ENV: production
       AWS_PROFILE: ap-deployer-production
+    silent: true
     cmds:
-      - pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}} --require-approval never
+      - pnpm cdk deploy --all --concurrency {{.AWS_DEPLOYMENT_CONCURRENCY}} {{.CLI_ARGS}} --require-approval never
 
   cdk:deploy:preview:
     desc: Deploy CDK stack in preview
     env:
       AWS_DEPLOYMENT_STACK_ENV: preview
       AWS_PROFILE: ap-deployer-preview
+    silent: true
     cmds:
-      - pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}} --require-approval never
+      - pnpm cdk deploy --all --concurrency {{.AWS_DEPLOYMENT_CONCURRENCY}} {{.CLI_ARGS}} --require-approval never
 
   cdk:deploy:dev:
     desc: Deploy CDK stack in development
     env:
       AWS_DEPLOYMENT_STACK_ENV: development
       AWS_PROFILE: ap-deployer-development
+    silent: true
     cmds:
-      - pnpm cdk deploy --all --concurrency 10 {{.CLI_ARGS}} --require-approval never
+      - pnpm cdk deploy --all --concurrency {{.AWS_DEPLOYMENT_CONCURRENCY}} {{.CLI_ARGS}} --require-approval never
 
   cdk:deployer:create:
     desc: Create CDK deployer
+    silent: true
     cmds:
       - pnpm tsx {{.CDK_SCRIPTS}}/create-deployer.ts
 
   cdk:deployer:create:add-to-vercel:
     desc: Add CDK deployer to Vercel
+    silent: true
     cmds:
       - pnpm tsx {{.CDK_SCRIPTS}}/create-deployer.ts --add-to-vercel
 
   cdk:destroy:
     desc: Destroy CDK stack
+    silent: true
     cmds:
       - pnpm cdk destroy --all {{.CLI_ARGS}}
 
   cdk:diff:
     desc: Show CDK diff
+    silent: true
     cmds:
       - pnpm cdk diff {{.CLI_ARGS}}
 
   cdk:preflight:
     desc: Run CDK preflight checks
+    silent: true
     cmds:
       - pnpm tsx {{.CDK_SCRIPTS}}/preflight.ts
 
   cdk:env:
     desc: Print CDK deployment values
+    silent: true
     cmds:
       - pnpm tsx {{.CDK_SCRIPTS}}/print-deployment-values.ts
 
   cdk:synth:
     desc: Synthesize CDK app
+    silent: true
     cmds:
       - pnpm cdk synth
 
   cdk:wait:
     desc: Wait for CDK resources
+    silent: true
     cmds:
       - pnpm tsx {{.CDK_SCRIPTS}}/wait-for-ready.ts
 
   setup:local:
     desc: Setup local development environment
+    silent: true
     cmds:
       - pnpm tsx {{.SCRIPTS}}/setup-local-dev.ts
 
   start:
     desc: Start the application
     deps: [vercel:env:pull, setup:local]
+    silent: true
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} up --build
 
   typecheck:
     desc: Run TypeScript type checking
     deps: [prisma:generate]
+    silent: true
     cmds:
       - pnpm tsc --noEmit --incremental false {{.CLI_ARGS}}
 
   prisma:generate:
     desc: Generate Prisma client
+    silent: true
     cmds:
       - pnpm prisma generate --schema={{.PRISMA_SCHEMA}} --no-hints {{.CLI_ARGS}}
 
   prisma:migrate:
     desc: Run Prisma migrations
+    silent: true
     cmds:
       - pnpm prisma migrate deploy --schema={{.PRISMA_SCHEMA}} {{.CLI_ARGS}}
 
   prisma:watch:
     desc: Watch Prisma schema changes
     watch: true
+    silent: true
     sources:
       - prisma/schema.prisma
     cmds:
@@ -379,31 +441,37 @@ tasks:
 
   update-packages:
     desc: Update npm packages
+    silent: true
     cmds:
       - pnpm tsx {{.SCRIPTS}}/update-packages.ts
 
   vercel:deploy:
     desc: Deploy to Vercel
+    silent: true
     cmds:
       - pnpm vercel deploy {{.CLI_ARGS}}
 
   vercel:deploy:prod:
     desc: Deploy to Vercel production
+    silent: true
     cmds:
       - pnpm vercel deploy --target production --logs {{.CLI_ARGS}}
 
   vercel:deploy:preview:
     desc: Deploy to Vercel preview
+    silent: true
     cmds:
       - pnpm vercel deploy --target preview --logs {{.CLI_ARGS}}
 
   vercel:env:pull:
     desc: Pull Vercel environment variables
+    silent: true
     cmds:
       - pnpm vercel env pull
 
   cdk:validate-deployer:
     desc: Validate CDK deployer configuration
+    silent: true
     cmds:
       - pnpm tsx {{.CDK_SCRIPTS}}/validate-deployer.ts
 
