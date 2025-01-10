@@ -173,6 +173,18 @@ tasks:
       - task: fix
       - task: test:all
 
+  local-ci:
+    desc: Run all tests in local CI
+    silent: true
+    cmds:
+      - "{{.SCRIPTS}}/local-ci.sh"
+
+  local-ci:run:
+    desc: Run all tests in local CI
+    silent: true
+    cmds:
+      - task typecheck && task fix && task test:unit && task test:e2e:docker:run && task test:storybook:docker
+
   test:all:
     desc: Run all tests in parallel
     silent: true
@@ -255,11 +267,17 @@ tasks:
     cmds:
       - pnpm playwright test --config={{.STORYBOOK_CONFIG}} --update-snapshots
 
-  test:storybook:docker:
+  test:storybook:docker:run:
     desc: Run Storybook tests in Docker
     silent: true
     cmds:
       - docker compose -f {{.DOCKER_COMPOSE}} up storybook-test
+
+  test:storybook:docker:
+    desc: Run Storybook tests in Docker
+    silent: true
+    cmds:
+      - task: test:storybook:docker:run
       - pnpm playwright show-report .next/storybook-report/html
 
   test:storybook:docker:update:
