@@ -10,6 +10,8 @@ import { createLogger } from '@/utils/logger';
 
 const logger = createLogger('local-inbox');
 
+import { headers } from 'next/headers';
+
 import EmailsList from './EmailsList';
 
 export const metadata = {
@@ -17,8 +19,10 @@ export const metadata = {
 };
 
 export default async function EmailsPage(params: { searchParams: Promise<{ to?: string }> }) {
-  if (!isUsingLocalResend()) {
-    logger.info('Not using local resend, redirecting to home');
+  const { get } = await headers();
+  const e2eTestingSecret = get('e2e-testing-secret');
+  if (isUsingLocalResend(e2eTestingSecret)) {
+    logger.error('Visited local inbox page outside of e2e testing');
     redirect('/');
   }
 

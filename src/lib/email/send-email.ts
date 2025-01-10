@@ -1,3 +1,5 @@
+import { headers } from 'next/headers';
+
 import { getResend, isUsingLocalResend } from '@/lib/email/resend';
 
 import { BookingAlterationEmail } from '@/components/emails/BookingAlterationEmail';
@@ -19,7 +21,7 @@ const SECURITY_EMAIL = 'Apadana <security@apadana.app>';
 
 // TODO: accept the user that is initiating the email send
 // and rate limit the email sending from that user.
-function sendEmail({
+async function sendEmail({
   email,
   subject,
   from,
@@ -30,15 +32,9 @@ function sendEmail({
   from: string;
   react: React.ReactNode;
 }) {
-  if (
-    !isUsingLocalResend() &&
-    (email.includes('@e2e-testing.apadana.app') || email.includes('@example.com'))
-  ) {
-    logger.info('Skipping email send for test email', { email });
-    return;
-  }
-
-  const resend = getResend();
+  const { get } = await headers();
+  const e2eTestingSecret = get('e2e-testing-secret');
+  const resend = getResend(e2eTestingSecret, email);
 
   return resend.emails.send({
     from,
