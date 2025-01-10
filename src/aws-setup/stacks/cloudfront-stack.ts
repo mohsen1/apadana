@@ -36,6 +36,7 @@ export class CloudFrontStack extends BaseStack {
         accessControlAllowOrigins: [
           'https://*.apadana.local',
           'https://apadana.app',
+          'https://www.apadana.app',
           'https://*.apadana.app',
           'https://*.vercel.app',
         ],
