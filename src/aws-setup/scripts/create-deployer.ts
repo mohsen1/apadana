@@ -6,7 +6,9 @@ import {
   ListAccessKeysCommand,
 } from '@aws-sdk/client-iam';
 import { spawn } from 'child_process';
-import { unlink, writeFile } from 'fs/promises';
+import { existsSync } from 'fs';
+import { mkdir, readFile, unlink, writeFile } from 'fs/promises';
+import { homedir } from 'os';
 import { join } from 'path';
 
 import { assertError } from '@/utils';
@@ -17,8 +19,10 @@ const logger = createLogger(import.meta.filename);
 
 async function setupDeployerGroup(environment: string) {
   const scriptPath = join(import.meta.dirname, 'setup-deployer-group.ts');
+  const tsxPath = join(process.cwd(), 'node_modules', '.bin', 'tsx');
+
   return new Promise<void>((resolve, reject) => {
-    const child = spawn('tsx', [scriptPath], {
+    const child = spawn(tsxPath, [scriptPath], {
       env: { ...process.env, AWS_DEPLOYMENT_STACK_ENV: environment },
       stdio: 'inherit',
     });
@@ -124,6 +128,59 @@ async function deleteExistingAccessKeys(iamClient: IAMClient, userName: string) 
   logger.info('Successfully deleted all existing access keys');
 }
 
+async function writeAwsProfile(accessKeyId: string, secretAccessKey: string, environment: string) {
+  const awsDir = join(homedir(), '.aws');
+  const credentialsFile = join(awsDir, 'credentials');
+
+  // Create .aws directory if it doesn't exist
+  if (!existsSync(awsDir)) {
+    await mkdir(awsDir, { recursive: true });
+  }
+
+  const profileName = `ap-deployer-${environment}`;
+  const newProfileContent = `[${profileName}]
+aws_access_key_id = ${accessKeyId}
+aws_secret_access_key = ${secretAccessKey}`;
+
+  try {
+    // Read existing credentials file if it exists
+    let existingContent = '';
+    try {
+      existingContent = await readFile(credentialsFile, 'utf8');
+    } catch {
+      // File doesn't exist yet, that's fine
+    }
+
+    // Parse existing profiles
+    const profiles = existingContent.split(/\n\s*\n/);
+    const updatedProfiles = [];
+    let profileUpdated = false;
+
+    // Update or keep each profile
+    for (const profile of profiles) {
+      if (profile.trim().startsWith(`[${profileName}]`)) {
+        updatedProfiles.push(newProfileContent);
+        profileUpdated = true;
+      } else if (profile.trim()) {
+        updatedProfiles.push(profile);
+      }
+    }
+
+    // If profile wasn't found, add it
+    if (!profileUpdated) {
+      updatedProfiles.push(newProfileContent);
+    }
+
+    // Write back the updated content
+    await writeFile(credentialsFile, updatedProfiles.join('\n\n') + '\n');
+    logger.info(`✓ ${profileUpdated ? 'Updated' : 'Added'} AWS profile: ${profileName}`);
+  } catch (error) {
+    assertError(error);
+    logger.error('Failed to write AWS credentials:', error);
+    throw error;
+  }
+}
+
 async function createDeployer(environment: string, addToVercelEnv = false) {
   const iamClient = new IAMClient({});
   const userName = process.env.AWS_DEPLOYER_USER || 'ap-deployer';
@@ -161,6 +218,9 @@ async function createDeployer(environment: string, addToVercelEnv = false) {
     logger.info(`Access Key ID: ${AccessKey.AccessKeyId}`);
     logger.info(`Secret Access Key: ${AccessKey.SecretAccessKey}`);
 
+    // Write AWS profile
+    await writeAwsProfile(AccessKey.AccessKeyId, AccessKey.SecretAccessKey, environment);
+
     if (addToVercelEnv) {
       await addToVercel(AccessKey.AccessKeyId, AccessKey.SecretAccessKey, environment);
       logger.info('✓ Successfully added AWS credentials to Vercel environment');
@@ -178,7 +238,18 @@ async function createDeployer(environment: string, addToVercelEnv = false) {
 // Parse command line arguments
 const args = process.argv.slice(2);
 const addToVercelFlag = args.includes('--add-to-vercel');
-const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || process.env.VERCEL_ENV || 'development';
+const envIndex = args.indexOf('--env');
+const environment =
+  envIndex !== -1 && args[envIndex + 1]
+    ? args[envIndex + 1]
+    : process.env.AWS_DEPLOYMENT_STACK_ENV || process.env.VERCEL_ENV || 'development';
+
+if (!['development', 'preview', 'production'].includes(environment)) {
+  logger.error(
+    `Invalid environment: ${environment}. Must be one of: development, preview, production`,
+  );
+  process.exit(1);
+}
 
 logger.info(`Starting setup for environment: ${environment}`);
 void createDeployer(environment, addToVercelFlag);
