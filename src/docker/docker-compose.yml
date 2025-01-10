@@ -3,7 +3,9 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-apadana}_nginx
     image: nginx:alpine
     ports:
-      - ${COMPOSE_PROJECT_NAME:-apadana}_nginx:/443:443
+      # if the project name is apadana, then map 443 to 443.
+      # For other projects like ci, it should not map ports
+      - ${COMPOSE_PROJECT_NAME:-apadana} == "apadana" && "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
