@@ -1,8 +1,6 @@
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
-import { isUsingLocalResend } from '@/lib/email/resend';
-
 import Loading from '@/components/ui/loading';
 
 import { getEmails, getUniqueEmails } from '@/app/local-inbox/action';
@@ -21,7 +19,7 @@ export const metadata = {
 export default async function EmailsPage(params: { searchParams: Promise<{ to?: string }> }) {
   const { get } = await headers();
   const e2eTestingSecret = get('e2e-testing-secret');
-  if (isUsingLocalResend(e2eTestingSecret)) {
+  if (e2eTestingSecret !== process.env.E2E_TESTING_SECRET) {
     logger.error('Visited local inbox page outside of e2e testing');
     redirect('/');
   }

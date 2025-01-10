@@ -7,7 +7,7 @@ import _ from 'lodash';
 export const prodE2eTestHostUser = {
   firstName: 'E2E Test',
   lastName: 'User',
-  email: 'test-user@e2e-testing.apadana.app',
+  email: 'test-host@example.com',
   password: 'nslr83ub9v8',
 };
 

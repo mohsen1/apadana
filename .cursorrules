@@ -57,6 +57,7 @@ actionClient.schema(input).action(async ({ parsedInput, ctx }) => {
 Testing Guidelines
 • Unit tests: Use Vitest, run in docker with database
 • E2E tests: Use Playwright
+• Use @example.com for test emails
 • Import { test, expect } from 'base'
 • Create test data with TestData class
 • Avoid page.waitForTimeout(1000)
