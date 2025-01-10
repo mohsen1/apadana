@@ -2,6 +2,12 @@
 
 set -e
 
+# Check if another instance is running
+if pidof -x "$(basename "$0")" -o $$ >/dev/null; then
+  echo "Another instance of this script is already running. Please wait for it to complete."
+  exit 1
+fi
+
 # if git status is not clean, exit
 if ! git diff --quiet; then
   echo "Git status is not clean. Please commit your changes before running this script."
