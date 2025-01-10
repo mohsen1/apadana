@@ -37,6 +37,14 @@ cleanup() {
   cd "$parent_dir/$current_dir" || exit 1
 }
 
+fail() {
+  rm -f "$lock_file"
+
+  osascript -e 'display notification "'"$1"'" with title "Push to '"$current_branch"' failed."'
+  code "$log_file"
+  exit 1
+}
+
 # Set up trap for cleanup
 trap cleanup EXIT INT TERM
 
@@ -58,28 +66,26 @@ echo "Log file: $log_file"
 {
   # Create a lock file to prevent multiple instances from running
   lock_file="${ci_dir}/push-lock.txt"
-  echo "time: $(date)" >"$lock_file"
+  echo "Test logs for branch: $current_branch" >"$lock_file"
+  echo "Started at: $(date)" >>"$lock_file"
+
+  cat "$lock_file" >>"$log_file"
+  echo "" >>"$log_file"
 
   # Install dependencies
-  if ! pnpm install >"$log_file" 2>&1; then
-    cat "$log_file"
-    echo "Failed to install dependencies. for branch: $current_branch"
-    rm -f "$lock_file"
-    exit 1
+  echo "Installing dependencies..." >>"$log_file"
+  if ! pnpm install >>"$log_file" 2>&1; then
+    fail "Failed to install dependencies"
   fi
 
+  echo "Running tests..." >>"$log_file"
   if ! task local-ci:run >>"$log_file" 2>&1; then
-    cat "$log_file"
-    echo "Tests failed. for branch: $current_branch"
-    rm -f "$lock_file"
-    exit 1
+    fail "Tests failed"
   fi
 
+  echo "Pushing changes..." >>"$log_file"
   if ! git push origin "${current_branch}" >>"$log_file" 2>&1; then
-    cat "$log_file"
-    echo "Failed to push changes. for branch: $current_branch"
-    rm -f "$lock_file"
-    exit 1
+    fail "Failed to push changes"
   fi
 
   echo "Tests passed and changes pushed successfully. for branch: $current_branch"
