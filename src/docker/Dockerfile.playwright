@@ -23,6 +23,9 @@ RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm install --frozen-lockf
 # Install Playwright browsers
 RUN pnpm exec playwright install --with-deps chromium
 
+# Install task
+RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
 # Copy the rest of your app source code
 COPY . .
 
