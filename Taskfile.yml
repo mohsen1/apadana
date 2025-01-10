@@ -195,10 +195,18 @@ tasks:
     cmds:
       - BASE_URL={{.PRODUCTION_DOMAIN}} pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
-  test:e2e:docker:
+  test:e2e:docker:run:internal:
+    internal: true
     desc: Run E2E tests in Docker
     cmds:
-      - docker compose -f {{.DOCKER_COMPOSE}} up playwright
+      - docker compose -f {{.DOCKER_COMPOSE}} up playwright {{.CLI_ARGS}}
+
+  test:e2e:docker:
+    desc: Run E2E tests in Docker
+    deps:
+      - task: test:e2e:docker:run:internal
+    prompt: Do you want to open the HTML report?
+    cmds:
       - pnpm playwright show-report .next/playwright-report/html
 
   test:storybook:
@@ -215,6 +223,12 @@ tasks:
     desc: Run Storybook tests in Docker
     cmds:
       - docker compose -f {{.DOCKER_COMPOSE}} up storybook-test
+      - pnpm playwright show-report .next/storybook-report/html
+
+  test:storybook:docker:update:
+    desc: Run Storybook tests in Docker and update snapshots
+    cmds:
+      - UPDATE_SNAPSHOTS=true docker compose -f {{.DOCKER_COMPOSE}} up storybook-test
       - pnpm playwright show-report .next/storybook-report/html
 
   fix:

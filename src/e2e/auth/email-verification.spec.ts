@@ -1,5 +1,3 @@
-import { assertUrl } from '@/utils/url';
-
 import { expect, test } from '../base';
 
 test.describe('Email Verification Process', () => {

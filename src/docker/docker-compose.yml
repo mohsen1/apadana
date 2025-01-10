@@ -275,6 +275,7 @@ services:
     environment:
       - NODE_ENV=test
       - STORYBOOK_URL=https://storybook.apadana.local
+      - UPDATE_SNAPSHOTS=false
     volumes:
       - ../../src:/app/src
       - ../../public:/app/public
@@ -296,7 +297,7 @@ services:
     command: >
       sh -c "
         STORYBOOK_URL=https://storybook.apadana.local
-        if [ -n \"$UPDATE_SNAPSHOTS\" ]; then
+        if [ \"$UPDATE_SNAPSHOTS\" = true ]; then
           pnpm test:storybook:update
         else
           pnpm test:storybook
