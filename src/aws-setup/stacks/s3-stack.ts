@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_s3 as s3 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 import { BaseStack, BaseStackProps } from './base-stack';
@@ -13,7 +12,7 @@ const logger = createLogger(import.meta.filename);
 interface BucketConfig {
   cors: {
     allowedHeaders: string[];
-    allowedMethods: string[];
+    allowedMethods: s3.HttpMethods[];
     allowedOrigins: string[];
     exposedHeaders: string[];
     maxAge: number;
@@ -23,10 +22,7 @@ interface BucketConfig {
   publicReadAccess: boolean;
   blockPublicAccess: s3.BlockPublicAccess;
   enforceSSL: boolean;
-  lifecycleRules: {
-    abortIncompleteMultipartUploadAfter: cdk.Duration;
-    enabled: boolean;
-  }[];
+  lifecycleRules: s3.LifecycleRule[];
 }
 
 export class S3Stack extends BaseStack {
@@ -38,7 +34,13 @@ export class S3Stack extends BaseStack {
       cors: [
         {
           allowedHeaders: ['*'],
-          allowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
+          allowedMethods: [
+            s3.HttpMethods.GET,
+            s3.HttpMethods.PUT,
+            s3.HttpMethods.POST,
+            s3.HttpMethods.DELETE,
+            s3.HttpMethods.HEAD,
+          ],
           allowedOrigins: [
             'https://*.apadana.local',
             'https://apadana.app',
@@ -74,51 +76,6 @@ export class S3Stack extends BaseStack {
     };
   }
 
-  private createNewBucket(bucketName: string): s3.IBucket {
-    const config = this.getBucketConfig();
-    const bucket = new s3.Bucket(this, 'ApadanaBucket', {
-      bucketName,
-      versioned: config.versioned,
-      encryption: config.encryption,
-      publicReadAccess: config.publicReadAccess,
-      blockPublicAccess: config.blockPublicAccess,
-      enforceSSL: config.enforceSSL,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      cors: config.cors.map((rule) => ({
-        ...rule,
-        allowedMethods: rule.allowedMethods.map((method) => method as s3.HttpMethods),
-      })),
-    });
-
-    config.lifecycleRules.forEach((rule) => {
-      bucket.addLifecycleRule(rule);
-    });
-
-    logger.debug('Created new S3 bucket');
-    return bucket;
-  }
-
-  private updateExistingBucket(bucketName: string): void {
-    const config = this.getBucketConfig();
-    const cfnBucket = new s3.CfnBucket(this, 'UpdateExistingBucket', {
-      bucketName,
-      corsConfiguration: {
-        corsRules: config.cors,
-      },
-      versioningConfiguration: {
-        status: config.versioned ? 'Enabled' : 'Suspended',
-      },
-      publicAccessBlockConfiguration: {
-        blockPublicAcls: true,
-        blockPublicPolicy: true,
-        ignorePublicAcls: true,
-        restrictPublicBuckets: true,
-      },
-    });
-    cfnBucket.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
-    logger.debug('Updated existing S3 bucket configuration');
-  }
-
   constructor(scope: Construct, id: string, props: BaseStackProps) {
     super(scope, id, props);
 
@@ -129,16 +86,14 @@ export class S3Stack extends BaseStack {
     cdk.Tags.of(this).add('service', 's3');
 
     const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`.trim();
-    let bucket: s3.IBucket;
+    const config = this.getBucketConfig();
 
-    try {
-      bucket = s3.Bucket.fromBucketName(this, 'ExistingBucket', bucketName);
-      logger.debug('Imported existing S3 bucket');
-      this.updateExistingBucket(bucketName);
-    } catch (error) {
-      assertError(error);
-      bucket = this.createNewBucket(bucketName);
-    }
+    // Create or take ownership of the bucket
+    const bucket = new s3.Bucket(this, 'ApadanaBucket', {
+      bucketName,
+      ...config,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
 
     this.bucket = bucket;
     this.bucketNameOutput = new cdk.CfnOutput(this, 'BucketName', {

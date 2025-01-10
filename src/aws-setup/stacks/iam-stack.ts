@@ -2,13 +2,18 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_iam as iam } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger(import.meta.filename);
 import { BaseStack, BaseStackProps } from './base-stack';
 
+const logger = createLogger(import.meta.filename);
+
 export class IamStack extends BaseStack {
+  public readonly deployerGroup: iam.Group;
+  public readonly uploadRole: iam.Role;
+  public readonly devPolicy: iam.ManagedPolicy;
+  public readonly uploadPolicy: iam.ManagedPolicy;
+
   constructor(scope: Construct, id: string, props: BaseStackProps) {
     super(scope, id, props);
 
@@ -18,7 +23,7 @@ export class IamStack extends BaseStack {
     cdk.Tags.of(this).add('service', 'iam');
 
     // Create policy for deployment and operations
-    const devPolicy = new iam.ManagedPolicy(this, 'DevDeploymentPolicy', {
+    this.devPolicy = new iam.ManagedPolicy(this, 'DevDeploymentPolicy', {
       description: 'Allow needed actions for Apadana deployment',
       statements: [
         new iam.PolicyStatement({
@@ -43,7 +48,7 @@ export class IamStack extends BaseStack {
     logger.debug('Created deployment policy');
 
     // Create policy for S3 uploads
-    const uploadPolicy = new iam.ManagedPolicy(this, 'S3UploadPolicy', {
+    this.uploadPolicy = new iam.ManagedPolicy(this, 'S3UploadPolicy', {
       description: 'Allow S3 upload operations via presigned URLs',
       statements: [
         new iam.PolicyStatement({
@@ -58,39 +63,31 @@ export class IamStack extends BaseStack {
     });
     logger.debug('Created S3 upload policy');
 
-    // Try to import existing group or create new one
-    const groupName = `ap-deployer-group-${props.environment}`;
-    let deployerGroup: iam.IGroup;
-
-    try {
-      deployerGroup = iam.Group.fromGroupName(this, 'ExistingDeployerGroup', groupName);
-      logger.debug('Imported existing deployer group');
-    } catch (error) {
-      assertError(error);
-      deployerGroup = new iam.Group(this, 'DeployerGroup', {
-        groupName,
-        managedPolicies: [devPolicy],
-      });
-      logger.debug('Created new deployer group');
-    }
-
-    // Ensure the group has the required policies
-    if (deployerGroup instanceof iam.Group) {
-      deployerGroup.addManagedPolicy(devPolicy);
-    }
+    // Create or update the deployer group
+    this.deployerGroup = new iam.Group(this, 'DeployerGroup', {
+      groupName: `ap-deployer-group-${props.environment}`,
+      managedPolicies: [this.devPolicy],
+    });
+    logger.debug('Created/updated deployer group');
 
     // Create a role for Lambda functions that need to generate presigned URLs
-    const uploadRole = new iam.Role(this, 'S3UploadRole', {
+    this.uploadRole = new iam.Role(this, 'S3UploadRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
       description: 'Role for Lambda functions that generate S3 presigned URLs',
-      managedPolicies: [uploadPolicy],
+      managedPolicies: [this.uploadPolicy],
     });
     logger.debug('Created S3 upload role');
 
     new cdk.CfnOutput(this, 'UploadRoleArn', {
       exportName: `${this.stackName}-UploadRoleArn`,
-      value: uploadRole.roleArn,
+      value: this.uploadRole.roleArn,
       description: 'ARN of the S3 upload role',
+    });
+
+    new cdk.CfnOutput(this, 'DeployerGroupName', {
+      exportName: `${this.stackName}-DeployerGroupName`,
+      value: this.deployerGroup.groupName,
+      description: 'Name of the deployer group',
     });
   }
 }
