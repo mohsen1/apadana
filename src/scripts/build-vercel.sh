@@ -1,14 +1,5 @@
 #!/bin/bash
 
-# Install task
-./src/scripts/install-task.sh
-
-# Ensure task is in PATH
-export PATH="$HOME/.local/bin:$PATH"
-
-# Create alias for task
-alias tssk="task"
-
 # This is essentially a postinstall
 task prisma:generate
 
