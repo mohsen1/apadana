@@ -187,6 +187,8 @@ tasks:
   local-ci:run:
     desc: Run all tests in local CI
     silent: true
+    env:
+      COMPOSE_PROJECT_NAME: ci
     cmds:
       - task typecheck && task fix && task test:unit && task test:e2e:docker:run && task test:storybook:docker
 
@@ -434,6 +436,9 @@ tasks:
     desc: Start the application
     deps: [vercel:env:pull, setup:local]
     silent: true
+    env:
+      NGINX_PORT: 443:443
+      COMPOSE_PROJECT_NAME: apadana
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} up --build
 
