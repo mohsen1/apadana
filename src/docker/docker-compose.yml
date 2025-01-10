@@ -250,13 +250,13 @@ services:
       - ../../.next/playwright-report:/app/.next/playwright-report
       - playwright_node_modules:/app/node_modules
       - playwright_results:/app/test-results
+    networks:
+      - apadana_network
     depends_on:
       app_prod:
         condition: service_healthy
-      nginx:
-        condition: service_started
-    networks:
-      - apadana_network
+      app_dev:
+        condition: service_healthy
     extra_hosts:
       - 'prod.apadana.local:172.17.0.1'
     dns:

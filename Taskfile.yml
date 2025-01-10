@@ -264,7 +264,11 @@ tasks:
     desc: Run E2E tests in Docker
     silent: true
     cmds:
-      - docker compose -f {{.DOCKER_COMPOSE}} up playwright {{.CLI_ARGS}}
+      - |
+        docker compose -f {{.DOCKER_COMPOSE}} up playwright --exit-code-from playwright
+        exit_code=$?
+        docker compose -f {{.DOCKER_COMPOSE}} rm -f playwright
+        exit $exit_code
 
   test:e2e:docker:
     desc: Run E2E tests in Docker
@@ -291,7 +295,11 @@ tasks:
     desc: Run Storybook tests in Docker
     silent: true
     cmds:
-      - docker compose -f {{.DOCKER_COMPOSE}} up storybook-test
+      - |
+        docker compose -f {{.DOCKER_COMPOSE}} up storybook-test --exit-code-from storybook-test
+        exit_code=$?
+        docker compose -f {{.DOCKER_COMPOSE}} rm -f storybook-test
+        exit $exit_code
 
   test:storybook:docker:
     desc: Run Storybook tests in Docker
