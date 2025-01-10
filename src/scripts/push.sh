@@ -2,8 +2,13 @@
 
 set -e
 
+# Get current directory name and parent directory
+current_dir=$(basename "$(pwd)")
+parent_dir=$(dirname "$(pwd)")
+ci_dir="${parent_dir}/${current_dir}-ci"
+
 # Check if another instance is running
-if pidof -x "$(basename "$0")" -o $$ >/dev/null; then
+if [ -f "${ci_dir}/push-lock.txt" ]; then
   echo "Another instance of this script is already running. Please wait for it to complete."
   exit 1
 fi
@@ -23,16 +28,12 @@ if [ "$current_branch" = "main" ]; then
   exit 1
 fi
 
-# Get current directory name and parent directory
-current_dir=$(basename "$(pwd)")
-parent_dir=$(dirname "$(pwd)")
-ci_dir="${parent_dir}/${current_dir}-ci"
-
 # Create a unique log file
 log_file="/tmp/push-${current_branch}-$(date +%s).log"
 
 # Cleanup function
 cleanup() {
+  rm -f "$lock_file"
   cd "$parent_dir/$current_dir" || exit 1
 }
 
@@ -55,6 +56,10 @@ echo "Log file: $log_file"
 
 # Run the long operations in background
 {
+  # Create a lock file to prevent multiple instances from running
+  lock_file="${ci_dir}/push-lock.txt"
+  echo "time: $(date)" >"$lock_file"
+
   # Install dependencies
   if ! pnpm install >"$log_file" 2>&1; then
     cat "$log_file"
