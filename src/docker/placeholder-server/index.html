@@ -4,13 +4,28 @@
     <meta http-equiv="refresh" content="5" />
     <title>Building...</title>
     <style>
+      :root {
+        --bg-color: #fcfcfc;
+        --text-color: #000;
+        --loader-bg: #eee;
+        --loader-fill: #666;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-color: #1a1a1a;
+          --text-color: #fff;
+          --loader-bg: #333;
+          --loader-fill: #fff;
+        }
+      }
+
       html,
       body {
         margin: 0;
         padding: 0;
-        background-color: #fcfcfc;
-      }
-      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
         display: grid;
         place-items: center;
         height: 100vh;
@@ -20,7 +35,7 @@
       .loader {
         width: 200px;
         height: 4px;
-        background-color: #eee;
+        background-color: var(--loader-bg);
         border-radius: 2px;
         margin-top: 20px;
         overflow: hidden;
@@ -31,7 +46,7 @@
         display: block;
         width: 40%;
         height: 100%;
-        background-color: #666;
+        background-color: var(--loader-fill);
         border-radius: 2px;
         transform: translateX(-100%);
         animation: loading 4.75s cubic-bezier(0.4, 0, 0.2, 1) 0.25s forwards;
