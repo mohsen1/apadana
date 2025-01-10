@@ -238,6 +238,7 @@ services:
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
       - BASE_URL=https://prod.apadana.local
       - DOCKER_CONTAINER=true
+      - UPDATE_SNAPSHOTS=false
     volumes:
       - ../../src:/app/src
       - ../../public:/app/public
