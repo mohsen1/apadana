@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_s3 as s3 } from 'aws-cdk-lib';
+import { aws_s3 as s3, custom_resources as cr } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { createLogger } from '@/utils/logger';
@@ -88,17 +88,141 @@ export class S3Stack extends BaseStack {
     const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`.trim();
     const config = this.getBucketConfig();
 
-    // Create or take ownership of the bucket
-    const bucket = new s3.Bucket(this, 'ApadanaBucket', {
-      bucketName,
-      ...config,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    // Import the existing bucket
+    this.bucket = s3.Bucket.fromBucketName(this, 'ExistingBucket', bucketName);
+
+    // Create AWS custom resources to update bucket configuration
+    new cr.AwsCustomResource(this, 'UpdateBucketCors', {
+      onCreate: {
+        service: 'S3',
+        action: 'putBucketCors',
+        parameters: {
+          Bucket: bucketName,
+          CORSConfiguration: {
+            CORSRules: config.cors,
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('cors'),
+      },
+      onUpdate: {
+        service: 'S3',
+        action: 'putBucketCors',
+        parameters: {
+          Bucket: bucketName,
+          CORSConfiguration: {
+            CORSRules: config.cors,
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('cors'),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: [this.bucket.arnForObjects('*')],
+      }),
     });
 
-    this.bucket = bucket;
+    new cr.AwsCustomResource(this, 'UpdateBucketVersioning', {
+      onCreate: {
+        service: 'S3',
+        action: 'putBucketVersioning',
+        parameters: {
+          Bucket: bucketName,
+          VersioningConfiguration: {
+            Status: config.versioned ? 'Enabled' : 'Suspended',
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('versioning'),
+      },
+      onUpdate: {
+        service: 'S3',
+        action: 'putBucketVersioning',
+        parameters: {
+          Bucket: bucketName,
+          VersioningConfiguration: {
+            Status: config.versioned ? 'Enabled' : 'Suspended',
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('versioning'),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: [this.bucket.arnForObjects('*')],
+      }),
+    });
+
+    new cr.AwsCustomResource(this, 'UpdateBucketPublicAccess', {
+      onCreate: {
+        service: 'S3',
+        action: 'putPublicAccessBlock',
+        parameters: {
+          Bucket: bucketName,
+          PublicAccessBlockConfiguration: {
+            BlockPublicAcls: true,
+            BlockPublicPolicy: true,
+            IgnorePublicAcls: true,
+            RestrictPublicBuckets: true,
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('public-access'),
+      },
+      onUpdate: {
+        service: 'S3',
+        action: 'putPublicAccessBlock',
+        parameters: {
+          Bucket: bucketName,
+          PublicAccessBlockConfiguration: {
+            BlockPublicAcls: true,
+            BlockPublicPolicy: true,
+            IgnorePublicAcls: true,
+            RestrictPublicBuckets: true,
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('public-access'),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: [this.bucket.arnForObjects('*')],
+      }),
+    });
+
+    new cr.AwsCustomResource(this, 'UpdateBucketLifecycle', {
+      onCreate: {
+        service: 'S3',
+        action: 'putBucketLifecycleConfiguration',
+        parameters: {
+          Bucket: bucketName,
+          LifecycleConfiguration: {
+            Rules: config.lifecycleRules.map((rule) => ({
+              AbortIncompleteMultipartUpload: {
+                DaysAfterInitiation: rule.abortIncompleteMultipartUploadAfter?.toDays(),
+              },
+              Status: rule.enabled ? 'Enabled' : 'Disabled',
+            })),
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('lifecycle'),
+      },
+      onUpdate: {
+        service: 'S3',
+        action: 'putBucketLifecycleConfiguration',
+        parameters: {
+          Bucket: bucketName,
+          LifecycleConfiguration: {
+            Rules: config.lifecycleRules.map((rule) => ({
+              AbortIncompleteMultipartUpload: {
+                DaysAfterInitiation: rule.abortIncompleteMultipartUploadAfter?.toDays(),
+              },
+              Status: rule.enabled ? 'Enabled' : 'Disabled',
+            })),
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('lifecycle'),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: [this.bucket.arnForObjects('*')],
+      }),
+    });
+
     this.bucketNameOutput = new cdk.CfnOutput(this, 'BucketName', {
       exportName: `${this.stackName}-BucketName`,
-      value: bucket.bucketName,
+      value: this.bucket.bucketName,
       description: 'Name of the S3 bucket',
     });
     logger.debug('Added bucket name output');
