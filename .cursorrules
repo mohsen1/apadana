@@ -65,5 +65,10 @@ Testing Guidelines
 Development & Deployment
 • Run everything except e2e tests in docker
 • Commit all changes before deploying to Vercel
-• Use git commit -m msg1 -m msg2 for multiple messages
 • Use Taskfile to run commands
+
+Git
+• commit changes carefully with multiple commits, each commit semantically meaningful
+• pipe git diff to cat to see what's changed
+• never `git add .`. Add files individually.
+• use git commit -m msg1 -m msg2 for multiple messages
