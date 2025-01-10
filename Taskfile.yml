@@ -166,16 +166,20 @@ tasks:
       - docker system prune -af --volumes
 
   t:
-    desc: Alias for test
+    desc: Alias for tests and linters
     silent: true
     cmds:
+      - task: typecheck
+      - task: fix
       - task: test:all
 
   test:all:
     desc: Run all tests in parallel
     silent: true
     cmds:
-      - task -p test:unit test:e2e test:storybook
+      - task: test:unit
+      - task: test:e2e:docker:run
+      - task: test:storybook:docker
 
   test:sequential:
     desc: Run all tests sequentially
@@ -224,8 +228,7 @@ tasks:
     cmds:
       - pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
 
-  test:e2e:docker:run:internal:
-    internal: true
+  test:e2e:docker:run:
     desc: Run E2E tests in Docker
     silent: true
     cmds:
@@ -234,7 +237,7 @@ tasks:
   test:e2e:docker:
     desc: Run E2E tests in Docker
     deps:
-      - task: test:e2e:docker:run:internal
+      - task: test:e2e:docker:run
     prompt: Do you want to open the HTML report?
     silent: true
     cmds:

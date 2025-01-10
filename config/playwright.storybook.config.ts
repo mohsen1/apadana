@@ -11,7 +11,15 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: undefined, // always run in parallel
 
-  reporter: [['html', { outputFolder: path.join(process.cwd(), './storybook-e2e-html-report') }]],
+  reporter: [
+    [
+      'html',
+      {
+        open: process.env.DOCKER_CONTAINER ? 'never' : 'on-failure',
+        outputFolder: path.join(process.cwd(), './storybook-e2e-html-report'),
+      },
+    ],
+  ],
 
   // Configure snapshot path to include platform for better organization
   snapshotPathTemplate:
