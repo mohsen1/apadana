@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 
-import { getResend, isUsingLocalResend } from '@/lib/email/resend';
+import { getResend } from '@/lib/email/resend';
 
 import { BookingAlterationEmail } from '@/components/emails/BookingAlterationEmail';
 import { BookingRequestEmail } from '@/components/emails/BookingRequestEmail';
