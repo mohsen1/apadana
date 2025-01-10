@@ -10,6 +10,11 @@ RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 RUN pnpm config set store-dir /home/node/.pnpm-store \
   && pnpm config set update-notifier false \
   && pnpm config set node-deprecation-warnings false
+
+# Setup environment for postinstall script
+ENV PATH="/root/.local/bin:${PATH}"
+ENV OSTYPE=linux-gnu
+
 ENV NODE_OPTIONS=--no-warnings
 
 # Fetch dependencies first (caching based solely on pnpm-lock.yaml)
@@ -22,9 +27,6 @@ RUN --mount=type=cache,target=/home/node/.pnpm-store pnpm install --frozen-lockf
 
 # Install Playwright browsers
 RUN pnpm exec playwright install --with-deps chromium
-
-# Install task
-RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
 # Copy the rest of your app source code
 COPY . .
