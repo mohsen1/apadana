@@ -192,7 +192,7 @@ tasks:
       # Avoid collision with main 433 port on host
       NGINX_PORT: 443:444
     cmds:
-      - task typecheck && task fix && task test:unit && task test:e2e:docker:run && task test:storybook:docker
+      - task typecheck && task fix && task test:unit && task test:e2e:docker:run && task test:storybook:docker:run
 
   test:all:
     desc: Run all tests in parallel
