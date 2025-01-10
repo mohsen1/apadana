@@ -64,18 +64,21 @@ echo "Log file: $log_file"
   if ! pnpm install >"$log_file" 2>&1; then
     cat "$log_file"
     echo "Failed to install dependencies. for branch: $current_branch"
+    rm -f "$lock_file"
     exit 1
   fi
 
   if ! task local-ci:run >>"$log_file" 2>&1; then
     cat "$log_file"
     echo "Tests failed. for branch: $current_branch"
+    rm -f "$lock_file"
     exit 1
   fi
 
   if ! git push origin "${current_branch}" >>"$log_file" 2>&1; then
     cat "$log_file"
     echo "Failed to push changes. for branch: $current_branch"
+    rm -f "$lock_file"
     exit 1
   fi
 
