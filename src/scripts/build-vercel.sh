@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Install task
+mkdir -p ~/.local/bin
+curl -sL https://github.com/go-task/task/releases/download/v3.30.1/task_linux_amd64.tar.gz | tar xz -C /tmp
+chmod +x /tmp/task
+mv /tmp/task ~/.local/bin/task
+export PATH="$HOME/.local/bin:$PATH"
+
 # This is essentially a postinstall
 task prisma:generate
 
