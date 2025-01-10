@@ -3,7 +3,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-apadana}_nginx
     image: nginx:alpine
     ports:
-      - '${NGINX_PORT:-433}:433'
+      - '${NGINX_PORT:-443}:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
