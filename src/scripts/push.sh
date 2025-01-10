@@ -79,7 +79,7 @@ echo "Log file: $log_file"
   fi
 
   echo "Running tests..." >>"$log_file"
-  if ! task local-ci:run >>"$log_file" 2>&1; then
+  if ! task local-ci >>"$log_file" 2>&1; then
     fail "Tests failed"
   fi
 
