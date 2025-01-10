@@ -11,10 +11,8 @@ RUN pnpm config set store-dir /home/node/.pnpm-store \
   && pnpm config set update-notifier false \
   && pnpm config set node-deprecation-warnings false
 
-# Setup environment for postinstall script
-ENV PATH="/root/.local/bin:${PATH}"
-ENV OSTYPE=linux-gnu
-
+# Setup environment variables
+ENV DOCKER_CONTAINER=1
 ENV NODE_OPTIONS=--no-warnings
 
 # Fetch dependencies first (caching based solely on pnpm-lock.yaml)
