@@ -74,13 +74,15 @@ export function Nav() {
   const isProd =
     process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e';
 
+  const encodedRedirect = pathname ? encodeURIComponent(pathname) : '';
+
   return (
     <nav className='flex items-center gap-4' data-testid='main-nav'>
       {user ? (
         <UserButton user={user} data-testid='user-button' />
       ) : !isProd ? (
         <Button variant='default' size='sm' asChild data-testid='sign-in-button'>
-          <a href={`/signin?redirect=${encodeURIComponent(pathname)}`}>Sign In</a>
+          <a href={`/signin${encodedRedirect ? `?redirect=${encodedRedirect}` : ''}`}>Sign In</a>
         </Button>
       ) : null}
     </nav>

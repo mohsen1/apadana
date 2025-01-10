@@ -34,18 +34,46 @@ function SignInPage() {
   const initialEmail = searchParams.get('email') || '';
   const [failedAttempts, setFailedAttempts] = useState(0);
 
+  // Get and decode redirect URL
+  const getRedirectUrl = () => {
+    if (!redirect) return '/';
+
+    try {
+      // Decode the redirect URL first
+      const decodedRedirect = decodeURIComponent(redirect);
+
+      // Remove any origin part if present
+      const url = new URL(decodedRedirect, window.location.origin);
+      const relativePath = url.pathname + url.search;
+
+      return relativePath;
+    } catch {
+      // If URL parsing fails, try as a relative path
+      try {
+        const decodedPath = decodeURIComponent(redirect);
+        // Basic validation to ensure it starts with /
+        if (!decodedPath.startsWith('/')) {
+          return '/';
+        }
+        return decodedPath;
+      } catch {
+        return '/';
+      }
+    }
+  };
+
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      router.replace(redirect || '/');
+      router.replace(getRedirectUrl());
     }
-  }, [user, router, searchParams]);
+  }, [user, router, redirect]);
 
   const { execute, status, hasErrored, result, isPending } = useAction(login, {
-    onSuccess: ({ data }) => {
+    onSuccess: async ({ data }) => {
       if (data?.user) {
-        fetchUser();
-        router.replace(redirect || '/');
+        await fetchUser();
+        router.replace(getRedirectUrl());
       }
     },
     onError: () => {
