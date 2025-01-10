@@ -173,11 +173,14 @@ tasks:
       - task: fix
       - task: test:all
 
-  local-ci:
-    desc: Run all tests in local CI
+  push:
+    desc: |
+      Push to remote. This will run all tests and if they fail, it will not push.
+      This is useful for running tests before pushing to remote.
+      While this is running you can switch to another branch start new work
     silent: true
     cmds:
-      - "{{.SCRIPTS}}/local-ci.sh"
+      - "{{.SCRIPTS}}/push.sh"
 
   local-ci:run:
     desc: Run all tests in local CI
