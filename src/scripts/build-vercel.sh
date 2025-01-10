@@ -1,4 +1,6 @@
 #!/bin/bash
+# Exit on error
+set -e
 
 # Install task
 mkdir -p ~/.local/bin
@@ -10,12 +12,6 @@ export PATH="$HOME/.local/bin:$PATH"
 # This is essentially a postinstall
 task prisma:generate
 
-# Exit on error
-set -e
-
-# Start timing AWS deployment
-start_time=$(date +%s)
-
 # Build for production. This script assumes all of the environment variables are set.
 export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
 
@@ -26,16 +22,6 @@ echo "Running preflight checks..."
 task cdk:preflight || exit 1
 
 task cdk:deploy-ci
-
-# Check deployment time
-end_time=$(date +%s)
-elapsed=$((end_time - start_time))
-if [ $elapsed -ge 2400 ]; then
-  echo "Warning: AWS deployment took more than 40 minutes. This is likely because a lot of resources are being deployed."
-  echo "Vercel build times are capped at 45 minutes. For faster iterations, consider running locally with:"
-  echo "AWS_DEPLOYMENT_STACK_ENV=$AWS_DEPLOYMENT_STACK_ENV task cdk:deploy --all"
-  exit 124
-fi
 
 # Install Vercel CLI
 echo "Installing Vercel CLI..."
