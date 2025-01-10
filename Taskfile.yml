@@ -15,6 +15,9 @@ vars:
   ESLINT_FILES: "**/*.{js,jsx,ts,tsx,mjs}"
   ESLINT_CONFIG: config/eslint.config.mjs
   CDK_SCRIPTS: src/aws-setup/scripts
+  COMPOSE_PROJECT_NAME: apadana
+  NGINX_PORT: 443
+  TEST_DB_PORT: 5435
   SCRIPTS: src/scripts
   AWS_DEPLOYMENT_CONCURRENCY: 30
   # Standardized environment names
@@ -179,13 +182,11 @@ tasks:
       This is useful for running tests before pushing to remote.
       While this is running you can switch to another branch start new work
     silent: true
-    env:
-      COMPOSE_PROJECT_NAME: ci
     cmds:
       - "{{.SCRIPTS}}/push.sh"
 
-  local-ci:run:
-    desc: Run all tests in local CI
+  local-ci:
+    desc: Run all tests in local CI. It will not use existing Docker containers.
     silent: true
     env:
       COMPOSE_PROJECT_NAME: ci
@@ -193,7 +194,13 @@ tasks:
       NGINX_PORT: 444
       TEST_DB_PORT: 5436
     cmds:
-      - task typecheck && task fix && task test:unit && task test:e2e:docker:run && task test:storybook:docker:run
+      # TODO: potentially run tests in parallel
+      - |
+        task typecheck || exit 1
+        task fix || exit 1
+        task test:unit || exit 1
+        task test:e2e:docker:run || exit 1
+        task test:storybook:docker:run || exit 1
 
   test:all:
     desc: Run all tests in parallel
@@ -214,6 +221,9 @@ tasks:
   test:unit:
     desc: Run unit tests
     silent: true
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:{{.TEST_DB_PORT}}/apadana_test
+      RESEND_API_KEY: re123_fake_RESEND_API_KEY
     cmds:
       - pnpm vitest run --config={{.VITEST_CONFIG}} {{.CLI_ARGS}}
 
@@ -439,10 +449,6 @@ tasks:
     desc: Start the application
     deps: [vercel:env:pull, setup:local]
     silent: true
-    env:
-      NGINX_PORT: 443
-      TEST_DB_PORT: 5435
-      COMPOSE_PROJECT_NAME: apadana
     cmds:
       - docker-compose -f {{.DOCKER_COMPOSE}} up --build
 
