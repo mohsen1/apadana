@@ -52,7 +52,6 @@ export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AWSWAFConsoleFullAccess',
   'arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess',
   'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess',
-  'arn:aws:iam::aws:policy/AWSExecuteAPIFullAccess',
 ] as const;
 
 /**
