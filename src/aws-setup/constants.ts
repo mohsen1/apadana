@@ -101,7 +101,7 @@ export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AmazonRDSFullAccess',
   'arn:aws:iam::aws:policy/SecretsManagerReadWrite',
   'arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator',
-  'arn:aws:iam::aws:policy/CloudFrontReadOnlyAccess',
+  'arn:aws:iam::aws:policy/CloudFrontFullAccess',
   'arn:aws:iam::aws:policy/AmazonRoute53FullAccess',
   'arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess',
   'arn:aws:iam::aws:policy/CloudWatchFullAccess',
