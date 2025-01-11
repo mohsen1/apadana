@@ -1,6 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_iam as iam, custom_resources as cr } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import fs from 'fs';
+import path from 'path';
 
 import { createLogger } from '@/utils/logger';
 
@@ -69,62 +71,12 @@ export class IamStack extends BaseStack {
       onEventHandler: new cdk.aws_lambda.Function(this, 'DeployerGroupHandler', {
         runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
         handler: 'index.handler',
-        code: cdk.aws_lambda.Code.fromInline(`
-          const { IAMClient, GetGroupCommand, CreateGroupCommand, AttachGroupPolicyCommand, ListAttachedGroupPoliciesCommand, DetachGroupPolicyCommand } 
-            = require('@aws-sdk/client-iam');
-          
-          exports.handler = async (event) => {
-            const client = new IAMClient();
-            const groupName = event.ResourceProperties.groupName;
-            const policyArn = event.ResourceProperties.policyArn;
-            
-            try {
-              if (event.RequestType === 'Create' || event.RequestType === 'Update') {
-                let groupExists = false;
-                try {
-                  await client.send(new GetGroupCommand({ GroupName: groupName }));
-                  groupExists = true;
-                } catch (err) {
-                  if (err.name === 'NoSuchEntityException') {
-                    await client.send(new CreateGroupCommand({ GroupName: groupName }));
-                  } else {
-                    throw err;
-                  }
-                }
-                
-                // Only try to attach policy if group was just created
-                if (!groupExists) {
-                  try {
-                    await client.send(new AttachGroupPolicyCommand({
-                      GroupName: groupName,
-                      PolicyArn: policyArn
-                    }));
-                  } catch (err) {
-                    if (err.name !== 'EntityAlreadyExists' && err.name !== 'LimitExceeded') throw err;
-                  }
-                }
-              } else if (event.RequestType === 'Delete') {
-                try {
-                  // Try to detach policy before deletion
-                  await client.send(new DetachGroupPolicyCommand({
-                    GroupName: groupName,
-                    PolicyArn: policyArn
-                  }));
-                } catch (err) {
-                  // Ignore errors during cleanup
-                  console.warn('Error detaching policy during deletion:', err);
-                }
-              }
-              
-              // Always return a PhysicalResourceId for any request type
-              return { PhysicalResourceId: event.PhysicalResourceId || groupName };
-            } catch (error) {
-              console.error('Error:', error);
-              // Even in case of error, return a PhysicalResourceId
-              return { PhysicalResourceId: event.PhysicalResourceId || groupName };
-            }
-          }
-        `),
+        code: cdk.aws_lambda.Code.fromInline(
+          fs.readFileSync(
+            path.join(process.cwd(), 'src/aws-setup/handlers/setup-deployer-group-handler.js'),
+            'utf8',
+          ),
+        ),
         initialPolicy: [
           new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
