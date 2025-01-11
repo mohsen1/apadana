@@ -29,17 +29,10 @@ test('Password Change Flow', async ({ page, data, localInbox }) => {
     await expect(page.getByText(/Reset Your Password/i)).toBeVisible();
   });
 
-  await test.step('Fill in new password', async () => {
+  await test.step('Fill in new password and confirms user is logged in', async () => {
     await page.locator('input[name="password"]').fill('newpassword123');
     await page.locator('input[name="confirmPassword"]').fill('newpassword123');
     await page.getByRole('button', { name: 'Reset Password' }).click();
-  });
-
-  await test.step('Navigates to log in page and log in with new password', async () => {
-    await expect(page.getByText(/Login to your account/i)).toBeVisible();
-    await page.getByLabel(/email/i).fill(USER_EMAIL);
-    await page.getByLabel(/password/i).fill('newpassword123');
-    await page.getByRole('button', { name: /log in/i }).click();
     await expect(page.getByTestId('nav-user-name')).toBeVisible();
   });
 });

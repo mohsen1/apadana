@@ -87,9 +87,6 @@ function ForgotPasswordForm() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            logger.info('Password reset link generated', {
-              email: getValues('email'),
-            });
             return handleSubmit(requestPasswordResetAction)(e);
           }}
           className='space-y-4'

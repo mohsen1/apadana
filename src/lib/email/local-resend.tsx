@@ -2,6 +2,10 @@ import { CreateEmailOptions, CreateEmailRequestOptions, CreateEmailResponse } fr
 
 import prisma from '@/lib/prisma/client';
 
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger('local-resend');
+
 export class LocalResend {
   contacts = {
     create: async () => {
@@ -31,6 +35,11 @@ export class LocalResend {
           subject: payload.subject,
           html,
         },
+      });
+      logger.info('Local email created', {
+        from: payload.from,
+        to: Array.isArray(payload.to) ? payload.to.join(', ') : payload.to,
+        subject: payload.subject,
       });
       // Mimic Resend's response
       return { data: { id: 'mock-email-id' }, error: null };
