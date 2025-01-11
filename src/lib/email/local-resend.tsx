@@ -28,7 +28,7 @@ export class LocalResend {
         html = renderToString(payload.react);
       }
 
-      await prisma.localEmail.create({
+      const email = await prisma.localEmail.create({
         data: {
           from: payload.from,
           to: Array.isArray(payload.to) ? payload.to.join(', ') : payload.to,
@@ -36,13 +36,15 @@ export class LocalResend {
           html,
         },
       });
+
       logger.info('Local email created', {
+        id: email.id,
         from: payload.from,
         to: Array.isArray(payload.to) ? payload.to.join(', ') : payload.to,
         subject: payload.subject,
       });
-      // Mimic Resend's response
-      return { data: { id: 'mock-email-id' }, error: null };
+
+      return { data: { id: email.id }, error: null };
     },
     create: async () => {
       throw new Error('not implemented');
