@@ -53,6 +53,26 @@ export async function setupDeployerGroup(env: string, username: string) {
     }
   }
 
+  // Detach existing managed policies
+  logger.info(`[setup-deployer-group.ts] Detaching existing managed policies...`);
+  try {
+    const { AttachedPolicies } = await iam.listAttachedGroupPolicies({ GroupName: groupName });
+    if (AttachedPolicies?.length) {
+      for (const policy of AttachedPolicies) {
+        if (!policy.PolicyArn) continue;
+        logger.info(`[setup-deployer-group.ts] Detaching policy ${policy.PolicyArn}...`);
+        await iam.detachGroupPolicy({
+          GroupName: groupName,
+          PolicyArn: policy.PolicyArn,
+        });
+        logger.info(`[setup-deployer-group.ts] Detached policy ${policy.PolicyArn}`);
+      }
+    }
+  } catch (error) {
+    logger.error('[setup-deployer-group.ts] Error detaching managed policies:', error);
+    throw error;
+  }
+
   // Delete existing inline policies
   logger.info(`[setup-deployer-group.ts] Checking for existing inline policies...`);
   try {
