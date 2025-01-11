@@ -72,4 +72,4 @@ Git
 • pipe git diff to cat to see what's changed
 • never `git add .`. Add files individually.
 • never chain commit command to git add with git add ... && git commit
-• use git commit -m msg1 -m msg2 for multiple messages
+• use single quotes for commit messages to allow for line breaks
