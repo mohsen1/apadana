@@ -66,8 +66,7 @@ export class IamStack extends BaseStack {
     // Create the deployer group using AwsCustomResource
     const groupName = `ap-deployer-group-${props.environment}`;
     const physicalResourceId = `${groupName}-resource`;
-
-    const deployerGroupResource = new cr.AwsCustomResource(this, 'DeployerGroupResource', {
+    new cr.AwsCustomResource(this, 'DeployerGroupResource', {
       onCreate: {
         service: 'IAM',
         action: 'createGroup',
