@@ -70,7 +70,7 @@ export class IamStack extends BaseStack {
         runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
         handler: 'index.handler',
         code: cdk.aws_lambda.Code.fromInline(`
-          const { IAMClient, GetGroupCommand, CreateGroupCommand, AttachGroupPolicyCommand, ListAttachedGroupPoliciesCommand } 
+          const { IAMClient, GetGroupCommand, CreateGroupCommand, AttachGroupPolicyCommand, ListAttachedGroupPoliciesCommand, DetachGroupPolicyCommand } 
             = require('@aws-sdk/client-iam');
           
           exports.handler = async (event) => {
@@ -102,6 +102,17 @@ export class IamStack extends BaseStack {
                   } catch (err) {
                     if (err.name !== 'EntityAlreadyExists' && err.name !== 'LimitExceeded') throw err;
                   }
+                }
+              } else if (event.RequestType === 'Delete') {
+                try {
+                  // Try to detach policy before deletion
+                  await client.send(new DetachGroupPolicyCommand({
+                    GroupName: groupName,
+                    PolicyArn: policyArn
+                  }));
+                } catch (err) {
+                  // Ignore errors during cleanup
+                  console.warn('Error detaching policy during deletion:', err);
                 }
               }
               

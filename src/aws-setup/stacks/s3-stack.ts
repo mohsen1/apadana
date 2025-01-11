@@ -124,7 +124,7 @@ export class S3Stack extends BaseStack {
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-cors`),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.arnForObjects('*')],
+        resources: [this.bucket.bucketArn, this.bucket.arnForObjects('*')],
       }),
     });
 
@@ -163,7 +163,7 @@ export class S3Stack extends BaseStack {
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-versioning`),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.arnForObjects('*')],
+        resources: [this.bucket.bucketArn, this.bucket.arnForObjects('*')],
       }),
     });
 
@@ -205,7 +205,7 @@ export class S3Stack extends BaseStack {
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-public-access`),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.arnForObjects('*')],
+        resources: [this.bucket.bucketArn, this.bucket.arnForObjects('*')],
       }),
     });
 
@@ -251,7 +251,7 @@ export class S3Stack extends BaseStack {
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-lifecycle`),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.arnForObjects('*')],
+        resources: [this.bucket.bucketArn, this.bucket.arnForObjects('*')],
       }),
     });
 
