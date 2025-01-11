@@ -10,6 +10,8 @@ const logger = createLogger('local-inbox');
 
 import { headers } from 'next/headers';
 
+import { E2E_TESTING_SECRET_HEADER } from '@/lib/auth/constants';
+
 import EmailsList from './EmailsList';
 
 export const metadata = {
@@ -18,7 +20,9 @@ export const metadata = {
 
 export default async function EmailsPage(params: { searchParams: Promise<{ to?: string }> }) {
   const { get } = await headers();
-  const e2eTestingSecret = get('e2e-testing-secret');
+  const e2eTestingSecret = get(E2E_TESTING_SECRET_HEADER);
+  console.log('e2eTestingSecret', e2eTestingSecret);
+  console.log('process.env.E2E_TESTING_SECRET', process.env.E2E_TESTING_SECRET);
   if (e2eTestingSecret !== process.env.E2E_TESTING_SECRET) {
     logger.error('Visited local inbox page outside of e2e testing');
     redirect('/');

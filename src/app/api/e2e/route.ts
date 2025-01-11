@@ -89,6 +89,8 @@ export async function POST(request: Request) {
       return new Response('No command provided', { status: 400 });
     }
 
+    logger.info('E2E API request', body.command);
+
     switch (body.command) {
       case 'createUser': {
         // First find user by email
@@ -235,14 +237,14 @@ export async function POST(request: Request) {
       }
 
       case 'deleteAllE2eEmails': {
-        await prisma.localEmail.deleteMany({});
+        await prisma.localEmail.deleteMany();
         return new Response(JSON.stringify({ message: 'All E2E emails deleted' }), {
           status: 200,
         });
       }
 
       default: {
-        return new Response(`Unknown command`, {
+        return new Response(JSON.stringify({ error: 'Unknown command' }), {
           status: 400,
         });
       }

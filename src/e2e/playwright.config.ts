@@ -10,6 +10,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
 
+import { E2E_TESTING_SECRET_HEADER } from '@/lib/auth/constants';
+
 dotenv.config();
 
 // Validate environment variables. Run only once to avoid running the validation
@@ -71,7 +73,7 @@ export default defineConfig({
           if (process.env.DOCKER_CONTAINER || process.env.CI) {
             return 'never';
           }
-          return 'on-failure';
+          return 'never';
         },
         outputFolder: htmlReportFolder,
       },
@@ -97,6 +99,11 @@ export default defineConfig({
       }
       // Docs: https://vercel.com/docs/workflow-collaboration/vercel-toolbar/managing-toolbar#disable-toolbar-for-automation
       headers['x-vercel-skip-toolbar'] = '1';
+
+      // E2E testing secret
+      if (process.env.E2E_TESTING_SECRET) {
+        headers[E2E_TESTING_SECRET_HEADER] = process.env.E2E_TESTING_SECRET;
+      }
 
       return headers;
     },

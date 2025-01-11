@@ -1,6 +1,8 @@
 import { APIRequestContext, Page } from '@playwright/test';
 import { Prisma } from '@prisma/client';
 
+import { E2E_TESTING_SECRET_HEADER } from '@/lib/auth/constants';
+
 import { Command, CommandArgs, CommandResponse } from '@/app/api/e2e/route';
 import { createLogger } from '@/utils/logger';
 
@@ -15,6 +17,14 @@ export class TestData {
     this.#baseURL = baseURL;
   }
 
+  #parseJson<T>(json: string) {
+    try {
+      return JSON.parse(json) as T;
+    } catch {
+      throw new Error(`Failed to parse JSON: ${json}`);
+    }
+  }
+
   async #runCommand<T extends Command>(
     command: T,
     args?: CommandArgs<T>,
@@ -26,10 +36,13 @@ export class TestData {
     const startTime = performance.now();
     const secret = process.env.E2E_TESTING_SECRET;
     const response = await this.#context.post('/api/e2e', {
-      headers: secret ? { 'x-e2e-testing-secret': secret } : {},
+      headers: secret ? { [E2E_TESTING_SECRET_HEADER]: secret } : {},
       data: { command, args: args ?? {} },
     });
-    const json = (await response.json()) as CommandResponse<T>;
+    if (!response.ok) {
+      throw new Error(`Failed to run command ${command}: ${response.statusText()}`);
+    }
+    const json = this.#parseJson<CommandResponse<T>>(await response.text());
     const endTime = performance.now();
     const duration = endTime - startTime;
     const threshold = this.#baseURL.includes('apadana.app') ? 750 : 250;

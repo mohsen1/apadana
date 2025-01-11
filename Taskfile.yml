@@ -66,7 +66,6 @@ tasks:
 
   dev:
     desc: Start development environment
-    deps: [prisma:generate, prisma:migrate]
     silent: true
     cmds:
       - task: dev:all:parallel
@@ -75,11 +74,12 @@ tasks:
     internal: true
     silent: true
     cmds:
-      - pnpm concurrently "task dev:next" "task dev:prisma" "task dev:storybook"
+      - pnpm concurrently "task dev:next" "task dev:prisma" "task dev:storybook" "task prisma:watch"
 
   dev:next:
     desc: Start Next.js development server
     silent: true
+    deps: [prisma:migrate]
     cmds:
       - pnpm next dev --turbo {{.CLI_ARGS}}
 
