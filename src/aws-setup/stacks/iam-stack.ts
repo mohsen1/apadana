@@ -79,9 +79,6 @@ export class IamStack extends BaseStack {
             const policyArn = event.ResourceProperties.policyArn;
             
             try {
-              // Always get the PhysicalResourceId from the event if it exists, otherwise use groupName
-              const physicalId = event.PhysicalResourceId || groupName;
-              
               if (event.RequestType === 'Create' || event.RequestType === 'Update') {
                 let groupExists = false;
                 try {
@@ -106,30 +103,15 @@ export class IamStack extends BaseStack {
                     if (err.name !== 'EntityAlreadyExists' && err.name !== 'LimitExceeded') throw err;
                   }
                 }
+                
+                return { PhysicalResourceId: groupName };
               }
               
-              // Return response in exact AWS CloudFormation custom resource format
-              return {
-                RequestId: event.RequestId,
-                LogicalResourceId: event.LogicalResourceId,
-                PhysicalResourceId: physicalId,
-                StackId: event.StackId,
-                Status: 'SUCCESS',
-                Data: {
-                  GroupName: groupName
-                }
-              };
+              // Do not delete the group on stack deletion
+              return { PhysicalResourceId: groupName };
             } catch (error) {
               console.error('Error:', error);
-              // Even on error, we must return a PhysicalResourceId
-              return {
-                RequestId: event.RequestId,
-                LogicalResourceId: event.LogicalResourceId,
-                PhysicalResourceId: event.PhysicalResourceId || groupName,
-                StackId: event.StackId,
-                Status: 'FAILED',
-                Reason: error.message || 'Unknown error occurred'
-              };
+              throw error;
             }
           }
         `),
