@@ -13,6 +13,13 @@ export const DEPLOYER_PERMISSIONS = [
 
   // API Gateway
   'apigateway:*',
+  'execute-api:*',
+
+  // Route53
+  'route53:*',
+
+  // ACM
+  'acm:*',
 
   // IAM (limited)
   'iam:Get*',
@@ -51,6 +58,18 @@ export const DEPLOYER_PERMISSIONS = [
 
   // CloudFront
   'cloudfront:*',
+
+  // EventBridge
+  'events:*',
+
+  // SQS
+  'sqs:*',
+
+  // DynamoDB
+  'dynamodb:*',
+
+  // WAFv2
+  'wafv2:*',
 ] as const;
 
 /**
@@ -69,6 +88,12 @@ export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess',
   'arn:aws:iam::aws:policy/AWSCodePipelineFullAccess',
   'arn:aws:iam::aws:policy/CloudFrontFullAccess',
+  'arn:aws:iam::aws:policy/AmazonRoute53FullAccess',
+  'arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess',
+  'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess',
+  'arn:aws:iam::aws:policy/AmazonSQSFullAccess',
+  'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess',
+  'arn:aws:iam::aws:policy/AWSWAFConsoleFullAccess',
 ] as const;
 
 /**
