@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_s3 as s3, custom_resources as cr } from 'aws-cdk-lib';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 import { createLogger } from '@/utils/logger';
@@ -123,9 +124,18 @@ export class S3Stack extends BaseStack {
         },
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-cors`),
       },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.bucketArn, this.bucket.arnForObjects('*')],
-      }),
+      policy: cr.AwsCustomResourcePolicy.fromStatements([
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['s3:PutBucketCors', 's3:DeleteBucketCors'],
+          resources: [this.bucket.bucketArn],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['s3:*Object'],
+          resources: [this.bucket.arnForObjects('*')],
+        }),
+      ]),
     });
 
     new cr.AwsCustomResource(this, 'UpdateBucketVersioning', {
@@ -162,9 +172,18 @@ export class S3Stack extends BaseStack {
         },
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-versioning`),
       },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.bucketArn, this.bucket.arnForObjects('*')],
-      }),
+      policy: cr.AwsCustomResourcePolicy.fromStatements([
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['s3:PutBucketVersioning'],
+          resources: [this.bucket.bucketArn],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['s3:*Object'],
+          resources: [this.bucket.arnForObjects('*')],
+        }),
+      ]),
     });
 
     new cr.AwsCustomResource(this, 'UpdateBucketPublicAccess', {
@@ -204,9 +223,18 @@ export class S3Stack extends BaseStack {
         },
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-public-access`),
       },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.bucketArn, this.bucket.arnForObjects('*')],
-      }),
+      policy: cr.AwsCustomResourcePolicy.fromStatements([
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['s3:PutPublicAccessBlock'],
+          resources: [this.bucket.bucketArn],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['s3:*Object'],
+          resources: [this.bucket.arnForObjects('*')],
+        }),
+      ]),
     });
 
     new cr.AwsCustomResource(this, 'UpdateBucketLifecycle', {
@@ -250,9 +278,18 @@ export class S3Stack extends BaseStack {
         },
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-lifecycle`),
       },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.bucketArn, this.bucket.arnForObjects('*')],
-      }),
+      policy: cr.AwsCustomResourcePolicy.fromStatements([
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['s3:PutBucketLifecycleConfiguration'],
+          resources: [this.bucket.bucketArn],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['s3:*Object'],
+          resources: [this.bucket.arnForObjects('*')],
+        }),
+      ]),
     });
 
     this.bucketNameOutput = new cdk.CfnOutput(this, 'BucketName', {

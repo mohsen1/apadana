@@ -16,6 +16,11 @@ export const DEPLOYER_PERMISSIONS = [
   'ssm:*',
   'codebuild:*',
   'codepipeline:*',
+  's3:*',
+  's3:PutBucketPublicAccessBlock',
+  's3:DeletePublicAccessBlock',
+  's3:PutBucketPolicy',
+  's3:DeleteBucketPolicy',
 ] as const;
 
 /**
