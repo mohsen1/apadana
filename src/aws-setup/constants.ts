@@ -50,7 +50,6 @@ export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess',
   'arn:aws:iam::aws:policy/AWSKeyManagementServicePowerUser',
   'arn:aws:iam::aws:policy/AWSWAFConsoleFullAccess',
-  'arn:aws:iam::aws:policy/AWSWAFv2FullAccess',
   'arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess',
   'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess',
   'arn:aws:iam::aws:policy/AWSExecuteAPIFullAccess',
