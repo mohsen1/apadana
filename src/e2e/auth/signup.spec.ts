@@ -41,7 +41,7 @@ test.describe('Signup Page', () => {
     await page.getByRole('button', { name: 'Sign Up', exact: true }).click();
 
     // Verify successful signup and redirect
-    await expect(page).toHaveURL('/user/profile');
+    await expect(page).toHaveURL('/user');
     await expect(page.getByTestId('nav-user-name')).toBeVisible();
     await data.deleteUser(email);
   });
