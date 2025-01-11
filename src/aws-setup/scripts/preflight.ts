@@ -10,36 +10,11 @@ import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
+import { AWS_PERMISSIONS } from '../constants';
+
 const logger = createLogger(import.meta.filename);
 
-const REQUIRED_PERMISSIONS = [
-  'cloudformation:*',
-  'ssm:*',
-  's3:*',
-  'iam:*',
-  'lambda:*',
-  'ec2:*',
-  'elasticache:*',
-  'rds:*',
-  'secretsmanager:GetSecretValue',
-  'secretsmanager:DescribeSecret',
-  'secretsmanager:ListSecrets',
-  'logs:*',
-  'apigateway:*',
-  'execute-api:*',
-  'route53:*',
-  'acm:*',
-  'cloudfront:*',
-  'events:*',
-  'sns:*',
-  'sqs:*',
-  'dynamodb:*',
-  'kms:*',
-  'cloudwatch:*',
-  'waf:*',
-  'wafv2:*',
-  'elasticloadbalancing:*',
-] as const;
+const REQUIRED_PERMISSIONS = AWS_PERMISSIONS;
 
 interface PolicyStatement {
   Effect: 'Allow' | 'Deny';

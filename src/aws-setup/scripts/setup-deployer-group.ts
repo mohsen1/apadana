@@ -9,32 +9,13 @@ import {
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
+import { AWS_MANAGED_POLICIES } from '../constants';
+
 const logger = createLogger(import.meta.filename);
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const REQUIRED_POLICIES = [
-  'arn:aws:iam::aws:policy/AWSCloudFormationFullAccess',
-  'arn:aws:iam::aws:policy/AmazonSSMFullAccess',
-  'arn:aws:iam::aws:policy/AmazonS3FullAccess',
-  'arn:aws:iam::aws:policy/IAMFullAccess',
-  'arn:aws:iam::aws:policy/AWSLambda_FullAccess',
-  'arn:aws:iam::aws:policy/AmazonEC2FullAccess',
-  'arn:aws:iam::aws:policy/AmazonElastiCacheFullAccess',
-  'arn:aws:iam::aws:policy/AmazonRDSFullAccess',
-  'arn:aws:iam::aws:policy/SecretsManagerReadWrite',
-  'arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator',
-  'arn:aws:iam::aws:policy/CloudFrontFullAccess',
-  'arn:aws:iam::aws:policy/AmazonRoute53FullAccess',
-  'arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess',
-  'arn:aws:iam::aws:policy/CloudWatchFullAccess',
-  'arn:aws:iam::aws:policy/AmazonSNSFullAccess',
-  'arn:aws:iam::aws:policy/AmazonSQSFullAccess',
-  'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess',
-  'arn:aws:iam::aws:policy/AWSKeyManagementServicePowerUser',
-  'arn:aws:iam::aws:policy/AWSWAFFullAccess',
-  'arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess',
-];
+const REQUIRED_POLICIES = AWS_MANAGED_POLICIES;
 
 async function waitForGroup(iamClient: IAMClient, groupName: string, maxAttempts = 10) {
   for (let i = 0; i < maxAttempts; i++) {
