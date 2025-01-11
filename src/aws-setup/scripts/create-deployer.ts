@@ -17,12 +17,12 @@ import { createLogger } from '@/utils/logger';
 const logger = createLogger(import.meta.filename);
 // logger.disable(); // Disable logging to have a clean output. For debugging, enable it.
 
-async function setupDeployerGroup(environment: string) {
+async function setupDeployerGroup(environment: string, username: string) {
   const scriptPath = join(import.meta.dirname, 'setup-deployer-group.ts');
   const tsxPath = join(process.cwd(), 'node_modules', '.bin', 'tsx');
 
   return new Promise<void>((resolve, reject) => {
-    const child = spawn(tsxPath, [scriptPath], {
+    const child = spawn(tsxPath, [scriptPath, username], {
       env: { ...process.env, AWS_DEPLOYMENT_STACK_ENV: environment },
       stdio: 'inherit',
     });
@@ -202,7 +202,7 @@ async function createDeployer(environment: string, addToVercelEnv = false) {
     }
 
     // Set up group and attach policies
-    await setupDeployerGroup(environment);
+    await setupDeployerGroup(environment, userName);
 
     // Delete existing access keys
     await deleteExistingAccessKeys(iamClient, userName);

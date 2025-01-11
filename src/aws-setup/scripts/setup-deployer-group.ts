@@ -21,7 +21,7 @@ export async function setupDeployerGroup(env: string, username: string) {
     await iam.createGroup({ GroupName: groupName });
     logger.info(`[setup-deployer-group.ts] Created group ${groupName}`);
   } catch (error: any) {
-    if (error.name === 'EntityAlreadyExists') {
+    if (error.name === 'EntityAlreadyExistsException') {
       logger.info(`[setup-deployer-group.ts] Group ${groupName} already exists`);
     } else {
       throw error;
@@ -156,3 +156,20 @@ export async function setupDeployerGroup(env: string, username: string) {
 
   logger.info('[setup-deployer-group.ts] ✓ Successfully set up deployer group');
 }
+
+const env = process.env.AWS_DEPLOYMENT_STACK_ENV;
+if (!env) {
+  logger.error('Environment not specified');
+  process.exit(1);
+}
+
+const username = process.argv[2];
+if (!username) {
+  logger.error('Username not specified');
+  process.exit(1);
+}
+
+setupDeployerGroup(env, username).catch((error) => {
+  logger.error('Failed to set up deployer group:', error);
+  process.exit(1);
+});
