@@ -73,3 +73,6 @@ Git
 • never `git add .`. Add files individually.
 • IMPORTANT: NEVER chain commit command to git add with git add ... && git commit
 • use single quotes for commit messages to allow for line breaks
+
+Deployment
+• Always commit changes before deploying to Vercel
