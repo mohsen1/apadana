@@ -11,8 +11,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # This is essentially a postinstall
 task prisma:generate
-# temporary override for AWS_FORCE_REPLACE
-export AWS_FORCE_REPLACE=true
+
 # Build for production. This script assumes all of the environment variables are set.
 export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
 

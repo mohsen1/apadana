@@ -102,7 +102,7 @@ export class S3Stack extends BaseStack {
             CORSRules: config.cors,
           },
         },
-        physicalResourceId: cr.PhysicalResourceId.of('cors'),
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-cors`),
       },
       onUpdate: {
         service: 'S3',
@@ -113,7 +113,15 @@ export class S3Stack extends BaseStack {
             CORSRules: config.cors,
           },
         },
-        physicalResourceId: cr.PhysicalResourceId.of('cors'),
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-cors`),
+      },
+      onDelete: {
+        service: 'S3',
+        action: 'deleteBucketCors',
+        parameters: {
+          Bucket: bucketName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-cors`),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
         resources: [this.bucket.arnForObjects('*')],
@@ -130,7 +138,7 @@ export class S3Stack extends BaseStack {
             Status: config.versioned ? 'Enabled' : 'Suspended',
           },
         },
-        physicalResourceId: cr.PhysicalResourceId.of('versioning'),
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-versioning`),
       },
       onUpdate: {
         service: 'S3',
@@ -141,7 +149,18 @@ export class S3Stack extends BaseStack {
             Status: config.versioned ? 'Enabled' : 'Suspended',
           },
         },
-        physicalResourceId: cr.PhysicalResourceId.of('versioning'),
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-versioning`),
+      },
+      onDelete: {
+        service: 'S3',
+        action: 'putBucketVersioning',
+        parameters: {
+          Bucket: bucketName,
+          VersioningConfiguration: {
+            Status: 'Suspended',
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-versioning`),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
         resources: [this.bucket.arnForObjects('*')],
@@ -161,7 +180,7 @@ export class S3Stack extends BaseStack {
             RestrictPublicBuckets: true,
           },
         },
-        physicalResourceId: cr.PhysicalResourceId.of('public-access'),
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-public-access`),
       },
       onUpdate: {
         service: 'S3',
@@ -175,7 +194,15 @@ export class S3Stack extends BaseStack {
             RestrictPublicBuckets: true,
           },
         },
-        physicalResourceId: cr.PhysicalResourceId.of('public-access'),
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-public-access`),
+      },
+      onDelete: {
+        service: 'S3',
+        action: 'deletePublicAccessBlock',
+        parameters: {
+          Bucket: bucketName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-public-access`),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
         resources: [this.bucket.arnForObjects('*')],
@@ -197,7 +224,7 @@ export class S3Stack extends BaseStack {
             })),
           },
         },
-        physicalResourceId: cr.PhysicalResourceId.of('lifecycle'),
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-lifecycle`),
       },
       onUpdate: {
         service: 'S3',
@@ -213,7 +240,15 @@ export class S3Stack extends BaseStack {
             })),
           },
         },
-        physicalResourceId: cr.PhysicalResourceId.of('lifecycle'),
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-lifecycle`),
+      },
+      onDelete: {
+        service: 'S3',
+        action: 'deleteBucketLifecycle',
+        parameters: {
+          Bucket: bucketName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-lifecycle`),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
         resources: [this.bucket.arnForObjects('*')],

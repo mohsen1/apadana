@@ -103,15 +103,14 @@ export class IamStack extends BaseStack {
                     if (err.name !== 'EntityAlreadyExists' && err.name !== 'LimitExceeded') throw err;
                   }
                 }
-                
-                return { PhysicalResourceId: groupName };
               }
               
-              // Do not delete the group on stack deletion
-              return { PhysicalResourceId: groupName };
+              // Always return a PhysicalResourceId for any request type
+              return { PhysicalResourceId: event.PhysicalResourceId || groupName };
             } catch (error) {
               console.error('Error:', error);
-              throw error;
+              // Even in case of error, return a PhysicalResourceId
+              return { PhysicalResourceId: event.PhysicalResourceId || groupName };
             }
           }
         `),
