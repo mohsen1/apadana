@@ -108,11 +108,22 @@ export class IamStack extends BaseStack {
                 }
               }
               
-              // Always return a PhysicalResourceId, using the existing one if available
-              return { PhysicalResourceId: physicalId };
+              // Return response in CloudFormation custom resource format
+              return {
+                Status: 'SUCCESS',
+                PhysicalResourceId: physicalId,
+                Data: {
+                  GroupName: groupName
+                }
+              };
             } catch (error) {
               console.error('Error:', error);
-              throw error;
+              // Even on error, we must return a PhysicalResourceId
+              return {
+                Status: 'FAILED',
+                PhysicalResourceId: event.PhysicalResourceId || groupName,
+                Reason: error.message || 'Unknown error occurred'
+              };
             }
           }
         `),
