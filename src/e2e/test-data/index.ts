@@ -112,6 +112,10 @@ export class TestData {
     return this.#runCommand('deleteAllE2eListings');
   }
 
+  getEmails() {
+    return this.#runCommand('getEmails');
+  }
+
   deleteAllE2eEmails() {
     return this.#runCommand('deleteAllE2eEmails');
   }
