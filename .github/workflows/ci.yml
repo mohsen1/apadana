@@ -82,7 +82,8 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - run: task test:unit
         env:
-          DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/apadana_test_ci'
+          TEST_DB_PORT: 5432
+          DATABASE_URL: 'postgresql://postgres:postgres@localhost:${{ env.TEST_DB_PORT }}/apadana_test_ci'
           TEST_ENV: 'unit'
 
   fix-and-commit:
