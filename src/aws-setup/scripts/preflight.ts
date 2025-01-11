@@ -12,11 +12,11 @@ import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-import { ADMIN_PERMISSIONS } from '../constants';
+import { DEPLOYER_PERMISSIONS } from '../constants';
 
 const logger = createLogger(import.meta.filename);
 
-const REQUIRED_PERMISSIONS = ADMIN_PERMISSIONS;
+const REQUIRED_PERMISSIONS = DEPLOYER_PERMISSIONS;
 
 interface PolicyStatement {
   Effect: 'Allow' | 'Deny';
