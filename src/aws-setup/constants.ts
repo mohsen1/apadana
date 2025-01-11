@@ -16,12 +16,19 @@ export const DEPLOYER_PERMISSIONS = [
   'secretsmanager:PutSecretValue',
   'logs:*',
   'apigateway:*',
+  'elasticloadbalancing:*',
+  'kms:*',
+  'application-autoscaling:*',
+  'iam:CreateRole',
+  'iam:DeleteRole',
+  'iam:GetRole',
+  'iam:PutRolePolicy',
+  'iam:DeleteRolePolicy',
+  'iam:PassRole',
   'servicediscovery:*',
-  // Execute API permissions
   'execute-api:Invoke',
   'execute-api:InvalidateCache',
   'execute-api:ManageConnections',
-  // Route53 permissions
   'route53:ChangeResourceRecordSets',
   'route53:CreateHostedZone',
   'route53:DeleteHostedZone',
@@ -30,13 +37,11 @@ export const DEPLOYER_PERMISSIONS = [
   'route53:ListHostedZones',
   'route53:ListResourceRecordSets',
   'route53:ListTagsForResource',
-  // ACM permissions
   'acm:RequestCertificate',
   'acm:DescribeCertificate',
   'acm:ListCertificates',
   'acm:DeleteCertificate',
   'acm:GetCertificate',
-  // CloudFront permissions
   'cloudfront:CreateDistribution',
   'cloudfront:DeleteDistribution',
   'cloudfront:GetDistribution',
@@ -46,7 +51,6 @@ export const DEPLOYER_PERMISSIONS = [
   'cloudfront:CreateInvalidation',
   'cloudfront:ListInvalidations',
   'cloudfront:GetInvalidation',
-  // EventBridge permissions
   'events:PutRule',
   'events:PutTargets',
   'events:DeleteRule',
@@ -54,7 +58,6 @@ export const DEPLOYER_PERMISSIONS = [
   'events:ListRules',
   'events:ListTargetsByRule',
   'events:DescribeRule',
-  // SQS permissions
   'sqs:CreateQueue',
   'sqs:DeleteQueue',
   'sqs:GetQueueAttributes',
@@ -63,7 +66,6 @@ export const DEPLOYER_PERMISSIONS = [
   'sqs:SendMessage',
   'sqs:ReceiveMessage',
   'sqs:DeleteMessage',
-  // DynamoDB permissions
   'dynamodb:CreateTable',
   'dynamodb:DeleteTable',
   'dynamodb:DescribeTable',
@@ -76,7 +78,6 @@ export const DEPLOYER_PERMISSIONS = [
   'dynamodb:Scan',
   'dynamodb:BatchWriteItem',
   'dynamodb:BatchGetItem',
-  // WAFv2 permissions
   'wafv2:GetWebACL',
   'wafv2:GetWebACLForResource',
   'wafv2:AssociateWebACL',
@@ -85,18 +86,6 @@ export const DEPLOYER_PERMISSIONS = [
   'wafv2:CreateWebACL',
   'wafv2:UpdateWebACL',
   'wafv2:DeleteWebACL',
-  'elasticloadbalancing:*',
-  // IAM permissions for service roles
-  'iam:CreateRole',
-  'iam:DeleteRole',
-  'iam:GetRole',
-  'iam:PutRolePolicy',
-  'iam:DeleteRolePolicy',
-  'iam:PassRole',
-  // Additional required permissions
-  'kms:*',
-  'application-autoscaling:*',
-  'servicediscovery:*',
 ] as const;
 
 /**
