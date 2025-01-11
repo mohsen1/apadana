@@ -23,6 +23,9 @@ test.describe('Email Verification Process', () => {
     await page.getByRole('button', { name: 'Resend verification email' }).click();
     await expect(page.getByTestId('toast').getByText('Verification email sent')).toBeVisible();
 
+    const allEmails = await data.getEmails();
+    expect(allEmails.emails.length).toBeGreaterThan(0);
+
     // 3. Check local inbox for new verification email
     const email = await localInbox.openEmail('Verify your email address', testUser.email);
 

@@ -30,13 +30,13 @@ export function EmailVerificationBanner({ email }: { email: string }) {
         description: result.serverError.error ?? 'An unknown error occurred',
         variant: 'destructive',
       });
-    } else if (result?.data) {
+    } else if (result?.data?.success && !isPending) {
       toast({
         title: 'Verification email sent',
         description: 'Please check your inbox',
       });
     }
-  }, [result]);
+  }, [result, isPending]);
 
   return (
     <div className='w-full bg-yellow-50 p-4 dark:bg-yellow-900/20'>
