@@ -53,6 +53,25 @@ export async function setupDeployerGroup(env: string, username: string) {
     }
   }
 
+  // Delete existing inline policies
+  logger.info(`[setup-deployer-group.ts] Checking for existing inline policies...`);
+  try {
+    const { PolicyNames } = await iam.listGroupPolicies({ GroupName: groupName });
+    if (PolicyNames?.length) {
+      for (const policyName of PolicyNames) {
+        logger.info(`[setup-deployer-group.ts] Deleting inline policy ${policyName}...`);
+        await iam.deleteGroupPolicy({
+          GroupName: groupName,
+          PolicyName: policyName,
+        });
+        logger.info(`[setup-deployer-group.ts] Deleted inline policy ${policyName}`);
+      }
+    }
+  } catch (error) {
+    logger.error('[setup-deployer-group.ts] Error deleting inline policies:', error);
+    throw error;
+  }
+
   // Create inline policy with specific permissions
   const inlinePolicyName = `${groupName}-inline-policy`;
   const inlinePolicy = {
