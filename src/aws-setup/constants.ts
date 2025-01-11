@@ -42,7 +42,7 @@ export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AmazonRDSFullAccess',
   'arn:aws:iam::aws:policy/SecretsManagerReadWrite',
   'arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator',
-  'arn:aws:iam::aws:policy/CloudFrontFullAccess',
+  'arn:aws:iam::aws:policy/CloudFrontReadOnlyAccess',
   'arn:aws:iam::aws:policy/AmazonRoute53FullAccess',
   'arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess',
   'arn:aws:iam::aws:policy/CloudWatchFullAccess',
@@ -50,8 +50,11 @@ export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AmazonSQSFullAccess',
   'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess',
   'arn:aws:iam::aws:policy/AWSKeyManagementServicePowerUser',
+  'arn:aws:iam::aws:policy/AWSWAFRegionalFullAccess',
   'arn:aws:iam::aws:policy/AWSWAFFullAccess',
   'arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess',
+  'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess',
+  'arn:aws:iam::aws:policy/AWSExecuteAPIFullAccess',
 ] as const;
 
 /**
