@@ -79,6 +79,9 @@ export class IamStack extends BaseStack {
             const policyArn = event.ResourceProperties.policyArn;
             
             try {
+              // Always get the PhysicalResourceId from the event if it exists, otherwise use groupName
+              const physicalId = event.PhysicalResourceId || groupName;
+              
               if (event.RequestType === 'Create' || event.RequestType === 'Update') {
                 let groupExists = false;
                 try {
@@ -103,12 +106,10 @@ export class IamStack extends BaseStack {
                     if (err.name !== 'EntityAlreadyExists' && err.name !== 'LimitExceeded') throw err;
                   }
                 }
-                
-                return { PhysicalResourceId: groupName };
               }
               
-              // Do not delete the group on stack deletion
-              return { PhysicalResourceId: groupName };
+              // Always return a PhysicalResourceId, using the existing one if available
+              return { PhysicalResourceId: physicalId };
             } catch (error) {
               console.error('Error:', error);
               throw error;
