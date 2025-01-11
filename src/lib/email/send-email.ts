@@ -37,6 +37,11 @@ async function sendEmail({
   const e2eTestingSecret = get(E2E_TESTING_SECRET_HEADER);
   const resend = getResend(e2eTestingSecret, email);
 
+  if (process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' && email.endsWith('@example.com')) {
+    logger.info('Skipping email send for e2e testing', { email });
+    return;
+  }
+
   return resend.emails.send({
     from,
     to: email,
