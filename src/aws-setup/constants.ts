@@ -24,7 +24,6 @@ export const DEPLOYER_PERMISSIONS = [
   'dynamodb:*',
   'kms:*',
   'cloudwatch:*',
-  'waf:*',
   'wafv2:*',
   'elasticloadbalancing:*',
 ] as const;
@@ -50,8 +49,8 @@ export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AmazonSQSFullAccess',
   'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess',
   'arn:aws:iam::aws:policy/AWSKeyManagementServicePowerUser',
-  'arn:aws:iam::aws:policy/AWSWAFRegionalFullAccess',
-  'arn:aws:iam::aws:policy/AWSWAFFullAccess',
+  'arn:aws:iam::aws:policy/AWSWAFConsoleFullAccess',
+  'arn:aws:iam::aws:policy/AWSWAFV2FullAccess',
   'arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess',
   'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess',
   'arn:aws:iam::aws:policy/AWSExecuteAPIFullAccess',
