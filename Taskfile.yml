@@ -415,7 +415,8 @@ tasks:
     desc: Destroy CDK stack
     silent: true
     cmds:
-      - pnpm cdk destroy --all {{.CLI_ARGS}}
+      - echo "Destroying CDK stack on {{.AWS_DEPLOYMENT_STACK_ENV}} environment"
+      - pnpm cdk destroy --all --require-approval never --concurrency {{.AWS_DEPLOYMENT_CONCURRENCY}} {{.CLI_ARGS}}
 
   cdk:diff:
     desc: Show CDK diff
