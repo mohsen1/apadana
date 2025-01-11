@@ -1,8 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_iam as iam, custom_resources as cr } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import fs from 'fs';
-import path from 'path';
 
 import { createLogger } from '@/utils/logger';
 
@@ -65,49 +63,76 @@ export class IamStack extends BaseStack {
     });
     logger.debug('Created S3 upload policy');
 
-    // Create a custom resource to handle the deployer group
+    // Create the deployer group using AwsCustomResource
     const groupName = `ap-deployer-group-${props.environment}`;
-    const provider = new cr.Provider(this, 'DeployerGroupProvider', {
-      onEventHandler: new cdk.aws_lambda.Function(this, 'DeployerGroupHandler', {
-        runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
-        handler: 'index.handler',
-        code: cdk.aws_lambda.Code.fromInline(
-          fs.readFileSync(
-            path.join(process.cwd(), 'src/aws-setup/handlers/setup-deployer-group-handler.js'),
-            'utf8',
-          ),
-        ),
-        initialPolicy: [
-          new iam.PolicyStatement({
-            effect: iam.Effect.ALLOW,
-            actions: [
-              'iam:GetGroup',
-              'iam:CreateGroup',
-              'iam:AttachGroupPolicy',
-              'iam:DetachGroupPolicy',
-              'iam:ListAttachedGroupPolicies',
-            ],
-            resources: ['*'],
-          }),
-        ],
+    const physicalResourceId = `${groupName}-resource`;
+
+    const deployerGroupResource = new cr.AwsCustomResource(this, 'DeployerGroupResource', {
+      onCreate: {
+        service: 'IAM',
+        action: 'createGroup',
+        parameters: {
+          GroupName: groupName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(physicalResourceId),
+      },
+      onUpdate: {
+        service: 'IAM',
+        action: 'getGroup',
+        parameters: {
+          GroupName: groupName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(physicalResourceId),
+      },
+      onDelete: {
+        service: 'IAM',
+        action: 'deleteGroup',
+        parameters: {
+          GroupName: groupName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(physicalResourceId),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: ['*'],
       }),
     });
 
-    // Create the deployer group using the custom resource
-    const deployerGroupResource = new cdk.CustomResource(this, 'DeployerGroupResource', {
-      serviceToken: provider.serviceToken,
-      properties: {
-        groupName,
-        policyArn: this.devPolicy.managedPolicyArn,
+    // Attach policy to group
+    new cr.AwsCustomResource(this, 'AttachGroupPolicy', {
+      onCreate: {
+        service: 'IAM',
+        action: 'attachGroupPolicy',
+        parameters: {
+          GroupName: groupName,
+          PolicyArn: this.devPolicy.managedPolicyArn,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-policy`),
       },
+      onUpdate: {
+        service: 'IAM',
+        action: 'attachGroupPolicy',
+        parameters: {
+          GroupName: groupName,
+          PolicyArn: this.devPolicy.managedPolicyArn,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-policy`),
+      },
+      onDelete: {
+        service: 'IAM',
+        action: 'detachGroupPolicy',
+        parameters: {
+          GroupName: groupName,
+          PolicyArn: this.devPolicy.managedPolicyArn,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-policy`),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: ['*'],
+      }),
     });
 
     // Import the group after creation
-    this.deployerGroup = iam.Group.fromGroupName(
-      this,
-      'DeployerGroup',
-      deployerGroupResource.getAttString('PhysicalResourceId'),
-    );
+    this.deployerGroup = iam.Group.fromGroupName(this, 'DeployerGroup', groupName);
     logger.debug('Created/updated deployer group');
 
     // Create a role for Lambda functions that need to generate presigned URLs
