@@ -45,7 +45,7 @@ export class TestData {
     const json = this.#parseJson<CommandResponse<T>>(await response.text());
     const endTime = performance.now();
     const duration = endTime - startTime;
-    const threshold = this.#baseURL.includes('apadana.app') ? 750 : 250;
+    const threshold = this.#baseURL.includes('apadana.app') ? 2000 : 1000;
     if (duration > threshold) {
       this.#logger.warn(`Command "${command}" took ${duration.toFixed(2)}ms to complete`);
     }
