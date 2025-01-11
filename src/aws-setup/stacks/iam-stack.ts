@@ -108,10 +108,13 @@ export class IamStack extends BaseStack {
                 }
               }
               
-              // Return response in CloudFormation custom resource format
+              // Return response in exact AWS CloudFormation custom resource format
               return {
-                Status: 'SUCCESS',
+                RequestId: event.RequestId,
+                LogicalResourceId: event.LogicalResourceId,
                 PhysicalResourceId: physicalId,
+                StackId: event.StackId,
+                Status: 'SUCCESS',
                 Data: {
                   GroupName: groupName
                 }
@@ -120,8 +123,11 @@ export class IamStack extends BaseStack {
               console.error('Error:', error);
               // Even on error, we must return a PhysicalResourceId
               return {
-                Status: 'FAILED',
+                RequestId: event.RequestId,
+                LogicalResourceId: event.LogicalResourceId,
                 PhysicalResourceId: event.PhysicalResourceId || groupName,
+                StackId: event.StackId,
+                Status: 'FAILED',
                 Reason: error.message || 'Unknown error occurred'
               };
             }
