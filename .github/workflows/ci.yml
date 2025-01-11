@@ -69,7 +69,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: apadana_test_ci
         ports:
-          - 5433:5432
+          - 5436:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -82,8 +82,7 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - run: task test:unit
         env:
-          TEST_DB_PORT: 5433
-          DATABASE_URL: 'postgresql://postgres:postgres@localhost:${{ env.TEST_DB_PORT }}/apadana_test_ci'
+          DATABASE_URL: 'postgresql://postgres:postgres@localhost:5436/apadana_test_ci'
           TEST_ENV: 'unit'
 
   fix-and-commit:
