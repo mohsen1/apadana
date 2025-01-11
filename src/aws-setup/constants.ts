@@ -2,90 +2,55 @@
  * Permissions required for deployer accounts to deploy infrastructure
  */
 export const DEPLOYER_PERMISSIONS = [
+  // CloudFormation
   'cloudformation:*',
-  'ssm:*',
+
+  // S3
   's3:*',
+
+  // Lambda
   'lambda:*',
-  'ec2:*',
-  'elasticache:*',
-  'rds:*',
-  'secretsmanager:GetSecretValue',
-  'secretsmanager:DescribeSecret',
-  'secretsmanager:ListSecrets',
-  'secretsmanager:CreateSecret',
-  'secretsmanager:PutSecretValue',
-  'logs:*',
+
+  // API Gateway
   'apigateway:*',
-  'elasticloadbalancing:*',
-  'kms:*',
-  'application-autoscaling:*',
-  'iam:CreateRole',
-  'iam:DeleteRole',
-  'iam:GetRole',
-  'iam:PutRolePolicy',
-  'iam:DeleteRolePolicy',
+
+  // IAM (limited)
+  'iam:Get*',
+  'iam:List*',
   'iam:PassRole',
-  'servicediscovery:*',
-  'execute-api:Invoke',
-  'execute-api:InvalidateCache',
-  'execute-api:ManageConnections',
-  'route53:ChangeResourceRecordSets',
-  'route53:CreateHostedZone',
-  'route53:DeleteHostedZone',
-  'route53:GetChange',
-  'route53:GetHostedZone',
-  'route53:ListHostedZones',
-  'route53:ListResourceRecordSets',
-  'route53:ListTagsForResource',
-  'acm:RequestCertificate',
-  'acm:DescribeCertificate',
-  'acm:ListCertificates',
-  'acm:DeleteCertificate',
-  'acm:GetCertificate',
-  'cloudfront:CreateDistribution',
-  'cloudfront:DeleteDistribution',
-  'cloudfront:GetDistribution',
-  'cloudfront:GetDistributionConfig',
-  'cloudfront:ListDistributions',
-  'cloudfront:UpdateDistribution',
-  'cloudfront:CreateInvalidation',
-  'cloudfront:ListInvalidations',
-  'cloudfront:GetInvalidation',
-  'events:PutRule',
-  'events:PutTargets',
-  'events:DeleteRule',
-  'events:RemoveTargets',
-  'events:ListRules',
-  'events:ListTargetsByRule',
-  'events:DescribeRule',
-  'sqs:CreateQueue',
-  'sqs:DeleteQueue',
-  'sqs:GetQueueAttributes',
-  'sqs:GetQueueUrl',
-  'sqs:ListQueues',
-  'sqs:SendMessage',
-  'sqs:ReceiveMessage',
-  'sqs:DeleteMessage',
-  'dynamodb:CreateTable',
-  'dynamodb:DeleteTable',
-  'dynamodb:DescribeTable',
-  'dynamodb:ListTables',
-  'dynamodb:PutItem',
-  'dynamodb:GetItem',
-  'dynamodb:UpdateItem',
-  'dynamodb:DeleteItem',
-  'dynamodb:Query',
-  'dynamodb:Scan',
-  'dynamodb:BatchWriteItem',
-  'dynamodb:BatchGetItem',
-  'wafv2:GetWebACL',
-  'wafv2:GetWebACLForResource',
-  'wafv2:AssociateWebACL',
-  'wafv2:DisassociateWebACL',
-  'wafv2:ListResourcesForWebACL',
-  'wafv2:CreateWebACL',
-  'wafv2:UpdateWebACL',
-  'wafv2:DeleteWebACL',
+
+  // ECR
+  'ecr:GetAuthorizationToken',
+  'ecr:BatchCheckLayerAvailability',
+  'ecr:CompleteLayerUpload',
+  'ecr:GetDownloadUrlForLayer',
+  'ecr:InitiateLayerUpload',
+  'ecr:PutImage',
+  'ecr:UploadLayerPart',
+
+  // ECS
+  'ecs:*',
+
+  // CloudWatch Logs
+  'logs:*',
+
+  // Secrets Manager
+  'secretsmanager:*',
+
+  // SSM Parameter Store
+  'ssm:PutParameter',
+  'ssm:GetParameter',
+  'ssm:GetParameters',
+  'ssm:DeleteParameter',
+
+  // CodeBuild
+  'codebuild:*',
+
+  // CodePipeline
+  'codepipeline:*',
+
+  // CloudFront
+  'cloudfront:*',
 ] as const;
 
 /**
@@ -93,40 +58,29 @@ export const DEPLOYER_PERMISSIONS = [
  */
 export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AWSCloudFormationFullAccess',
-  'arn:aws:iam::aws:policy/AmazonSSMFullAccess',
   'arn:aws:iam::aws:policy/AmazonS3FullAccess',
   'arn:aws:iam::aws:policy/AWSLambda_FullAccess',
-  'arn:aws:iam::aws:policy/AmazonEC2FullAccess',
-  'arn:aws:iam::aws:policy/AmazonElastiCacheFullAccess',
-  'arn:aws:iam::aws:policy/AmazonRDSFullAccess',
-  'arn:aws:iam::aws:policy/SecretsManagerReadWrite',
   'arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator',
+  'arn:aws:iam::aws:policy/IAMReadOnlyAccess',
+  'arn:aws:iam::aws:policy/AmazonECS_FullAccess',
+  'arn:aws:iam::aws:policy/AmazonECR_FullAccess',
+  'arn:aws:iam::aws:policy/CloudWatchLogsFullAccess',
+  'arn:aws:iam::aws:policy/SecretsManagerReadWrite',
+  'arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess',
+  'arn:aws:iam::aws:policy/AWSCodePipelineFullAccess',
   'arn:aws:iam::aws:policy/CloudFrontFullAccess',
-  'arn:aws:iam::aws:policy/AmazonRoute53FullAccess',
-  'arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess',
-  'arn:aws:iam::aws:policy/CloudWatchFullAccess',
-  'arn:aws:iam::aws:policy/AmazonSNSFullAccess',
-  'arn:aws:iam::aws:policy/AmazonSQSFullAccess',
-  'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess',
-  'arn:aws:iam::aws:policy/AWSKeyManagementServicePowerUser',
-  'arn:aws:iam::aws:policy/AWSWAFConsoleFullAccess',
-  'arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess',
-  'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess',
-  'arn:aws:iam::aws:policy/AWSServiceDiscoveryFullAccess',
 ] as const;
 
 /**
  * Additional permissions required for admin accounts to manage deployers
  */
 export const ADMIN_PERMISSIONS = [
-  ...DEPLOYER_PERMISSIONS,
-  'iam:*', // Required for creating and managing deployer accounts
+  '*', // Full access to all services
 ] as const;
 
 /**
  * AWS managed policies required for admin accounts
  */
 export const ADMIN_MANAGED_POLICIES = [
-  ...DEPLOYER_MANAGED_POLICIES,
-  'arn:aws:iam::aws:policy/IAMFullAccess', // Required for managing IAM users and policies
+  'arn:aws:iam::aws:policy/AdministratorAccess', // Full admin access
 ] as const;
