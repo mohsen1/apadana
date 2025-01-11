@@ -4,8 +4,6 @@ import { z } from 'zod';
 import prisma from '@/lib/prisma/client';
 import { actionClient } from '@/lib/safe-action';
 
-import { assertError } from '@/utils';
-
 export async function getUniqueEmails() {
   const uniqueEmails = await prisma.localEmail.findMany({
     select: {
