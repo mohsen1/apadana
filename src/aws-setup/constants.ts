@@ -1,8 +1,10 @@
-export const AWS_PERMISSIONS = [
+/**
+ * Permissions required for deployer accounts to deploy infrastructure
+ */
+export const DEPLOYER_PERMISSIONS = [
   'cloudformation:*',
   'ssm:*',
   's3:*',
-  'iam:*',
   'lambda:*',
   'ec2:*',
   'elasticache:*',
@@ -27,11 +29,13 @@ export const AWS_PERMISSIONS = [
   'elasticloadbalancing:*',
 ] as const;
 
-export const AWS_MANAGED_POLICIES = [
+/**
+ * AWS managed policies required for deployer accounts
+ */
+export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AWSCloudFormationFullAccess',
   'arn:aws:iam::aws:policy/AmazonSSMFullAccess',
   'arn:aws:iam::aws:policy/AmazonS3FullAccess',
-  'arn:aws:iam::aws:policy/IAMFullAccess',
   'arn:aws:iam::aws:policy/AWSLambda_FullAccess',
   'arn:aws:iam::aws:policy/AmazonEC2FullAccess',
   'arn:aws:iam::aws:policy/AmazonElastiCacheFullAccess',
@@ -48,4 +52,20 @@ export const AWS_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AWSKeyManagementServicePowerUser',
   'arn:aws:iam::aws:policy/AWSWAFFullAccess',
   'arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess',
+] as const;
+
+/**
+ * Additional permissions required for admin accounts to manage deployers
+ */
+export const ADMIN_PERMISSIONS = [
+  ...DEPLOYER_PERMISSIONS,
+  'iam:*', // Required for creating and managing deployer accounts
+] as const;
+
+/**
+ * AWS managed policies required for admin accounts
+ */
+export const ADMIN_MANAGED_POLICIES = [
+  ...DEPLOYER_MANAGED_POLICIES,
+  'arn:aws:iam::aws:policy/IAMFullAccess', // Required for managing IAM users and policies
 ] as const;

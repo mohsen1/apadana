@@ -9,13 +9,13 @@ import {
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-import { AWS_MANAGED_POLICIES } from '../constants';
+import { DEPLOYER_MANAGED_POLICIES } from '../constants';
 
 const logger = createLogger(import.meta.filename);
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const REQUIRED_POLICIES = AWS_MANAGED_POLICIES;
+const REQUIRED_POLICIES = DEPLOYER_MANAGED_POLICIES;
 
 async function waitForGroup(iamClient: IAMClient, groupName: string, maxAttempts = 10) {
   for (let i = 0; i < maxAttempts; i++) {
