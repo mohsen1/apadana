@@ -12,8 +12,11 @@ export const DEPLOYER_PERMISSIONS = [
   'secretsmanager:GetSecretValue',
   'secretsmanager:DescribeSecret',
   'secretsmanager:ListSecrets',
+  'secretsmanager:CreateSecret',
+  'secretsmanager:PutSecretValue',
   'logs:*',
   'apigateway:*',
+  'servicediscovery:*',
   // Execute API permissions
   'execute-api:Invoke',
   'execute-api:InvalidateCache',
@@ -83,6 +86,17 @@ export const DEPLOYER_PERMISSIONS = [
   'wafv2:UpdateWebACL',
   'wafv2:DeleteWebACL',
   'elasticloadbalancing:*',
+  // IAM permissions for service roles
+  'iam:CreateRole',
+  'iam:DeleteRole',
+  'iam:GetRole',
+  'iam:PutRolePolicy',
+  'iam:DeleteRolePolicy',
+  'iam:PassRole',
+  // Additional required permissions
+  'kms:*',
+  'application-autoscaling:*',
+  'servicediscovery:*',
 ] as const;
 
 /**
@@ -109,6 +123,7 @@ export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AWSWAFConsoleFullAccess',
   'arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess',
   'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess',
+  'arn:aws:iam::aws:policy/AWSServiceDiscoveryFullAccess',
 ] as const;
 
 /**
