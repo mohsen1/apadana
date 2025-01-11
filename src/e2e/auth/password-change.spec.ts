@@ -17,9 +17,11 @@ test('Password Change Flow', async ({ page, data, localInbox }) => {
   });
 
   await test.step('Open inbox and click on password change link', async () => {
-    await localInbox.openEmail('Reset Your Password', USER_EMAIL);
+    const email = await localInbox.openEmail('Reset Your Password', USER_EMAIL);
+    expect(email).toContain('Reset Your Password');
 
     const resetHref = await page.getByRole('link', { name: 'Reset Password' }).getAttribute('href');
+    expect(resetHref).toContain('reset-password');
     if (!resetHref) {
       throw new Error('Reset password link not found');
     }
