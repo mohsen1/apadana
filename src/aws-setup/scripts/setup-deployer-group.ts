@@ -1,121 +1,119 @@
-import {
-  AddUserToGroupCommand,
-  AttachGroupPolicyCommand,
-  CreateGroupCommand,
-  GetGroupCommand,
-  IAMClient,
-} from '@aws-sdk/client-iam';
+import { IAM } from '@aws-sdk/client-iam';
 
-import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
-import { DEPLOYER_MANAGED_POLICIES } from '../constants';
+import { DEPLOYER_MANAGED_POLICIES, DEPLOYER_PERMISSIONS } from '../constants';
 
 const logger = createLogger(import.meta.filename);
+const iam = new IAM({});
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+export async function setupDeployerGroup(env: string, username: string) {
+  logger.info('[setup-deployer-group.ts] Starting setup for environment:', env);
+  const groupName = `ap-deployer-group-${env}`;
 
-const REQUIRED_POLICIES = DEPLOYER_MANAGED_POLICIES;
+  logger.info(
+    `[setup-deployer-group.ts] Setting up deployer group ${groupName} for user ${username}...`,
+  );
 
-async function waitForGroup(iamClient: IAMClient, groupName: string, maxAttempts = 10) {
-  for (let i = 0; i < maxAttempts; i++) {
-    try {
-      logger.info(`Attempt ${i + 1}/${maxAttempts} to verify group ${groupName} exists...`);
-      await iamClient.send(new GetGroupCommand({ GroupName: groupName }));
-      logger.info(`Group ${groupName} exists!`);
-      return true;
-    } catch (err) {
-      assertError(err);
-      if (err.name !== 'NoSuchEntity') throw err;
-      if (i === maxAttempts - 1) {
-        logger.error(`Group ${groupName} still not found after ${maxAttempts} attempts`);
-        return false;
-      }
-      logger.info(`Group ${groupName} not found yet, waiting 1s...`);
-      await sleep(1000);
-    }
-  }
-  return false;
-}
-
-async function setupDeployerGroup(environment: string) {
-  const iamClient = new IAMClient({});
-  const groupName = `ap-deployer-group-${environment}`;
-  const userName = process.env.AWS_DEPLOYER_USER || 'ap-deployer';
-
-  logger.info(`Setting up deployer group ${groupName} for user ${userName}...`);
-
+  // Create the group if it doesn't exist
+  logger.info(`[setup-deployer-group.ts] Creating group ${groupName}...`);
   try {
-    // Try to create the group first
-    try {
-      logger.info(`Creating group ${groupName}...`);
-      await iamClient.send(new CreateGroupCommand({ GroupName: groupName }));
-      logger.info(`Created group: ${groupName}`);
-    } catch (err) {
-      assertError(err);
-      if (err.name === 'EntityAlreadyExistsException') {
-        logger.info(`Group ${groupName} already exists`);
-      } else {
-        throw err;
-      }
+    await iam.createGroup({ GroupName: groupName });
+    logger.info(`[setup-deployer-group.ts] Created group ${groupName}`);
+  } catch (error: any) {
+    if (error.name === 'EntityAlreadyExists') {
+      logger.info(`[setup-deployer-group.ts] Group ${groupName} already exists`);
+    } else {
+      throw error;
     }
-
-    // Wait for group to be available
-    logger.info(`Waiting for group ${groupName} to be available...`);
-    const groupAvailable = await waitForGroup(iamClient, groupName);
-    if (!groupAvailable) {
-      throw new Error(`Group ${groupName} was not available after creation`);
-    }
-
-    // Attach required policies
-    for (const policyArn of REQUIRED_POLICIES) {
-      logger.info(`Attaching policy ${policyArn} to group ${groupName}...`);
-      try {
-        await iamClient.send(
-          new AttachGroupPolicyCommand({
-            GroupName: groupName,
-            PolicyArn: policyArn,
-          }),
-        );
-        logger.info(`Attached policy ${policyArn} to ${groupName}`);
-      } catch (err) {
-        assertError(err);
-        if (err.name === 'EntityAlreadyExistsException' || err.name === 'LimitExceededException') {
-          logger.info(`Policy ${policyArn} already attached to ${groupName}`);
-        } else {
-          throw err;
-        }
-      }
-    }
-
-    // Add user to group
-    logger.info(`Adding user ${userName} to group ${groupName}...`);
-    try {
-      await iamClient.send(
-        new AddUserToGroupCommand({
-          GroupName: groupName,
-          UserName: userName,
-        }),
-      );
-      logger.info(`Added user ${userName} to group ${groupName}`);
-    } catch (err) {
-      assertError(err);
-      if (err.name === 'EntityAlreadyExistsException') {
-        logger.info(`User ${userName} already in group ${groupName}`);
-      } else {
-        throw err;
-      }
-    }
-
-    logger.info('✓ Successfully set up deployer group');
-    process.exit(0);
-  } catch (error) {
-    assertError(error);
-    logger.error('Failed to set up deployer group:', error);
-    process.exit(1);
   }
-}
 
-const environment = process.env.AWS_DEPLOYMENT_STACK_ENV || process.env.VERCEL_ENV || 'development';
-logger.info(`Starting setup for environment: ${environment}`);
-void setupDeployerGroup(environment);
+  // Wait for group to be available
+  logger.info(`[setup-deployer-group.ts] Waiting for group ${groupName} to be available...`);
+  let attempts = 0;
+  const maxAttempts = 10;
+  while (attempts < maxAttempts) {
+    attempts++;
+    logger.info(
+      `[setup-deployer-group.ts] Attempt ${attempts}/${maxAttempts} to verify group ${groupName} exists...`,
+    );
+    try {
+      await iam.getGroup({ GroupName: groupName });
+      logger.info(`[setup-deployer-group.ts] Group ${groupName} exists!`);
+      break;
+    } catch (error: any) {
+      if (error.name === 'NoSuchEntity') {
+        if (attempts === maxAttempts) {
+          throw new Error(`Group ${groupName} not found after ${maxAttempts} attempts`);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  // Create inline policy with specific permissions
+  const inlinePolicyName = `${groupName}-inline-policy`;
+  const inlinePolicy = {
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Effect: 'Allow',
+        Action: DEPLOYER_PERMISSIONS,
+        Resource: '*',
+      },
+    ],
+  };
+
+  logger.info(`[setup-deployer-group.ts] Creating inline policy ${inlinePolicyName}...`);
+  try {
+    await iam.putGroupPolicy({
+      GroupName: groupName,
+      PolicyName: inlinePolicyName,
+      PolicyDocument: JSON.stringify(inlinePolicy),
+    });
+    logger.info(`[setup-deployer-group.ts] Created inline policy ${inlinePolicyName}`);
+  } catch (error) {
+    logger.error('[setup-deployer-group.ts] Error creating inline policy:', error);
+    throw error;
+  }
+
+  // Attach managed policies
+  for (const policyArn of DEPLOYER_MANAGED_POLICIES) {
+    logger.info(`[setup-deployer-group.ts] Attaching policy ${policyArn} to group ${groupName}...`);
+    try {
+      await iam.attachGroupPolicy({
+        GroupName: groupName,
+        PolicyArn: policyArn,
+      });
+      logger.info(`[setup-deployer-group.ts] Attached policy ${policyArn} to ${groupName}`);
+    } catch (error: any) {
+      if (error.name === 'EntityAlreadyExists' || error.name === 'LimitExceeded') {
+        logger.info(
+          `[setup-deployer-group.ts] Policy ${policyArn} already attached to ${groupName}`,
+        );
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  // Add user to group
+  logger.info(`[setup-deployer-group.ts] Adding user ${username} to group ${groupName}...`);
+  try {
+    await iam.addUserToGroup({
+      GroupName: groupName,
+      UserName: username,
+    });
+    logger.info(`[setup-deployer-group.ts] Added user ${username} to group ${groupName}`);
+  } catch (error: any) {
+    if (error.name === 'EntityAlreadyExists') {
+      logger.info(`[setup-deployer-group.ts] User ${username} already in group ${groupName}`);
+    } else {
+      throw error;
+    }
+  }
+
+  logger.info('[setup-deployer-group.ts] ✓ Successfully set up deployer group');
+}
