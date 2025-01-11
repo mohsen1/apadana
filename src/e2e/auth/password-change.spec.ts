@@ -5,7 +5,7 @@ import { expect, test } from '@/e2e/base';
 test('Password Change Flow', async ({ page, data, localInbox }) => {
   const USER_EMAIL = 'test-password-change@example.com';
 
-  await test.step('Create user', async () => {
+  await test.step('Create user with random password', async () => {
     await data.createUser(USER_EMAIL, crypto.randomBytes(16).toString('hex'));
   });
 

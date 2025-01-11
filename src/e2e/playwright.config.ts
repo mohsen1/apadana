@@ -73,7 +73,7 @@ export default defineConfig({
           if (process.env.DOCKER_CONTAINER || process.env.CI) {
             return 'never';
           }
-          return 'never';
+          return 'on-failure';
         },
         outputFolder: htmlReportFolder,
       },

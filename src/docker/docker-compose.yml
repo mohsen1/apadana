@@ -22,8 +22,8 @@ services:
         echo '' && 
         echo '┌──────────────────────────────────────────┐' && 
         echo '│        Now you can access                │' && 
-        echo '│        https://dev.apadana.local         │' && 
-        echo '│        https://prod.apadana.local        │' && 
+        echo '│        https://dev.apadana.localhost     │' && 
+        echo '│        https://prod.apadana.localhost    │' && 
         echo '└──────────────────────────────────────────┘' && 
         echo '' && 
         echo '' && 
@@ -63,9 +63,9 @@ services:
       - PORT=3000
       - NEXT_SHARP_PATH=/app/node_modules/sharp
       - NODE_ENV=development
-      - VERCEL_URL=dev.apadana.local
+      - VERCEL_URL=dev.apadana.localhost
       - DATABASE_URL=postgresql://admin:admin@db_dev:5432/apadana
-      - HOST=dev.apadana.local
+      - HOST=dev.apadana.localhost
       - NEXT_PUBLIC_TEST_ENV=e2e
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_dev}
       - REDIS_URL=redis://redis:6379
@@ -103,7 +103,7 @@ services:
         E2E_TESTING_SECRET: e2e_testing_secret_for_prod
         HUSKY: 0
         BUILDKIT_INLINE_CACHE: 1
-        VERCEL_URL: prod.apadana.local
+        VERCEL_URL: prod.apadana.localhost
         DATABASE_URL: postgresql://admin:admin@db_prod:5432/apadana
     tmpfs:
       - /tmp
@@ -116,8 +116,8 @@ services:
       - PORT=3030
       - DATABASE_URL=postgresql://admin:admin@db_prod:5432/apadana
       - NODE_ENV=production
-      - VERCEL_URL=prod.apadana.local
-      - HOST=prod.apadana.local
+      - VERCEL_URL=prod.apadana.localhost
+      - HOST=prod.apadana.localhost
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
       - NEXT_PUBLIC_TEST_ENV=e2e
       - REDIS_URL=redis://redis:6379
@@ -236,7 +236,7 @@ services:
     environment:
       - NODE_ENV=test
       - E2E_TESTING_SECRET=${E2E_TESTING_SECRET:-e2e_testing_secret_for_prod}
-      - BASE_URL=https://prod.apadana.local
+      - BASE_URL=https://prod.apadana.localhost
       - DOCKER_CONTAINER=true
       - UPDATE_SNAPSHOTS=false
     volumes:
@@ -258,7 +258,7 @@ services:
       app_dev:
         condition: service_healthy
     extra_hosts:
-      - 'prod.apadana.local:172.17.0.1'
+      - 'prod.apadana.localhost:172.17.0.1'
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -279,7 +279,7 @@ services:
         HUSKY: 0
     environment:
       - NODE_ENV=test
-      - STORYBOOK_URL=https://storybook.apadana.local
+      - STORYBOOK_URL=https://storybook.apadana.localhost
       - UPDATE_SNAPSHOTS=false
     volumes:
       - ../../src:/app/src
@@ -298,10 +298,10 @@ services:
       nginx:
         condition: service_started
     extra_hosts:
-      - 'storybook.apadana.local:172.17.0.1'
+      - 'storybook.apadana.localhost:172.17.0.1'
     command: >
       sh -c "
-        STORYBOOK_URL=https://storybook.apadana.local
+        STORYBOOK_URL=https://storybook.apadana.localhost
         if [ \"$UPDATE_SNAPSHOTS\" = true ]; then
           task test:storybook:update
         else

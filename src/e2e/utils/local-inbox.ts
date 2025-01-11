@@ -15,6 +15,10 @@ export class LocalInbox {
     expect(this.page.url()).toContain('/local-inbox');
   }
 
+  async reload() {
+    await this.page.reload();
+  }
+
   /**
    * Waits for the email content to be visible
    */

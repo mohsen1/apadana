@@ -1,6 +1,6 @@
 General
 • Production URL: https://www.apadana.app
-• Local Development URLs: https://dev.apadana.local and https://prod.apadana.local
+• Local Development URLs: https://dev.apadana.localhost and https://prod.apadana.loc.apadana.localhost
 • Package manager: pnpm
 • Use single quotes for strings whenever possible
 • IMPORTANT: Try not to delete existing code unless absolutely certain it's not needed

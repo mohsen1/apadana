@@ -42,7 +42,7 @@ export class S3Stack extends BaseStack {
             s3.HttpMethods.HEAD,
           ],
           allowedOrigins: [
-            'https://*.apadana.local',
+            'https://*.apadana.localhost',
             'https://apadana.app',
             'https://www.apadana.app',
             'https://*.apadana.app',

@@ -2,15 +2,13 @@ version: "3"
 
 vars:
   PRODUCTION_DOMAIN: https://www.apadana.app
-  DEVELOPMENT_DOMAIN: https://dev.apadana.local
-  PROD_DEV_DOMAIN: https://prod.apadana.local
+  DEVELOPMENT_DOMAIN: https://dev.apadana.localhost
+  PROD_DEV_DOMAIN: https://prod.apadana.localhost
   PRISMA_SCHEMA: src/prisma/schema.prisma
   DOCKER_COMPOSE: src/docker/docker-compose.yml
   VITEST_CONFIG: config/vitest.config.ts
   STORYBOOK_CONFIG: config/playwright.storybook.config.ts
   E2E_CONFIG: src/e2e/playwright.config.ts
-  E2E_TESTING_SECRET_DEV: e2e_testing_secret_for_dev
-  E2E_TESTING_SECRET_PROD: e2e_testing_secret_for_prod
   NON_ESLINT_FILES: "**/*.{json,css,md,webmanifest,yml,yaml}"
   ESLINT_FILES: "**/*.{js,jsx,ts,tsx,mjs}"
   ESLINT_CONFIG: config/eslint.config.mjs
@@ -79,7 +77,7 @@ tasks:
   dev:next:
     desc: Start Next.js development server
     silent: true
-    deps: [prisma:migrate]
+    deps: [prisma:migrate, dev:prisma:seed]
     cmds:
       - pnpm next dev --turbo {{.CLI_ARGS}}
 
@@ -232,7 +230,7 @@ tasks:
     deps: [nextjs:check:health:prod]
     silent: true
     env:
-      E2E_TESTING_SECRET: "{{.E2E_TESTING_SECRET_PROD}}"
+      E2E_TESTING_SECRET: e2e_testing_secret_for_prod
       BASE_URL: "{{.PROD_DEV_DOMAIN}}"
     cmds:
       - pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}
@@ -247,7 +245,7 @@ tasks:
     desc: Run E2E tests against dev environment
     silent: true
     env:
-      E2E_TESTING_SECRET: "{{.E2E_TESTING_SECRET_DEV}}"
+      E2E_TESTING_SECRET: e2e_testing_secret_for_dev
       BASE_URL: "{{.DEVELOPMENT_DOMAIN}}"
     cmds:
       - pnpm playwright test --config={{.E2E_CONFIG}} {{.CLI_ARGS}}

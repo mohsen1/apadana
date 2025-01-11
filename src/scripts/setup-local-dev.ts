@@ -9,10 +9,10 @@ const sudoExec = promisify<string, Parameters<typeof sudoPrompt.exec>[1]>(sudoPr
 
 const logger = createLogger('setup-local-dev');
 const DOMAINS = [
-  'dev.apadana.local',
-  'prod.apadana.local',
-  'storybook.apadana.local',
-  'prisma_studio.apadana.local',
+  'dev.apadana.localhost',
+  'prod.apadana.localhost',
+  'storybook.apadana.localhost',
+  'prisma_studio.apadana.localhost',
 ];
 const HOSTS_FILE = '/etc/hosts';
 

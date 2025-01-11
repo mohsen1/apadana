@@ -59,6 +59,6 @@ describe('getBaseUrl', () => {
     // @ts-expect-error VERCEL_URL is not defined in the global scope
     delete process.env.VERCEL_URL;
 
-    expect(getBaseUrl()).toBe('https://dev.apadana.local');
+    expect(getBaseUrl()).toBe('https://dev.apadana.localhost');
   });
 });

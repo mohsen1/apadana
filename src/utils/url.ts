@@ -11,7 +11,7 @@ export function getBaseUrl(): string {
     return `https://${process.env.VERCEL_URL}`;
   }
 
-  return 'https://dev.apadana.local';
+  return 'https://dev.apadana.localhost';
 }
 
 const BASE_URL = getBaseUrl();
