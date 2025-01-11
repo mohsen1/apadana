@@ -1,5 +1,6 @@
 import { IAM } from '@aws-sdk/client-iam';
 
+import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 import { DEPLOYER_MANAGED_POLICIES, DEPLOYER_PERMISSIONS } from '../constants';
@@ -20,7 +21,8 @@ export async function setupDeployerGroup(env: string, username: string) {
   try {
     await iam.createGroup({ GroupName: groupName });
     logger.info(`[setup-deployer-group.ts] Created group ${groupName}`);
-  } catch (error: any) {
+  } catch (error) {
+    assertError(error);
     if (error.name === 'EntityAlreadyExistsException') {
       logger.info(`[setup-deployer-group.ts] Group ${groupName} already exists`);
     } else {
@@ -41,7 +43,8 @@ export async function setupDeployerGroup(env: string, username: string) {
       await iam.getGroup({ GroupName: groupName });
       logger.info(`[setup-deployer-group.ts] Group ${groupName} exists!`);
       break;
-    } catch (error: any) {
+    } catch (error) {
+      assertError(error);
       if (error.name === 'NoSuchEntity') {
         if (attempts === maxAttempts) {
           throw new Error(`Group ${groupName} not found after ${maxAttempts} attempts`);
@@ -127,7 +130,8 @@ export async function setupDeployerGroup(env: string, username: string) {
         PolicyArn: policyArn,
       });
       logger.info(`[setup-deployer-group.ts] Attached policy ${policyArn} to ${groupName}`);
-    } catch (error: any) {
+    } catch (error) {
+      assertError(error);
       if (error.name === 'EntityAlreadyExists' || error.name === 'LimitExceeded') {
         logger.info(
           `[setup-deployer-group.ts] Policy ${policyArn} already attached to ${groupName}`,
@@ -146,7 +150,8 @@ export async function setupDeployerGroup(env: string, username: string) {
       UserName: username,
     });
     logger.info(`[setup-deployer-group.ts] Added user ${username} to group ${groupName}`);
-  } catch (error: any) {
+  } catch (error) {
+    assertError(error);
     if (error.name === 'EntityAlreadyExists') {
       logger.info(`[setup-deployer-group.ts] User ${username} already in group ${groupName}`);
     } else {
