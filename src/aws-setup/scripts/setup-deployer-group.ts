@@ -23,6 +23,17 @@ const REQUIRED_POLICIES = [
   'arn:aws:iam::aws:policy/AmazonElastiCacheFullAccess',
   'arn:aws:iam::aws:policy/AmazonRDSFullAccess',
   'arn:aws:iam::aws:policy/SecretsManagerReadWrite',
+  'arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator',
+  'arn:aws:iam::aws:policy/CloudFrontFullAccess',
+  'arn:aws:iam::aws:policy/AmazonRoute53FullAccess',
+  'arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess',
+  'arn:aws:iam::aws:policy/CloudWatchFullAccess',
+  'arn:aws:iam::aws:policy/AmazonSNSFullAccess',
+  'arn:aws:iam::aws:policy/AmazonSQSFullAccess',
+  'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess',
+  'arn:aws:iam::aws:policy/AWSKeyManagementServicePowerUser',
+  'arn:aws:iam::aws:policy/AWSWAFFullAccess',
+  'arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess',
 ];
 
 async function waitForGroup(iamClient: IAMClient, groupName: string, maxAttempts = 10) {

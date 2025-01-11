@@ -24,6 +24,21 @@ const REQUIRED_PERMISSIONS = [
   'secretsmanager:GetSecretValue',
   'secretsmanager:DescribeSecret',
   'secretsmanager:ListSecrets',
+  'logs:*',
+  'apigateway:*',
+  'execute-api:*',
+  'route53:*',
+  'acm:*',
+  'cloudfront:*',
+  'events:*',
+  'sns:*',
+  'sqs:*',
+  'dynamodb:*',
+  'kms:*',
+  'cloudwatch:*',
+  'waf:*',
+  'wafv2:*',
+  'elasticloadbalancing:*',
 ] as const;
 
 interface PolicyStatement {
