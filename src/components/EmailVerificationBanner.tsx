@@ -6,11 +6,18 @@ import { useCallback, useEffect } from 'react';
 import { toast } from '@/hooks/useToast';
 
 import { resendEmailVerification } from '@/app/user/actions';
+import { createLogger } from '@/utils/logger';
 
 import { Button } from './ui/button';
 
+const logger = createLogger('EmailVerificationBanner');
+
 export function EmailVerificationBanner({ email }: { email: string }) {
-  const { execute, result, isPending } = useAction(resendEmailVerification);
+  const { execute, result, isPending } = useAction(resendEmailVerification, {
+    onError: (error) => {
+      logger.error('Failed to send verification email', { error, email });
+    },
+  });
 
   const handleResend = useCallback(() => {
     execute({ emailAddress: email });
