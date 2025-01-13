@@ -67,30 +67,6 @@ export class IamStack extends BaseStack {
     const groupName = `ap-deployer-group-${props.environment}`;
     const physicalResourceId = `${groupName}-resource`;
 
-    // Add custom resource to handle group users cleanup before deletion
-    new cr.AwsCustomResource(this, 'CleanupGroupUsers', {
-      onCreate: {
-        service: 'IAM',
-        action: 'getGroup',
-        parameters: {
-          GroupName: groupName,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-cleanup`),
-      },
-      onDelete: {
-        service: 'IAM',
-        action: 'getGroup',
-        parameters: {
-          GroupName: groupName,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-cleanup`),
-        ignoreErrorCodesMatching: 'NoSuchEntity',
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: ['*'],
-      }),
-    });
-
     // Create the deployer group
     new cr.AwsCustomResource(this, 'DeployerGroupResource', {
       onCreate: {

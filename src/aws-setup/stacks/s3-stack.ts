@@ -89,7 +89,8 @@ export class S3Stack extends BaseStack {
     const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`.trim();
     const config = this.getBucketConfig();
 
-    // Import the existing bucket
+    // NOTE: This bucket must be created manually before deploying this stack
+    // CDK will only manage its configuration, not its lifecycle
     this.bucket = s3.Bucket.fromBucketName(this, 'ExistingBucket', bucketName);
     logger.debug('Imported existing bucket');
 
@@ -100,7 +101,7 @@ export class S3Stack extends BaseStack {
         action: 'getBucketCors',
         parameters: { Bucket: bucketName },
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-config`),
-        ignoreErrorCodesMatching: '.*',
+        ignoreErrorCodesMatching: 'NoSuchBucket',
       },
       onUpdate: {
         service: 'S3',
@@ -123,6 +124,7 @@ export class S3Stack extends BaseStack {
         action: 'getBucketVersioning',
         parameters: { Bucket: bucketName },
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-versioning`),
+        ignoreErrorCodesMatching: 'NoSuchBucket',
       },
       onUpdate: {
         service: 'S3',
