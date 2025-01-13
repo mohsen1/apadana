@@ -100,7 +100,7 @@ export class S3Stack extends BaseStack {
         action: 'getBucketCors',
         parameters: { Bucket: bucketName },
         physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-config`),
-        ignoreErrorCodesMatching: 'NoSuchBucket',
+        ignoreErrorCodesMatching: 'NoSuchBucket|NoSuchCORSConfiguration',
       },
       onUpdate: {
         service: 'S3',
