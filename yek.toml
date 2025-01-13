@@ -1,8 +1,12 @@
+# Output directory
+output_dir = "./repo-serialized"
+
 # Add patterns to ignore (in addition to .gitignore)
 [ignore_patterns]
 patterns = [
   # Generated files and directories
   '.next/',
+  '.cache/',
   'node_modules/',
   '.vercel/',
   '.turbo/',
