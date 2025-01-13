@@ -8,7 +8,9 @@ DIFF=$(git diff --cached)
 
 SUMMARY=$(
   ollama run phi4 <<EOF
-Generate a commit message for the following diff. Make the first line the title and the rest the body:
+Generate a raw text commit message for the following diff.
+Keep commit message concise and to the point.
+Make the first line the title (100 characters max) and the rest the body:
 $DIFF
 EOF
 )
