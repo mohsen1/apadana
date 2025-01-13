@@ -237,7 +237,7 @@ task cdk:preflight
 task cdk:deployer:create
 
 # To also add credentials to Vercel:
-task cdk:deployer:create -- --add-to-vercel
+task cdk:deployer:create:add-to-vercel
 ```
 
 4. Deploy infrastructure:
