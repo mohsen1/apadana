@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 
+import { E2E_TESTING_SECRET_HEADER } from '@/lib/auth/constants';
 import { getResend } from '@/lib/email/resend';
 
 import { BookingAlterationEmail } from '@/components/emails/BookingAlterationEmail';
@@ -33,8 +34,13 @@ async function sendEmail({
   react: React.ReactNode;
 }) {
   const { get } = await headers();
-  const e2eTestingSecret = get('e2e-testing-secret');
+  const e2eTestingSecret = get(E2E_TESTING_SECRET_HEADER);
   const resend = getResend(e2eTestingSecret, email);
+
+  if (process.env.NEXT_PUBLIC_TEST_ENV !== 'e2e' && email.endsWith('@example.com')) {
+    logger.info('Skipping email send for e2e testing', { email });
+    return;
+  }
 
   return resend.emails.send({
     from,

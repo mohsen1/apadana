@@ -13,7 +13,7 @@ interface AuthContextValue {
   /** Sign out the current user */
   signOut: () => Promise<void>;
   /** Fetch the current user. This will cause a re-render of the entire app. */
-  fetchUser: () => void;
+  fetchUser: () => Promise<void>;
   /** Set the current user */
 }
 

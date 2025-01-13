@@ -42,7 +42,7 @@ export class S3Stack extends BaseStack {
             s3.HttpMethods.HEAD,
           ],
           allowedOrigins: [
-            'https://*.apadana.local',
+            'https://*.apadana.localhost',
             'https://apadana.app',
             'https://www.apadana.app',
             'https://*.apadana.app',
@@ -88,49 +88,42 @@ export class S3Stack extends BaseStack {
     const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`.trim();
     const config = this.getBucketConfig();
 
-    // Import the existing bucket
+    // NOTE: This bucket must be created manually before deploying this stack
+    // CDK will only manage its configuration, not its lifecycle
     this.bucket = s3.Bucket.fromBucketName(this, 'ExistingBucket', bucketName);
+    logger.debug('Imported existing bucket');
 
-    // Create AWS custom resources to update bucket configuration
-    new cr.AwsCustomResource(this, 'UpdateBucketCors', {
+    // Update bucket configuration
+    new cr.AwsCustomResource(this, 'UpdateBucketConfig', {
       onCreate: {
         service: 'S3',
-        action: 'putBucketCors',
-        parameters: {
-          Bucket: bucketName,
-          CORSConfiguration: {
-            CORSRules: config.cors,
-          },
-        },
-        physicalResourceId: cr.PhysicalResourceId.of('cors'),
+        action: 'getBucketCors',
+        parameters: { Bucket: bucketName },
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-config`),
+        ignoreErrorCodesMatching: 'NoSuchBucket',
       },
       onUpdate: {
         service: 'S3',
         action: 'putBucketCors',
         parameters: {
           Bucket: bucketName,
-          CORSConfiguration: {
-            CORSRules: config.cors,
-          },
+          CORSConfiguration: { CORSRules: config.cors },
         },
-        physicalResourceId: cr.PhysicalResourceId.of('cors'),
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-config`),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.arnForObjects('*')],
+        resources: [this.bucket.arnForObjects('*'), this.bucket.bucketArn],
       }),
     });
 
+    // Update versioning
     new cr.AwsCustomResource(this, 'UpdateBucketVersioning', {
       onCreate: {
         service: 'S3',
-        action: 'putBucketVersioning',
-        parameters: {
-          Bucket: bucketName,
-          VersioningConfiguration: {
-            Status: config.versioned ? 'Enabled' : 'Suspended',
-          },
-        },
-        physicalResourceId: cr.PhysicalResourceId.of('versioning'),
+        action: 'getBucketVersioning',
+        parameters: { Bucket: bucketName },
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-versioning`),
+        ignoreErrorCodesMatching: 'NoSuchBucket',
       },
       onUpdate: {
         service: 'S3',
@@ -141,82 +134,10 @@ export class S3Stack extends BaseStack {
             Status: config.versioned ? 'Enabled' : 'Suspended',
           },
         },
-        physicalResourceId: cr.PhysicalResourceId.of('versioning'),
+        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-versioning`),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.arnForObjects('*')],
-      }),
-    });
-
-    new cr.AwsCustomResource(this, 'UpdateBucketPublicAccess', {
-      onCreate: {
-        service: 'S3',
-        action: 'putPublicAccessBlock',
-        parameters: {
-          Bucket: bucketName,
-          PublicAccessBlockConfiguration: {
-            BlockPublicAcls: true,
-            BlockPublicPolicy: true,
-            IgnorePublicAcls: true,
-            RestrictPublicBuckets: true,
-          },
-        },
-        physicalResourceId: cr.PhysicalResourceId.of('public-access'),
-      },
-      onUpdate: {
-        service: 'S3',
-        action: 'putPublicAccessBlock',
-        parameters: {
-          Bucket: bucketName,
-          PublicAccessBlockConfiguration: {
-            BlockPublicAcls: true,
-            BlockPublicPolicy: true,
-            IgnorePublicAcls: true,
-            RestrictPublicBuckets: true,
-          },
-        },
-        physicalResourceId: cr.PhysicalResourceId.of('public-access'),
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.arnForObjects('*')],
-      }),
-    });
-
-    new cr.AwsCustomResource(this, 'UpdateBucketLifecycle', {
-      onCreate: {
-        service: 'S3',
-        action: 'putBucketLifecycleConfiguration',
-        parameters: {
-          Bucket: bucketName,
-          LifecycleConfiguration: {
-            Rules: config.lifecycleRules.map((rule) => ({
-              AbortIncompleteMultipartUpload: {
-                DaysAfterInitiation: rule.abortIncompleteMultipartUploadAfter?.toDays(),
-              },
-              Status: rule.enabled ? 'Enabled' : 'Disabled',
-            })),
-          },
-        },
-        physicalResourceId: cr.PhysicalResourceId.of('lifecycle'),
-      },
-      onUpdate: {
-        service: 'S3',
-        action: 'putBucketLifecycleConfiguration',
-        parameters: {
-          Bucket: bucketName,
-          LifecycleConfiguration: {
-            Rules: config.lifecycleRules.map((rule) => ({
-              AbortIncompleteMultipartUpload: {
-                DaysAfterInitiation: rule.abortIncompleteMultipartUploadAfter?.toDays(),
-              },
-              Status: rule.enabled ? 'Enabled' : 'Disabled',
-            })),
-          },
-        },
-        physicalResourceId: cr.PhysicalResourceId.of('lifecycle'),
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.arnForObjects('*')],
+        resources: [this.bucket.arnForObjects('*'), this.bucket.bucketArn],
       }),
     });
 

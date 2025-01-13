@@ -204,16 +204,10 @@ export const resendEmailVerification = actionClient
       },
     });
 
-    try {
-      await sendEmailVerificationEmail({
-        to: parsedInput.emailAddress,
-        verificationCode,
-      });
-    } catch (error) {
-      assertError(error);
-      logger.error('Failed to send verification email', { error });
-      throw new ClientVisibleError('Failed to send verification email');
-    }
+    await sendEmailVerificationEmail({
+      to: parsedInput.emailAddress,
+      verificationCode,
+    });
 
     return { success: true };
   });

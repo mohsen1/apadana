@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -27,18 +27,53 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 function SignInPage() {
-  const { fetchUser } = useAuth();
+  const { fetchUser, user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
   const initialEmail = searchParams.get('email') || '';
   const [failedAttempts, setFailedAttempts] = useState(0);
 
+  // Get and decode redirect URL
+  const getRedirectUrl = () => {
+    if (!redirect) return '/';
+
+    try {
+      // Decode the redirect URL first
+      const decodedRedirect = decodeURIComponent(redirect);
+
+      // Remove any origin part if present
+      const url = new URL(decodedRedirect, window.location.origin);
+      const relativePath = url.pathname + url.search;
+
+      return relativePath;
+    } catch {
+      // If URL parsing fails, try as a relative path
+      try {
+        const decodedPath = decodeURIComponent(redirect);
+        // Basic validation to ensure it starts with /
+        if (!decodedPath.startsWith('/')) {
+          return '/';
+        }
+        return decodedPath;
+      } catch {
+        return '/';
+      }
+    }
+  };
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.replace(getRedirectUrl());
+    }
+  }, [user, router, redirect]);
+
   const { execute, status, hasErrored, result, isPending } = useAction(login, {
-    onSuccess: ({ data }) => {
+    onSuccess: async ({ data }) => {
       if (data?.user) {
-        fetchUser();
-        router.push(redirect || '/');
+        await fetchUser();
+        router.replace(getRedirectUrl());
       }
     },
     onError: () => {

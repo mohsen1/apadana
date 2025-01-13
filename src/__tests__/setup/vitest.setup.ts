@@ -1,6 +1,8 @@
 import { afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
 
+import { E2E_TESTING_SECRET_HEADER } from '@/lib/auth/constants';
+
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -25,10 +27,10 @@ vi.mock('next-themes', () => ({
   }),
 }));
 
-process.env.E2E_TESTING_SECRET = 'e2e-testing-secret-during-unit-test';
+process.env.E2E_TESTING_SECRET = 'e2e_testing_secret_during_unit_test';
 // Mock next/headers
 vi.mock('next/headers', () => ({
-  headers: () => new Headers([['E2E_TESTING_SECRET', process.env.E2E_TESTING_SECRET ?? '']]),
+  headers: () => new Headers([[E2E_TESTING_SECRET_HEADER, process.env.E2E_TESTING_SECRET ?? '']]),
   cookies: () => ({
     get: vi.fn(),
     set: vi.fn(),

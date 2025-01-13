@@ -25,9 +25,9 @@ function SignUpForm() {
   const router = useRouter();
   const { fetchUser, user } = useAuth();
   const { execute, status, hasErrored, result } = useAction(signUp, {
-    onSuccess: ({ data }) => {
+    onSuccess: async ({ data }) => {
       if (data?.user) {
-        fetchUser();
+        await fetchUser();
         router.push('/user');
       }
     },

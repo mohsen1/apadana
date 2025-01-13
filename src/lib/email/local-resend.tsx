@@ -2,6 +2,10 @@ import { CreateEmailOptions, CreateEmailRequestOptions, CreateEmailResponse } fr
 
 import prisma from '@/lib/prisma/client';
 
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger('local-resend');
+
 export class LocalResend {
   contacts = {
     create: async () => {
@@ -24,7 +28,7 @@ export class LocalResend {
         html = renderToString(payload.react);
       }
 
-      await prisma.localEmail.create({
+      const email = await prisma.localEmail.create({
         data: {
           from: payload.from,
           to: Array.isArray(payload.to) ? payload.to.join(', ') : payload.to,
@@ -32,8 +36,15 @@ export class LocalResend {
           html,
         },
       });
-      // Mimic Resend's response
-      return { data: { id: 'mock-email-id' }, error: null };
+
+      logger.info('Local email created', {
+        id: email.id,
+        from: payload.from,
+        to: Array.isArray(payload.to) ? payload.to.join(', ') : payload.to,
+        subject: payload.subject,
+      });
+
+      return { data: { id: email.id }, error: null };
     },
     create: async () => {
       throw new Error('not implemented');

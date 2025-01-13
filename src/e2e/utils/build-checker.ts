@@ -87,7 +87,7 @@ export class BuildChecker {
       try {
         logger.debug('Checking build status...');
         const response = await new Promise<IncomingMessage>((resolve, reject) => {
-          const req = https.get('https://prod.apadana.local', { agent }, resolve);
+          const req = https.get('https://prod.apadana.localhost', { agent }, resolve);
           req.on('error', reject);
         });
 

@@ -13,7 +13,7 @@ test.describe('Email Verification Process', () => {
     await data.deleteUser(testUser.email);
   });
 
-  test('resend verification email appears in inbox', async ({ page, data }) => {
+  test('resend verification email appears in inbox', async ({ page, data, localInbox }) => {
     // 1. Create new account
     await data.createUser(testUser.email, testUser.password);
     await data.login(testUser.email, page);
@@ -23,21 +23,13 @@ test.describe('Email Verification Process', () => {
     await page.getByRole('button', { name: 'Resend verification email' }).click();
     await expect(page.getByTestId('toast').getByText('Verification email sent')).toBeVisible();
 
+    const allEmails = await data.getEmails();
+    expect(allEmails.emails.length).toBeGreaterThan(0);
+
     // 3. Check local inbox for new verification email
-    await page.goto('/local-inbox');
+    const email = await localInbox.openEmail('Verify your email address', testUser.email);
 
-    // expect Verify your email address to be visible
-    const emailItemLocator = '[data-testid="email-list-item"][title="Verify your email address"]';
-
-    await expect(page.locator(emailItemLocator)).toBeVisible();
-    await page.click(emailItemLocator);
-
-    await expect(
-      page.locator(emailItemLocator).getByText('Verify your email address'),
-    ).toBeVisible();
-
-    // ensure it is for this user
-    await expect(page.locator(emailItemLocator).getByText(testUser.email)).toBeVisible();
+    expect(email).toContain('Verify your email address');
   });
 
   test.afterEach(async ({ data }) => {

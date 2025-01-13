@@ -6,11 +6,18 @@ import { useCallback, useEffect } from 'react';
 import { toast } from '@/hooks/useToast';
 
 import { resendEmailVerification } from '@/app/user/actions';
+import { createLogger } from '@/utils/logger';
 
 import { Button } from './ui/button';
 
+const logger = createLogger('EmailVerificationBanner');
+
 export function EmailVerificationBanner({ email }: { email: string }) {
-  const { execute, result, isPending } = useAction(resendEmailVerification);
+  const { execute, result, isPending } = useAction(resendEmailVerification, {
+    onError: (error) => {
+      logger.error('Failed to send verification email', { error, email });
+    },
+  });
 
   const handleResend = useCallback(() => {
     execute({ emailAddress: email });
@@ -23,13 +30,13 @@ export function EmailVerificationBanner({ email }: { email: string }) {
         description: result.serverError.error ?? 'An unknown error occurred',
         variant: 'destructive',
       });
-    } else if (result?.data) {
+    } else if (result?.data?.success && !isPending) {
       toast({
         title: 'Verification email sent',
         description: 'Please check your inbox',
       });
     }
-  }, [result]);
+  }, [result, isPending]);
 
   return (
     <div className='w-full bg-yellow-50 p-4 dark:bg-yellow-900/20'>

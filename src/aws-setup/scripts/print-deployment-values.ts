@@ -96,6 +96,7 @@ function buildDatabaseUrl(host: string, username: string, password: string): str
 
   const fileContent = [
     `REDIS_URL=${redisUrl.trim()}`,
+    `REDIS_HOST=${redisUrl.split('://')[1].split(':')[0]}`,
     `DATABASE_URL=${dbUrl.trim()}`,
     `AWS_S3_BUCKET_NAME=${s3Bucket.trim()}`,
     `NEXT_PUBLIC_AWS_S3_BUCKET_NAME=${s3Bucket.trim()}`,

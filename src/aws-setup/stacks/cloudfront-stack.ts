@@ -34,7 +34,7 @@ export class CloudFrontStack extends BaseStack {
         accessControlAllowHeaders: ['*'],
         accessControlAllowMethods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE'],
         accessControlAllowOrigins: [
-          'https://*.apadana.local',
+          'https://*.apadana.localhost',
           'https://apadana.app',
           'https://www.apadana.app',
           'https://*.apadana.app',

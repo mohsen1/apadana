@@ -1,30 +1,22 @@
 import {
   GetGroupCommand,
+  GetGroupPolicyCommand,
   GetPolicyCommand,
   GetPolicyVersionCommand,
   IAMClient,
   ListAttachedGroupPoliciesCommand,
+  ListGroupPoliciesCommand,
 } from '@aws-sdk/client-iam';
 import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
+import { DEPLOYER_PERMISSIONS } from '../constants';
+
 const logger = createLogger(import.meta.filename);
 
-const REQUIRED_PERMISSIONS = [
-  'cloudformation:*',
-  'ssm:*',
-  's3:*',
-  'iam:*',
-  'lambda:*',
-  'ec2:*',
-  'elasticache:*',
-  'rds:*',
-  'secretsmanager:GetSecretValue',
-  'secretsmanager:DescribeSecret',
-  'secretsmanager:ListSecrets',
-] as const;
+const REQUIRED_PERMISSIONS = DEPLOYER_PERMISSIONS;
 
 interface PolicyStatement {
   Effect: 'Allow' | 'Deny';
@@ -74,46 +66,71 @@ async function validateDeployer(environment: string) {
       throw error;
     }
 
-    // Get attached policies
+    // Get all permissions from both attached and inline policies
+    const foundPermissions = new Set<string>();
+
+    // Check attached policies
     const { AttachedPolicies } = await iam.send(
       new ListAttachedGroupPoliciesCommand({ GroupName: groupName }),
     );
 
-    if (!AttachedPolicies?.length) {
-      logger.error('✗ No policies attached to deployer group');
-      throw new Error('No policies attached to deployer group');
+    if (AttachedPolicies?.length) {
+      for (const policy of AttachedPolicies) {
+        if (!policy.PolicyArn) continue;
+
+        const { Policy } = await iam.send(new GetPolicyCommand({ PolicyArn: policy.PolicyArn }));
+        if (!Policy?.Arn || !Policy.DefaultVersionId) continue;
+
+        const { PolicyVersion } = await iam.send(
+          new GetPolicyVersionCommand({
+            PolicyArn: Policy.Arn,
+            VersionId: Policy.DefaultVersionId,
+          }),
+        );
+
+        if (!PolicyVersion?.Document) continue;
+
+        const document =
+          typeof PolicyVersion.Document === 'string'
+            ? decodePolicy(PolicyVersion.Document)
+            : (PolicyVersion.Document as PolicyDocument);
+
+        // Extract permissions from policy
+        document.Statement.forEach((statement) => {
+          if (statement.Effect === 'Allow') {
+            const actions = Array.isArray(statement.Action) ? statement.Action : [statement.Action];
+            actions.forEach((action) => foundPermissions.add(action));
+          }
+        });
+      }
     }
 
-    // Check each policy's permissions
-    const foundPermissions = new Set<string>();
+    // Check inline policies
+    const { PolicyNames } = await iam.send(new ListGroupPoliciesCommand({ GroupName: groupName }));
+    if (PolicyNames?.length) {
+      for (const policyName of PolicyNames) {
+        const { PolicyDocument } = await iam.send(
+          new GetGroupPolicyCommand({
+            GroupName: groupName,
+            PolicyName: policyName,
+          }),
+        );
 
-    for (const policy of AttachedPolicies) {
-      if (!policy.PolicyArn) continue;
+        if (!PolicyDocument) continue;
 
-      const { Policy } = await iam.send(new GetPolicyCommand({ PolicyArn: policy.PolicyArn }));
-      if (!Policy?.Arn || !Policy.DefaultVersionId) continue;
+        const document =
+          typeof PolicyDocument === 'string'
+            ? decodePolicy(PolicyDocument)
+            : (PolicyDocument as PolicyDocument);
 
-      const { PolicyVersion } = await iam.send(
-        new GetPolicyVersionCommand({
-          PolicyArn: Policy.Arn,
-          VersionId: Policy.DefaultVersionId,
-        }),
-      );
-
-      if (!PolicyVersion?.Document) continue;
-
-      const document =
-        typeof PolicyVersion.Document === 'string'
-          ? decodePolicy(PolicyVersion.Document)
-          : (PolicyVersion.Document as PolicyDocument);
-
-      // Extract permissions from policy
-      document.Statement.forEach((statement) => {
-        if (statement.Effect === 'Allow') {
-          const actions = Array.isArray(statement.Action) ? statement.Action : [statement.Action];
-          actions.forEach((action) => foundPermissions.add(action));
-        }
-      });
+        // Extract permissions from policy
+        document.Statement.forEach((statement) => {
+          if (statement.Effect === 'Allow') {
+            const actions = Array.isArray(statement.Action) ? statement.Action : [statement.Action];
+            actions.forEach((action) => foundPermissions.add(action));
+          }
+        });
+      }
     }
 
     // Validate required permissions

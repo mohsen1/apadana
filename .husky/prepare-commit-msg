@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Running prepare-commit-msg hook"
+
+COMMIT_MSG_FILE="$1"
+DIFF=$(git diff --cached)
+
+SUMMARY=$(
+  ollama run phi4 <<EOF
+Generate a raw text commit message for the following diff.
+Keep commit message concise and to the point.
+First line plain text for title (100 characters max) 
+One empty line after title
+The rest of the message is markdown formatted body
+DO NOT wrap the entire output in code block
+$DIFF
+EOF
+)
+
+if [ -f "$COMMIT_MSG_FILE" ]; then
+  # Save the AI generated summary to the commit message file
+  echo "$SUMMARY" >"$COMMIT_MSG_FILE"
+  # Append existing message if it exists
+  if [ -n "$EXISTING_MSG" ]; then
+    echo "" >>"$COMMIT_MSG_FILE"
+    echo "$EXISTING_MSG" >>"$COMMIT_MSG_FILE"
+  fi
+fi

@@ -22,15 +22,13 @@ test.describe('Login Page', () => {
   });
 
   test('successfully logs in with valid credentials', async ({ page, data }) => {
-    const USER_EMAIL = `test-${Math.random().toString(36).substring(2, 15)}@example.com`;
-    const USER_PASSWORD = 'Password123!';
-    await data.createUser(USER_EMAIL, USER_PASSWORD);
+    const email = `test-${Math.random().toString(36).substring(2, 15)}@example.com`;
+    const password = 'Password123!';
+    await data.createUser(email, password);
     await page.goto('/signin');
-    await page.getByLabel(/email/i).fill(USER_EMAIL);
-    await page.getByPlaceholder('Enter your password').fill(USER_PASSWORD);
+    await page.getByLabel(/email/i).fill(email);
+    await page.getByPlaceholder('Enter your password').fill(password);
     await page.getByRole('button', { name: 'Log in', exact: true }).click();
-
-    // Verify successful login
     await expect(page.getByTestId('nav-user-name')).toBeVisible();
   });
 
@@ -51,5 +49,60 @@ test.describe('Login Page', () => {
     await page.goto('/signin');
     await page.getByText(/sign up/i).click();
     await expect(page).toHaveURL('/signup');
+  });
+
+  test('redirects to original location after login', async ({ page, data }) => {
+    const email = `test-${Math.random().toString(36).substring(2, 15)}@example.com`;
+    const password = 'Password123!';
+    await data.createUser(email, password);
+
+    // Test with simple path
+    await page.goto('/signin?redirect=/dashboard');
+    await page.getByLabel(/email/i).fill(email);
+    await page.getByPlaceholder('Enter your password').fill(password);
+    await page.getByRole('button', { name: 'Log in', exact: true }).click();
+    // Wait for navigation to complete
+    await page.waitForURL('/dashboard');
+    await expect(page).toHaveURL('/dashboard');
+
+    // Logout and wait for it to complete
+    await data.logOut(page);
+    await page.waitForURL('/');
+
+    // Test with path and query parameters
+    const complexPath = '/dashboard/settings?tab=security&view=permissions';
+    await page.goto(`/signin?redirect=${encodeURIComponent(complexPath)}`);
+    await page.getByLabel(/email/i).fill(email);
+    await page.getByPlaceholder('Enter your password').fill(password);
+    await page.getByRole('button', { name: 'Log in', exact: true }).click();
+    // Wait for navigation to complete
+    await page.waitForURL(complexPath);
+    await expect(page).toHaveURL(complexPath);
+  });
+
+  test('redirects to home if already logged in', async ({ page, data }) => {
+    const email = `test-${Math.random().toString(36).substring(2, 15)}@example.com`;
+    const password = 'Password123!';
+    await data.createUser(email, password);
+
+    // Login first and wait for it to complete
+    await page.goto('/signin');
+    await page.getByLabel(/email/i).fill(email);
+    await page.getByPlaceholder('Enter your password').fill(password);
+    await page.getByRole('button', { name: 'Log in', exact: true }).click();
+    await page.waitForURL('/');
+
+    // Verify user is logged in
+    await expect(page.getByTestId('nav-user-name')).toBeVisible();
+
+    // Try accessing login page with redirect
+    await page.goto('/signin?redirect=/dashboard');
+    await page.waitForURL('/dashboard');
+    await expect(page).toHaveURL('/dashboard');
+
+    // Try accessing login page without redirect
+    await page.goto('/signin');
+    await page.waitForURL('/');
+    await expect(page).toHaveURL('/');
   });
 });

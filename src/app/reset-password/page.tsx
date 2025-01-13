@@ -16,6 +16,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { resetPassword } from '@/app/auth/actions';
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger('reset-password-page');
 
 type FormData = z.infer<typeof ResetPasswordFormSchema>;
 
@@ -28,6 +31,9 @@ function ResetPasswordForm() {
   const { execute, status, hasErrored, result } = useAction(resetPassword, {
     onSuccess: () => {
       router.push('/signin');
+    },
+    onError: (error) => {
+      logger.error('Error resetting password', { error });
     },
   });
 

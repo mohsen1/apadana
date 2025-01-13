@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { LocalEmail, Prisma } from '@prisma/client';
 
 import { setServerSession } from '@/lib/auth';
 import { argon } from '@/lib/auth/argon';
@@ -60,6 +60,12 @@ export type RequestBody =
       // eslint-disable-next-line @typescript-eslint/no-empty-object-type
       args: {};
       response: { message: string };
+    }
+  | {
+      command: 'getEmails';
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+      args: {};
+      response: { emails: LocalEmail[] };
     };
 
 export type Command = RequestBody['command'];
@@ -88,6 +94,8 @@ export async function POST(request: Request) {
     if (!body.command) {
       return new Response('No command provided', { status: 400 });
     }
+
+    logger.info('E2E API request', body.command);
 
     switch (body.command) {
       case 'createUser': {
@@ -235,14 +243,19 @@ export async function POST(request: Request) {
       }
 
       case 'deleteAllE2eEmails': {
-        await prisma.localEmail.deleteMany({});
+        await prisma.localEmail.deleteMany();
         return new Response(JSON.stringify({ message: 'All E2E emails deleted' }), {
           status: 200,
         });
       }
 
+      case 'getEmails': {
+        const emails = await prisma.localEmail.findMany();
+        return new Response(JSON.stringify({ emails }), { status: 200 });
+      }
+
       default: {
-        return new Response(`Unknown command`, {
+        return new Response(JSON.stringify({ error: 'Unknown command' }), {
           status: 400,
         });
       }

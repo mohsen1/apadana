@@ -1,6 +1,6 @@
 General
 • Production URL: https://www.apadana.app
-• Local Development URLs: https://dev.apadana.local and https://prod.apadana.local
+• Local Development URLs: https://dev.apadana.localhost and https://prod.apadana.loc.apadana.localhost
 • Package manager: pnpm
 • Use single quotes for strings whenever possible
 • IMPORTANT: Try not to delete existing code unless absolutely certain it's not needed
@@ -65,5 +65,14 @@ Testing Guidelines
 Development & Deployment
 • Run everything except e2e tests in docker
 • Commit all changes before deploying to Vercel
-• Use git commit -m msg1 -m msg2 for multiple messages
 • Use Taskfile to run commands
+
+Git
+• commit changes carefully with multiple commits, each commit semantically meaningful
+• pipe git diff to cat to see what's changed
+• never `git add .`. Add files individually.
+• IMPORTANT: NEVER chain commit command to git add with git add ... && git commit
+• use single quotes for commit messages to allow for line breaks
+
+Deployment
+• Always commit changes before deploying to Vercel

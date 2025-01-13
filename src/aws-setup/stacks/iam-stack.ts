@@ -40,6 +40,18 @@ export class IamStack extends BaseStack {
             'secretsmanager:GetSecretValue',
             'secretsmanager:DescribeSecret',
             'secretsmanager:ListSecrets',
+            'execute-api:*',
+            'route53:*',
+            'acm:*',
+            'cloudfront:*',
+            'events:*',
+            'sqs:*',
+            'dynamodb:*',
+            'wafv2:*',
+            'cloudwatch:*',
+            'logs:*',
+            'codebuild:*',
+            'codepipeline:*',
           ],
           resources: ['*'],
         }),
@@ -63,89 +75,80 @@ export class IamStack extends BaseStack {
     });
     logger.debug('Created S3 upload policy');
 
-    // Create a custom resource to handle the deployer group
+    // Create the deployer group using AwsCustomResource
     const groupName = `ap-deployer-group-${props.environment}`;
-    const provider = new cr.Provider(this, 'DeployerGroupProvider', {
-      onEventHandler: new cdk.aws_lambda.Function(this, 'DeployerGroupHandler', {
-        runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
-        handler: 'index.handler',
-        code: cdk.aws_lambda.Code.fromInline(`
-          const { IAMClient, GetGroupCommand, CreateGroupCommand, AttachGroupPolicyCommand, ListAttachedGroupPoliciesCommand } 
-            = require('@aws-sdk/client-iam');
-          
-          exports.handler = async (event) => {
-            const client = new IAMClient();
-            const groupName = event.ResourceProperties.groupName;
-            const policyArn = event.ResourceProperties.policyArn;
-            
-            try {
-              if (event.RequestType === 'Create' || event.RequestType === 'Update') {
-                let groupExists = false;
-                try {
-                  await client.send(new GetGroupCommand({ GroupName: groupName }));
-                  groupExists = true;
-                } catch (err) {
-                  if (err.name === 'NoSuchEntityException') {
-                    await client.send(new CreateGroupCommand({ GroupName: groupName }));
-                  } else {
-                    throw err;
-                  }
-                }
-                
-                // Only try to attach policy if group was just created
-                if (!groupExists) {
-                  try {
-                    await client.send(new AttachGroupPolicyCommand({
-                      GroupName: groupName,
-                      PolicyArn: policyArn
-                    }));
-                  } catch (err) {
-                    if (err.name !== 'EntityAlreadyExists' && err.name !== 'LimitExceeded') throw err;
-                  }
-                }
-                
-                return { PhysicalResourceId: groupName };
-              }
-              
-              // Do not delete the group on stack deletion
-              return { PhysicalResourceId: groupName };
-            } catch (error) {
-              console.error('Error:', error);
-              throw error;
-            }
-          }
-        `),
-        initialPolicy: [
-          new iam.PolicyStatement({
-            effect: iam.Effect.ALLOW,
-            actions: [
-              'iam:GetGroup',
-              'iam:CreateGroup',
-              'iam:AttachGroupPolicy',
-              'iam:DetachGroupPolicy',
-              'iam:ListAttachedGroupPolicies',
-            ],
-            resources: ['*'],
-          }),
-        ],
+    const physicalResourceId = `${groupName}-resource`;
+
+    // Create the deployer group
+    const deployerGroupResource = new cr.AwsCustomResource(this, 'DeployerGroupResource', {
+      onCreate: {
+        service: 'IAM',
+        action: 'createGroup',
+        parameters: {
+          GroupName: groupName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(physicalResourceId),
+      },
+      onUpdate: {
+        service: 'IAM',
+        action: 'getGroup',
+        parameters: {
+          GroupName: groupName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(physicalResourceId),
+      },
+      onDelete: {
+        service: 'IAM',
+        action: 'deleteGroup',
+        parameters: {
+          GroupName: groupName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(physicalResourceId),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: ['*'],
       }),
     });
 
-    // Create the deployer group using the custom resource
-    const deployerGroupResource = new cdk.CustomResource(this, 'DeployerGroupResource', {
-      serviceToken: provider.serviceToken,
-      properties: {
-        groupName,
-        policyArn: this.devPolicy.managedPolicyArn,
+    // Attach policy to group
+    const attachPolicyResource = new cr.AwsCustomResource(this, 'AttachGroupPolicy', {
+      onCreate: {
+        service: 'IAM',
+        action: 'attachGroupPolicy',
+        parameters: {
+          GroupName: groupName,
+          PolicyArn: this.devPolicy.managedPolicyArn,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-policy`),
       },
+      onUpdate: {
+        service: 'IAM',
+        action: 'attachGroupPolicy',
+        parameters: {
+          GroupName: groupName,
+          PolicyArn: this.devPolicy.managedPolicyArn,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-policy`),
+      },
+      onDelete: {
+        service: 'IAM',
+        action: 'detachGroupPolicy',
+        parameters: {
+          GroupName: groupName,
+          PolicyArn: this.devPolicy.managedPolicyArn,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-policy`),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: ['*'],
+      }),
     });
 
+    // Add explicit dependency
+    attachPolicyResource.node.addDependency(deployerGroupResource);
+
     // Import the group after creation
-    this.deployerGroup = iam.Group.fromGroupName(
-      this,
-      'DeployerGroup',
-      deployerGroupResource.getAttString('PhysicalResourceId'),
-    );
+    this.deployerGroup = iam.Group.fromGroupName(this, 'DeployerGroup', groupName);
     logger.debug('Created/updated deployer group');
 
     // Create a role for Lambda functions that need to generate presigned URLs

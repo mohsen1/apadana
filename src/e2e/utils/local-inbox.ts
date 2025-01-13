@@ -12,6 +12,11 @@ export class LocalInbox {
       throw new Error('Can not use Local Inbox in production');
     }
     await this.page.goto('/local-inbox' + (to ? `?to=${to}` : ''));
+    expect(this.page.url()).toContain('/local-inbox');
+  }
+
+  async reload() {
+    await this.page.reload();
   }
 
   /**
@@ -43,5 +48,10 @@ export class LocalInbox {
     await expect(this.page.locator(emailItemLocator)).toBeVisible();
     await this.page.click(emailItemLocator);
     await this.waitForEmailContent();
+    return this.getEmailBody();
+  }
+
+  getEmailBody() {
+    return this.page.locator('#local-inbox-email-content').innerText();
   }
 }

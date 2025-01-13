@@ -74,7 +74,7 @@ export function AccountProfile() {
         toast({
           title: 'Settings updated successfully',
         });
-        fetchUser();
+        void fetchUser();
       }
     },
     onError: (error) => {
@@ -100,7 +100,7 @@ export function AccountProfile() {
         description: 'Please check your inbox for verification instructions.',
       });
       setShowAddEmail(false);
-      fetchUser();
+      void fetchUser();
     },
     onError: (error) => {
       toast({
@@ -115,7 +115,7 @@ export function AccountProfile() {
       toast({
         title: 'Primary email updated successfully',
       });
-      fetchUser();
+      void fetchUser();
     },
     onError: (error) => {
       toast({
@@ -130,7 +130,7 @@ export function AccountProfile() {
       toast({
         title: 'Email address deleted',
       });
-      fetchUser();
+      void fetchUser();
     },
     onError: (error) => {
       toast({
