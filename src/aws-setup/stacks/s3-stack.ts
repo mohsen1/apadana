@@ -1,6 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_s3 as s3, custom_resources as cr } from 'aws-cdk-lib';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 import { createLogger } from '@/utils/logger';
