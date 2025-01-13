@@ -68,7 +68,7 @@ export class IamStack extends BaseStack {
     const physicalResourceId = `${groupName}-resource`;
 
     // Create the deployer group
-    new cr.AwsCustomResource(this, 'DeployerGroupResource', {
+    const deployerGroupResource = new cr.AwsCustomResource(this, 'DeployerGroupResource', {
       onCreate: {
         service: 'IAM',
         action: 'createGroup',
@@ -99,7 +99,7 @@ export class IamStack extends BaseStack {
     });
 
     // Attach policy to group
-    new cr.AwsCustomResource(this, 'AttachGroupPolicy', {
+    const attachPolicyResource = new cr.AwsCustomResource(this, 'AttachGroupPolicy', {
       onCreate: {
         service: 'IAM',
         action: 'attachGroupPolicy',
@@ -131,6 +131,9 @@ export class IamStack extends BaseStack {
         resources: ['*'],
       }),
     });
+
+    // Add explicit dependency
+    attachPolicyResource.node.addDependency(deployerGroupResource);
 
     // Import the group after creation
     this.deployerGroup = iam.Group.fromGroupName(this, 'DeployerGroup', groupName);

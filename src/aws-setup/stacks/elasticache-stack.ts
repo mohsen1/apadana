@@ -74,13 +74,13 @@ export class ElastiCacheStack extends BaseStack {
     }
 
     this.redisHostOutput = new cdk.CfnOutput(this, 'RedisEndpoint', {
-      exportName: `${this.stackName}-RedisEndpoint`,
+      exportName: `ap-elasticache-${props.environment}:ExportsOutputFnGetAttElastiCacheClusterPrimaryEndPointAddressF013C6C7`,
       value: redisCluster.attrPrimaryEndPointAddress,
       description: 'ElastiCache cluster endpoint (accessible via proxy)',
     });
 
     this.redisSecurityGroupOutput = new cdk.CfnOutput(this, 'RedisSecurityGroupId', {
-      exportName: `${this.stackName}-RedisSecurityGroupId`,
+      exportName: `ap-elasticache-${props.environment}-RedisSecurityGroupId`,
       value: this.redisSecurityGroup.securityGroupId,
       description: 'ElastiCache security group ID',
     });
