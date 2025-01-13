@@ -214,9 +214,91 @@ Here are the most commonly used tasks:
 
 ### AWS CDK
 
-- `task cdk:deploy` - Deploy CDK stack
-- `task cdk:destroy` - Destroy CDK stack
-- `task cdk:diff` - Show CDK changes
+We use AWS CDK to manage our cloud infrastructure. The infrastructure code is located in `src/aws-setup/`.
+
+#### Quick Start
+
+1. Set required environment variables:
+
+```bash
+export AWS_REGION=us-east-1
+export AWS_DEPLOYMENT_STACK_ENV=development  # or 'preview' or 'production'
+```
+
+2. Run preflight check:
+
+```bash
+task cdk:preflight
+```
+
+3. Create deployer (first time only):
+
+```bash
+task cdk:deployer:create
+
+# To also add credentials to Vercel:
+task cdk:deployer:create -- --add-to-vercel
+```
+
+4. Deploy infrastructure:
+
+```bash
+# Deploy all resources
+task cdk:deploy:resources
+
+# Wait for resources to be ready
+task cdk:wait
+```
+
+#### Environment Configurations
+
+Each environment has specific resource configurations:
+
+**Development**
+
+- RDS: t3.medium, 20GB storage
+- Redis: cache.t4g.small, single node
+- S3: Public read disabled, CORS enabled
+- Backup: 1 day retention
+
+**Preview**
+
+- RDS: t3.micro, 10GB storage
+- Redis: cache.t4g.small, single node
+- S3: Public read disabled, CORS enabled
+- Backup: 1 day retention
+
+**Production**
+
+- RDS: t3.medium, 20GB storage
+- Redis: cache.t4g.medium with replica
+- S3: Public read disabled, CORS enabled
+- Backup: 7 day retention
+
+#### Useful Commands
+
+```bash
+# View planned changes
+task cdk:diff
+
+# Deploy specific stack
+task cdk:deploy -- StackName-environment
+
+# View deployment values
+task cdk:print-values
+
+# Destroy resources (careful!)
+task cdk:destroy
+```
+
+#### Security Features
+
+- TLS encryption for all services
+- VPC isolation with private subnets
+- Security groups for access control
+- IAM least privilege principle
+- S3 server-side encryption
+- Redis auth via TLS proxy
 
 ## Technology Stack Overview
 
