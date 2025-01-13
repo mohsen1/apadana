@@ -23,34 +23,45 @@ logger.info(`Using AWS profile: ${process.env.AWS_PROFILE}`);
 logger.info(`Deploying CDK app for environment: ${environment}`);
 logger.info(`Force replace: ${forceReplace}`);
 
+// Set removal policy based on environment
+const removalPolicy =
+  environment === 'production'
+    ? cdk.RemovalPolicy.RETAIN
+    : forceReplace
+      ? cdk.RemovalPolicy.DESTROY
+      : cdk.RemovalPolicy.RETAIN;
+
+logger.info(`Using removal policy: ${removalPolicy}`);
+
 const sharedNetworkStack = new SharedNetworkStack(app, `ap-network-${environment}`, {
   environment,
-  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+  removalPolicy,
 });
 logger.debug('Created shared network stack');
 
 const s3Stack = new S3Stack(app, `ap-s3-${environment}`, {
   environment,
-  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+  removalPolicy,
 });
 logger.debug('Created S3 stack');
 
 new CloudFrontStack(app, `ap-cloudfront-${environment}`, {
   environment,
   bucket: s3Stack.bucket,
+  removalPolicy,
 });
 logger.debug('Created CloudFront stack');
 
 new IamStack(app, `ap-iam-${environment}`, {
   environment,
-  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+  removalPolicy,
 });
 logger.debug('Created IAM stack');
 
 new RdsStack(app, `ap-rds-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
-  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+  removalPolicy,
 });
 logger.debug('Created RDS stack');
 
@@ -58,7 +69,7 @@ logger.debug('Created RDS stack');
 const elasticacheStack = new ElastiCacheStack(app, `ap-elasticache-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
-  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+  removalPolicy,
 });
 logger.debug('Created Elasticache stack');
 
@@ -67,7 +78,7 @@ new RedisProxyStack(app, `ap-redis-proxy-${environment}`, {
   environment,
   vpc: sharedNetworkStack.vpc,
   redisEndpoint: elasticacheStack.redisHostOutput.value as string,
-  removalPolicy: forceReplace ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+  removalPolicy,
 });
 logger.debug('Created Redis proxy stack');
 
