@@ -16,12 +16,11 @@ EOF
 )
 
 if [ -f "$COMMIT_MSG_FILE" ]; then
-  EXISTING_MSG=$(cat "$COMMIT_MSG_FILE")
+  # Save the AI generated summary to the commit message file
+  echo "$SUMMARY" >"$COMMIT_MSG_FILE"
+  # Append existing message if it exists
+  if [ -n "$EXISTING_MSG" ]; then
+    echo "" >>"$COMMIT_MSG_FILE"
+    echo "$EXISTING_MSG" >>"$COMMIT_MSG_FILE"
+  fi
 fi
-
-cat <<EOF >"$COMMIT_MSG_FILE"
-# AI-generated diff summary:
-$SUMMARY
-
-$EXISTING_MSG
-EOF
