@@ -1,5 +1,6 @@
 import { IAM } from '@aws-sdk/client-iam';
 
+import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(import.meta.filename);
@@ -25,7 +26,8 @@ export async function cleanupIamGroup(groupName: string) {
 
     logger.info(`Successfully cleaned up group ${groupName}`);
   } catch (error) {
-    if ((error as any)?.name === 'NoSuchEntityException') {
+    assertError(error);
+    if (error.name === 'NoSuchEntityException') {
       logger.info(`Group ${groupName} does not exist`);
       return;
     }
@@ -37,14 +39,12 @@ export async function cleanupIamGroup(groupName: string) {
 if (require.main === module) {
   const groupName = process.argv[2];
   if (!groupName) {
-    console.error('Please provide a group name');
     process.exit(1);
   }
 
   cleanupIamGroup(groupName)
     .then(() => process.exit(0))
-    .catch((error) => {
-      console.error('Error:', error);
+    .catch(() => {
       process.exit(1);
     });
 }
