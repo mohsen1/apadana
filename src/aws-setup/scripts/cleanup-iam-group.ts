@@ -35,8 +35,9 @@ export async function cleanupIamGroup(groupName: string) {
   }
 }
 
+const isMain = import.meta.filename === process.argv[1];
 // Allow running directly
-if (require.main === module) {
+if (isMain) {
   const groupName = process.argv[2];
   if (!groupName) {
     process.exit(1);
