@@ -21,6 +21,8 @@ export const DEPLOYER_PERMISSIONS = [
   's3:DeletePublicAccessBlock',
   's3:PutBucketPolicy',
   's3:DeleteBucketPolicy',
+  'cloudformation:*',
+  'iam:PassRole',
 ] as const;
 
 /**
