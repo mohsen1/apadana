@@ -70,7 +70,6 @@ export class CloudFrontStack extends BaseStack {
     });
 
     this.distributionDomainOutput = new cdk.CfnOutput(this, 'DistributionDomain', {
-      exportName: `${this.stackName}-DistributionDomain`,
       value: distribution.distributionDomainName,
       description: 'Domain name of the CloudFront distribution',
     });
