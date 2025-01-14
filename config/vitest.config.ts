@@ -5,7 +5,8 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  plugins: [react(), tsconfigPaths() as any],
   test: {
     silent: Boolean(process.env.CI),
     globals: true,
