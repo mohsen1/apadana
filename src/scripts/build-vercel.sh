@@ -14,8 +14,9 @@ task prisma:generate
 
 # Build for production. This script assumes all of the environment variables are set.
 export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
-# export AWS_FORCE_REPLACE=true
-
+export AWS_FORCE_REPLACE=true
+echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
 echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AWS_REGION region"
 
 # Run preflight checks
