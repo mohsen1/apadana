@@ -80,14 +80,15 @@ patterns = [
 score = 80
 patterns = [
   "^src/app/.*\\.tsx$",
-  "^src/components/(?!ui|emails|.*\\.stories\\.[jt]sx?$)"
+  "^src/components/[^/]+\\.[jt]sx?$",
+  "^src/components/[^/]+/.*$"
 ]
 
 [[priority_rules]]
 score = 75
 patterns = [
   "^src/components/ui/",
-  "^src/design-system/(?!.*\\.stories\\.[jt]sx?$)",
+  "^src/design-system/.*$",
   "^src/styles/"
 ]
 
