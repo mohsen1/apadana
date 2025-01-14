@@ -88,20 +88,9 @@ export class S3Stack extends BaseStack {
     const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`.trim();
     const config = this.getBucketConfig();
 
-    // Create the bucket instead of referencing existing one
-    this.bucket = new s3.Bucket(this, 'Bucket', {
-      bucketName,
-      cors: config.cors,
-      versioned: config.versioned,
-      encryption: config.encryption,
-      publicReadAccess: config.publicReadAccess,
-      blockPublicAccess: config.blockPublicAccess,
-      enforceSSL: config.enforceSSL,
-      lifecycleRules: config.lifecycleRules,
-      removalPolicy: cdk.RemovalPolicy.DESTROY, // For development ease
-      autoDeleteObjects: true, // For development ease
-    });
-    logger.debug('Created new bucket');
+    // Import existing bucket instead of creating a new one
+    this.bucket = s3.Bucket.fromBucketName(this, 'Bucket', bucketName);
+    logger.debug('Imported existing bucket');
 
     this.bucketNameOutput = new cdk.CfnOutput(this, 'BucketName', {
       exportName: `${this.stackName}-BucketName`,
