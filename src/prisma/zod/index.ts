@@ -8846,6 +8846,11 @@ export const UserRoleUpdateManyArgsSchema: z.ZodType<Prisma.UserRoleUpdateManyAr
   where: UserRoleWhereInputSchema.optional(),
 }).strict() ;
 
+export const updateManyUserRoleCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyUserRoleCreateManyAndReturnArgs> = z.object({
+  data: z.union([ UserRoleUpdateManyMutationInputSchema,UserRoleUncheckedUpdateManyInputSchema ]),
+  where: UserRoleWhereInputSchema.optional(),
+}).strict() ;
+
 export const UserRoleDeleteManyArgsSchema: z.ZodType<Prisma.UserRoleDeleteManyArgs> = z.object({
   where: UserRoleWhereInputSchema.optional(),
 }).strict() ;
@@ -8888,6 +8893,11 @@ export const UserPermissionUpdateArgsSchema: z.ZodType<Prisma.UserPermissionUpda
 }).strict() ;
 
 export const UserPermissionUpdateManyArgsSchema: z.ZodType<Prisma.UserPermissionUpdateManyArgs> = z.object({
+  data: z.union([ UserPermissionUpdateManyMutationInputSchema,UserPermissionUncheckedUpdateManyInputSchema ]),
+  where: UserPermissionWhereInputSchema.optional(),
+}).strict() ;
+
+export const updateManyUserPermissionCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyUserPermissionCreateManyAndReturnArgs> = z.object({
   data: z.union([ UserPermissionUpdateManyMutationInputSchema,UserPermissionUncheckedUpdateManyInputSchema ]),
   where: UserPermissionWhereInputSchema.optional(),
 }).strict() ;
@@ -8938,6 +8948,11 @@ export const UserUpdateManyArgsSchema: z.ZodType<Prisma.UserUpdateManyArgs> = z.
   where: UserWhereInputSchema.optional(),
 }).strict() ;
 
+export const updateManyUserCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyUserCreateManyAndReturnArgs> = z.object({
+  data: z.union([ UserUpdateManyMutationInputSchema,UserUncheckedUpdateManyInputSchema ]),
+  where: UserWhereInputSchema.optional(),
+}).strict() ;
+
 export const UserDeleteManyArgsSchema: z.ZodType<Prisma.UserDeleteManyArgs> = z.object({
   where: UserWhereInputSchema.optional(),
 }).strict() ;
@@ -8980,6 +8995,11 @@ export const EmailAddressUpdateArgsSchema: z.ZodType<Prisma.EmailAddressUpdateAr
 }).strict() ;
 
 export const EmailAddressUpdateManyArgsSchema: z.ZodType<Prisma.EmailAddressUpdateManyArgs> = z.object({
+  data: z.union([ EmailAddressUpdateManyMutationInputSchema,EmailAddressUncheckedUpdateManyInputSchema ]),
+  where: EmailAddressWhereInputSchema.optional(),
+}).strict() ;
+
+export const updateManyEmailAddressCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyEmailAddressCreateManyAndReturnArgs> = z.object({
   data: z.union([ EmailAddressUpdateManyMutationInputSchema,EmailAddressUncheckedUpdateManyInputSchema ]),
   where: EmailAddressWhereInputSchema.optional(),
 }).strict() ;
@@ -9030,6 +9050,11 @@ export const ExternalAccountUpdateManyArgsSchema: z.ZodType<Prisma.ExternalAccou
   where: ExternalAccountWhereInputSchema.optional(),
 }).strict() ;
 
+export const updateManyExternalAccountCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyExternalAccountCreateManyAndReturnArgs> = z.object({
+  data: z.union([ ExternalAccountUpdateManyMutationInputSchema,ExternalAccountUncheckedUpdateManyInputSchema ]),
+  where: ExternalAccountWhereInputSchema.optional(),
+}).strict() ;
+
 export const ExternalAccountDeleteManyArgsSchema: z.ZodType<Prisma.ExternalAccountDeleteManyArgs> = z.object({
   where: ExternalAccountWhereInputSchema.optional(),
 }).strict() ;
@@ -9072,6 +9097,11 @@ export const UploadedPhotoUpdateArgsSchema: z.ZodType<Prisma.UploadedPhotoUpdate
 }).strict() ;
 
 export const UploadedPhotoUpdateManyArgsSchema: z.ZodType<Prisma.UploadedPhotoUpdateManyArgs> = z.object({
+  data: z.union([ UploadedPhotoUpdateManyMutationInputSchema,UploadedPhotoUncheckedUpdateManyInputSchema ]),
+  where: UploadedPhotoWhereInputSchema.optional(),
+}).strict() ;
+
+export const updateManyUploadedPhotoCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyUploadedPhotoCreateManyAndReturnArgs> = z.object({
   data: z.union([ UploadedPhotoUpdateManyMutationInputSchema,UploadedPhotoUncheckedUpdateManyInputSchema ]),
   where: UploadedPhotoWhereInputSchema.optional(),
 }).strict() ;
@@ -9122,6 +9152,11 @@ export const ListingUpdateManyArgsSchema: z.ZodType<Prisma.ListingUpdateManyArgs
   where: ListingWhereInputSchema.optional(),
 }).strict() ;
 
+export const updateManyListingCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyListingCreateManyAndReturnArgs> = z.object({
+  data: z.union([ ListingUpdateManyMutationInputSchema,ListingUncheckedUpdateManyInputSchema ]),
+  where: ListingWhereInputSchema.optional(),
+}).strict() ;
+
 export const ListingDeleteManyArgsSchema: z.ZodType<Prisma.ListingDeleteManyArgs> = z.object({
   where: ListingWhereInputSchema.optional(),
 }).strict() ;
@@ -9164,6 +9199,11 @@ export const ListingInventoryUpdateArgsSchema: z.ZodType<Prisma.ListingInventory
 }).strict() ;
 
 export const ListingInventoryUpdateManyArgsSchema: z.ZodType<Prisma.ListingInventoryUpdateManyArgs> = z.object({
+  data: z.union([ ListingInventoryUpdateManyMutationInputSchema,ListingInventoryUncheckedUpdateManyInputSchema ]),
+  where: ListingInventoryWhereInputSchema.optional(),
+}).strict() ;
+
+export const updateManyListingInventoryCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyListingInventoryCreateManyAndReturnArgs> = z.object({
   data: z.union([ ListingInventoryUpdateManyMutationInputSchema,ListingInventoryUncheckedUpdateManyInputSchema ]),
   where: ListingInventoryWhereInputSchema.optional(),
 }).strict() ;
@@ -9214,6 +9254,11 @@ export const BookingUpdateManyArgsSchema: z.ZodType<Prisma.BookingUpdateManyArgs
   where: BookingWhereInputSchema.optional(),
 }).strict() ;
 
+export const updateManyBookingCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyBookingCreateManyAndReturnArgs> = z.object({
+  data: z.union([ BookingUpdateManyMutationInputSchema,BookingUncheckedUpdateManyInputSchema ]),
+  where: BookingWhereInputSchema.optional(),
+}).strict() ;
+
 export const BookingDeleteManyArgsSchema: z.ZodType<Prisma.BookingDeleteManyArgs> = z.object({
   where: BookingWhereInputSchema.optional(),
 }).strict() ;
@@ -9256,6 +9301,11 @@ export const BookingRequestUpdateArgsSchema: z.ZodType<Prisma.BookingRequestUpda
 }).strict() ;
 
 export const BookingRequestUpdateManyArgsSchema: z.ZodType<Prisma.BookingRequestUpdateManyArgs> = z.object({
+  data: z.union([ BookingRequestUpdateManyMutationInputSchema,BookingRequestUncheckedUpdateManyInputSchema ]),
+  where: BookingRequestWhereInputSchema.optional(),
+}).strict() ;
+
+export const updateManyBookingRequestCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyBookingRequestCreateManyAndReturnArgs> = z.object({
   data: z.union([ BookingRequestUpdateManyMutationInputSchema,BookingRequestUncheckedUpdateManyInputSchema ]),
   where: BookingRequestWhereInputSchema.optional(),
 }).strict() ;
@@ -9306,6 +9356,11 @@ export const SessionUpdateManyArgsSchema: z.ZodType<Prisma.SessionUpdateManyArgs
   where: SessionWhereInputSchema.optional(),
 }).strict() ;
 
+export const updateManySessionCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManySessionCreateManyAndReturnArgs> = z.object({
+  data: z.union([ SessionUpdateManyMutationInputSchema,SessionUncheckedUpdateManyInputSchema ]),
+  where: SessionWhereInputSchema.optional(),
+}).strict() ;
+
 export const SessionDeleteManyArgsSchema: z.ZodType<Prisma.SessionDeleteManyArgs> = z.object({
   where: SessionWhereInputSchema.optional(),
 }).strict() ;
@@ -9352,6 +9407,11 @@ export const PasswordResetUpdateManyArgsSchema: z.ZodType<Prisma.PasswordResetUp
   where: PasswordResetWhereInputSchema.optional(),
 }).strict() ;
 
+export const updateManyPasswordResetCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyPasswordResetCreateManyAndReturnArgs> = z.object({
+  data: z.union([ PasswordResetUpdateManyMutationInputSchema,PasswordResetUncheckedUpdateManyInputSchema ]),
+  where: PasswordResetWhereInputSchema.optional(),
+}).strict() ;
+
 export const PasswordResetDeleteManyArgsSchema: z.ZodType<Prisma.PasswordResetDeleteManyArgs> = z.object({
   where: PasswordResetWhereInputSchema.optional(),
 }).strict() ;
@@ -9394,6 +9454,11 @@ export const LocalEmailUpdateManyArgsSchema: z.ZodType<Prisma.LocalEmailUpdateMa
   where: LocalEmailWhereInputSchema.optional(),
 }).strict() ;
 
+export const updateManyLocalEmailCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyLocalEmailCreateManyAndReturnArgs> = z.object({
+  data: z.union([ LocalEmailUpdateManyMutationInputSchema,LocalEmailUncheckedUpdateManyInputSchema ]),
+  where: LocalEmailWhereInputSchema.optional(),
+}).strict() ;
+
 export const LocalEmailDeleteManyArgsSchema: z.ZodType<Prisma.LocalEmailDeleteManyArgs> = z.object({
   where: LocalEmailWhereInputSchema.optional(),
 }).strict() ;
@@ -9432,6 +9497,11 @@ export const EarlyAccessSignupUpdateArgsSchema: z.ZodType<Prisma.EarlyAccessSign
 }).strict() ;
 
 export const EarlyAccessSignupUpdateManyArgsSchema: z.ZodType<Prisma.EarlyAccessSignupUpdateManyArgs> = z.object({
+  data: z.union([ EarlyAccessSignupUpdateManyMutationInputSchema,EarlyAccessSignupUncheckedUpdateManyInputSchema ]),
+  where: EarlyAccessSignupWhereInputSchema.optional(),
+}).strict() ;
+
+export const updateManyEarlyAccessSignupCreateManyAndReturnArgsSchema: z.ZodType<Prisma.updateManyEarlyAccessSignupCreateManyAndReturnArgs> = z.object({
   data: z.union([ EarlyAccessSignupUpdateManyMutationInputSchema,EarlyAccessSignupUncheckedUpdateManyInputSchema ]),
   where: EarlyAccessSignupWhereInputSchema.optional(),
 }).strict() ;
