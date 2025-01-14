@@ -12,10 +12,11 @@ export PATH="$HOME/.local/bin:$PATH"
 # This is essentially a postinstall
 task prisma:generate
 
-# Build for production. This script assumes all of the environment variables are set.
-export AWS_DEPLOYMENT_STACK_ENV=$VERCEL_ENV
+# Set AWS deployment environment based on Vercel environment
+export AWS_DEPLOYMENT_STACK_ENV="${VERCEL_ENV:-development}"
 export AWS_FORCE_REPLACE=true
 
+# Build for production. This script assumes all of the environment variables are set.
 echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AWS_REGION region"
 
 # Run preflight checks

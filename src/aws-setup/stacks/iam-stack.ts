@@ -52,6 +52,7 @@ export class IamStack extends BaseStack {
             'logs:*',
             'codebuild:*',
             'codepipeline:*',
+            'iam:PassRole',
           ],
           resources: ['*'],
         }),

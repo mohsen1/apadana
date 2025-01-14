@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-iam';
 import { spawn } from 'child_process';
 import { existsSync } from 'fs';
-import { mkdir, readFile, unlink, writeFile } from 'fs/promises';
+import { mkdir, readFile, writeFile } from 'fs/promises';
 import { homedir } from 'os';
 import { join } from 'path';
 
@@ -15,7 +15,6 @@ import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger(import.meta.filename);
-// logger.disable(); // Disable logging to have a clean output. For debugging, enable it.
 
 async function setupDeployerGroup(environment: string, username: string) {
   const scriptPath = join(import.meta.dirname, 'setup-deployer-group.ts');
@@ -35,72 +34,6 @@ async function setupDeployerGroup(environment: string, username: string) {
       }
     });
   });
-}
-
-async function addToVercel(accessKeyId: string, secretAccessKey: string, environment: string) {
-  const tempKeyFile = join(import.meta.dirname, '.temp-key.txt');
-  const tempSecretFile = join(import.meta.dirname, '.temp-secret.txt');
-
-  try {
-    // Create temp files with credentials
-    await writeFile(tempKeyFile, accessKeyId);
-    await writeFile(tempSecretFile, secretAccessKey);
-
-    // Remove existing env vars if they exist
-    logger.info('Removing existing AWS credentials from Vercel...');
-    await new Promise<void>((resolve) => {
-      const rm1 = spawn('vercel', ['env', 'rm', 'AWS_ACCESS_KEY_ID', environment, '--yes'], {
-        stdio: 'inherit',
-      });
-      rm1.on('close', () => {
-        const rm2 = spawn('vercel', ['env', 'rm', 'AWS_SECRET_ACCESS_KEY', environment, '--yes'], {
-          stdio: 'inherit',
-        });
-        rm2.on('close', resolve);
-      });
-    });
-
-    // Add new env vars using file redirection
-    logger.info('Adding AWS credentials to Vercel...');
-    await new Promise<void>((resolve, reject) => {
-      const add1 = spawn(
-        'sh',
-        ['-c', `vercel env add AWS_ACCESS_KEY_ID ${environment} < ${tempKeyFile}`],
-        {
-          stdio: 'inherit',
-        },
-      );
-
-      add1.on('close', (code1) => {
-        if (code1 !== 0) {
-          reject(new Error('Failed to add AWS_ACCESS_KEY_ID'));
-          return;
-        }
-
-        const add2 = spawn(
-          'sh',
-          ['-c', `vercel env add AWS_SECRET_ACCESS_KEY ${environment} < ${tempSecretFile}`],
-          {
-            stdio: 'inherit',
-          },
-        );
-
-        add2.on('close', (code2) => {
-          if (code2 !== 0) {
-            reject(new Error('Failed to add AWS_SECRET_ACCESS_KEY'));
-            return;
-          }
-          resolve();
-        });
-      });
-    });
-  } finally {
-    // Clean up temp files
-    await Promise.all([
-      unlink(tempKeyFile).catch(() => {}),
-      unlink(tempSecretFile).catch(() => {}),
-    ]);
-  }
 }
 
 async function deleteExistingAccessKeys(iamClient: IAMClient, userName: string) {
@@ -183,7 +116,7 @@ aws_secret_access_key = ${secretAccessKey}`;
 
 async function createDeployer(environment: string, addToVercelEnv = false) {
   const iamClient = new IAMClient({});
-  const userName = process.env.AWS_DEPLOYER_USER || 'ap-deployer';
+  const userName = `ap-deployer-${environment}`; //process.env.AWS_DEPLOYER_USER || 'ap-deployer';
 
   logger.info(`Creating deployer user ${userName}...`);
 
@@ -222,8 +155,9 @@ async function createDeployer(environment: string, addToVercelEnv = false) {
     await writeAwsProfile(AccessKey.AccessKeyId, AccessKey.SecretAccessKey, environment);
 
     if (addToVercelEnv) {
-      await addToVercel(AccessKey.AccessKeyId, AccessKey.SecretAccessKey, environment);
-      logger.info('✓ Successfully added AWS credentials to Vercel environment');
+      logger.info('Add the following to Vercel environment:');
+      logger.info(`To add run\nvercel env add --force AWS_ACCESS_KEY_ID ${environment}`);
+      logger.info(`To add run\nvercel env add --force AWS_SECRET_ACCESS_KEY ${environment}`);
     }
 
     logger.info('✓ Successfully created deployer');
