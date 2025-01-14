@@ -88,58 +88,20 @@ export class S3Stack extends BaseStack {
     const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`.trim();
     const config = this.getBucketConfig();
 
-    // NOTE: This bucket must be created manually before deploying this stack
-    // CDK will only manage its configuration, not its lifecycle
-    this.bucket = s3.Bucket.fromBucketName(this, 'ExistingBucket', bucketName);
-    logger.debug('Imported existing bucket');
-
-    // Update bucket configuration
-    new cr.AwsCustomResource(this, 'UpdateBucketConfig', {
-      onCreate: {
-        service: 'S3',
-        action: 'getBucketCors',
-        parameters: { Bucket: bucketName },
-        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-config`),
-        ignoreErrorCodesMatching: 'NoSuchBucket|NoSuchCORSConfiguration',
-      },
-      onUpdate: {
-        service: 'S3',
-        action: 'putBucketCors',
-        parameters: {
-          Bucket: bucketName,
-          CORSConfiguration: { CORSRules: config.cors },
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-config`),
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.arnForObjects('*'), this.bucket.bucketArn],
-      }),
+    // Create the bucket instead of referencing existing one
+    this.bucket = new s3.Bucket(this, 'Bucket', {
+      bucketName,
+      cors: config.cors,
+      versioned: config.versioned,
+      encryption: config.encryption,
+      publicReadAccess: config.publicReadAccess,
+      blockPublicAccess: config.blockPublicAccess,
+      enforceSSL: config.enforceSSL,
+      lifecycleRules: config.lifecycleRules,
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // For development ease
+      autoDeleteObjects: true, // For development ease
     });
-
-    // Update versioning
-    new cr.AwsCustomResource(this, 'UpdateBucketVersioning', {
-      onCreate: {
-        service: 'S3',
-        action: 'getBucketVersioning',
-        parameters: { Bucket: bucketName },
-        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-versioning`),
-        ignoreErrorCodesMatching: 'NoSuchBucket',
-      },
-      onUpdate: {
-        service: 'S3',
-        action: 'putBucketVersioning',
-        parameters: {
-          Bucket: bucketName,
-          VersioningConfiguration: {
-            Status: config.versioned ? 'Enabled' : 'Suspended',
-          },
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`${bucketName}-versioning`),
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [this.bucket.arnForObjects('*'), this.bucket.bucketArn],
-      }),
-    });
+    logger.debug('Created new bucket');
 
     this.bucketNameOutput = new cdk.CfnOutput(this, 'BucketName', {
       exportName: `${this.stackName}-BucketName`,
