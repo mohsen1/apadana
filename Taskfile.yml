@@ -533,8 +533,3 @@ tasks:
         fi
         echo "Production environment is not healthy"
         exit 1
-  serialize-repo:
-    desc: Serialize the repository. Provide a path to a file to serialize to using -- --path=<path>
-    silent: true
-    cmds:
-      - pnpm tsx {{.SCRIPTS}}/serialize-repo.ts {{.CLI_ARGS}}
