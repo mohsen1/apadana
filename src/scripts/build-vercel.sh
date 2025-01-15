@@ -14,7 +14,6 @@ task prisma:generate
 
 # Set AWS deployment environment based on Vercel environment
 export AWS_DEPLOYMENT_STACK_ENV="${VERCEL_ENV:-development}"
-export AWS_FORCE_REPLACE=true
 
 # Build for production. This script assumes all of the environment variables are set.
 echo "Deploying AWS resources for '$AWS_DEPLOYMENT_STACK_ENV' environment in $AWS_REGION region"
