@@ -80,6 +80,38 @@ export class IamStack extends BaseStack {
     const groupName = `ap-deployer-group-${props.environment}`;
     const physicalResourceId = `${groupName}-resource`;
 
+    // First, create a custom resource to list and detach all policies
+    const cleanupPolicies = new cr.AwsCustomResource(this, 'CleanupPolicies', {
+      onDelete: {
+        service: 'IAM',
+        action: 'listAttachedGroupPolicies',
+        parameters: {
+          GroupName: groupName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`ListPolicies-${props.environment}`),
+        outputPaths: ['AttachedPolicies'],
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
+      }),
+    });
+
+    // Create a custom resource to detach each managed policy
+    const detachPolicies = new cr.AwsCustomResource(this, 'DetachPolicies', {
+      onDelete: {
+        service: 'IAM',
+        action: 'detachGroupPolicy',
+        parameters: {
+          GroupName: groupName,
+          PolicyArn: this.devPolicy.managedPolicyArn,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`DetachPolicy-${props.environment}`),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
+      }),
+    });
+
     // Create the deployer group
     const deployerGroupResource = new cr.AwsCustomResource(this, 'DeployerGroupResource', {
       onCreate: {
@@ -110,6 +142,10 @@ export class IamStack extends BaseStack {
         resources: ['*'],
       }),
     });
+
+    // Add explicit dependencies for cleanup
+    deployerGroupResource.node.addDependency(cleanupPolicies);
+    deployerGroupResource.node.addDependency(detachPolicies);
 
     // Attach policy to group
     const attachPolicyResource = new cr.AwsCustomResource(this, 'AttachGroupPolicy', {

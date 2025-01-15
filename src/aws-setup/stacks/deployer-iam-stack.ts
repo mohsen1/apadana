@@ -26,56 +26,23 @@ export class DeployerIamStack extends BaseStack {
     // Add service-specific tag
     cdk.Tags.of(this).add('service', 'deployer-iam');
 
-    //
-    // 1) Create the Deployer group with inline policy + managed policies
-    //
+    // Import the existing deployer group
     const deployerGroupName = `ap-deployer-group-${props.environment}`;
-    const deployerGroup = new iam.Group(this, 'DeployerGroup', {
-      groupName: deployerGroupName,
-    });
+    const deployerGroup = iam.Group.fromGroupName(this, 'ImportedDeployerGroup', deployerGroupName);
 
-    // Add inline policy with all required deployer actions
-    deployerGroup.addToPolicy(
-      new iam.PolicyStatement({
-        actions: [...DEPLOYER_PERMISSIONS],
-        effect: iam.Effect.ALLOW,
-        resources: ['*'],
-      }),
-    );
-
-    // Attach AWS-managed policies
-    const managedPolicies = DEPLOYER_MANAGED_POLICIES.map((policyArn) =>
-      iam.ManagedPolicy.fromManagedPolicyArn(
-        this,
-        `ManagedPolicy-${policyArn.split('/').pop()}`,
-        policyArn,
-      ),
-    );
-
-    // Then attach managed policies
-    for (const policy of managedPolicies) {
-      deployerGroup.addManagedPolicy(policy);
-    }
-
-    //
-    // 2) Create the Deployer user and attach to group
-    //
+    // Create the Deployer user and attach to group
     this.deployerUserName = `ap-deployer-${props.environment}`;
     const deployerUser = new iam.User(this, 'DeployerUser', {
       userName: this.deployerUserName,
       groups: [deployerGroup],
     });
 
-    //
-    // 3) Create an Access Key for the user
-    //
+    // Create an Access Key for the user
     const deployerAccessKey = new iam.CfnAccessKey(this, 'DeployerUserAccessKey', {
       userName: deployerUser.userName,
     });
 
-    //
-    // 4) Store the key in Secrets Manager
-    //
+    // Store the key in Secrets Manager
     this.deployerAccessKeySecret = new secretsmanager.Secret(this, 'DeployerAccessKeySecret', {
       description: `Access key for user ${this.deployerUserName} in env ${props.environment}`,
       secretName: `ap-deployer-${props.environment}-access-key`,
@@ -88,9 +55,7 @@ export class DeployerIamStack extends BaseStack {
       },
     });
 
-    //
-    // 5) Custom resource to put the actual secret key into Secrets Manager
-    //
+    // Custom resource to put the actual secret key into Secrets Manager
     const updateAccessKeySecret = new cr.AwsCustomResource(this, 'UpdateAccessKeySecret', {
       onCreate: {
         service: 'SecretsManager',
@@ -119,49 +84,7 @@ export class DeployerIamStack extends BaseStack {
 
     updateAccessKeySecret.node.addDependency(this.deployerAccessKeySecret);
 
-    // Add custom resource to handle policy cleanup during deletion
-    const cleanupPolicies = new cr.AwsCustomResource(this, 'CleanupPolicies', {
-      onDelete: {
-        service: 'IAM',
-        action: 'listAttachedGroupPolicies',
-        parameters: {
-          GroupName: deployerGroupName,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`ListPolicies-${props.environment}`),
-        outputPaths: ['AttachedPolicies'],
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
-      }),
-    });
-
-    // For each managed policy, create a custom resource to detach it
-    DEPLOYER_MANAGED_POLICIES.forEach((policyArn, index) => {
-      const detachPolicy = new cr.AwsCustomResource(this, `DetachPolicy-${index}`, {
-        onDelete: {
-          service: 'IAM',
-          action: 'detachGroupPolicy',
-          parameters: {
-            GroupName: deployerGroupName,
-            PolicyArn: policyArn,
-          },
-          physicalResourceId: cr.PhysicalResourceId.of(
-            `DetachPolicy-${index}-${props.environment}`,
-          ),
-        },
-        policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-          resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
-        }),
-      });
-
-      // Ensure proper deletion order
-      detachPolicy.node.addDependency(cleanupPolicies);
-      deployerGroup.node.addDependency(detachPolicy);
-    });
-
-    //
-    // 6) Print out instructions at the end
-    //
+    // Print out instructions at the end
     new CfnOutput(this, 'DeployerInstructions', {
       value: [
         `Deployer user created: ${this.deployerUserName}`,
