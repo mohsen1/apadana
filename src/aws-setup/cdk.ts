@@ -5,6 +5,7 @@ import 'source-map-support/register';
 import { createLogger } from '@/utils/logger';
 
 import { CloudFrontStack } from './stacks/cloudfront-stack';
+import { DeployerIamStack } from './stacks/deployer-iam-stack';
 import { ElastiCacheStack } from './stacks/elasticache-stack';
 import { IamStack } from './stacks/iam-stack';
 import { RdsStack } from './stacks/rds-stack';
@@ -57,6 +58,13 @@ new IamStack(app, `ap-iam-${environment}`, {
   removalPolicy,
 });
 logger.debug('Created IAM stack');
+
+// Create Deployer IAM stack
+new DeployerIamStack(app, `ap-deployer-iam-${environment}`, {
+  environment,
+  removalPolicy,
+});
+logger.debug('Created Deployer IAM stack');
 
 new RdsStack(app, `ap-rds-${environment}`, {
   environment,
