@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
@@ -25,9 +27,10 @@ async function getDeployerCredentials(environment: string) {
     };
 
     // Print in a format that can be easily copied to shell
+    const awsCredentialsPath = path.join(os.homedir(), '.aws', 'credentials');
 
     fs.writeFileSync(
-      `~/.aws/credentials`,
+      awsCredentialsPath,
       [
         `[ap-deployer-${environment}]`,
         `aws_access_key_id = ${credentials.AccessKeyId}`,
@@ -35,7 +38,7 @@ async function getDeployerCredentials(environment: string) {
       ].join('\n'),
     );
 
-    console.info(`Credentials written to ~/.aws/credentials. Update Vercel:`);
+    console.info(`Credentials written to ${awsCredentialsPath}. Update Vercel:`);
     console.info('\n'.repeat(2));
     console.info(`AWS_ACCESS_KEY_ID=${credentials.AccessKeyId}`);
     console.info(`AWS_SECRET_ACCESS_KEY=${credentials.SecretAccessKey}`);
