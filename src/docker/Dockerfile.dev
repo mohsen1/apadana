@@ -10,7 +10,7 @@ RUN apt-get update && \
 
 # Setup pnpm
 RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
-RUN pnpm config set store-dir /home/node/.pnpm-store \
+RUN pnpm config set store-dir /root/.pnpm-store \
   && pnpm config set update-notifier false \
   && pnpm config set node-deprecation-warnings false
 
@@ -22,12 +22,12 @@ COPY Taskfile.yml ./
 
 # Fetch dependencies first
 COPY pnpm-lock.yaml ./
-RUN --mount=type=cache,target=/home/node/.pnpm-store,id=pnpm-store \
+RUN --mount=type=cache,target=/root/.pnpm-store,id=pnpm-store \
   task fetch
 
 # Install dependencies from store
 COPY package.json ./
-RUN --mount=type=cache,target=/home/node/.pnpm-store,id=pnpm-store \
+RUN --mount=type=cache,target=/root/.pnpm-store,id=pnpm-store \
   task install
 
 ENV NODE_ENV=development \
