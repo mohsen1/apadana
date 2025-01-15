@@ -523,6 +523,14 @@ tasks:
     cmds:
       - pnpm tsx {{.CDK_SCRIPTS}}/validate-deployer.ts
 
+  cdk:cleanup-iam-group:
+    desc: Clean up IAM group by removing all users
+    silent: true
+    env:
+      AWS_DEPLOYMENT_STACK_ENV: production
+    cmds:
+      - pnpm tsx {{.CDK_SCRIPTS}}/cleanup-iam-group.ts ap-deployer-group-production
+
   nextjs:check:health:prod:
     desc: Check if Dockerized production environment is healthy
     silent: true
@@ -533,9 +541,3 @@ tasks:
         fi
         echo "Production environment is not healthy"
         exit 1
-
-  cdk:deployer:destroy:
-    desc: Clean up deployer user and group
-    silent: true
-    cmds:
-      - pnpm tsx {{.CDK_SCRIPTS}}/cleanup-deployer.ts {{.CLI_ARGS}}

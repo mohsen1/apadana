@@ -8,6 +8,8 @@ import {
   ListGroupPoliciesCommand,
 } from '@aws-sdk/client-iam';
 import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
+import { spawn } from 'child_process';
+import { join } from 'path';
 
 import { assertError } from '@/utils';
 import { createLogger } from '@/utils/logger';
@@ -46,6 +48,26 @@ function decodePolicy(policyDocument: string): PolicyDocument {
   }
 }
 
+async function createDeployer(environment: string) {
+  const scriptPath = join(import.meta.dirname, 'create-deployer.ts');
+  const tsxPath = join(process.cwd(), 'node_modules', '.bin', 'tsx');
+
+  return new Promise<void>((resolve, reject) => {
+    const child = spawn(tsxPath, [scriptPath], {
+      env: { ...process.env, AWS_DEPLOYMENT_STACK_ENV: environment },
+      stdio: 'inherit',
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`create-deployer.ts exited with code ${code}`));
+      }
+    });
+  });
+}
+
 async function validateDeployer(environment: string) {
   const iam = new IAMClient({});
   const groupName = `ap-deployer-group-${environment}`;
@@ -60,10 +82,12 @@ async function validateDeployer(environment: string) {
     } catch (error) {
       assertError(error);
       if (error.name === 'NoSuchEntity') {
-        logger.error(`✗ Deployer group ${groupName} does not exist`);
-        throw new Error(`Deployer group ${groupName} not found`);
+        logger.info(`Creating deployer group ${groupName}...`);
+        await createDeployer(environment);
+        logger.info(`✓ Created deployer group ${groupName}`);
+      } else {
+        throw error;
       }
-      throw error;
     }
 
     // Get all permissions from both attached and inline policies
@@ -160,6 +184,13 @@ async function validateDeployer(environment: string) {
   }
 }
 
+async function showVercelInstructions(environment: string) {
+  logger.info('\nTo add AWS credentials to Vercel:');
+  logger.info(`1. Run: vercel env add AWS_ACCESS_KEY_ID ${environment}`);
+  logger.info(`2. Run: vercel env add AWS_SECRET_ACCESS_KEY ${environment}`);
+  logger.info('3. Deploy your project to apply the changes');
+}
+
 async function runPreflight() {
   try {
     // Check AWS credentials
@@ -173,6 +204,9 @@ async function runPreflight() {
       process.env.AWS_DEPLOYMENT_STACK_ENV || process.env.VERCEL_ENV || 'development';
     logger.info(`Validating deployer permissions for ${environment} environment...`);
     await validateDeployer(environment);
+
+    // Always show Vercel instructions
+    await showVercelInstructions(environment);
 
     logger.info('✓ All preflight checks passed.');
     process.exit(0);
