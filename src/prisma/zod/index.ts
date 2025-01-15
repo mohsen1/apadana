@@ -777,18 +777,18 @@ export const UserRoleOrderByWithRelationInputSchema: z.ZodType<Prisma.UserRoleOr
 
 export const UserRoleWhereUniqueInputSchema: z.ZodType<Prisma.UserRoleWhereUniqueInput> = z.union([
   z.object({
-    id: z.number().int(),
+    id: z.number(),
     userId_role: z.lazy(() => UserRoleUserIdRoleCompoundUniqueInputSchema)
   }),
   z.object({
-    id: z.number().int(),
+    id: z.number(),
   }),
   z.object({
     userId_role: z.lazy(() => UserRoleUserIdRoleCompoundUniqueInputSchema),
   }),
 ])
 .and(z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   userId_role: z.lazy(() => UserRoleUserIdRoleCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => UserRoleWhereInputSchema),z.lazy(() => UserRoleWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => UserRoleWhereInputSchema).array().optional(),
@@ -837,18 +837,18 @@ export const UserPermissionOrderByWithRelationInputSchema: z.ZodType<Prisma.User
 
 export const UserPermissionWhereUniqueInputSchema: z.ZodType<Prisma.UserPermissionWhereUniqueInput> = z.union([
   z.object({
-    id: z.number().int(),
+    id: z.number(),
     userId_permission: z.lazy(() => UserPermissionUserIdPermissionCompoundUniqueInputSchema)
   }),
   z.object({
-    id: z.number().int(),
+    id: z.number(),
   }),
   z.object({
     userId_permission: z.lazy(() => UserPermissionUserIdPermissionCompoundUniqueInputSchema),
   }),
 ])
 .and(z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   userId_permission: z.lazy(() => UserPermissionUserIdPermissionCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => UserPermissionWhereInputSchema),z.lazy(() => UserPermissionWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => UserPermissionWhereInputSchema).array().optional(),
@@ -920,19 +920,19 @@ export const UserOrderByWithRelationInputSchema: z.ZodType<Prisma.UserOrderByWit
 }).strict();
 
 export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> = z.object({
-  id: z.string().cuid()
+  id: z.string()
 })
 .and(z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   AND: z.union([ z.lazy(() => UserWhereInputSchema),z.lazy(() => UserWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => UserWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => UserWhereInputSchema),z.lazy(() => UserWhereInputSchema).array() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  firstName: z.union([ z.lazy(() => StringNullableFilterSchema),z.string({required_error: "First name is required" }) ]).optional().nullable(),
-  lastName: z.union([ z.lazy(() => StringNullableFilterSchema),z.string({required_error: "Last name is required" }) ]).optional().nullable(),
-  imageUrl: z.union([ z.lazy(() => StringNullableFilterSchema),z.string({required_error: "Image URL must be valid" }) ]).optional().nullable(),
-  password: z.union([ z.lazy(() => StringNullableFilterSchema),z.string({required_error: "Password must be at least 8 characters" }) ]).optional().nullable(),
+  firstName: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  lastName: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  imageUrl: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  password: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressListRelationFilterSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountListRelationFilterSchema).optional(),
   listings: z.lazy(() => ListingListRelationFilterSchema).optional(),
@@ -995,19 +995,19 @@ export const EmailAddressOrderByWithRelationInputSchema: z.ZodType<Prisma.EmailA
 
 export const EmailAddressWhereUniqueInputSchema: z.ZodType<Prisma.EmailAddressWhereUniqueInput> = z.union([
   z.object({
-    id: z.string().cuid(),
-    emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" })
+    id: z.string(),
+    emailAddress: z.string()
   }),
   z.object({
-    id: z.string().cuid(),
+    id: z.string(),
   }),
   z.object({
-    emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
+    emailAddress: z.string(),
   }),
 ])
 .and(z.object({
-  id: z.string().cuid().optional(),
-  emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }).optional(),
+  id: z.string().optional(),
+  emailAddress: z.string().optional(),
   AND: z.union([ z.lazy(() => EmailAddressWhereInputSchema),z.lazy(() => EmailAddressWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EmailAddressWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EmailAddressWhereInputSchema),z.lazy(() => EmailAddressWhereInputSchema).array() ]).optional(),
@@ -1063,23 +1063,23 @@ export const ExternalAccountOrderByWithRelationInputSchema: z.ZodType<Prisma.Ext
 
 export const ExternalAccountWhereUniqueInputSchema: z.ZodType<Prisma.ExternalAccountWhereUniqueInput> = z.union([
   z.object({
-    id: z.string().cuid(),
+    id: z.string(),
     provider_externalId: z.lazy(() => ExternalAccountProviderExternalIdCompoundUniqueInputSchema)
   }),
   z.object({
-    id: z.string().cuid(),
+    id: z.string(),
   }),
   z.object({
     provider_externalId: z.lazy(() => ExternalAccountProviderExternalIdCompoundUniqueInputSchema),
   }),
 ])
 .and(z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   provider_externalId: z.lazy(() => ExternalAccountProviderExternalIdCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => ExternalAccountWhereInputSchema),z.lazy(() => ExternalAccountWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => ExternalAccountWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => ExternalAccountWhereInputSchema),z.lazy(() => ExternalAccountWhereInputSchema).array() ]).optional(),
-  provider: z.union([ z.lazy(() => StringFilterSchema),z.string({required_error: "Provider is required" }) ]).optional(),
+  provider: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   externalId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
@@ -1128,23 +1128,23 @@ export const UploadedPhotoOrderByWithRelationInputSchema: z.ZodType<Prisma.Uploa
 
 export const UploadedPhotoWhereUniqueInputSchema: z.ZodType<Prisma.UploadedPhotoWhereUniqueInput> = z.union([
   z.object({
-    id: z.string().cuid(),
+    id: z.string(),
     key: z.string()
   }),
   z.object({
-    id: z.string().cuid(),
+    id: z.string(),
   }),
   z.object({
     key: z.string(),
   }),
 ])
 .and(z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   key: z.string().optional(),
   AND: z.union([ z.lazy(() => UploadedPhotoWhereInputSchema),z.lazy(() => UploadedPhotoWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => UploadedPhotoWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => UploadedPhotoWhereInputSchema),z.lazy(() => UploadedPhotoWhereInputSchema).array() ]).optional(),
-  url: z.union([ z.lazy(() => StringFilterSchema),z.string({required_error: "URL is required" }) ]).optional(),
+  url: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   listingId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   Listing: z.union([ z.lazy(() => ListingNullableScalarRelationFilterSchema),z.lazy(() => ListingWhereInputSchema) ]).optional().nullable(),
@@ -1240,33 +1240,33 @@ export const ListingOrderByWithRelationInputSchema: z.ZodType<Prisma.ListingOrde
 }).strict();
 
 export const ListingWhereUniqueInputSchema: z.ZodType<Prisma.ListingWhereUniqueInput> = z.object({
-  id: z.string().cuid()
+  id: z.string()
 })
 .and(z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   AND: z.union([ z.lazy(() => ListingWhereInputSchema),z.lazy(() => ListingWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => ListingWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => ListingWhereInputSchema),z.lazy(() => ListingWhereInputSchema).array() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  title: z.union([ z.lazy(() => StringFilterSchema),z.string({required_error: "Title is required" }) ]).optional(),
-  slug: z.union([ z.lazy(() => StringFilterSchema),z.string({required_error: "Slug is required" }) ]).optional(),
-  description: z.union([ z.lazy(() => StringFilterSchema),z.string({required_error: "Description is required" }) ]).optional(),
-  propertyType: z.union([ z.lazy(() => StringFilterSchema),z.string({required_error: "Property type is required" }) ]).optional(),
-  address: z.union([ z.lazy(() => StringFilterSchema),z.string({required_error: "Address is required" }) ]).optional(),
-  latitude: z.union([ z.lazy(() => FloatNullableFilterSchema),z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }) ]).optional().nullable(),
-  longitude: z.union([ z.lazy(() => FloatNullableFilterSchema),z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }) ]).optional().nullable(),
-  timeZone: z.union([ z.lazy(() => StringFilterSchema),z.string({ invalid_type_error: "Time zone is required" }) ]).optional(),
-  checkInTime: z.union([ z.lazy(() => StringFilterSchema),z.string({ invalid_type_error: "Check-in time is required" }) ]).optional(),
-  checkOutTime: z.union([ z.lazy(() => StringFilterSchema),z.string({ invalid_type_error: "Check-out time is required" }) ]).optional(),
+  title: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  slug: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  propertyType: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  address: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  latitude: z.union([ z.lazy(() => FloatNullableFilterSchema),z.number() ]).optional().nullable(),
+  longitude: z.union([ z.lazy(() => FloatNullableFilterSchema),z.number() ]).optional().nullable(),
+  timeZone: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  checkInTime: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  checkOutTime: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   amenities: z.lazy(() => StringNullableListFilterSchema).optional(),
-  pricePerNight: z.union([ z.lazy(() => FloatFilterSchema),z.number().gt(0, { message: "Price per night must be greater than 0" }) ]).optional(),
+  pricePerNight: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
   currency: z.union([ z.lazy(() => EnumCurrencyFilterSchema),z.lazy(() => CurrencySchema) ]).optional(),
-  minimumStay: z.union([ z.lazy(() => IntFilterSchema),z.number().gt(0, { message: "Minimum stay must be greater than 0" }) ]).optional(),
-  maximumGuests: z.union([ z.lazy(() => IntFilterSchema),z.number().gt(0, { message: "Maximum guests must be greater than 0" }) ]).optional(),
-  houseRules: z.union([ z.lazy(() => StringFilterSchema),z.string({ invalid_type_error: "House rules are required" }) ]).optional(),
+  minimumStay: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  maximumGuests: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  houseRules: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   allowPets: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
-  petPolicy: z.union([ z.lazy(() => StringFilterSchema),z.string({ invalid_type_error: "Pet policy is required" }) ]).optional(),
+  petPolicy: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   published: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
   showExactLocation: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
   locationRadius: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
@@ -1368,25 +1368,25 @@ export const ListingInventoryOrderByWithRelationInputSchema: z.ZodType<Prisma.Li
 
 export const ListingInventoryWhereUniqueInputSchema: z.ZodType<Prisma.ListingInventoryWhereUniqueInput> = z.union([
   z.object({
-    id: z.number().int(),
+    id: z.number(),
     listingId_date: z.lazy(() => ListingInventoryListingIdDateCompoundUniqueInputSchema)
   }),
   z.object({
-    id: z.number().int(),
+    id: z.number(),
   }),
   z.object({
     listingId_date: z.lazy(() => ListingInventoryListingIdDateCompoundUniqueInputSchema),
   }),
 ])
 .and(z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   listingId_date: z.lazy(() => ListingInventoryListingIdDateCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => ListingInventoryWhereInputSchema),z.lazy(() => ListingInventoryWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => ListingInventoryWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => ListingInventoryWhereInputSchema),z.lazy(() => ListingInventoryWhereInputSchema).array() ]).optional(),
-  date: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date({ invalid_type_error: "Date is required" }) ]).optional(),
+  date: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   isAvailable: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
-  price: z.union([ z.lazy(() => FloatFilterSchema),z.number().gt(0, { message: "Price must be greater than 0" }) ]).optional(),
+  price: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
   listingId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   bookingId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   listing: z.union([ z.lazy(() => ListingScalarRelationFilterSchema),z.lazy(() => ListingWhereInputSchema) ]).optional(),
@@ -1453,20 +1453,20 @@ export const BookingOrderByWithRelationInputSchema: z.ZodType<Prisma.BookingOrde
 }).strict();
 
 export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueInput> = z.object({
-  id: z.string().cuid()
+  id: z.string()
 })
 .and(z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   AND: z.union([ z.lazy(() => BookingWhereInputSchema),z.lazy(() => BookingWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => BookingWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => BookingWhereInputSchema),z.lazy(() => BookingWhereInputSchema).array() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  checkIn: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date({ invalid_type_error: "Check-in date is required" }) ]).optional(),
-  checkOut: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date({ invalid_type_error: "Check-out date is required" }) ]).optional(),
-  totalPrice: z.union([ z.lazy(() => FloatFilterSchema),z.number().positive({ message: "Total price must be greater than 0" }) ]).optional(),
+  checkIn: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  checkOut: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  totalPrice: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
   status: z.union([ z.lazy(() => EnumBookingStatusFilterSchema),z.lazy(() => BookingStatusSchema) ]).optional(),
-  userId: z.union([ z.lazy(() => StringFilterSchema),z.string({ invalid_type_error: "User ID is required" }) ]).optional(),
+  userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   bookingRequestId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
   bookingRequest: z.union([ z.lazy(() => BookingRequestNullableScalarRelationFilterSchema),z.lazy(() => BookingRequestWhereInputSchema) ]).optional().nullable(),
@@ -1551,21 +1551,21 @@ export const BookingRequestOrderByWithRelationInputSchema: z.ZodType<Prisma.Book
 }).strict();
 
 export const BookingRequestWhereUniqueInputSchema: z.ZodType<Prisma.BookingRequestWhereUniqueInput> = z.object({
-  id: z.string().cuid()
+  id: z.string()
 })
 .and(z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   AND: z.union([ z.lazy(() => BookingRequestWhereInputSchema),z.lazy(() => BookingRequestWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => BookingRequestWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => BookingRequestWhereInputSchema),z.lazy(() => BookingRequestWhereInputSchema).array() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  message: z.union([ z.lazy(() => StringFilterSchema),z.string({ invalid_type_error: "Message is required" }) ]).optional(),
-  checkIn: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date({ invalid_type_error: "Check-in date is required" }) ]).optional(),
-  checkOut: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date({ invalid_type_error: "Check-out date is required" }) ]).optional(),
-  guests: z.union([ z.lazy(() => IntFilterSchema),z.number().int().min(1, { message: "At least 1 guest is required" }) ]).optional(),
+  message: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  checkIn: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  checkOut: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  guests: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
   pets: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
-  totalPrice: z.union([ z.lazy(() => FloatFilterSchema),z.number().positive({ message: "Total price must be greater than 0" }) ]).optional(),
+  totalPrice: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
   status: z.union([ z.lazy(() => EnumBookingRequestStatusFilterSchema),z.lazy(() => BookingRequestStatusSchema) ]).optional(),
   alterationOf: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
@@ -1639,10 +1639,10 @@ export const SessionOrderByWithRelationInputSchema: z.ZodType<Prisma.SessionOrde
 }).strict();
 
 export const SessionWhereUniqueInputSchema: z.ZodType<Prisma.SessionWhereUniqueInput> = z.object({
-  id: z.string().cuid()
+  id: z.string()
 })
 .and(z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   AND: z.union([ z.lazy(() => SessionWhereInputSchema),z.lazy(() => SessionWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => SessionWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => SessionWhereInputSchema),z.lazy(() => SessionWhereInputSchema).array() ]).optional(),
@@ -1698,18 +1698,18 @@ export const PasswordResetOrderByWithRelationInputSchema: z.ZodType<Prisma.Passw
 
 export const PasswordResetWhereUniqueInputSchema: z.ZodType<Prisma.PasswordResetWhereUniqueInput> = z.union([
   z.object({
-    id: z.string().cuid(),
+    id: z.string(),
     token: z.string()
   }),
   z.object({
-    id: z.string().cuid(),
+    id: z.string(),
   }),
   z.object({
     token: z.string(),
   }),
 ])
 .and(z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   token: z.string().optional(),
   AND: z.union([ z.lazy(() => PasswordResetWhereInputSchema),z.lazy(() => PasswordResetWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => PasswordResetWhereInputSchema).array().optional(),
@@ -1764,10 +1764,10 @@ export const LocalEmailOrderByWithRelationInputSchema: z.ZodType<Prisma.LocalEma
 }).strict();
 
 export const LocalEmailWhereUniqueInputSchema: z.ZodType<Prisma.LocalEmailWhereUniqueInput> = z.object({
-  id: z.string().cuid()
+  id: z.string()
 })
 .and(z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   AND: z.union([ z.lazy(() => LocalEmailWhereInputSchema),z.lazy(() => LocalEmailWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => LocalEmailWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => LocalEmailWhereInputSchema),z.lazy(() => LocalEmailWhereInputSchema).array() ]).optional(),
@@ -1819,18 +1819,18 @@ export const EarlyAccessSignupOrderByWithRelationInputSchema: z.ZodType<Prisma.E
 
 export const EarlyAccessSignupWhereUniqueInputSchema: z.ZodType<Prisma.EarlyAccessSignupWhereUniqueInput> = z.union([
   z.object({
-    id: z.string().cuid(),
+    id: z.string(),
     email: z.string()
   }),
   z.object({
-    id: z.string().cuid(),
+    id: z.string(),
   }),
   z.object({
     email: z.string(),
   }),
 ])
 .and(z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   email: z.string().optional(),
   AND: z.union([ z.lazy(() => EarlyAccessSignupWhereInputSchema),z.lazy(() => EarlyAccessSignupWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EarlyAccessSignupWhereInputSchema).array().optional(),
@@ -1862,7 +1862,7 @@ export const UserRoleCreateInputSchema: z.ZodType<Prisma.UserRoleCreateInput> = 
 }).strict();
 
 export const UserRoleUncheckedCreateInputSchema: z.ZodType<Prisma.UserRoleUncheckedCreateInput> = z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   role: z.lazy(() => RoleSchema),
   userId: z.string()
 }).strict();
@@ -1873,13 +1873,13 @@ export const UserRoleUpdateInputSchema: z.ZodType<Prisma.UserRoleUpdateInput> = 
 }).strict();
 
 export const UserRoleUncheckedUpdateInputSchema: z.ZodType<Prisma.UserRoleUncheckedUpdateInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   role: z.union([ z.lazy(() => RoleSchema),z.lazy(() => EnumRoleFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UserRoleCreateManyInputSchema: z.ZodType<Prisma.UserRoleCreateManyInput> = z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   role: z.lazy(() => RoleSchema),
   userId: z.string()
 }).strict();
@@ -1889,7 +1889,7 @@ export const UserRoleUpdateManyMutationInputSchema: z.ZodType<Prisma.UserRoleUpd
 }).strict();
 
 export const UserRoleUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserRoleUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   role: z.union([ z.lazy(() => RoleSchema),z.lazy(() => EnumRoleFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -1900,7 +1900,7 @@ export const UserPermissionCreateInputSchema: z.ZodType<Prisma.UserPermissionCre
 }).strict();
 
 export const UserPermissionUncheckedCreateInputSchema: z.ZodType<Prisma.UserPermissionUncheckedCreateInput> = z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   permission: z.lazy(() => PermissionSchema),
   userId: z.string()
 }).strict();
@@ -1911,13 +1911,13 @@ export const UserPermissionUpdateInputSchema: z.ZodType<Prisma.UserPermissionUpd
 }).strict();
 
 export const UserPermissionUncheckedUpdateInputSchema: z.ZodType<Prisma.UserPermissionUncheckedUpdateInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   permission: z.union([ z.lazy(() => PermissionSchema),z.lazy(() => EnumPermissionFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UserPermissionCreateManyInputSchema: z.ZodType<Prisma.UserPermissionCreateManyInput> = z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   permission: z.lazy(() => PermissionSchema),
   userId: z.string()
 }).strict();
@@ -1927,19 +1927,19 @@ export const UserPermissionUpdateManyMutationInputSchema: z.ZodType<Prisma.UserP
 }).strict();
 
 export const UserPermissionUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserPermissionUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   permission: z.union([ z.lazy(() => PermissionSchema),z.lazy(() => EnumPermissionFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UserCreateInputSchema: z.ZodType<Prisma.UserCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -1952,13 +1952,13 @@ export const UserCreateInputSchema: z.ZodType<Prisma.UserCreateInput> = z.object
 }).strict();
 
 export const UserUncheckedCreateInputSchema: z.ZodType<Prisma.UserUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -1971,13 +1971,13 @@ export const UserUncheckedCreateInputSchema: z.ZodType<Prisma.UserUncheckedCreat
 }).strict();
 
 export const UserUpdateInputSchema: z.ZodType<Prisma.UserUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -1990,13 +1990,13 @@ export const UserUpdateInputSchema: z.ZodType<Prisma.UserUpdateInput> = z.object
 }).strict();
 
 export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -2009,38 +2009,38 @@ export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdat
 }).strict();
 
 export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable()
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable()
 }).strict();
 
 export const UserUpdateManyMutationInputSchema: z.ZodType<Prisma.UserUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const EmailAddressCreateInputSchema: z.ZodType<Prisma.EmailAddressCreateInput> = z.object({
-  id: z.string().cuid().optional(),
-  emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
+  id: z.string().optional(),
+  emailAddress: z.string(),
   isPrimary: z.boolean().optional(),
   verification: z.string().optional().nullable(),
   verified: z.boolean().optional(),
@@ -2048,8 +2048,8 @@ export const EmailAddressCreateInputSchema: z.ZodType<Prisma.EmailAddressCreateI
 }).strict();
 
 export const EmailAddressUncheckedCreateInputSchema: z.ZodType<Prisma.EmailAddressUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
-  emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
+  id: z.string().optional(),
+  emailAddress: z.string(),
   isPrimary: z.boolean().optional(),
   verification: z.string().optional().nullable(),
   userId: z.string(),
@@ -2057,8 +2057,8 @@ export const EmailAddressUncheckedCreateInputSchema: z.ZodType<Prisma.EmailAddre
 }).strict();
 
 export const EmailAddressUpdateInputSchema: z.ZodType<Prisma.EmailAddressUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  emailAddress: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2066,8 +2066,8 @@ export const EmailAddressUpdateInputSchema: z.ZodType<Prisma.EmailAddressUpdateI
 }).strict();
 
 export const EmailAddressUncheckedUpdateInputSchema: z.ZodType<Prisma.EmailAddressUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  emailAddress: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2075,8 +2075,8 @@ export const EmailAddressUncheckedUpdateInputSchema: z.ZodType<Prisma.EmailAddre
 }).strict();
 
 export const EmailAddressCreateManyInputSchema: z.ZodType<Prisma.EmailAddressCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
-  emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
+  id: z.string().optional(),
+  emailAddress: z.string(),
   isPrimary: z.boolean().optional(),
   verification: z.string().optional().nullable(),
   userId: z.string(),
@@ -2084,16 +2084,16 @@ export const EmailAddressCreateManyInputSchema: z.ZodType<Prisma.EmailAddressCre
 }).strict();
 
 export const EmailAddressUpdateManyMutationInputSchema: z.ZodType<Prisma.EmailAddressUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  emailAddress: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const EmailAddressUncheckedUpdateManyInputSchema: z.ZodType<Prisma.EmailAddressUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  emailAddress: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2101,130 +2101,130 @@ export const EmailAddressUncheckedUpdateManyInputSchema: z.ZodType<Prisma.EmailA
 }).strict();
 
 export const ExternalAccountCreateInputSchema: z.ZodType<Prisma.ExternalAccountCreateInput> = z.object({
-  id: z.string().cuid().optional(),
-  provider: z.string({required_error: "Provider is required" }),
+  id: z.string().optional(),
+  provider: z.string(),
   externalId: z.string(),
   user: z.lazy(() => UserCreateNestedOneWithoutExternalAccountsInputSchema)
 }).strict();
 
 export const ExternalAccountUncheckedCreateInputSchema: z.ZodType<Prisma.ExternalAccountUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
-  provider: z.string({required_error: "Provider is required" }),
+  id: z.string().optional(),
+  provider: z.string(),
   externalId: z.string(),
   userId: z.string()
 }).strict();
 
 export const ExternalAccountUpdateInputSchema: z.ZodType<Prisma.ExternalAccountUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  provider: z.union([ z.string({required_error: "Provider is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  provider: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   externalId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutExternalAccountsNestedInputSchema).optional()
 }).strict();
 
 export const ExternalAccountUncheckedUpdateInputSchema: z.ZodType<Prisma.ExternalAccountUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  provider: z.union([ z.string({required_error: "Provider is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  provider: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   externalId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ExternalAccountCreateManyInputSchema: z.ZodType<Prisma.ExternalAccountCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
-  provider: z.string({required_error: "Provider is required" }),
+  id: z.string().optional(),
+  provider: z.string(),
   externalId: z.string(),
   userId: z.string()
 }).strict();
 
 export const ExternalAccountUpdateManyMutationInputSchema: z.ZodType<Prisma.ExternalAccountUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  provider: z.union([ z.string({required_error: "Provider is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  provider: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   externalId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ExternalAccountUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ExternalAccountUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  provider: z.union([ z.string({required_error: "Provider is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  provider: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   externalId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UploadedPhotoCreateInputSchema: z.ZodType<Prisma.UploadedPhotoCreateInput> = z.object({
-  id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }),
+  id: z.string().optional(),
+  url: z.string(),
   key: z.string(),
   name: z.string(),
   Listing: z.lazy(() => ListingCreateNestedOneWithoutImagesInputSchema).optional()
 }).strict();
 
 export const UploadedPhotoUncheckedCreateInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }),
+  id: z.string().optional(),
+  url: z.string(),
   key: z.string(),
   name: z.string(),
   listingId: z.string().optional().nullable()
 }).strict();
 
 export const UploadedPhotoUpdateInputSchema: z.ZodType<Prisma.UploadedPhotoUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   Listing: z.lazy(() => ListingUpdateOneWithoutImagesNestedInputSchema).optional()
 }).strict();
 
 export const UploadedPhotoUncheckedUpdateInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   listingId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UploadedPhotoCreateManyInputSchema: z.ZodType<Prisma.UploadedPhotoCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }),
+  id: z.string().optional(),
+  url: z.string(),
   key: z.string(),
   name: z.string(),
   listingId: z.string().optional().nullable()
 }).strict();
 
 export const UploadedPhotoUpdateManyMutationInputSchema: z.ZodType<Prisma.UploadedPhotoUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UploadedPhotoUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   listingId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const ListingCreateInputSchema: z.ZodType<Prisma.ListingCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -2235,27 +2235,27 @@ export const ListingCreateInputSchema: z.ZodType<Prisma.ListingCreateInput> = z.
 }).strict();
 
 export const ListingUncheckedCreateInputSchema: z.ZodType<Prisma.ListingUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -2266,27 +2266,27 @@ export const ListingUncheckedCreateInputSchema: z.ZodType<Prisma.ListingUnchecke
 }).strict();
 
 export const ListingUpdateInputSchema: z.ZodType<Prisma.ListingUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2297,27 +2297,27 @@ export const ListingUpdateInputSchema: z.ZodType<Prisma.ListingUpdateInput> = z.
 }).strict();
 
 export const ListingUncheckedUpdateInputSchema: z.ZodType<Prisma.ListingUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2328,27 +2328,27 @@ export const ListingUncheckedUpdateInputSchema: z.ZodType<Prisma.ListingUnchecke
 }).strict();
 
 export const ListingCreateManyInputSchema: z.ZodType<Prisma.ListingCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -2356,54 +2356,54 @@ export const ListingCreateManyInputSchema: z.ZodType<Prisma.ListingCreateManyInp
 }).strict();
 
 export const ListingUpdateManyMutationInputSchema: z.ZodType<Prisma.ListingUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ListingUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ListingUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2411,70 +2411,70 @@ export const ListingUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ListingUnch
 }).strict();
 
 export const ListingInventoryCreateInputSchema: z.ZodType<Prisma.ListingInventoryCreateInput> = z.object({
-  date: z.coerce.date({ invalid_type_error: "Date is required" }),
+  date: z.coerce.date(),
   isAvailable: z.boolean().optional(),
-  price: z.number().gt(0, { message: "Price must be greater than 0" }),
+  price: z.number(),
   listing: z.lazy(() => ListingCreateNestedOneWithoutInventoryInputSchema),
   booking: z.lazy(() => BookingCreateNestedOneWithoutListingInventoryInputSchema).optional()
 }).strict();
 
 export const ListingInventoryUncheckedCreateInputSchema: z.ZodType<Prisma.ListingInventoryUncheckedCreateInput> = z.object({
-  id: z.number().int().optional(),
-  date: z.coerce.date({ invalid_type_error: "Date is required" }),
+  id: z.number().optional(),
+  date: z.coerce.date(),
   isAvailable: z.boolean().optional(),
-  price: z.number().gt(0, { message: "Price must be greater than 0" }),
+  price: z.number(),
   listingId: z.string(),
   bookingId: z.string().optional().nullable()
 }).strict();
 
 export const ListingInventoryUpdateInputSchema: z.ZodType<Prisma.ListingInventoryUpdateInput> = z.object({
-  date: z.union([ z.coerce.date({ invalid_type_error: "Date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   isAvailable: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  price: z.union([ z.number().gt(0, { message: "Price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  price: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   listing: z.lazy(() => ListingUpdateOneRequiredWithoutInventoryNestedInputSchema).optional(),
   booking: z.lazy(() => BookingUpdateOneWithoutListingInventoryNestedInputSchema).optional()
 }).strict();
 
 export const ListingInventoryUncheckedUpdateInputSchema: z.ZodType<Prisma.ListingInventoryUncheckedUpdateInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  date: z.union([ z.coerce.date({ invalid_type_error: "Date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   isAvailable: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  price: z.union([ z.number().gt(0, { message: "Price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  price: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   listingId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   bookingId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const ListingInventoryCreateManyInputSchema: z.ZodType<Prisma.ListingInventoryCreateManyInput> = z.object({
-  id: z.number().int().optional(),
-  date: z.coerce.date({ invalid_type_error: "Date is required" }),
+  id: z.number().optional(),
+  date: z.coerce.date(),
   isAvailable: z.boolean().optional(),
-  price: z.number().gt(0, { message: "Price must be greater than 0" }),
+  price: z.number(),
   listingId: z.string(),
   bookingId: z.string().optional().nullable()
 }).strict();
 
 export const ListingInventoryUpdateManyMutationInputSchema: z.ZodType<Prisma.ListingInventoryUpdateManyMutationInput> = z.object({
-  date: z.union([ z.coerce.date({ invalid_type_error: "Date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   isAvailable: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  price: z.union([ z.number().gt(0, { message: "Price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  price: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ListingInventoryUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ListingInventoryUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  date: z.union([ z.coerce.date({ invalid_type_error: "Date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   isAvailable: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  price: z.union([ z.number().gt(0, { message: "Price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  price: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   listingId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   bookingId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const BookingCreateInputSchema: z.ZodType<Prisma.BookingCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
   user: z.lazy(() => UserCreateNestedOneWithoutBookingsInputSchema),
   bookingRequest: z.lazy(() => BookingRequestCreateNestedOneWithoutBookingInputSchema).optional(),
@@ -2482,25 +2482,25 @@ export const BookingCreateInputSchema: z.ZodType<Prisma.BookingCreateInput> = z.
 }).strict();
 
 export const BookingUncheckedCreateInputSchema: z.ZodType<Prisma.BookingUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
-  userId: z.string({ invalid_type_error: "User ID is required" }),
+  userId: z.string(),
   bookingRequestId: z.string().optional().nullable(),
   listingInventory: z.lazy(() => ListingInventoryUncheckedCreateNestedManyWithoutBookingInputSchema).optional()
 }).strict();
 
 export const BookingUpdateInputSchema: z.ZodType<Prisma.BookingUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBookingsNestedInputSchema).optional(),
   bookingRequest: z.lazy(() => BookingRequestUpdateOneWithoutBookingNestedInputSchema).optional(),
@@ -2508,62 +2508,62 @@ export const BookingUpdateInputSchema: z.ZodType<Prisma.BookingUpdateInput> = z.
 }).strict();
 
 export const BookingUncheckedUpdateInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
-  userId: z.union([ z.string({ invalid_type_error: "User ID is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   bookingRequestId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   listingInventory: z.lazy(() => ListingInventoryUncheckedUpdateManyWithoutBookingNestedInputSchema).optional()
 }).strict();
 
 export const BookingCreateManyInputSchema: z.ZodType<Prisma.BookingCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
-  userId: z.string({ invalid_type_error: "User ID is required" }),
+  userId: z.string(),
   bookingRequestId: z.string().optional().nullable()
 }).strict();
 
 export const BookingUpdateManyMutationInputSchema: z.ZodType<Prisma.BookingUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const BookingUncheckedUpdateManyInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
-  userId: z.union([ z.string({ invalid_type_error: "User ID is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   bookingRequestId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const BookingRequestCreateInputSchema: z.ZodType<Prisma.BookingRequestCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   user: z.lazy(() => UserCreateNestedOneWithoutBookingRequestInputSchema),
   listing: z.lazy(() => ListingCreateNestedOneWithoutBookingRequestInputSchema),
@@ -2573,15 +2573,15 @@ export const BookingRequestCreateInputSchema: z.ZodType<Prisma.BookingRequestCre
 }).strict();
 
 export const BookingRequestUncheckedCreateInputSchema: z.ZodType<Prisma.BookingRequestUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   alterationOf: z.string().optional().nullable(),
   userId: z.string(),
@@ -2591,15 +2591,15 @@ export const BookingRequestUncheckedCreateInputSchema: z.ZodType<Prisma.BookingR
 }).strict();
 
 export const BookingRequestUpdateInputSchema: z.ZodType<Prisma.BookingRequestUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBookingRequestNestedInputSchema).optional(),
   listing: z.lazy(() => ListingUpdateOneRequiredWithoutBookingRequestNestedInputSchema).optional(),
@@ -2609,15 +2609,15 @@ export const BookingRequestUpdateInputSchema: z.ZodType<Prisma.BookingRequestUpd
 }).strict();
 
 export const BookingRequestUncheckedUpdateInputSchema: z.ZodType<Prisma.BookingRequestUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   alterationOf: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2627,15 +2627,15 @@ export const BookingRequestUncheckedUpdateInputSchema: z.ZodType<Prisma.BookingR
 }).strict();
 
 export const BookingRequestCreateManyInputSchema: z.ZodType<Prisma.BookingRequestCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   alterationOf: z.string().optional().nullable(),
   userId: z.string(),
@@ -2643,28 +2643,28 @@ export const BookingRequestCreateManyInputSchema: z.ZodType<Prisma.BookingReques
 }).strict();
 
 export const BookingRequestUpdateManyMutationInputSchema: z.ZodType<Prisma.BookingRequestUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const BookingRequestUncheckedUpdateManyInputSchema: z.ZodType<Prisma.BookingRequestUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   alterationOf: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2672,7 +2672,7 @@ export const BookingRequestUncheckedUpdateManyInputSchema: z.ZodType<Prisma.Book
 }).strict();
 
 export const SessionCreateInputSchema: z.ZodType<Prisma.SessionCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   expiresAt: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
   lastActive: z.coerce.date().optional(),
@@ -2680,7 +2680,7 @@ export const SessionCreateInputSchema: z.ZodType<Prisma.SessionCreateInput> = z.
 }).strict();
 
 export const SessionUncheckedCreateInputSchema: z.ZodType<Prisma.SessionUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   userId: z.string(),
   expiresAt: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
@@ -2688,7 +2688,7 @@ export const SessionUncheckedCreateInputSchema: z.ZodType<Prisma.SessionUnchecke
 }).strict();
 
 export const SessionUpdateInputSchema: z.ZodType<Prisma.SessionUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   lastActive: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2696,7 +2696,7 @@ export const SessionUpdateInputSchema: z.ZodType<Prisma.SessionUpdateInput> = z.
 }).strict();
 
 export const SessionUncheckedUpdateInputSchema: z.ZodType<Prisma.SessionUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2704,7 +2704,7 @@ export const SessionUncheckedUpdateInputSchema: z.ZodType<Prisma.SessionUnchecke
 }).strict();
 
 export const SessionCreateManyInputSchema: z.ZodType<Prisma.SessionCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   userId: z.string(),
   expiresAt: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
@@ -2712,14 +2712,14 @@ export const SessionCreateManyInputSchema: z.ZodType<Prisma.SessionCreateManyInp
 }).strict();
 
 export const SessionUpdateManyMutationInputSchema: z.ZodType<Prisma.SessionUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   lastActive: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const SessionUncheckedUpdateManyInputSchema: z.ZodType<Prisma.SessionUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2727,7 +2727,7 @@ export const SessionUncheckedUpdateManyInputSchema: z.ZodType<Prisma.SessionUnch
 }).strict();
 
 export const PasswordResetCreateInputSchema: z.ZodType<Prisma.PasswordResetCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   token: z.string(),
   expiresAt: z.coerce.date(),
   used: z.boolean().optional(),
@@ -2735,7 +2735,7 @@ export const PasswordResetCreateInputSchema: z.ZodType<Prisma.PasswordResetCreat
 }).strict();
 
 export const PasswordResetUncheckedCreateInputSchema: z.ZodType<Prisma.PasswordResetUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   userId: z.string(),
   token: z.string(),
   expiresAt: z.coerce.date(),
@@ -2743,7 +2743,7 @@ export const PasswordResetUncheckedCreateInputSchema: z.ZodType<Prisma.PasswordR
 }).strict();
 
 export const PasswordResetUpdateInputSchema: z.ZodType<Prisma.PasswordResetUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2751,7 +2751,7 @@ export const PasswordResetUpdateInputSchema: z.ZodType<Prisma.PasswordResetUpdat
 }).strict();
 
 export const PasswordResetUncheckedUpdateInputSchema: z.ZodType<Prisma.PasswordResetUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2759,7 +2759,7 @@ export const PasswordResetUncheckedUpdateInputSchema: z.ZodType<Prisma.PasswordR
 }).strict();
 
 export const PasswordResetCreateManyInputSchema: z.ZodType<Prisma.PasswordResetCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   userId: z.string(),
   token: z.string(),
   expiresAt: z.coerce.date(),
@@ -2767,14 +2767,14 @@ export const PasswordResetCreateManyInputSchema: z.ZodType<Prisma.PasswordResetC
 }).strict();
 
 export const PasswordResetUpdateManyMutationInputSchema: z.ZodType<Prisma.PasswordResetUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const PasswordResetUncheckedUpdateManyInputSchema: z.ZodType<Prisma.PasswordResetUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2782,7 +2782,7 @@ export const PasswordResetUncheckedUpdateManyInputSchema: z.ZodType<Prisma.Passw
 }).strict();
 
 export const LocalEmailCreateInputSchema: z.ZodType<Prisma.LocalEmailCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   to: z.string(),
   from: z.string(),
   subject: z.string(),
@@ -2791,7 +2791,7 @@ export const LocalEmailCreateInputSchema: z.ZodType<Prisma.LocalEmailCreateInput
 }).strict();
 
 export const LocalEmailUncheckedCreateInputSchema: z.ZodType<Prisma.LocalEmailUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   to: z.string(),
   from: z.string(),
   subject: z.string(),
@@ -2800,7 +2800,7 @@ export const LocalEmailUncheckedCreateInputSchema: z.ZodType<Prisma.LocalEmailUn
 }).strict();
 
 export const LocalEmailUpdateInputSchema: z.ZodType<Prisma.LocalEmailUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   to: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   from: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   subject: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2809,7 +2809,7 @@ export const LocalEmailUpdateInputSchema: z.ZodType<Prisma.LocalEmailUpdateInput
 }).strict();
 
 export const LocalEmailUncheckedUpdateInputSchema: z.ZodType<Prisma.LocalEmailUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   to: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   from: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   subject: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2818,7 +2818,7 @@ export const LocalEmailUncheckedUpdateInputSchema: z.ZodType<Prisma.LocalEmailUn
 }).strict();
 
 export const LocalEmailCreateManyInputSchema: z.ZodType<Prisma.LocalEmailCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   to: z.string(),
   from: z.string(),
   subject: z.string(),
@@ -2827,7 +2827,7 @@ export const LocalEmailCreateManyInputSchema: z.ZodType<Prisma.LocalEmailCreateM
 }).strict();
 
 export const LocalEmailUpdateManyMutationInputSchema: z.ZodType<Prisma.LocalEmailUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   to: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   from: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   subject: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2836,7 +2836,7 @@ export const LocalEmailUpdateManyMutationInputSchema: z.ZodType<Prisma.LocalEmai
 }).strict();
 
 export const LocalEmailUncheckedUpdateManyInputSchema: z.ZodType<Prisma.LocalEmailUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   to: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   from: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   subject: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -2845,43 +2845,43 @@ export const LocalEmailUncheckedUpdateManyInputSchema: z.ZodType<Prisma.LocalEma
 }).strict();
 
 export const EarlyAccessSignupCreateInputSchema: z.ZodType<Prisma.EarlyAccessSignupCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   email: z.string(),
   createdAt: z.coerce.date().optional()
 }).strict();
 
 export const EarlyAccessSignupUncheckedCreateInputSchema: z.ZodType<Prisma.EarlyAccessSignupUncheckedCreateInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   email: z.string(),
   createdAt: z.coerce.date().optional()
 }).strict();
 
 export const EarlyAccessSignupUpdateInputSchema: z.ZodType<Prisma.EarlyAccessSignupUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const EarlyAccessSignupUncheckedUpdateInputSchema: z.ZodType<Prisma.EarlyAccessSignupUncheckedUpdateInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const EarlyAccessSignupCreateManyInputSchema: z.ZodType<Prisma.EarlyAccessSignupCreateManyInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   email: z.string(),
   createdAt: z.coerce.date().optional()
 }).strict();
 
 export const EarlyAccessSignupUpdateManyMutationInputSchema: z.ZodType<Prisma.EarlyAccessSignupUpdateManyMutationInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const EarlyAccessSignupUncheckedUpdateManyInputSchema: z.ZodType<Prisma.EarlyAccessSignupUncheckedUpdateManyInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -5005,13 +5005,13 @@ export const NestedEnumBookingRequestStatusWithAggregatesFilterSchema: z.ZodType
 }).strict();
 
 export const UserCreateWithoutRolesInputSchema: z.ZodType<Prisma.UserCreateWithoutRolesInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -5023,13 +5023,13 @@ export const UserCreateWithoutRolesInputSchema: z.ZodType<Prisma.UserCreateWitho
 }).strict();
 
 export const UserUncheckedCreateWithoutRolesInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutRolesInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -5057,13 +5057,13 @@ export const UserUpdateToOneWithWhereWithoutRolesInputSchema: z.ZodType<Prisma.U
 }).strict();
 
 export const UserUpdateWithoutRolesInputSchema: z.ZodType<Prisma.UserUpdateWithoutRolesInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -5075,13 +5075,13 @@ export const UserUpdateWithoutRolesInputSchema: z.ZodType<Prisma.UserUpdateWitho
 }).strict();
 
 export const UserUncheckedUpdateWithoutRolesInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutRolesInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -5093,13 +5093,13 @@ export const UserUncheckedUpdateWithoutRolesInputSchema: z.ZodType<Prisma.UserUn
 }).strict();
 
 export const UserCreateWithoutPermissionsInputSchema: z.ZodType<Prisma.UserCreateWithoutPermissionsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -5111,13 +5111,13 @@ export const UserCreateWithoutPermissionsInputSchema: z.ZodType<Prisma.UserCreat
 }).strict();
 
 export const UserUncheckedCreateWithoutPermissionsInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutPermissionsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -5145,13 +5145,13 @@ export const UserUpdateToOneWithWhereWithoutPermissionsInputSchema: z.ZodType<Pr
 }).strict();
 
 export const UserUpdateWithoutPermissionsInputSchema: z.ZodType<Prisma.UserUpdateWithoutPermissionsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -5163,13 +5163,13 @@ export const UserUpdateWithoutPermissionsInputSchema: z.ZodType<Prisma.UserUpdat
 }).strict();
 
 export const UserUncheckedUpdateWithoutPermissionsInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutPermissionsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -5181,16 +5181,16 @@ export const UserUncheckedUpdateWithoutPermissionsInputSchema: z.ZodType<Prisma.
 }).strict();
 
 export const EmailAddressCreateWithoutUserInputSchema: z.ZodType<Prisma.EmailAddressCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
-  emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
+  id: z.string().optional(),
+  emailAddress: z.string(),
   isPrimary: z.boolean().optional(),
   verification: z.string().optional().nullable(),
   verified: z.boolean().optional()
 }).strict();
 
 export const EmailAddressUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.EmailAddressUncheckedCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
-  emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
+  id: z.string().optional(),
+  emailAddress: z.string(),
   isPrimary: z.boolean().optional(),
   verification: z.string().optional().nullable(),
   verified: z.boolean().optional()
@@ -5207,14 +5207,14 @@ export const EmailAddressCreateManyUserInputEnvelopeSchema: z.ZodType<Prisma.Ema
 }).strict();
 
 export const ExternalAccountCreateWithoutUserInputSchema: z.ZodType<Prisma.ExternalAccountCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
-  provider: z.string({required_error: "Provider is required" }),
+  id: z.string().optional(),
+  provider: z.string(),
   externalId: z.string()
 }).strict();
 
 export const ExternalAccountUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.ExternalAccountUncheckedCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
-  provider: z.string({required_error: "Provider is required" }),
+  id: z.string().optional(),
+  provider: z.string(),
   externalId: z.string()
 }).strict();
 
@@ -5229,27 +5229,27 @@ export const ExternalAccountCreateManyUserInputEnvelopeSchema: z.ZodType<Prisma.
 }).strict();
 
 export const ListingCreateWithoutOwnerInputSchema: z.ZodType<Prisma.ListingCreateWithoutOwnerInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -5259,27 +5259,27 @@ export const ListingCreateWithoutOwnerInputSchema: z.ZodType<Prisma.ListingCreat
 }).strict();
 
 export const ListingUncheckedCreateWithoutOwnerInputSchema: z.ZodType<Prisma.ListingUncheckedCreateWithoutOwnerInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -5303,7 +5303,7 @@ export const UserRoleCreateWithoutUserInputSchema: z.ZodType<Prisma.UserRoleCrea
 }).strict();
 
 export const UserRoleUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.UserRoleUncheckedCreateWithoutUserInput> = z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   role: z.lazy(() => RoleSchema)
 }).strict();
 
@@ -5322,7 +5322,7 @@ export const UserPermissionCreateWithoutUserInputSchema: z.ZodType<Prisma.UserPe
 }).strict();
 
 export const UserPermissionUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.UserPermissionUncheckedCreateWithoutUserInput> = z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   permission: z.lazy(() => PermissionSchema)
 }).strict();
 
@@ -5337,24 +5337,24 @@ export const UserPermissionCreateManyUserInputEnvelopeSchema: z.ZodType<Prisma.U
 }).strict();
 
 export const BookingCreateWithoutUserInputSchema: z.ZodType<Prisma.BookingCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
   bookingRequest: z.lazy(() => BookingRequestCreateNestedOneWithoutBookingInputSchema).optional(),
   listingInventory: z.lazy(() => ListingInventoryCreateNestedManyWithoutBookingInputSchema).optional()
 }).strict();
 
 export const BookingUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.BookingUncheckedCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
   bookingRequestId: z.string().optional().nullable(),
   listingInventory: z.lazy(() => ListingInventoryUncheckedCreateNestedManyWithoutBookingInputSchema).optional()
@@ -5371,15 +5371,15 @@ export const BookingCreateManyUserInputEnvelopeSchema: z.ZodType<Prisma.BookingC
 }).strict();
 
 export const BookingRequestCreateWithoutUserInputSchema: z.ZodType<Prisma.BookingRequestCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   listing: z.lazy(() => ListingCreateNestedOneWithoutBookingRequestInputSchema),
   Booking: z.lazy(() => BookingCreateNestedManyWithoutBookingRequestInputSchema).optional(),
@@ -5388,15 +5388,15 @@ export const BookingRequestCreateWithoutUserInputSchema: z.ZodType<Prisma.Bookin
 }).strict();
 
 export const BookingRequestUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.BookingRequestUncheckedCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   alterationOf: z.string().optional().nullable(),
   listingId: z.string(),
@@ -5415,14 +5415,14 @@ export const BookingRequestCreateManyUserInputEnvelopeSchema: z.ZodType<Prisma.B
 }).strict();
 
 export const SessionCreateWithoutUserInputSchema: z.ZodType<Prisma.SessionCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   expiresAt: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
   lastActive: z.coerce.date().optional()
 }).strict();
 
 export const SessionUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.SessionUncheckedCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   expiresAt: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
   lastActive: z.coerce.date().optional()
@@ -5439,14 +5439,14 @@ export const SessionCreateManyUserInputEnvelopeSchema: z.ZodType<Prisma.SessionC
 }).strict();
 
 export const PasswordResetCreateWithoutUserInputSchema: z.ZodType<Prisma.PasswordResetCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   token: z.string(),
   expiresAt: z.coerce.date(),
   used: z.boolean().optional()
 }).strict();
 
 export const PasswordResetUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.PasswordResetUncheckedCreateWithoutUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   token: z.string(),
   expiresAt: z.coerce.date(),
   used: z.boolean().optional()
@@ -5734,13 +5734,13 @@ export const PasswordResetScalarWhereInputSchema: z.ZodType<Prisma.PasswordReset
 }).strict();
 
 export const UserCreateWithoutEmailAddressesInputSchema: z.ZodType<Prisma.UserCreateWithoutEmailAddressesInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   externalAccounts: z.lazy(() => ExternalAccountCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingCreateNestedManyWithoutOwnerInputSchema).optional(),
   roles: z.lazy(() => UserRoleCreateNestedManyWithoutUserInputSchema).optional(),
@@ -5752,13 +5752,13 @@ export const UserCreateWithoutEmailAddressesInputSchema: z.ZodType<Prisma.UserCr
 }).strict();
 
 export const UserUncheckedCreateWithoutEmailAddressesInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutEmailAddressesInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedCreateNestedManyWithoutOwnerInputSchema).optional(),
   roles: z.lazy(() => UserRoleUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
@@ -5786,13 +5786,13 @@ export const UserUpdateToOneWithWhereWithoutEmailAddressesInputSchema: z.ZodType
 }).strict();
 
 export const UserUpdateWithoutEmailAddressesInputSchema: z.ZodType<Prisma.UserUpdateWithoutEmailAddressesInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   externalAccounts: z.lazy(() => ExternalAccountUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUpdateManyWithoutOwnerNestedInputSchema).optional(),
   roles: z.lazy(() => UserRoleUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -5804,13 +5804,13 @@ export const UserUpdateWithoutEmailAddressesInputSchema: z.ZodType<Prisma.UserUp
 }).strict();
 
 export const UserUncheckedUpdateWithoutEmailAddressesInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutEmailAddressesInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedUpdateManyWithoutOwnerNestedInputSchema).optional(),
   roles: z.lazy(() => UserRoleUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -5822,13 +5822,13 @@ export const UserUncheckedUpdateWithoutEmailAddressesInputSchema: z.ZodType<Pris
 }).strict();
 
 export const UserCreateWithoutExternalAccountsInputSchema: z.ZodType<Prisma.UserCreateWithoutExternalAccountsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingCreateNestedManyWithoutOwnerInputSchema).optional(),
   roles: z.lazy(() => UserRoleCreateNestedManyWithoutUserInputSchema).optional(),
@@ -5840,13 +5840,13 @@ export const UserCreateWithoutExternalAccountsInputSchema: z.ZodType<Prisma.User
 }).strict();
 
 export const UserUncheckedCreateWithoutExternalAccountsInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutExternalAccountsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedCreateNestedManyWithoutOwnerInputSchema).optional(),
   roles: z.lazy(() => UserRoleUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
@@ -5874,13 +5874,13 @@ export const UserUpdateToOneWithWhereWithoutExternalAccountsInputSchema: z.ZodTy
 }).strict();
 
 export const UserUpdateWithoutExternalAccountsInputSchema: z.ZodType<Prisma.UserUpdateWithoutExternalAccountsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUpdateManyWithoutOwnerNestedInputSchema).optional(),
   roles: z.lazy(() => UserRoleUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -5892,13 +5892,13 @@ export const UserUpdateWithoutExternalAccountsInputSchema: z.ZodType<Prisma.User
 }).strict();
 
 export const UserUncheckedUpdateWithoutExternalAccountsInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutExternalAccountsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedUpdateManyWithoutOwnerNestedInputSchema).optional(),
   roles: z.lazy(() => UserRoleUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -5910,27 +5910,27 @@ export const UserUncheckedUpdateWithoutExternalAccountsInputSchema: z.ZodType<Pr
 }).strict();
 
 export const ListingCreateWithoutImagesInputSchema: z.ZodType<Prisma.ListingCreateWithoutImagesInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -5940,27 +5940,27 @@ export const ListingCreateWithoutImagesInputSchema: z.ZodType<Prisma.ListingCrea
 }).strict();
 
 export const ListingUncheckedCreateWithoutImagesInputSchema: z.ZodType<Prisma.ListingUncheckedCreateWithoutImagesInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -5986,27 +5986,27 @@ export const ListingUpdateToOneWithWhereWithoutImagesInputSchema: z.ZodType<Pris
 }).strict();
 
 export const ListingUpdateWithoutImagesInputSchema: z.ZodType<Prisma.ListingUpdateWithoutImagesInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -6016,27 +6016,27 @@ export const ListingUpdateWithoutImagesInputSchema: z.ZodType<Prisma.ListingUpda
 }).strict();
 
 export const ListingUncheckedUpdateWithoutImagesInputSchema: z.ZodType<Prisma.ListingUncheckedUpdateWithoutImagesInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -6046,13 +6046,13 @@ export const ListingUncheckedUpdateWithoutImagesInputSchema: z.ZodType<Prisma.Li
 }).strict();
 
 export const UserCreateWithoutListingsInputSchema: z.ZodType<Prisma.UserCreateWithoutListingsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountCreateNestedManyWithoutUserInputSchema).optional(),
   roles: z.lazy(() => UserRoleCreateNestedManyWithoutUserInputSchema).optional(),
@@ -6064,13 +6064,13 @@ export const UserCreateWithoutListingsInputSchema: z.ZodType<Prisma.UserCreateWi
 }).strict();
 
 export const UserUncheckedCreateWithoutListingsInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutListingsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   roles: z.lazy(() => UserRoleUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
@@ -6087,15 +6087,15 @@ export const UserCreateOrConnectWithoutListingsInputSchema: z.ZodType<Prisma.Use
 }).strict();
 
 export const UploadedPhotoCreateWithoutListingInputSchema: z.ZodType<Prisma.UploadedPhotoCreateWithoutListingInput> = z.object({
-  id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }),
+  id: z.string().optional(),
+  url: z.string(),
   key: z.string(),
   name: z.string()
 }).strict();
 
 export const UploadedPhotoUncheckedCreateWithoutListingInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedCreateWithoutListingInput> = z.object({
-  id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }),
+  id: z.string().optional(),
+  url: z.string(),
   key: z.string(),
   name: z.string()
 }).strict();
@@ -6111,17 +6111,17 @@ export const UploadedPhotoCreateManyListingInputEnvelopeSchema: z.ZodType<Prisma
 }).strict();
 
 export const ListingInventoryCreateWithoutListingInputSchema: z.ZodType<Prisma.ListingInventoryCreateWithoutListingInput> = z.object({
-  date: z.coerce.date({ invalid_type_error: "Date is required" }),
+  date: z.coerce.date(),
   isAvailable: z.boolean().optional(),
-  price: z.number().gt(0, { message: "Price must be greater than 0" }),
+  price: z.number(),
   booking: z.lazy(() => BookingCreateNestedOneWithoutListingInventoryInputSchema).optional()
 }).strict();
 
 export const ListingInventoryUncheckedCreateWithoutListingInputSchema: z.ZodType<Prisma.ListingInventoryUncheckedCreateWithoutListingInput> = z.object({
-  id: z.number().int().optional(),
-  date: z.coerce.date({ invalid_type_error: "Date is required" }),
+  id: z.number().optional(),
+  date: z.coerce.date(),
   isAvailable: z.boolean().optional(),
-  price: z.number().gt(0, { message: "Price must be greater than 0" }),
+  price: z.number(),
   bookingId: z.string().optional().nullable()
 }).strict();
 
@@ -6136,15 +6136,15 @@ export const ListingInventoryCreateManyListingInputEnvelopeSchema: z.ZodType<Pri
 }).strict();
 
 export const BookingRequestCreateWithoutListingInputSchema: z.ZodType<Prisma.BookingRequestCreateWithoutListingInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   user: z.lazy(() => UserCreateNestedOneWithoutBookingRequestInputSchema),
   Booking: z.lazy(() => BookingCreateNestedManyWithoutBookingRequestInputSchema).optional(),
@@ -6153,15 +6153,15 @@ export const BookingRequestCreateWithoutListingInputSchema: z.ZodType<Prisma.Boo
 }).strict();
 
 export const BookingRequestUncheckedCreateWithoutListingInputSchema: z.ZodType<Prisma.BookingRequestUncheckedCreateWithoutListingInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   alterationOf: z.string().optional().nullable(),
   userId: z.string(),
@@ -6191,13 +6191,13 @@ export const UserUpdateToOneWithWhereWithoutListingsInputSchema: z.ZodType<Prism
 }).strict();
 
 export const UserUpdateWithoutListingsInputSchema: z.ZodType<Prisma.UserUpdateWithoutListingsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUpdateManyWithoutUserNestedInputSchema).optional(),
   roles: z.lazy(() => UserRoleUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -6209,13 +6209,13 @@ export const UserUpdateWithoutListingsInputSchema: z.ZodType<Prisma.UserUpdateWi
 }).strict();
 
 export const UserUncheckedUpdateWithoutListingsInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutListingsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   roles: z.lazy(() => UserRoleUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -6298,27 +6298,27 @@ export const BookingRequestUpdateManyWithWhereWithoutListingInputSchema: z.ZodTy
 }).strict();
 
 export const ListingCreateWithoutInventoryInputSchema: z.ZodType<Prisma.ListingCreateWithoutInventoryInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -6328,27 +6328,27 @@ export const ListingCreateWithoutInventoryInputSchema: z.ZodType<Prisma.ListingC
 }).strict();
 
 export const ListingUncheckedCreateWithoutInventoryInputSchema: z.ZodType<Prisma.ListingUncheckedCreateWithoutInventoryInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -6363,26 +6363,26 @@ export const ListingCreateOrConnectWithoutInventoryInputSchema: z.ZodType<Prisma
 }).strict();
 
 export const BookingCreateWithoutListingInventoryInputSchema: z.ZodType<Prisma.BookingCreateWithoutListingInventoryInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
   user: z.lazy(() => UserCreateNestedOneWithoutBookingsInputSchema),
   bookingRequest: z.lazy(() => BookingRequestCreateNestedOneWithoutBookingInputSchema).optional()
 }).strict();
 
 export const BookingUncheckedCreateWithoutListingInventoryInputSchema: z.ZodType<Prisma.BookingUncheckedCreateWithoutListingInventoryInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
-  userId: z.string({ invalid_type_error: "User ID is required" }),
+  userId: z.string(),
   bookingRequestId: z.string().optional().nullable()
 }).strict();
 
@@ -6403,27 +6403,27 @@ export const ListingUpdateToOneWithWhereWithoutInventoryInputSchema: z.ZodType<P
 }).strict();
 
 export const ListingUpdateWithoutInventoryInputSchema: z.ZodType<Prisma.ListingUpdateWithoutInventoryInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -6433,27 +6433,27 @@ export const ListingUpdateWithoutInventoryInputSchema: z.ZodType<Prisma.ListingU
 }).strict();
 
 export const ListingUncheckedUpdateWithoutInventoryInputSchema: z.ZodType<Prisma.ListingUncheckedUpdateWithoutInventoryInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -6474,37 +6474,37 @@ export const BookingUpdateToOneWithWhereWithoutListingInventoryInputSchema: z.Zo
 }).strict();
 
 export const BookingUpdateWithoutListingInventoryInputSchema: z.ZodType<Prisma.BookingUpdateWithoutListingInventoryInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBookingsNestedInputSchema).optional(),
   bookingRequest: z.lazy(() => BookingRequestUpdateOneWithoutBookingNestedInputSchema).optional()
 }).strict();
 
 export const BookingUncheckedUpdateWithoutListingInventoryInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateWithoutListingInventoryInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
-  userId: z.union([ z.string({ invalid_type_error: "User ID is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   bookingRequestId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserCreateWithoutBookingsInputSchema: z.ZodType<Prisma.UserCreateWithoutBookingsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -6516,13 +6516,13 @@ export const UserCreateWithoutBookingsInputSchema: z.ZodType<Prisma.UserCreateWi
 }).strict();
 
 export const UserUncheckedCreateWithoutBookingsInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutBookingsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -6539,15 +6539,15 @@ export const UserCreateOrConnectWithoutBookingsInputSchema: z.ZodType<Prisma.Use
 }).strict();
 
 export const BookingRequestCreateWithoutBookingInputSchema: z.ZodType<Prisma.BookingRequestCreateWithoutBookingInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   user: z.lazy(() => UserCreateNestedOneWithoutBookingRequestInputSchema),
   listing: z.lazy(() => ListingCreateNestedOneWithoutBookingRequestInputSchema),
@@ -6556,15 +6556,15 @@ export const BookingRequestCreateWithoutBookingInputSchema: z.ZodType<Prisma.Boo
 }).strict();
 
 export const BookingRequestUncheckedCreateWithoutBookingInputSchema: z.ZodType<Prisma.BookingRequestUncheckedCreateWithoutBookingInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   alterationOf: z.string().optional().nullable(),
   userId: z.string(),
@@ -6578,17 +6578,17 @@ export const BookingRequestCreateOrConnectWithoutBookingInputSchema: z.ZodType<P
 }).strict();
 
 export const ListingInventoryCreateWithoutBookingInputSchema: z.ZodType<Prisma.ListingInventoryCreateWithoutBookingInput> = z.object({
-  date: z.coerce.date({ invalid_type_error: "Date is required" }),
+  date: z.coerce.date(),
   isAvailable: z.boolean().optional(),
-  price: z.number().gt(0, { message: "Price must be greater than 0" }),
+  price: z.number(),
   listing: z.lazy(() => ListingCreateNestedOneWithoutInventoryInputSchema)
 }).strict();
 
 export const ListingInventoryUncheckedCreateWithoutBookingInputSchema: z.ZodType<Prisma.ListingInventoryUncheckedCreateWithoutBookingInput> = z.object({
-  id: z.number().int().optional(),
-  date: z.coerce.date({ invalid_type_error: "Date is required" }),
+  id: z.number().optional(),
+  date: z.coerce.date(),
   isAvailable: z.boolean().optional(),
-  price: z.number().gt(0, { message: "Price must be greater than 0" }),
+  price: z.number(),
   listingId: z.string()
 }).strict();
 
@@ -6614,13 +6614,13 @@ export const UserUpdateToOneWithWhereWithoutBookingsInputSchema: z.ZodType<Prism
 }).strict();
 
 export const UserUpdateWithoutBookingsInputSchema: z.ZodType<Prisma.UserUpdateWithoutBookingsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -6632,13 +6632,13 @@ export const UserUpdateWithoutBookingsInputSchema: z.ZodType<Prisma.UserUpdateWi
 }).strict();
 
 export const UserUncheckedUpdateWithoutBookingsInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutBookingsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -6661,15 +6661,15 @@ export const BookingRequestUpdateToOneWithWhereWithoutBookingInputSchema: z.ZodT
 }).strict();
 
 export const BookingRequestUpdateWithoutBookingInputSchema: z.ZodType<Prisma.BookingRequestUpdateWithoutBookingInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBookingRequestNestedInputSchema).optional(),
   listing: z.lazy(() => ListingUpdateOneRequiredWithoutBookingRequestNestedInputSchema).optional(),
@@ -6678,15 +6678,15 @@ export const BookingRequestUpdateWithoutBookingInputSchema: z.ZodType<Prisma.Boo
 }).strict();
 
 export const BookingRequestUncheckedUpdateWithoutBookingInputSchema: z.ZodType<Prisma.BookingRequestUncheckedUpdateWithoutBookingInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   alterationOf: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -6711,13 +6711,13 @@ export const ListingInventoryUpdateManyWithWhereWithoutBookingInputSchema: z.Zod
 }).strict();
 
 export const UserCreateWithoutBookingRequestInputSchema: z.ZodType<Prisma.UserCreateWithoutBookingRequestInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -6729,13 +6729,13 @@ export const UserCreateWithoutBookingRequestInputSchema: z.ZodType<Prisma.UserCr
 }).strict();
 
 export const UserUncheckedCreateWithoutBookingRequestInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutBookingRequestInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -6752,27 +6752,27 @@ export const UserCreateOrConnectWithoutBookingRequestInputSchema: z.ZodType<Pris
 }).strict();
 
 export const ListingCreateWithoutBookingRequestInputSchema: z.ZodType<Prisma.ListingCreateWithoutBookingRequestInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -6782,27 +6782,27 @@ export const ListingCreateWithoutBookingRequestInputSchema: z.ZodType<Prisma.Lis
 }).strict();
 
 export const ListingUncheckedCreateWithoutBookingRequestInputSchema: z.ZodType<Prisma.ListingUncheckedCreateWithoutBookingRequestInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional(),
@@ -6817,26 +6817,26 @@ export const ListingCreateOrConnectWithoutBookingRequestInputSchema: z.ZodType<P
 }).strict();
 
 export const BookingCreateWithoutBookingRequestInputSchema: z.ZodType<Prisma.BookingCreateWithoutBookingRequestInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
   user: z.lazy(() => UserCreateNestedOneWithoutBookingsInputSchema),
   listingInventory: z.lazy(() => ListingInventoryCreateNestedManyWithoutBookingInputSchema).optional()
 }).strict();
 
 export const BookingUncheckedCreateWithoutBookingRequestInputSchema: z.ZodType<Prisma.BookingUncheckedCreateWithoutBookingRequestInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
-  userId: z.string({ invalid_type_error: "User ID is required" }),
+  userId: z.string(),
   listingInventory: z.lazy(() => ListingInventoryUncheckedCreateNestedManyWithoutBookingInputSchema).optional()
 }).strict();
 
@@ -6851,15 +6851,15 @@ export const BookingCreateManyBookingRequestInputEnvelopeSchema: z.ZodType<Prism
 }).strict();
 
 export const BookingRequestCreateWithoutAlterationsInputSchema: z.ZodType<Prisma.BookingRequestCreateWithoutAlterationsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   user: z.lazy(() => UserCreateNestedOneWithoutBookingRequestInputSchema),
   listing: z.lazy(() => ListingCreateNestedOneWithoutBookingRequestInputSchema),
@@ -6868,15 +6868,15 @@ export const BookingRequestCreateWithoutAlterationsInputSchema: z.ZodType<Prisma
 }).strict();
 
 export const BookingRequestUncheckedCreateWithoutAlterationsInputSchema: z.ZodType<Prisma.BookingRequestUncheckedCreateWithoutAlterationsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   alterationOf: z.string().optional().nullable(),
   userId: z.string(),
@@ -6890,15 +6890,15 @@ export const BookingRequestCreateOrConnectWithoutAlterationsInputSchema: z.ZodTy
 }).strict();
 
 export const BookingRequestCreateWithoutOriginalRequestInputSchema: z.ZodType<Prisma.BookingRequestCreateWithoutOriginalRequestInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   user: z.lazy(() => UserCreateNestedOneWithoutBookingRequestInputSchema),
   listing: z.lazy(() => ListingCreateNestedOneWithoutBookingRequestInputSchema),
@@ -6907,15 +6907,15 @@ export const BookingRequestCreateWithoutOriginalRequestInputSchema: z.ZodType<Pr
 }).strict();
 
 export const BookingRequestUncheckedCreateWithoutOriginalRequestInputSchema: z.ZodType<Prisma.BookingRequestUncheckedCreateWithoutOriginalRequestInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   userId: z.string(),
   listingId: z.string(),
@@ -6945,13 +6945,13 @@ export const UserUpdateToOneWithWhereWithoutBookingRequestInputSchema: z.ZodType
 }).strict();
 
 export const UserUpdateWithoutBookingRequestInputSchema: z.ZodType<Prisma.UserUpdateWithoutBookingRequestInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -6963,13 +6963,13 @@ export const UserUpdateWithoutBookingRequestInputSchema: z.ZodType<Prisma.UserUp
 }).strict();
 
 export const UserUncheckedUpdateWithoutBookingRequestInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutBookingRequestInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -6992,27 +6992,27 @@ export const ListingUpdateToOneWithWhereWithoutBookingRequestInputSchema: z.ZodT
 }).strict();
 
 export const ListingUpdateWithoutBookingRequestInputSchema: z.ZodType<Prisma.ListingUpdateWithoutBookingRequestInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -7022,27 +7022,27 @@ export const ListingUpdateWithoutBookingRequestInputSchema: z.ZodType<Prisma.Lis
 }).strict();
 
 export const ListingUncheckedUpdateWithoutBookingRequestInputSchema: z.ZodType<Prisma.ListingUncheckedUpdateWithoutBookingRequestInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -7079,15 +7079,15 @@ export const BookingRequestUpdateToOneWithWhereWithoutAlterationsInputSchema: z.
 }).strict();
 
 export const BookingRequestUpdateWithoutAlterationsInputSchema: z.ZodType<Prisma.BookingRequestUpdateWithoutAlterationsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBookingRequestNestedInputSchema).optional(),
   listing: z.lazy(() => ListingUpdateOneRequiredWithoutBookingRequestNestedInputSchema).optional(),
@@ -7096,15 +7096,15 @@ export const BookingRequestUpdateWithoutAlterationsInputSchema: z.ZodType<Prisma
 }).strict();
 
 export const BookingRequestUncheckedUpdateWithoutAlterationsInputSchema: z.ZodType<Prisma.BookingRequestUncheckedUpdateWithoutAlterationsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   alterationOf: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -7129,13 +7129,13 @@ export const BookingRequestUpdateManyWithWhereWithoutOriginalRequestInputSchema:
 }).strict();
 
 export const UserCreateWithoutSessionsInputSchema: z.ZodType<Prisma.UserCreateWithoutSessionsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -7147,13 +7147,13 @@ export const UserCreateWithoutSessionsInputSchema: z.ZodType<Prisma.UserCreateWi
 }).strict();
 
 export const UserUncheckedCreateWithoutSessionsInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutSessionsInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -7181,13 +7181,13 @@ export const UserUpdateToOneWithWhereWithoutSessionsInputSchema: z.ZodType<Prism
 }).strict();
 
 export const UserUpdateWithoutSessionsInputSchema: z.ZodType<Prisma.UserUpdateWithoutSessionsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -7199,13 +7199,13 @@ export const UserUpdateWithoutSessionsInputSchema: z.ZodType<Prisma.UserUpdateWi
 }).strict();
 
 export const UserUncheckedUpdateWithoutSessionsInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutSessionsInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -7217,13 +7217,13 @@ export const UserUncheckedUpdateWithoutSessionsInputSchema: z.ZodType<Prisma.Use
 }).strict();
 
 export const UserCreateWithoutPasswordResetInputSchema: z.ZodType<Prisma.UserCreateWithoutPasswordResetInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -7235,13 +7235,13 @@ export const UserCreateWithoutPasswordResetInputSchema: z.ZodType<Prisma.UserCre
 }).strict();
 
 export const UserUncheckedCreateWithoutPasswordResetInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutPasswordResetInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  firstName: z.string({required_error: "First name is required" }).optional().nullable(),
-  lastName: z.string({required_error: "Last name is required" }).optional().nullable(),
-  imageUrl: z.string({required_error: "Image URL must be valid" }).optional().nullable(),
-  password: z.string({required_error: "Password must be at least 8 characters" }).optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedCreateNestedManyWithoutOwnerInputSchema).optional(),
@@ -7269,13 +7269,13 @@ export const UserUpdateToOneWithWhereWithoutPasswordResetInputSchema: z.ZodType<
 }).strict();
 
 export const UserUpdateWithoutPasswordResetInputSchema: z.ZodType<Prisma.UserUpdateWithoutPasswordResetInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -7287,13 +7287,13 @@ export const UserUpdateWithoutPasswordResetInputSchema: z.ZodType<Prisma.UserUpd
 }).strict();
 
 export const UserUncheckedUpdateWithoutPasswordResetInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutPasswordResetInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  firstName: z.union([ z.string({required_error: "First name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  lastName: z.union([ z.string({required_error: "Last name is required" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  imageUrl: z.union([ z.string({required_error: "Image URL must be valid" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  password: z.union([ z.string({required_error: "Password must be at least 8 characters" }),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  firstName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  lastName: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  password: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailAddresses: z.lazy(() => EmailAddressUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   externalAccounts: z.lazy(() => ExternalAccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   listings: z.lazy(() => ListingUncheckedUpdateManyWithoutOwnerNestedInputSchema).optional(),
@@ -7305,160 +7305,160 @@ export const UserUncheckedUpdateWithoutPasswordResetInputSchema: z.ZodType<Prism
 }).strict();
 
 export const EmailAddressCreateManyUserInputSchema: z.ZodType<Prisma.EmailAddressCreateManyUserInput> = z.object({
-  id: z.string().cuid().optional(),
-  emailAddress: z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),
+  id: z.string().optional(),
+  emailAddress: z.string(),
   isPrimary: z.boolean().optional(),
   verification: z.string().optional().nullable(),
   verified: z.boolean().optional()
 }).strict();
 
 export const ExternalAccountCreateManyUserInputSchema: z.ZodType<Prisma.ExternalAccountCreateManyUserInput> = z.object({
-  id: z.string().cuid().optional(),
-  provider: z.string({required_error: "Provider is required" }),
+  id: z.string().optional(),
+  provider: z.string(),
   externalId: z.string()
 }).strict();
 
 export const ListingCreateManyOwnerInputSchema: z.ZodType<Prisma.ListingCreateManyOwnerInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  title: z.string({required_error: "Title is required" }),
-  slug: z.string({required_error: "Slug is required" }).optional(),
-  description: z.string({required_error: "Description is required" }),
-  propertyType: z.string({required_error: "Property type is required" }),
-  address: z.string({required_error: "Address is required" }),
-  latitude: z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }).optional().nullable(),
-  longitude: z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }).optional().nullable(),
-  timeZone: z.string({ invalid_type_error: "Time zone is required" }).optional(),
-  checkInTime: z.string({ invalid_type_error: "Check-in time is required" }).optional(),
-  checkOutTime: z.string({ invalid_type_error: "Check-out time is required" }).optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  description: z.string(),
+  propertyType: z.string(),
+  address: z.string(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+  timeZone: z.string().optional(),
+  checkInTime: z.string().optional(),
+  checkOutTime: z.string().optional(),
   amenities: z.union([ z.lazy(() => ListingCreateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.number().gt(0, { message: "Price per night must be greater than 0" }),
+  pricePerNight: z.number(),
   currency: z.lazy(() => CurrencySchema).optional(),
-  minimumStay: z.number().gt(0, { message: "Minimum stay must be greater than 0" }).optional(),
-  maximumGuests: z.number().gt(0, { message: "Maximum guests must be greater than 0" }).optional(),
-  houseRules: z.string({ invalid_type_error: "House rules are required" }),
+  minimumStay: z.number().optional(),
+  maximumGuests: z.number().optional(),
+  houseRules: z.string(),
   allowPets: z.boolean().optional(),
-  petPolicy: z.string({ invalid_type_error: "Pet policy is required" }).optional(),
+  petPolicy: z.string().optional(),
   published: z.boolean().optional(),
   showExactLocation: z.boolean().optional(),
   locationRadius: z.number().optional()
 }).strict();
 
 export const UserRoleCreateManyUserInputSchema: z.ZodType<Prisma.UserRoleCreateManyUserInput> = z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   role: z.lazy(() => RoleSchema)
 }).strict();
 
 export const UserPermissionCreateManyUserInputSchema: z.ZodType<Prisma.UserPermissionCreateManyUserInput> = z.object({
-  id: z.number().int().optional(),
+  id: z.number().optional(),
   permission: z.lazy(() => PermissionSchema)
 }).strict();
 
 export const BookingCreateManyUserInputSchema: z.ZodType<Prisma.BookingCreateManyUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
   bookingRequestId: z.string().optional().nullable()
 }).strict();
 
 export const BookingRequestCreateManyUserInputSchema: z.ZodType<Prisma.BookingRequestCreateManyUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   alterationOf: z.string().optional().nullable(),
   listingId: z.string()
 }).strict();
 
 export const SessionCreateManyUserInputSchema: z.ZodType<Prisma.SessionCreateManyUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   expiresAt: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
   lastActive: z.coerce.date().optional()
 }).strict();
 
 export const PasswordResetCreateManyUserInputSchema: z.ZodType<Prisma.PasswordResetCreateManyUserInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   token: z.string(),
   expiresAt: z.coerce.date(),
   used: z.boolean().optional()
 }).strict();
 
 export const EmailAddressUpdateWithoutUserInputSchema: z.ZodType<Prisma.EmailAddressUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  emailAddress: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const EmailAddressUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.EmailAddressUncheckedUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  emailAddress: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const EmailAddressUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.EmailAddressUncheckedUpdateManyWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  emailAddress: z.union([ z.string({required_error: "Email address is required" }).email({ message: "Must be a valid email address" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  emailAddress: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isPrimary: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   verification: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   verified: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ExternalAccountUpdateWithoutUserInputSchema: z.ZodType<Prisma.ExternalAccountUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  provider: z.union([ z.string({required_error: "Provider is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  provider: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   externalId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ExternalAccountUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.ExternalAccountUncheckedUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  provider: z.union([ z.string({required_error: "Provider is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  provider: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   externalId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ExternalAccountUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.ExternalAccountUncheckedUpdateManyWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  provider: z.union([ z.string({required_error: "Provider is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  provider: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   externalId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ListingUpdateWithoutOwnerInputSchema: z.ZodType<Prisma.ListingUpdateWithoutOwnerInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -7468,27 +7468,27 @@ export const ListingUpdateWithoutOwnerInputSchema: z.ZodType<Prisma.ListingUpdat
 }).strict();
 
 export const ListingUncheckedUpdateWithoutOwnerInputSchema: z.ZodType<Prisma.ListingUncheckedUpdateWithoutOwnerInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -7498,27 +7498,27 @@ export const ListingUncheckedUpdateWithoutOwnerInputSchema: z.ZodType<Prisma.Lis
 }).strict();
 
 export const ListingUncheckedUpdateManyWithoutOwnerInputSchema: z.ZodType<Prisma.ListingUncheckedUpdateManyWithoutOwnerInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  title: z.union([ z.string({required_error: "Title is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string({required_error: "Slug is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string({required_error: "Description is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  propertyType: z.union([ z.string({required_error: "Property type is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  address: z.union([ z.string({required_error: "Address is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  latitude: z.union([ z.number({ invalid_type_error: "Latitude must be a number" }).gt(-90, { message: "Latitude must be greater than -90" }).lt(90, { message: "Latitude must be less than 90" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  longitude: z.union([ z.number({ invalid_type_error: "Longitude must be a number" }).gt(-180, { message: "Longitude must be greater than -180" }).lt(180, { message: "Longitude must be less than 180" }),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  timeZone: z.union([ z.string({ invalid_type_error: "Time zone is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkInTime: z.union([ z.string({ invalid_type_error: "Check-in time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOutTime: z.union([ z.string({ invalid_type_error: "Check-out time is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  propertyType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  latitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  longitude: z.union([ z.number(),z.lazy(() => NullableFloatFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  timeZone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkInTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOutTime: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   amenities: z.union([ z.lazy(() => ListingUpdateamenitiesInputSchema),z.string().array() ]).optional(),
-  pricePerNight: z.union([ z.number().gt(0, { message: "Price per night must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  pricePerNight: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   currency: z.union([ z.lazy(() => CurrencySchema),z.lazy(() => EnumCurrencyFieldUpdateOperationsInputSchema) ]).optional(),
-  minimumStay: z.union([ z.number().gt(0, { message: "Minimum stay must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  maximumGuests: z.union([ z.number().gt(0, { message: "Maximum guests must be greater than 0" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  houseRules: z.union([ z.string({ invalid_type_error: "House rules are required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  minimumStay: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  maximumGuests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  houseRules: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   allowPets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  petPolicy: z.union([ z.string({ invalid_type_error: "Pet policy is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  petPolicy: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   showExactLocation: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   locationRadius: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
@@ -7529,12 +7529,12 @@ export const UserRoleUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserRoleUpda
 }).strict();
 
 export const UserRoleUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserRoleUncheckedUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   role: z.union([ z.lazy(() => RoleSchema),z.lazy(() => EnumRoleFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UserRoleUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.UserRoleUncheckedUpdateManyWithoutUserInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   role: z.union([ z.lazy(() => RoleSchema),z.lazy(() => EnumRoleFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
@@ -7543,60 +7543,60 @@ export const UserPermissionUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserPe
 }).strict();
 
 export const UserPermissionUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserPermissionUncheckedUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   permission: z.union([ z.lazy(() => PermissionSchema),z.lazy(() => EnumPermissionFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UserPermissionUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.UserPermissionUncheckedUpdateManyWithoutUserInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   permission: z.union([ z.lazy(() => PermissionSchema),z.lazy(() => EnumPermissionFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const BookingUpdateWithoutUserInputSchema: z.ZodType<Prisma.BookingUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
   bookingRequest: z.lazy(() => BookingRequestUpdateOneWithoutBookingNestedInputSchema).optional(),
   listingInventory: z.lazy(() => ListingInventoryUpdateManyWithoutBookingNestedInputSchema).optional()
 }).strict();
 
 export const BookingUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
   bookingRequestId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   listingInventory: z.lazy(() => ListingInventoryUncheckedUpdateManyWithoutBookingNestedInputSchema).optional()
 }).strict();
 
 export const BookingUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateManyWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
   bookingRequestId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const BookingRequestUpdateWithoutUserInputSchema: z.ZodType<Prisma.BookingRequestUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   listing: z.lazy(() => ListingUpdateOneRequiredWithoutBookingRequestNestedInputSchema).optional(),
   Booking: z.lazy(() => BookingUpdateManyWithoutBookingRequestNestedInputSchema).optional(),
@@ -7605,15 +7605,15 @@ export const BookingRequestUpdateWithoutUserInputSchema: z.ZodType<Prisma.Bookin
 }).strict();
 
 export const BookingRequestUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.BookingRequestUncheckedUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   alterationOf: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   listingId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -7622,146 +7622,146 @@ export const BookingRequestUncheckedUpdateWithoutUserInputSchema: z.ZodType<Pris
 }).strict();
 
 export const BookingRequestUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.BookingRequestUncheckedUpdateManyWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   alterationOf: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   listingId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const SessionUpdateWithoutUserInputSchema: z.ZodType<Prisma.SessionUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   lastActive: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const SessionUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.SessionUncheckedUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   lastActive: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const SessionUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.SessionUncheckedUpdateManyWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   lastActive: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const PasswordResetUpdateWithoutUserInputSchema: z.ZodType<Prisma.PasswordResetUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const PasswordResetUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.PasswordResetUncheckedUpdateWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const PasswordResetUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.PasswordResetUncheckedUpdateManyWithoutUserInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   token: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   used: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UploadedPhotoCreateManyListingInputSchema: z.ZodType<Prisma.UploadedPhotoCreateManyListingInput> = z.object({
-  id: z.string().cuid().optional(),
-  url: z.string({required_error: "URL is required" }),
+  id: z.string().optional(),
+  url: z.string(),
   key: z.string(),
   name: z.string()
 }).strict();
 
 export const ListingInventoryCreateManyListingInputSchema: z.ZodType<Prisma.ListingInventoryCreateManyListingInput> = z.object({
-  id: z.number().int().optional(),
-  date: z.coerce.date({ invalid_type_error: "Date is required" }),
+  id: z.number().optional(),
+  date: z.coerce.date(),
   isAvailable: z.boolean().optional(),
-  price: z.number().gt(0, { message: "Price must be greater than 0" }),
+  price: z.number(),
   bookingId: z.string().optional().nullable()
 }).strict();
 
 export const BookingRequestCreateManyListingInputSchema: z.ZodType<Prisma.BookingRequestCreateManyListingInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   alterationOf: z.string().optional().nullable(),
   userId: z.string()
 }).strict();
 
 export const UploadedPhotoUpdateWithoutListingInputSchema: z.ZodType<Prisma.UploadedPhotoUpdateWithoutListingInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UploadedPhotoUncheckedUpdateWithoutListingInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedUpdateWithoutListingInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UploadedPhotoUncheckedUpdateManyWithoutListingInputSchema: z.ZodType<Prisma.UploadedPhotoUncheckedUpdateManyWithoutListingInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  url: z.union([ z.string({required_error: "URL is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   key: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ListingInventoryUpdateWithoutListingInputSchema: z.ZodType<Prisma.ListingInventoryUpdateWithoutListingInput> = z.object({
-  date: z.union([ z.coerce.date({ invalid_type_error: "Date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   isAvailable: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  price: z.union([ z.number().gt(0, { message: "Price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  price: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   booking: z.lazy(() => BookingUpdateOneWithoutListingInventoryNestedInputSchema).optional()
 }).strict();
 
 export const ListingInventoryUncheckedUpdateWithoutListingInputSchema: z.ZodType<Prisma.ListingInventoryUncheckedUpdateWithoutListingInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  date: z.union([ z.coerce.date({ invalid_type_error: "Date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   isAvailable: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  price: z.union([ z.number().gt(0, { message: "Price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  price: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   bookingId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const ListingInventoryUncheckedUpdateManyWithoutListingInputSchema: z.ZodType<Prisma.ListingInventoryUncheckedUpdateManyWithoutListingInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  date: z.union([ z.coerce.date({ invalid_type_error: "Date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   isAvailable: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  price: z.union([ z.number().gt(0, { message: "Price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  price: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   bookingId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const BookingRequestUpdateWithoutListingInputSchema: z.ZodType<Prisma.BookingRequestUpdateWithoutListingInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBookingRequestNestedInputSchema).optional(),
   Booking: z.lazy(() => BookingUpdateManyWithoutBookingRequestNestedInputSchema).optional(),
@@ -7770,15 +7770,15 @@ export const BookingRequestUpdateWithoutListingInputSchema: z.ZodType<Prisma.Boo
 }).strict();
 
 export const BookingRequestUncheckedUpdateWithoutListingInputSchema: z.ZodType<Prisma.BookingRequestUncheckedUpdateWithoutListingInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   alterationOf: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -7787,122 +7787,122 @@ export const BookingRequestUncheckedUpdateWithoutListingInputSchema: z.ZodType<P
 }).strict();
 
 export const BookingRequestUncheckedUpdateManyWithoutListingInputSchema: z.ZodType<Prisma.BookingRequestUncheckedUpdateManyWithoutListingInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   alterationOf: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ListingInventoryCreateManyBookingInputSchema: z.ZodType<Prisma.ListingInventoryCreateManyBookingInput> = z.object({
-  id: z.number().int().optional(),
-  date: z.coerce.date({ invalid_type_error: "Date is required" }),
+  id: z.number().optional(),
+  date: z.coerce.date(),
   isAvailable: z.boolean().optional(),
-  price: z.number().gt(0, { message: "Price must be greater than 0" }),
+  price: z.number(),
   listingId: z.string()
 }).strict();
 
 export const ListingInventoryUpdateWithoutBookingInputSchema: z.ZodType<Prisma.ListingInventoryUpdateWithoutBookingInput> = z.object({
-  date: z.union([ z.coerce.date({ invalid_type_error: "Date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   isAvailable: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  price: z.union([ z.number().gt(0, { message: "Price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  price: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   listing: z.lazy(() => ListingUpdateOneRequiredWithoutInventoryNestedInputSchema).optional()
 }).strict();
 
 export const ListingInventoryUncheckedUpdateWithoutBookingInputSchema: z.ZodType<Prisma.ListingInventoryUncheckedUpdateWithoutBookingInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  date: z.union([ z.coerce.date({ invalid_type_error: "Date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   isAvailable: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  price: z.union([ z.number().gt(0, { message: "Price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  price: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   listingId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ListingInventoryUncheckedUpdateManyWithoutBookingInputSchema: z.ZodType<Prisma.ListingInventoryUncheckedUpdateManyWithoutBookingInput> = z.object({
-  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  date: z.union([ z.coerce.date({ invalid_type_error: "Date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   isAvailable: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  price: z.union([ z.number().gt(0, { message: "Price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  price: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   listingId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const BookingCreateManyBookingRequestInputSchema: z.ZodType<Prisma.BookingCreateManyBookingRequestInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  totalPrice: z.number(),
   status: z.lazy(() => BookingStatusSchema).optional(),
-  userId: z.string({ invalid_type_error: "User ID is required" })
+  userId: z.string()
 }).strict();
 
 export const BookingRequestCreateManyOriginalRequestInputSchema: z.ZodType<Prisma.BookingRequestCreateManyOriginalRequestInput> = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  message: z.string({ invalid_type_error: "Message is required" }),
-  checkIn: z.coerce.date({ invalid_type_error: "Check-in date is required" }),
-  checkOut: z.coerce.date({ invalid_type_error: "Check-out date is required" }),
-  guests: z.number().int().min(1, { message: "At least 1 guest is required" }),
+  message: z.string(),
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+  guests: z.number(),
   pets: z.boolean().optional(),
-  totalPrice: z.number().positive({ message: "Total price must be greater than 0" }).optional(),
+  totalPrice: z.number().optional(),
   status: z.lazy(() => BookingRequestStatusSchema).optional(),
   userId: z.string(),
   listingId: z.string()
 }).strict();
 
 export const BookingUpdateWithoutBookingRequestInputSchema: z.ZodType<Prisma.BookingUpdateWithoutBookingRequestInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBookingsNestedInputSchema).optional(),
   listingInventory: z.lazy(() => ListingInventoryUpdateManyWithoutBookingNestedInputSchema).optional()
 }).strict();
 
 export const BookingUncheckedUpdateWithoutBookingRequestInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateWithoutBookingRequestInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
-  userId: z.union([ z.string({ invalid_type_error: "User ID is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   listingInventory: z.lazy(() => ListingInventoryUncheckedUpdateManyWithoutBookingNestedInputSchema).optional()
 }).strict();
 
 export const BookingUncheckedUpdateManyWithoutBookingRequestInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateManyWithoutBookingRequestInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema),z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
-  userId: z.union([ z.string({ invalid_type_error: "User ID is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const BookingRequestUpdateWithoutOriginalRequestInputSchema: z.ZodType<Prisma.BookingRequestUpdateWithoutOriginalRequestInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBookingRequestNestedInputSchema).optional(),
   listing: z.lazy(() => ListingUpdateOneRequiredWithoutBookingRequestNestedInputSchema).optional(),
@@ -7911,15 +7911,15 @@ export const BookingRequestUpdateWithoutOriginalRequestInputSchema: z.ZodType<Pr
 }).strict();
 
 export const BookingRequestUncheckedUpdateWithoutOriginalRequestInputSchema: z.ZodType<Prisma.BookingRequestUncheckedUpdateWithoutOriginalRequestInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   listingId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -7928,15 +7928,15 @@ export const BookingRequestUncheckedUpdateWithoutOriginalRequestInputSchema: z.Z
 }).strict();
 
 export const BookingRequestUncheckedUpdateManyWithoutOriginalRequestInputSchema: z.ZodType<Prisma.BookingRequestUncheckedUpdateManyWithoutOriginalRequestInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  message: z.union([ z.string({ invalid_type_error: "Message is required" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  checkIn: z.union([ z.coerce.date({ invalid_type_error: "Check-in date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  checkOut: z.union([ z.coerce.date({ invalid_type_error: "Check-out date is required" }),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  guests: z.union([ z.number().int().min(1, { message: "At least 1 guest is required" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  message: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  checkIn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  checkOut: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  guests: z.union([ z.number(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   pets: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
-  totalPrice: z.union([ z.number().positive({ message: "Total price must be greater than 0" }),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  totalPrice: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingRequestStatusSchema),z.lazy(() => EnumBookingRequestStatusFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   listingId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),

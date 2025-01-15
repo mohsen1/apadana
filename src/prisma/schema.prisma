@@ -2,8 +2,10 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator zod {
-  provider = "zod-prisma-types"
-  output   = "./zod"
+  provider                  = "zod-prisma-types"
+  output                    = "./zod"
+  createRelationValuesTypes = false
+  addInputTypeValidation    = false
 }
 
 generator client {

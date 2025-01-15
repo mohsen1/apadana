@@ -88,23 +88,27 @@ export class S3Stack extends BaseStack {
     const bucketName = `ap-${cfg.environment}-${this.account}-${this.region}`.trim();
     const config = this.getBucketConfig();
 
-    // Create the bucket instead of referencing existing one
+    // Create new bucket instead of importing
     this.bucket = new s3.Bucket(this, 'Bucket', {
       bucketName,
-      cors: config.cors,
+      cors: config.cors.map((rule) => ({
+        allowedHeaders: rule.allowedHeaders,
+        allowedMethods: rule.allowedMethods,
+        allowedOrigins: rule.allowedOrigins,
+        exposedHeaders: rule.exposedHeaders,
+        maxAge: rule.maxAge,
+      })),
       versioned: config.versioned,
       encryption: config.encryption,
       publicReadAccess: config.publicReadAccess,
       blockPublicAccess: config.blockPublicAccess,
       enforceSSL: config.enforceSSL,
       lifecycleRules: config.lifecycleRules,
-      removalPolicy: cdk.RemovalPolicy.DESTROY, // For development ease
-      autoDeleteObjects: true, // For development ease
+      removalPolicy: props.removalPolicy,
     });
-    logger.debug('Created new bucket');
+    logger.debug('Created S3 bucket');
 
     this.bucketNameOutput = new cdk.CfnOutput(this, 'BucketName', {
-      exportName: `${this.stackName}-BucketName`,
       value: this.bucket.bucketName,
       description: 'Name of the S3 bucket',
     });
