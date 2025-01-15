@@ -565,6 +565,8 @@ tasks:
     cmds:
       - echo Bootstrapping AWS environment {{.ENV}}
       - pnpm tsx {{.CDK_SCRIPTS}}/validate-bootsrapper.ts {{.ENV}}
+      # First bootstrap the CDK toolkit itself
       - pnpm cdk bootstrap
+      # Then deploy our bootstrap stack
       - pnpm cdk deploy --app "tsx src/aws-setup/bootstrap.ts" ap-deployer-iam-{{.ENV}} --require-approval never
       - task cdk:deployer:get-credentials -- {{.ENV}}

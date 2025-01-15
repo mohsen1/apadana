@@ -34,7 +34,7 @@ export const DEPLOYER_MANAGED_POLICIES = [
   'arn:aws:iam::aws:policy/AWSLambda_FullAccess',
   'arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator',
   'arn:aws:iam::aws:policy/IAMReadOnlyAccess',
-  'arn:aws:iam::aws:policy/AmazonECSFullAccess',
+  'arn:aws:iam::aws:policy/AmazonECS_FullAccess',
   'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess',
   'arn:aws:iam::aws:policy/CloudFrontFullAccess',
   'arn:aws:iam::aws:policy/AWSWAFFullAccess',
