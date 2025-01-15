@@ -1,11 +1,14 @@
 # syntax=docker/dockerfile:1.4
-FROM node:20.18.0-slim
 
+# Base stage with common dependencies
+FROM node:20.18.0-slim as base
 WORKDIR /app
 
-# Install development dependencies
-RUN apt-get update && \
-  apt-get install -y python3 make g++ inotify-tools wget grep curl && \
+# Install system dependencies
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt-get update && \
+  apt-get install -y python3 make g++ wget grep curl && \
   rm -rf /var/lib/apt/lists/*
 
 # Setup pnpm
@@ -15,20 +18,34 @@ RUN pnpm config set store-dir /root/.pnpm-store \
   && pnpm config set node-deprecation-warnings false
 
 # Install Task
-RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+RUN --mount=type=cache,target=/root/.cache/go-build \
+  sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
-# Copy task configuration first
-COPY Taskfile.yml ./
+# Dependencies stage
+FROM base as deps
+WORKDIR /app
 
-# Fetch dependencies first
-COPY pnpm-lock.yaml ./
+# Copy only files needed for installation
+COPY pnpm-lock.yaml package.json Taskfile.yml ./
+
+# Install dependencies with cache
 RUN --mount=type=cache,target=/root/.pnpm-store,id=pnpm-store \
-  task fetch
+  task fetch && task install
 
-# Install dependencies from store
-COPY package.json ./
-RUN --mount=type=cache,target=/root/.pnpm-store,id=pnpm-store \
-  task install
+# Development stage
+FROM base as dev
+WORKDIR /app
+
+# Install additional dev dependencies
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt-get update && \
+  apt-get install -y inotify-tools && \
+  rm -rf /var/lib/apt/lists/*
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json /app/pnpm-lock.yaml /app/Taskfile.yml ./
 
 ENV NODE_ENV=development \
   NODE_OPTIONS='--max-old-space-size=4096 --no-warnings'

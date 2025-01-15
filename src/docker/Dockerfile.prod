@@ -1,13 +1,14 @@
 # syntax=docker/dockerfile:1.4
-FROM node:20.18.0-slim
 
+# Base stage with common dependencies
+FROM node:20.18.0-slim as base
 WORKDIR /app
 
-# Install build dependencies
+# Install system dependencies
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
   apt-get update && \
-  apt-get install -y python3 make g++ wget grep inotify-tools curl && \
+  apt-get install -y python3 make g++ wget grep curl && \
   rm -rf /var/lib/apt/lists/*
 
 # Setup pnpm
@@ -17,28 +18,57 @@ RUN pnpm config set store-dir /root/.pnpm-store \
   && pnpm config set node-deprecation-warnings false
 
 # Install Task
-RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+RUN --mount=type=cache,target=/root/.cache/go-build \
+  sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
-# Copy task configuration first
-COPY Taskfile.yml ./
+# Dependencies stage
+FROM base as deps
+WORKDIR /app
+
+# Copy only files needed for installation
+COPY pnpm-lock.yaml package.json Taskfile.yml ./
 
 # Install dependencies with cache
-COPY pnpm-lock.yaml ./
 RUN --mount=type=cache,target=/root/.pnpm-store,id=pnpm-store \
-  task fetch
+  task fetch && task install
 
-COPY package.json ./
-RUN --mount=type=cache,target=/root/.pnpm-store,id=pnpm-store \
-  task install
+# Build stage
+FROM base as builder
+WORKDIR /app
 
-# Copy application files
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json /app/pnpm-lock.yaml /app/Taskfile.yml ./
+
+# Copy source code and build
 COPY . .
-ENV NODE_OPTIONS=--no-warnings
+RUN task build
 
-EXPOSE 3030
-ENV PORT=3030 \
+# Production stage
+FROM base as prod
+WORKDIR /app
+
+# Install production dependencies
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt-get update && \
+  apt-get install -y inotify-tools && \
+  rm -rf /var/lib/apt/lists/*
+
+# Copy built assets and dependencies
+COPY --from=builder /app/.next ./.next
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json /app/pnpm-lock.yaml /app/Taskfile.yml ./
+COPY public ./public
+
+ENV NODE_OPTIONS=--no-warnings \
+  PORT=3030 \
   NODE_ENV=production
 
+EXPOSE 3030
+
+# Setup entrypoint
 COPY src/docker/docker-entrypoint.prod.sh /usr/local/bin/docker-entrypoint.prod.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.prod.sh
+
 ENTRYPOINT ["docker-entrypoint.prod.sh"]
