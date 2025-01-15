@@ -30,7 +30,6 @@
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
-    "src/prisma/zod/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.js",
