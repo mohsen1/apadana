@@ -410,11 +410,17 @@ tasks:
       - pnpm tsx {{.CDK_SCRIPTS}}/create-deployer.ts --add-to-vercel
 
   cdk:destroy:
-    desc: Destroy CDK stack
+    desc: Destroying CDK stack on {{.ENV}} environment
+    silent: true
+    deps: [cdk:cleanup]
+    cmds:
+      - pnpm cdk destroy {{.CLI_ARGS}} --all
+
+  cdk:cleanup:
+    desc: Clean up IAM resources before stack destruction
     silent: true
     cmds:
-      - echo "Destroying CDK stack on {{.AWS_DEPLOYMENT_STACK_ENV}} environment"
-      - pnpm cdk destroy --all --require-approval never --concurrency {{.AWS_DEPLOYMENT_CONCURRENCY}} {{.CLI_ARGS}}
+      - pnpm tsx {{.CDK_SCRIPTS}}/cleanup-deployer.ts
 
   cdk:diff:
     desc: Show CDK diff

@@ -44,8 +44,11 @@ export class DeployerIamStack extends BaseStack {
     );
 
     // Attach AWS-managed policies
-    for (const policyArn of DEPLOYER_MANAGED_POLICIES) {
-      deployerGroup.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName(policyArn));
+    const managedPolicies = DEPLOYER_MANAGED_POLICIES.map((policyArn) =>
+      iam.ManagedPolicy.fromAwsManagedPolicyName(policyArn),
+    );
+    for (const policy of managedPolicies) {
+      deployerGroup.addManagedPolicy(policy);
     }
 
     //
@@ -54,8 +57,8 @@ export class DeployerIamStack extends BaseStack {
     this.deployerUserName = `ap-deployer-${props.environment}`;
     const deployerUser = new iam.User(this, 'DeployerUser', {
       userName: this.deployerUserName,
+      groups: [deployerGroup],
     });
-    deployerUser.addToGroup(deployerGroup);
 
     //
     // 3) Create an Access Key for the user
@@ -109,6 +112,46 @@ export class DeployerIamStack extends BaseStack {
     });
 
     updateAccessKeySecret.node.addDependency(this.deployerAccessKeySecret);
+
+    // Add custom resource to handle policy cleanup during deletion
+    const cleanupPolicies = new cr.AwsCustomResource(this, 'CleanupPolicies', {
+      onDelete: {
+        service: 'IAM',
+        action: 'listAttachedGroupPolicies',
+        parameters: {
+          GroupName: deployerGroupName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of(`ListPolicies-${props.environment}`),
+        outputPaths: ['AttachedPolicies'],
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
+      }),
+    });
+
+    // For each managed policy, create a custom resource to detach it
+    DEPLOYER_MANAGED_POLICIES.forEach((policyArn, index) => {
+      const detachPolicy = new cr.AwsCustomResource(this, `DetachPolicy-${index}`, {
+        onDelete: {
+          service: 'IAM',
+          action: 'detachGroupPolicy',
+          parameters: {
+            GroupName: deployerGroupName,
+            PolicyArn: policyArn,
+          },
+          physicalResourceId: cr.PhysicalResourceId.of(
+            `DetachPolicy-${index}-${props.environment}`,
+          ),
+        },
+        policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+          resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
+        }),
+      });
+
+      // Ensure proper deletion order
+      detachPolicy.node.addDependency(cleanupPolicies);
+      deployerGroup.node.addDependency(detachPolicy);
+    });
 
     //
     // 6) Print out instructions at the end

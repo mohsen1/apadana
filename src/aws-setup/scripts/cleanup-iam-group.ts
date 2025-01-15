@@ -10,6 +10,29 @@ export async function cleanupIamGroup(groupName: string) {
   try {
     logger.info(`Cleaning up IAM group: ${groupName}`);
 
+    // First, detach all managed policies
+    logger.info(`Detaching managed policies from group ${groupName}`);
+    const { AttachedPolicies = [] } = await iam.listAttachedGroupPolicies({ GroupName: groupName });
+    for (const policy of AttachedPolicies) {
+      if (!policy.PolicyArn) continue;
+      logger.info(`Detaching policy ${policy.PolicyArn} from group ${groupName}`);
+      await iam.detachGroupPolicy({
+        GroupName: groupName,
+        PolicyArn: policy.PolicyArn,
+      });
+    }
+
+    // Then, delete all inline policies
+    logger.info(`Deleting inline policies from group ${groupName}`);
+    const { PolicyNames = [] } = await iam.listGroupPolicies({ GroupName: groupName });
+    for (const policyName of PolicyNames) {
+      logger.info(`Deleting inline policy ${policyName} from group ${groupName}`);
+      await iam.deleteGroupPolicy({
+        GroupName: groupName,
+        PolicyName: policyName,
+      });
+    }
+
     // Get all users in the group
     const { Users = [] } = await iam.getGroup({ GroupName: groupName });
 
