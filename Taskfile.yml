@@ -552,4 +552,19 @@ tasks:
     desc: Get deployer credentials for {{.ENV}} environment
     silent: true
     cmds:
-      - pnpm tsx {{.CDK_SCRIPTS}}/get-deployer-credentials.ts
+      - pnpm tsx {{.CDK_SCRIPTS}}/get-deployer-credentials.ts {{.CLI_ARGS}}
+
+  cdk:bootstrap:
+    desc: |
+      Bootstrap CDK toolkit and create deployer IAM user
+      You must have AdministratorAccess policy attached to your AWS profile for this to work.
+      To bootstrap other environments, set the AWS_DEPLOYMENT_STACK_ENV environment variable.
+      After everything runs, you should set the AWS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables
+      to Vercel for the target environment so Vercel can deploy to AWS.
+    silent: true
+    cmds:
+      - echo Bootstrapping AWS environment {{.ENV}}
+      - pnpm tsx {{.CDK_SCRIPTS}}/validate-bootsrapper.ts {{.ENV}}
+      - pnpm cdk bootstrap
+      - pnpm cdk deploy --app "tsx src/aws-setup/bootstrap.ts" ap-deployer-iam-{{.ENV}} --require-approval never
+      - task cdk:deployer:get-credentials -- {{.ENV}}

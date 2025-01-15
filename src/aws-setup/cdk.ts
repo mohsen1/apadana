@@ -34,6 +34,14 @@ const removalPolicy =
 
 logger.info(`Using removal policy: ${removalPolicy}`);
 
+// Create deployer stack next
+new DeployerIamStack(app, `ap-deployer-iam-${environment}`, {
+  environment,
+  removalPolicy,
+});
+logger.debug('Created deployer IAM stack');
+
+// Make other stacks depend on deployer
 const sharedNetworkStack = new SharedNetworkStack(app, `ap-network-${environment}`, {
   environment,
   removalPolicy,
@@ -58,13 +66,6 @@ new IamStack(app, `ap-iam-${environment}`, {
   removalPolicy,
 });
 logger.debug('Created IAM stack');
-
-// Create Deployer IAM stack
-new DeployerIamStack(app, `ap-deployer-iam-${environment}`, {
-  environment,
-  removalPolicy,
-});
-logger.debug('Created Deployer IAM stack');
 
 new RdsStack(app, `ap-rds-${environment}`, {
   environment,

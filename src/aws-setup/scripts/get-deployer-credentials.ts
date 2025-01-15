@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 import fs from 'node:fs';
 
@@ -34,14 +35,14 @@ async function getDeployerCredentials(environment: string) {
       ].join('\n'),
     );
 
-    logger.info(`Credentials written to ~/.aws/credentials. Update Vercel:`);
-    logger.info('\n'.repeat(2));
-    logger.info(`AWS_ACCESS_KEY_ID=${credentials.AccessKeyId}`);
-    logger.info(`AWS_SECRET_ACCESS_KEY=${credentials.SecretAccessKey}`);
-    logger.info('\n'.repeat(2));
-    logger.info(`vercel env add AWS_ACCESS_KEY_ID ${environment}`);
-    logger.info('\n'.repeat(2));
-    logger.info(`vercel env add AWS_SECRET_ACCESS_KEY ${environment}`);
+    console.info(`Credentials written to ~/.aws/credentials. Update Vercel:`);
+    console.info('\n'.repeat(2));
+    console.info(`AWS_ACCESS_KEY_ID=${credentials.AccessKeyId}`);
+    console.info(`AWS_SECRET_ACCESS_KEY=${credentials.SecretAccessKey}`);
+    console.info('\n'.repeat(2));
+    console.info(`vercel env add AWS_ACCESS_KEY_ID ${environment}`);
+    console.info('\n'.repeat(2));
+    console.info(`vercel env add AWS_SECRET_ACCESS_KEY ${environment}`);
   } catch (error) {
     assertError(error);
     if (error.name === 'ResourceNotFoundException') {
@@ -55,11 +56,7 @@ async function getDeployerCredentials(environment: string) {
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-const envIndex = args.indexOf('--env');
-const environment =
-  envIndex !== -1 && args[envIndex + 1]
-    ? args[envIndex + 1]
-    : process.env.AWS_DEPLOYMENT_STACK_ENV || process.env.VERCEL_ENV || 'development';
+const environment = args[0] || process.env.AWS_DEPLOYMENT_STACK_ENV || 'development';
 
 if (!['development', 'preview', 'production'].includes(environment)) {
   logger.error(

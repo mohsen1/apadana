@@ -45,8 +45,14 @@ export class DeployerIamStack extends BaseStack {
 
     // Attach AWS-managed policies
     const managedPolicies = DEPLOYER_MANAGED_POLICIES.map((policyArn) =>
-      iam.ManagedPolicy.fromAwsManagedPolicyName(policyArn),
+      iam.ManagedPolicy.fromManagedPolicyArn(
+        this,
+        `ManagedPolicy-${policyArn.split('/').pop()}`,
+        policyArn,
+      ),
     );
+
+    // Then attach managed policies
     for (const policy of managedPolicies) {
       deployerGroup.addManagedPolicy(policy);
     }
