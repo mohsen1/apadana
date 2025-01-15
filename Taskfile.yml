@@ -533,3 +533,9 @@ tasks:
         fi
         echo "Production environment is not healthy"
         exit 1
+
+  cdk:deployer:destroy:
+    desc: Clean up deployer user and group
+    silent: true
+    cmds:
+      - pnpm tsx {{.CDK_SCRIPTS}}/cleanup-deployer.ts {{.CLI_ARGS}}
