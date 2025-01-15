@@ -16,19 +16,44 @@ export async function setupDeployerGroup(env: string, username: string) {
     `[setup-deployer-group.ts] Setting up deployer group ${groupName} for user ${username}...`,
   );
 
-  // Verify group exists (created by CloudFormation)
-  logger.info(`[setup-deployer-group.ts] Verifying group ${groupName} exists...`);
+  // Create the group if it doesn't exist
+  logger.info(`[setup-deployer-group.ts] Creating group ${groupName}...`);
   try {
-    await iam.getGroup({ GroupName: groupName });
-    logger.info(`[setup-deployer-group.ts] Group ${groupName} exists`);
+    await iam.createGroup({ GroupName: groupName });
+    logger.info(`[setup-deployer-group.ts] Created group ${groupName}`);
   } catch (error) {
     assertError(error);
-    if (error.name === 'NoSuchEntity') {
-      throw new Error(
-        `Group ${groupName} not found. Please ensure CloudFormation stack is deployed first.`,
-      );
+    if (error.name === 'EntityAlreadyExistsException') {
+      logger.info(`[setup-deployer-group.ts] Group ${groupName} already exists`);
+    } else {
+      throw error;
     }
-    throw error;
+  }
+
+  // Wait for group to be available
+  logger.info(`[setup-deployer-group.ts] Waiting for group ${groupName} to be available...`);
+  let attempts = 0;
+  const maxAttempts = 10;
+  while (attempts < maxAttempts) {
+    attempts++;
+    logger.info(
+      `[setup-deployer-group.ts] Attempt ${attempts}/${maxAttempts} to verify group ${groupName} exists...`,
+    );
+    try {
+      await iam.getGroup({ GroupName: groupName });
+      logger.info(`[setup-deployer-group.ts] Group ${groupName} exists!`);
+      break;
+    } catch (error) {
+      assertError(error);
+      if (error.name === 'NoSuchEntity') {
+        if (attempts === maxAttempts) {
+          throw new Error(`Group ${groupName} not found after ${maxAttempts} attempts`);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        continue;
+      }
+      throw error;
+    }
   }
 
   // Detach existing managed policies

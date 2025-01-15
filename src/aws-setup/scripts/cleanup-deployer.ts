@@ -10,6 +10,7 @@ export async function cleanupDeployer(env: string) {
   logger.info('[cleanup-deployer.ts] Starting cleanup for environment:', env);
   const groupName = `ap-deployer-group-${env}`;
   const userName = `ap-deployer-${env}`;
+  let hasErrors = false;
 
   // Delete access keys first
   logger.info(`[cleanup-deployer.ts] Listing access keys for user ${userName}...`);
@@ -19,16 +20,25 @@ export async function cleanupDeployer(env: string) {
       for (const key of AccessKeyMetadata) {
         if (!key.AccessKeyId) continue;
         logger.info(`[cleanup-deployer.ts] Deleting access key ${key.AccessKeyId}...`);
-        await iam.deleteAccessKey({
-          UserName: userName,
-          AccessKeyId: key.AccessKeyId,
-        });
+        try {
+          await iam.deleteAccessKey({
+            UserName: userName,
+            AccessKeyId: key.AccessKeyId,
+          });
+        } catch (error) {
+          assertError(error);
+          if (error.name !== 'NoSuchEntity') {
+            logger.error(`[cleanup-deployer.ts] Error deleting access key: ${error.message}`);
+            hasErrors = true;
+          }
+        }
       }
     }
   } catch (error) {
     assertError(error);
     if (error.name !== 'NoSuchEntity') {
-      throw error;
+      logger.error(`[cleanup-deployer.ts] Error listing access keys: ${error.message}`);
+      hasErrors = true;
     }
   }
 
@@ -42,7 +52,8 @@ export async function cleanupDeployer(env: string) {
   } catch (error) {
     assertError(error);
     if (error.name !== 'NoSuchEntity') {
-      throw error;
+      logger.error(`[cleanup-deployer.ts] Error removing user from group: ${error.message}`);
+      hasErrors = true;
     }
   }
 
@@ -53,7 +64,8 @@ export async function cleanupDeployer(env: string) {
   } catch (error) {
     assertError(error);
     if (error.name !== 'NoSuchEntity') {
-      throw error;
+      logger.error(`[cleanup-deployer.ts] Error deleting user: ${error.message}`);
+      hasErrors = true;
     }
   }
 
@@ -65,16 +77,25 @@ export async function cleanupDeployer(env: string) {
       for (const policy of AttachedPolicies) {
         if (!policy.PolicyArn) continue;
         logger.info(`[cleanup-deployer.ts] Detaching policy ${policy.PolicyArn}...`);
-        await iam.detachGroupPolicy({
-          GroupName: groupName,
-          PolicyArn: policy.PolicyArn,
-        });
+        try {
+          await iam.detachGroupPolicy({
+            GroupName: groupName,
+            PolicyArn: policy.PolicyArn,
+          });
+        } catch (error) {
+          assertError(error);
+          if (error.name !== 'NoSuchEntity') {
+            logger.error(`[cleanup-deployer.ts] Error detaching policy: ${error.message}`);
+            hasErrors = true;
+          }
+        }
       }
     }
   } catch (error) {
     assertError(error);
     if (error.name !== 'NoSuchEntity') {
-      throw error;
+      logger.error(`[cleanup-deployer.ts] Error listing group policies: ${error.message}`);
+      hasErrors = true;
     }
   }
 
@@ -85,16 +106,25 @@ export async function cleanupDeployer(env: string) {
     if (PolicyNames?.length) {
       for (const policyName of PolicyNames) {
         logger.info(`[cleanup-deployer.ts] Deleting inline policy ${policyName}...`);
-        await iam.deleteGroupPolicy({
-          GroupName: groupName,
-          PolicyName: policyName,
-        });
+        try {
+          await iam.deleteGroupPolicy({
+            GroupName: groupName,
+            PolicyName: policyName,
+          });
+        } catch (error) {
+          assertError(error);
+          if (error.name !== 'NoSuchEntity') {
+            logger.error(`[cleanup-deployer.ts] Error deleting inline policy: ${error.message}`);
+            hasErrors = true;
+          }
+        }
       }
     }
   } catch (error) {
     assertError(error);
     if (error.name !== 'NoSuchEntity') {
-      throw error;
+      logger.error(`[cleanup-deployer.ts] Error listing inline policies: ${error.message}`);
+      hasErrors = true;
     }
   }
 
@@ -105,11 +135,17 @@ export async function cleanupDeployer(env: string) {
   } catch (error) {
     assertError(error);
     if (error.name !== 'NoSuchEntity') {
-      throw error;
+      logger.error(`[cleanup-deployer.ts] Error deleting group: ${error.message}`);
+      hasErrors = true;
     }
   }
 
-  logger.info('[cleanup-deployer.ts] ✓ Successfully cleaned up deployer resources');
+  if (hasErrors) {
+    logger.warn('[cleanup-deployer.ts] Completed with some errors');
+    process.exit(1);
+  } else {
+    logger.info('[cleanup-deployer.ts] ✓ Successfully cleaned up deployer resources');
+  }
 }
 
 const env = process.env.AWS_DEPLOYMENT_STACK_ENV;
