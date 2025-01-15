@@ -547,3 +547,9 @@ tasks:
         fi
         echo "Production environment is not healthy"
         exit 1
+
+  cdk:deployer:get-credentials:
+    desc: Get deployer credentials for {{.ENV}} environment
+    silent: true
+    cmds:
+      - pnpm tsx {{.CDK_SCRIPTS}}/get-deployer-credentials.ts
