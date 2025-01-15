@@ -5,7 +5,6 @@ import 'source-map-support/register';
 import { createLogger } from '@/utils/logger';
 
 import { CloudFrontStack } from './stacks/cloudfront-stack';
-import { DeployerIamStack } from './stacks/deployer-iam-stack';
 import { ElastiCacheStack } from './stacks/elasticache-stack';
 import { IamStack } from './stacks/iam-stack';
 import { RdsStack } from './stacks/rds-stack';
@@ -34,19 +33,18 @@ const removalPolicy =
 
 logger.info(`Using removal policy: ${removalPolicy}`);
 
-// Create deployer stack next
-new DeployerIamStack(app, `ap-deployer-iam-${environment}`, {
-  environment,
-  removalPolicy,
-});
-logger.debug('Created deployer IAM stack');
-
 // Make other stacks depend on deployer
 const sharedNetworkStack = new SharedNetworkStack(app, `ap-network-${environment}`, {
   environment,
   removalPolicy,
 });
 logger.debug('Created shared network stack');
+
+new IamStack(app, `ap-iam-${environment}`, {
+  environment,
+  removalPolicy,
+});
+logger.debug('Created IAM stack');
 
 const s3Stack = new S3Stack(app, `ap-s3-${environment}`, {
   environment,
@@ -60,12 +58,6 @@ new CloudFrontStack(app, `ap-cloudfront-${environment}`, {
   removalPolicy,
 });
 logger.debug('Created CloudFront stack');
-
-new IamStack(app, `ap-iam-${environment}`, {
-  environment,
-  removalPolicy,
-});
-logger.debug('Created IAM stack');
 
 new RdsStack(app, `ap-rds-${environment}`, {
   environment,
