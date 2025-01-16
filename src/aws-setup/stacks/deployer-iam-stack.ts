@@ -10,7 +10,6 @@ import { Construct } from 'constructs';
 import { createLogger } from '@/utils/logger';
 
 import { BaseStack, BaseStackProps } from './base-stack';
-import { DEPLOYER_MANAGED_POLICIES, DEPLOYER_PERMISSIONS } from '../constants';
 
 const logger = createLogger(import.meta.filename);
 
@@ -26,9 +25,51 @@ export class DeployerIamStack extends BaseStack {
     // Add service-specific tag
     cdk.Tags.of(this).add('service', 'deployer-iam');
 
-    // Import the existing deployer group
+    // Create the deployer group
     const deployerGroupName = `ap-deployer-group-${props.environment}`;
-    const deployerGroup = iam.Group.fromGroupName(this, 'ImportedDeployerGroup', deployerGroupName);
+    const deployerGroup = new iam.Group(this, 'DeployerGroup', {
+      groupName: deployerGroupName,
+    });
+
+    // Create policy for deployment and operations
+    const devPolicy = new iam.ManagedPolicy(this, 'DevDeploymentPolicy', {
+      description: 'Allow needed actions for Apadana deployment',
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'cloudformation:*',
+            'ssm:*',
+            's3:*',
+            'iam:*',
+            'lambda:*',
+            'ec2:*',
+            'elasticache:*',
+            'rds:*',
+            'secretsmanager:GetSecretValue',
+            'secretsmanager:DescribeSecret',
+            'secretsmanager:ListSecrets',
+            'execute-api:*',
+            'route53:*',
+            'acm:*',
+            'cloudfront:*',
+            'events:*',
+            'sqs:*',
+            'dynamodb:*',
+            'wafv2:*',
+            'cloudwatch:*',
+            'logs:*',
+            'codebuild:*',
+            'codepipeline:*',
+            'iam:PassRole',
+          ],
+          resources: ['*'],
+        }),
+      ],
+    });
+
+    // Attach policy to group
+    deployerGroup.addManagedPolicy(devPolicy);
 
     // Create the Deployer user and attach to group
     this.deployerUserName = `ap-deployer-${props.environment}`;

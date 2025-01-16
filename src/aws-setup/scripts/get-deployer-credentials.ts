@@ -29,9 +29,13 @@ async function getDeployerCredentials(environment: string) {
     // Print in a format that can be easily copied to shell
     const awsCredentialsPath = path.join(os.homedir(), '.aws', 'credentials');
 
-    fs.writeFileSync(
+    fs.appendFileSync(
       awsCredentialsPath,
       [
+        '',
+        '',
+        '',
+        `# Added by deployer-credentials-script on ${new Date().toISOString()}`,
         `[ap-deployer-${environment}]`,
         `aws_access_key_id = ${credentials.AccessKeyId}`,
         `aws_secret_access_key = ${credentials.SecretAccessKey}`,
@@ -41,11 +45,11 @@ async function getDeployerCredentials(environment: string) {
     console.info(`Credentials written to ${awsCredentialsPath}. Update Vercel:`);
     console.info('\n'.repeat(2));
     console.info(`AWS_ACCESS_KEY_ID=${credentials.AccessKeyId}`);
-    console.info(`AWS_SECRET_ACCESS_KEY=${credentials.SecretAccessKey}`);
-    console.info('\n'.repeat(2));
     console.info(`vercel env add AWS_ACCESS_KEY_ID ${environment}`);
     console.info('\n'.repeat(2));
+    console.info(`AWS_SECRET_ACCESS_KEY=${credentials.SecretAccessKey}`);
     console.info(`vercel env add AWS_SECRET_ACCESS_KEY ${environment}`);
+    console.info('\n'.repeat(2));
   } catch (error) {
     assertError(error);
     if (error.name === 'ResourceNotFoundException') {
