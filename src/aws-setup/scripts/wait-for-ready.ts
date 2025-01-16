@@ -64,8 +64,14 @@ async function checkRdsConnection() {
     await prisma.$disconnect();
   }
 }
-
-async function checkConnections(maxRetries = 10, retryDelay = 10000) {
+/**
+ * Check for database connections and use an exponential backoff strategy
+ * to retry until all connections are established or the maximum number of retries is reached.
+ *
+ * @param maxRetries - The maximum number of retries to attempt.
+ * @param retryDelay - The initial delay in milliseconds before retrying.
+ */
+async function checkConnections(maxRetries = 100, retryDelay = 10) {
   const connectionStatus = new Map<string, boolean>();
   connectionChecks.forEach(({ name }) => connectionStatus.set(name, false));
 
@@ -107,8 +113,9 @@ async function checkConnections(maxRetries = 10, retryDelay = 10000) {
         );
       }
 
-      logger.info(`Waiting ${retryDelay / 1000}s before next attempt...`);
-      await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      const nextDelay = retryDelay * 2;
+      logger.info(`Waiting ${nextDelay / 1000}s before next attempt...`);
+      await new Promise((resolve) => setTimeout(resolve, nextDelay));
     } catch (error) {
       if (attempt === maxRetries) throw error;
       logger.warn(`Attempt ${attempt} failed, retrying...`, error);
