@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_iam as iam, custom_resources as cr } from 'aws-cdk-lib';
+import { aws_iam as iam } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { createLogger } from '@/utils/logger';
@@ -9,7 +9,6 @@ import { BaseStack, BaseStackProps } from './base-stack';
 const logger = createLogger(import.meta.filename);
 
 export class IamStack extends BaseStack {
-  public readonly deployerGroup: iam.IGroup;
   public readonly uploadRole: iam.Role;
   public readonly devPolicy: iam.ManagedPolicy;
   public readonly uploadPolicy: iam.ManagedPolicy;
@@ -76,118 +75,6 @@ export class IamStack extends BaseStack {
     });
     logger.debug('Created S3 upload policy');
 
-    // Create the deployer group using AwsCustomResource
-    const groupName = `ap-deployer-group-${props.environment}`;
-    const physicalResourceId = `${groupName}-resource`;
-
-    // First, create a custom resource to list and detach all policies
-    const cleanupPolicies = new cr.AwsCustomResource(this, 'CleanupPolicies', {
-      onDelete: {
-        service: 'IAM',
-        action: 'listAttachedGroupPolicies',
-        parameters: {
-          GroupName: groupName,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`ListPolicies-${props.environment}`),
-        outputPaths: ['AttachedPolicies'],
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
-      }),
-    });
-
-    // Create a custom resource to detach each managed policy
-    const detachPolicies = new cr.AwsCustomResource(this, 'DetachPolicies', {
-      onDelete: {
-        service: 'IAM',
-        action: 'detachGroupPolicy',
-        parameters: {
-          GroupName: groupName,
-          PolicyArn: this.devPolicy.managedPolicyArn,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`DetachPolicy-${props.environment}`),
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
-      }),
-    });
-
-    // Create the deployer group
-    const deployerGroupResource = new cr.AwsCustomResource(this, 'DeployerGroupResource', {
-      onCreate: {
-        service: 'IAM',
-        action: 'createGroup',
-        parameters: {
-          GroupName: groupName,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(physicalResourceId),
-      },
-      onUpdate: {
-        service: 'IAM',
-        action: 'getGroup',
-        parameters: {
-          GroupName: groupName,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(physicalResourceId),
-      },
-      onDelete: {
-        service: 'IAM',
-        action: 'deleteGroup',
-        parameters: {
-          GroupName: groupName,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(physicalResourceId),
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: ['*'],
-      }),
-    });
-
-    // Add explicit dependencies for cleanup
-    deployerGroupResource.node.addDependency(cleanupPolicies);
-    deployerGroupResource.node.addDependency(detachPolicies);
-
-    // Attach policy to group
-    const attachPolicyResource = new cr.AwsCustomResource(this, 'AttachGroupPolicy', {
-      onCreate: {
-        service: 'IAM',
-        action: 'attachGroupPolicy',
-        parameters: {
-          GroupName: groupName,
-          PolicyArn: this.devPolicy.managedPolicyArn,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-policy`),
-      },
-      onUpdate: {
-        service: 'IAM',
-        action: 'attachGroupPolicy',
-        parameters: {
-          GroupName: groupName,
-          PolicyArn: this.devPolicy.managedPolicyArn,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-policy`),
-      },
-      onDelete: {
-        service: 'IAM',
-        action: 'detachGroupPolicy',
-        parameters: {
-          GroupName: groupName,
-          PolicyArn: this.devPolicy.managedPolicyArn,
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`${physicalResourceId}-policy`),
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: ['*'],
-      }),
-    });
-
-    // Add explicit dependency
-    attachPolicyResource.node.addDependency(deployerGroupResource);
-
-    // Import the group after creation
-    this.deployerGroup = iam.Group.fromGroupName(this, 'DeployerGroup', groupName);
-    logger.debug('Created/updated deployer group');
-
     // Create a role for Lambda functions that need to generate presigned URLs
     this.uploadRole = new iam.Role(this, 'S3UploadRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -200,12 +87,6 @@ export class IamStack extends BaseStack {
       exportName: `${this.stackName}-UploadRoleArn`,
       value: this.uploadRole.roleArn,
       description: 'ARN of the S3 upload role',
-    });
-
-    new cdk.CfnOutput(this, 'DeployerGroupName', {
-      exportName: `${this.stackName}-DeployerGroupName`,
-      value: this.deployerGroup.groupName,
-      description: 'Name of the deployer group',
     });
   }
 }
