@@ -65,7 +65,7 @@ async function checkRdsConnection() {
   }
 }
 
-async function checkConnections(maxRetries = 10, retryDelay = 10000) {
+async function checkConnections(maxRetries = 3, retryDelay = 1000) {
   const connectionStatus = new Map<string, boolean>();
   connectionChecks.forEach(({ name }) => connectionStatus.set(name, false));
 
