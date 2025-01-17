@@ -1,4 +1,14 @@
+version: '3.8'
+
 services:
+  base:
+    image: apadana-base:dev
+    build:
+      context: ../..
+      dockerfile: src/docker/Dockerfile.base
+      tags:
+        - apadana-base:dev
+
   nginx:
     container_name: ${COMPOSE_PROJECT_NAME:-apadana}_nginx
     image: nginx:alpine
@@ -42,6 +52,7 @@ services:
         BUILDKIT_INLINE_CACHE: 1
         HUSKY: 0
         NODE_ENV: development
+        COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-apadana}
     expose:
       - '3000'
       - '6006'
@@ -74,6 +85,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      base:
+        condition: service_completed_successfully
     command: >
       sh -c "
         task dev:next
@@ -105,6 +118,7 @@ services:
         BUILDKIT_INLINE_CACHE: 1
         VERCEL_URL: prod.apadana.localhost
         DATABASE_URL: postgresql://admin:admin@db_prod:5432/apadana
+        COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-apadana}
     tmpfs:
       - /tmp
     expose:

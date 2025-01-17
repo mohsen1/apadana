@@ -1,0 +1,36 @@
+# syntax=docker/dockerfile:1.4
+
+FROM node:20.18.0-slim
+WORKDIR /app
+
+# Install system dependencies
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt-get update && \
+  apt-get install -y python3 make g++ wget grep curl inotify-tools && \
+  rm -rf /var/lib/apt/lists/*
+
+
+ENV NODE_OPTIONS='--max-old-space-size=4096 --no-warnings'
+
+
+# Setup pnpm
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
+RUN pnpm config set store-dir /root/.pnpm-store \
+  && pnpm config set update-notifier false \
+  && pnpm config set node-deprecation-warnings false
+
+# Install Task
+RUN --mount=type=cache,target=/root/.cache/go-build \
+  sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
+# Copy only files needed for installation
+COPY pnpm-lock.yaml package.json Taskfile.yml ./
+
+# Install dependencies with cache
+RUN --mount=type=cache,target=/root/.pnpm-store,id=pnpm-store pnpm fetch
+RUN --mount=type=cache,target=/root/.pnpm-store,id=pnpm-store pnpm install 
+
+# Set configs for minimum nags about node deprecations
+# Prisma
+ENV PRISMA_HIDE_UPDATE_MESSAGE=1
