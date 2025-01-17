@@ -40,6 +40,9 @@ tasks:
   install:
     desc: Install dependencies
     silent: true
+    sources:
+      - pnpm-lock.yaml
+      - package.json
     cmds:
       - pnpm install --prefer-offline
 
@@ -458,11 +461,27 @@ tasks:
     cmds:
       - pnpm tsx {{.SCRIPTS}}/setup-local-dev.ts
 
+  docker:build:base:
+    desc: Build base Docker image
+    silent: true
+    cmds:
+      - docker build -t localhost/apadana-base:dev -f src/docker/Dockerfile.base .
+
   start:
     desc: Start the application
     deps: [vercel:env:pull, setup:local]
     silent: true
     cmds:
+      # Ensure Docker is running
+      - |
+        if ! docker info > /dev/null 2>&1; then
+          echo "Docker is not running. Starting Docker..."
+          open -a Docker
+          sleep 5
+        fi
+      # Build base image first
+      - task docker:build:base
+      # Then start all services
       - docker-compose -f {{.DOCKER_COMPOSE}} up --build
 
   typecheck:
