@@ -39,27 +39,19 @@ export async function getRedisClient(
   // where PRIMARY-ENDPOINT matches the certificate's domain (*.ap-redis-{env}.xxxxx.region.cache.amazonaws.com)
   const redisUrl = process.env.REDIS_URL;
 
-  const shouldUseTls = redisUrl?.startsWith('rediss://');
+  // Check if we're running in local Docker environment (both dev and prod use redis://redis:6379)
+  const isLocalDocker = redisUrl?.includes('redis://redis:6379');
+  const shouldUseTls = !isLocalDocker && redisUrl?.startsWith('rediss://');
+
+  logger.debug('Redis URL', { redisUrl, isLocalDocker, shouldUseTls });
 
   const mergedOptions = _.merge(
     {
       url: redisUrl,
       socket: {
         tls: shouldUseTls,
-        // TODO: Use AWS Private Certificate Authority (AWS Private CA) to issue certificates for Redis Proxy.
-        // You’ll still have to ensure the client trusts your CA’s root certificate. Steps:
-        //  Use AWS Private Certificate Authority (AWS Private CA) to issue certificates for internal services.
-        //  You’ll still have to ensure the client trusts your CA’s root certificate. Steps:
-        // 	1.	Provision Private CA: Create or purchase a private CA in AWS Private CA.
-        // 	2.	Generate a CSR: Either generate a CSR (certificate signing request)
-        //      from your service or create a key pair and CSR using OpenSSL.
-        // 	3.	Issue Certificate: Use your private CA to sign the CSR.
-        // 	4.	Trust Chain: Add the private CA’s root certificate to your client’s trust store.
-        // 	5.	Use Issued Cert: Instead of a self-signed cert, have your ECS container or proxy
-        //     reference the newly signed certificate and key.
-        // Clients that have your internal CA’s certificate in their trust chain will pass verification
-        //  without complaining about self-signed certs.
-        rejectUnauthorized: false, // Accept self-signed certificates
+        // Only use TLS verification for AWS ElastiCache
+        rejectUnauthorized: !isLocalDocker && shouldUseTls,
         connectTimeout: 30000, // 30 seconds for initial connection
         keepAlive: 30000, // Send keepalive every 30 seconds
         reconnectStrategy: (retries: number) => {

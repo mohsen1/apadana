@@ -33,16 +33,20 @@ async function checkRedisConnection() {
   logger.info('Checking Redis connection...');
   const client = await getRedisClient({
     socket: {
-      // Fail fast if we can't connect
-      timeout: 1000,
-      reconnectStrategy: () => 1000,
+      connectTimeout: 30000,
+      keepAlive: 0,
+      reconnectStrategy: (retries) => {
+        if (retries > 5) return new Error('Redis check failed');
+        return Math.min(Math.pow(2, retries) * 1000, 32000);
+      },
+      tls: true,
+      rejectUnauthorized: false,
     },
   });
   try {
-    // getRedisClient already handles connection and ping
+    await client.ping();
     logger.info('Redis connection successful');
   } catch (error) {
-    logger.info(`REDIS_URL=${process.env.REDIS_URL}`); // TODO: Remove this
     logger.error('Redis connection failed:', error);
     throw error;
   } finally {
