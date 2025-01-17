@@ -33,12 +33,14 @@ async function checkRedisConnection() {
   logger.info('Checking Redis connection...');
   const client = await getRedisClient({
     socket: {
-      connectTimeout: 5000,
-      keepAlive: 0, // Don't need keepalive for check
+      connectTimeout: 30000,
+      keepAlive: 0,
       reconnectStrategy: (retries) => {
-        if (retries > 3) return new Error('Redis check failed');
-        return Math.min(retries * 1000, 3000);
+        if (retries > 5) return new Error('Redis check failed');
+        return Math.min(Math.pow(2, retries) * 1000, 32000);
       },
+      tls: true,
+      rejectUnauthorized: false,
     },
   });
   try {
