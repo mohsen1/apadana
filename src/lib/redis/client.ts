@@ -43,6 +43,8 @@ export async function getRedisClient(
   const isLocalDocker = redisUrl?.includes('redis://redis:6379');
   const shouldUseTls = !isLocalDocker && redisUrl?.startsWith('rediss://');
 
+  logger.debug('Redis URL', { redisUrl, isLocalDocker, shouldUseTls });
+
   const mergedOptions = _.merge(
     {
       url: redisUrl,
