@@ -3,8 +3,6 @@
 FROM apadana-base:dev
 WORKDIR /app
 
-EXPOSE 3000
-
 COPY . .
 
 COPY src/docker/docker-entrypoint.prod.sh /usr/local/bin/

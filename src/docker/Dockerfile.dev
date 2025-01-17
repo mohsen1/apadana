@@ -3,7 +3,7 @@
 FROM apadana-base:dev
 WORKDIR /app
 
-EXPOSE 3000 6006 5555
+EXPOSE 6006 5555
 
 COPY . .
 
