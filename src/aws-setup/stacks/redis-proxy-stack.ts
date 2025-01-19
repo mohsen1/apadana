@@ -148,7 +148,7 @@ export class RedisProxyStack extends BaseStack {
           'chmod 600 /etc/ssl/proxy/key.pem && ' +
           'socat ' +
           'openssl-listen:6379,cert=/etc/ssl/proxy/cert.pem,key=/etc/ssl/proxy/key.pem,verify=0,fork,reuseaddr ' +
-          `openssl-connect:${props.redisEndpoint}:6379,verify=0`,
+          `openssl-connect:${props.redisEndpoint}:6379,verify=0,servername=${props.redisEndpoint},nodelay`,
       ],
     });
     container.addPortMappings({ containerPort: 6379 });
