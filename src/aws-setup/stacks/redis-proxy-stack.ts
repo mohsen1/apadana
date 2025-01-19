@@ -198,8 +198,8 @@ export class RedisProxyStack extends BaseStack {
       securityGroups: [serviceSG],
       desiredCount: 1,
       serviceName: `ap-redis-proxy-service-${cfg.environment}`,
-      assignPublicIp: true,
-      vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+      assignPublicIp: false,
+      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
     });
     logger.debug('Created Fargate service');
 
