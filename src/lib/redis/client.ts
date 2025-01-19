@@ -53,16 +53,39 @@ export async function getRedisClient(
         // Only use TLS verification for AWS ElastiCache
         rejectUnauthorized: !isLocalDocker && shouldUseTls,
         connectTimeout: 30000, // 30 seconds for initial connection
-        keepAlive: 30000, // Send keepalive every 30 seconds
+        keepAlive: 0, // Disable keepalive to prevent connection resets
         reconnectStrategy: (retries: number) => {
           if (retries > 10) {
             logger.error('Max Redis reconnection attempts reached');
             return new Error('Max reconnection attempts reached');
           }
-          const delay = Math.min(retries * 1000, 5000);
+          // Exponential backoff with jitter
+          const baseDelay = Math.min(Math.pow(2, retries) * 1000, 30000);
+          const jitter = Math.random() * 1000;
+          const delay = baseDelay + jitter;
           logger.debug(`Redis reconnecting in ${delay}ms (attempt ${retries})`);
           return delay;
         },
+        // Add SNI support for TLS
+        servername: shouldUseTls ? new URL(redisUrl).hostname : undefined,
+      },
+      retry_strategy: function (options: {
+        error?: Error & { code?: string };
+        total_retry_time: number;
+        attempt: number;
+      }) {
+        if (options.error?.code === 'ECONNREFUSED') {
+          // End reconnecting on a specific error
+          return new Error('The server refused the connection');
+        }
+        if (options.total_retry_time > 1000 * 60 * 60) {
+          // End reconnecting after a specific timeout
+          return new Error('Retry time exhausted');
+        }
+        // Use the same exponential backoff strategy
+        const baseDelay = Math.min(Math.pow(2, options.attempt) * 1000, 30000);
+        const jitter = Math.random() * 1000;
+        return baseDelay + jitter;
       },
     },
     optionsOverride,
