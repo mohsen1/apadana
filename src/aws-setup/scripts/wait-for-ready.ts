@@ -33,7 +33,7 @@ async function checkRedisConnection() {
   logger.info('Checking Redis connection...');
   const client = await getRedisClient({
     socket: {
-      connectTimeout: 30000,
+      connectTimeout: 300000, // 5 minutes in milliseconds
       keepAlive: 0,
       reconnectStrategy: (retries) => {
         if (retries > 5) return new Error('Redis check failed');
@@ -44,7 +44,12 @@ async function checkRedisConnection() {
     },
   });
   try {
-    await client.ping();
+    await Promise.race([
+      client.ping(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Redis connection timed out after 5 minutes')), 300000),
+      ),
+    ]);
     logger.info('Redis connection successful');
   } catch (error) {
     logger.error('Redis connection failed:', error);
