@@ -2,8 +2,7 @@
 output_dir = "./repo-serialized"
 
 # Add patterns to ignore (in addition to .gitignore)
-[ignore_patterns]
-patterns = [
+ignore_patterns =[
   # Generated files and directories
   '.next/',
   '.cache/',
@@ -36,151 +35,12 @@ patterns = [
 # Higher scores are processed first
 [[priority_rules]]
 score = 100
-patterns = [
-  "^prisma/schema\\.prisma$"
-]
+pattern = "^prisma/schema\\.prisma$"
 
 [[priority_rules]]
 score = 95
-patterns = [
-  "^package\\.json$",
-  "^tsconfig\\.json$",
-  "^config/next\\.config\\.ts$",
-  "^config/tailwind\\.config\\.ts$",
-  "^config/eslint\\.config\\.mjs$",
-  "^config/vitest\\.config\\.ts$",
-  "^\\.env\\.example$",
-  "^README\\.md$",
-  "^vercel\\.json$",
-  "^components\\.json$"
-]
+pattern = "^package\\.json$"
 
 [[priority_rules]]
 score = 90
-patterns = [
-  "^src/lib/",
-  "^src/utils/",
-  "^src/contexts/",
-  "^src/hooks/",
-  "^src/constant/",
-  "^src/shared/"
-]
-
-[[priority_rules]]
-score = 85
-patterns = [
-  "^src/app/api/",
-  "^src/app/layout\\.tsx$",
-  "^src/app/page\\.tsx$",
-  "^src/app/error\\.tsx$",
-  "^src/app/not-found\\.tsx$"
-]
-
-[[priority_rules]]
-score = 80
-patterns = [
-  "^src/app/.*\\.tsx$",
-  "^src/components/[^/]+\\.[jt]sx?$",
-  "^src/components/[^/]+/.*$"
-]
-
-[[priority_rules]]
-score = 75
-patterns = [
-  "^src/components/ui/",
-  "^src/design-system/.*$",
-  "^src/styles/"
-]
-
-[[priority_rules]]
-score = 70
-patterns = [
-  "^prisma/migrations/",
-  "^prisma/seed\\.ts$",
-  "^src/prisma/"
-]
-
-[[priority_rules]]
-score = 65
-patterns = [
-  "^src/e2e/",
-  "^src/__tests__/",
-  "^src/.*\\.test\\.[jt]sx?$",
-  "^src/.*\\.spec\\.[jt]sx?$",
-  "^src/__mocks__/"
-]
-
-[[priority_rules]]
-score = 60
-patterns = [
-  "^\\.github/",
-  "^src/docker/",
-  "^src/scripts/",
-  "^config/"
-]
-
-[[priority_rules]]
-score = 55
-patterns = [
-  "^src/.*\\.stories\\.[jt]sx?$",
-  "^src/components/emails/"
-]
-
-[[priority_rules]]
-score = 50
-patterns = [
-  "^public/"
-]
-
-# Add additional binary file extensions to ignore
-binary_extensions = [
-  # 3D and Design files
-  ".blend",
-  ".fbx",
-  ".max",
-  ".obj",
-  ".3ds",
-  
-  # Adobe and Design files
-  ".psd",
-  ".ai",
-  ".eps",
-  ".raw",
-  
-  # Archive formats
-  ".7z",
-  ".bz2",
-  ".gz",
-  ".xz",
-  ".zip",
-  ".rar",
-  ".tar",
-  ".tgz",
-  
-  # Database and data files
-  ".sqlite",
-  ".db",
-  ".mdb",
-  ".dat",
-  
-  # Disk images
-  ".iso",
-  ".img",
-  ".vhd",
-  ".vhdx",
-  ".dmg",
-  
-  # Font files
-  ".otf",
-  ".ttc",
-  
-  # Windows specific
-  ".dll",
-  ".exe",
-  ".msi",
-  ".sys",
-  ".cab",
-  ".ocx",
-  ".scr",
-  ".cpl"
-] 
+pattern = "^src/"
