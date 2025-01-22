@@ -27,15 +27,7 @@ export class ElastiCacheStack extends BaseStack {
     // Add service-specific tag
     cdk.Tags.of(this).add('service', 'redis');
 
-    const subnetGroup = new elasticache.CfnSubnetGroup(this, 'ElastiCacheSubnetGroup', {
-      cacheSubnetGroupName: `ap-elasticache-subnet-group-${cfg.environment}`,
-      subnetIds: props.vpc.selectSubnets({
-        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        onePerAz: true,
-      }).subnetIds,
-      description: 'Subnet group for ElastiCache Redis',
-    });
-
+    // Create security group first
     this.redisSecurityGroup = new ec2.SecurityGroup(this, 'ElastiCacheSG', {
       vpc: props.vpc,
       description: 'ElastiCache security group',
@@ -51,8 +43,20 @@ export class ElastiCacheStack extends BaseStack {
       );
     });
 
+    // Create subnet group
+    const subnetGroup = new elasticache.CfnSubnetGroup(this, 'ElastiCacheSubnetGroup', {
+      cacheSubnetGroupName: `ap-elasticache-subnet-group-${cfg.environment}`,
+      subnetIds: props.vpc.selectSubnets({
+        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        onePerAz: true,
+      }).subnetIds,
+      description: 'Subnet group for ElastiCache Redis',
+    });
+
+    // Create Redis cluster with a unique name to avoid conflicts
+    const replicationGroupId = `ap-redis-${cfg.environment}-${this.node.addr.substring(0, 8)}`;
     const redisCluster = new elasticache.CfnReplicationGroup(this, 'ElastiCacheCluster', {
-      replicationGroupId: `ap-redis-${cfg.environment}`,
+      replicationGroupId,
       replicationGroupDescription: `Apadana Redis cluster for ${cfg.environment}`,
       engine: 'redis',
       engineVersion: '7.1',
@@ -69,8 +73,13 @@ export class ElastiCacheStack extends BaseStack {
       port: 6379,
     });
 
+    // Add explicit dependency on subnet group
+    redisCluster.addDependency(subnetGroup);
+
+    // Apply removal policy for production
     if (cfg.environment === 'production') {
       redisCluster.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
+      subnetGroup.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
     }
 
     // Create outputs after the cluster is created
