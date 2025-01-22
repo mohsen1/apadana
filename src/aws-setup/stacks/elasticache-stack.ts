@@ -73,6 +73,7 @@ export class ElastiCacheStack extends BaseStack {
       redisCluster.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
     }
 
+    // Create outputs after the cluster is created
     this.redisHostOutput = new cdk.CfnOutput(this, 'RedisEndpoint', {
       exportName: `ap-elasticache-${props.environment}-RedisEndpoint`,
       value: redisCluster.attrPrimaryEndPointAddress,

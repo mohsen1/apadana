@@ -72,6 +72,9 @@ const elasticacheStack = new ElastiCacheStack(app, `ap-elasticache-${environment
   vpc: sharedNetworkStack.vpc,
   removalPolicy,
 });
+
+// Add dependency on network stack
+elasticacheStack.addDependency(sharedNetworkStack);
 logger.debug('Created Elasticache stack');
 
 // Then create Redis proxy stack with direct reference to ElastiCache endpoint
@@ -82,8 +85,9 @@ const redisProxyStack = new RedisProxyStack(app, `ap-redis-proxy-${environment}`
   removalPolicy,
 });
 
-// Add explicit dependency
+// Add explicit dependencies
 redisProxyStack.addDependency(elasticacheStack);
+redisProxyStack.addDependency(sharedNetworkStack);
 
 logger.debug('Created Redis proxy stack');
 
