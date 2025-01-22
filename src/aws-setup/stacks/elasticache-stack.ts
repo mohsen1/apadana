@@ -53,8 +53,7 @@ export class ElastiCacheStack extends BaseStack {
       description: 'Subnet group for ElastiCache Redis',
     });
 
-    // Create Redis cluster with a unique name to avoid conflicts
-    const replicationGroupId = `ap-redis-${cfg.environment}-${this.node.addr.substring(0, 8)}`;
+    const replicationGroupId = `ap-redis-${cfg.environment}`;
     const redisCluster = new elasticache.CfnReplicationGroup(this, 'ElastiCacheCluster', {
       replicationGroupId,
       replicationGroupDescription: `Apadana Redis cluster for ${cfg.environment}`,
